@@ -1,11 +1,12 @@
-import { Button } from "@/components/ui/button";
-import React from "react";
+
+import Banner from "./components/Banner";
+import HowWeWork from "./components/HowWeWork";
 
 const HomePage = () => {
   return (
     <div>
-      <h1>This is home page</h1>
-      <Button variant="default">Click me</Button>
+      <Banner/>
+      <HowWeWork/>
     </div>
   );
 };
