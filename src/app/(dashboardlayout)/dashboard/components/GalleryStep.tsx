@@ -1,11 +1,11 @@
 'use client';
 
 import { useRef } from 'react';
-import type { ProjectData } from './ProjectWizard';
+import type { ServiceData } from './ServiceWizard';
 
 interface Props {
-  data: ProjectData;
-  updateData: (field: keyof ProjectData, value: any) => void;
+  data: ServiceData;
+  updateData: (field: keyof ServiceData, value: any) => void;
 }
 
 export default function GalleryStep({ data, updateData }: Props) {
@@ -40,11 +40,11 @@ export default function GalleryStep({ data, updateData }: Props) {
 
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl font-bold text-foreground">Create a project gallery</h2>
+      <h2 className="text-2xl font-bold text-foreground">Create a service gallery</h2>
       
-      {/* Project Images */}
+      {/* Service Images */}
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-4">Project Images</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Service Images</h3>
         <p className="text-muted-foreground mb-4">
           Upload up to 20 images (.jpg or .png), up to 10MB each and less than 4,000 pixels, in width or height.
         </p>

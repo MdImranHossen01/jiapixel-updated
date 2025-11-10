@@ -1,19 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import connectDB from '@/lib/db';
-import Project from '@/models/Project';
+import Service from '@/models/Project'; // Import Service model
 import Link from 'next/link';
 import Image from 'next/image';
+import RichTextRenderer from '@/components/RichTextRenderer'; // Import RichTextRenderer
 
 async function getServices() {
   try {
     await connectDB();
     // Remove the status filter to show all services, including drafts
-    const projects = await Project.find({})
+    const services = await Service.find({ status: 'published' })
       .sort({ createdAt: -1 })
       .limit(20)
       .exec();
 
-    return JSON.parse(JSON.stringify(projects));
+    return JSON.parse(JSON.stringify(services));
   } catch (error) {
     console.error('Error fetching services:', error);
     return [];
@@ -53,7 +55,7 @@ const ServicesPage = async () => {
             </h1>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
               Discover our comprehensive range of digital services designed to elevate your business. 
-              From web development to digital marketing, we've got you covered.
+              From web development to digital marketing, we&apos;ve got you covered.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <div className="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold">
@@ -97,7 +99,7 @@ const ServicesPage = async () => {
                       return (
                         <Link
                           key={service._id}
-                          href={`/services/${service._id}`}
+                          href={`/services/${service.slug}`} // Use slug instead of _id
                           className="group"
                         >
                           <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/50 transition-all duration-300 h-full flex flex-col">
@@ -131,9 +133,13 @@ const ServicesPage = async () => {
                                 <h3 className="text-xl font-bold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
                                   {service.title}
                                 </h3>
-                                <p className="text-muted-foreground mb-4 line-clamp-3 text-sm leading-relaxed">
-                                  {service.projectSummary}
-                                </p>
+                                <div className="text-muted-foreground mb-4 line-clamp-3 text-sm leading-relaxed">
+                                  {/* Use RichTextRenderer for projectSummary */}
+                                  <RichTextRenderer 
+                                    content={service.projectSummary} 
+                                    className="line-clamp-3"
+                                  />
+                                </div>
                               </div>
 
                               {/* Service Meta */}
@@ -202,10 +208,10 @@ const ServicesPage = async () => {
                   No Services Available
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  We're currently setting up our services. Please check back soon for amazing offers!
+                  We&apos;re currently setting up our services. Please check back soon for amazing offers!
                 </p>
                 <Link
-                  href="/dashboard/projects/create"
+                  href="/dashboard/services/create"
                   className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
                 >
                   Create Your First Service
@@ -228,7 +234,7 @@ const ServicesPage = async () => {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
-                href="/dashboard/projects/create"
+                href="/dashboard/services/create"
                 className="bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
               >
                 Create a Service

@@ -6,7 +6,7 @@ export default function DashboardPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-foreground">Project Dashboard</h1>
         <Link
-          href="/dashboard/projects/create"
+          href="/dashboard/manage-services/create"
           className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
         >
           Create New Project

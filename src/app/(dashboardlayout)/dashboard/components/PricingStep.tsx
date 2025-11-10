@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import type { ProjectData } from './ProjectWizard';
+import type { ServiceData } from './ServiceWizard';
 
 interface Props {
-  data: ProjectData;
-  updateData: (field: keyof ProjectData, value: any) => void;
+  data: ServiceData;
+  updateData: (field: keyof ServiceData, value: any) => void;
 }
 
 export default function PricingStep({ data, updateData }: Props) {
@@ -113,7 +113,7 @@ export default function PricingStep({ data, updateData }: Props) {
     ]
   };
 
-  // Get the selected main category from the project data
+  // Get the selected main category from the service data
   const getSelectedCategory = () => {
     const parts = data.category.split(' > ');
     return parts[0] || '';

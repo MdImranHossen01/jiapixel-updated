@@ -1,26 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../../lib/db';
-import Project from '../../../../models/Project';
+import Service from '../../../../models/Project'; // Import Service model
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
     
     // Await the params Promise in Next.js 16
-    const { id } = await params;
+    const { slug } = await params;
     
-    console.log('Fetching project with ID:', id);
+    console.log('Fetching service with slug:', slug);
 
-    const project = await Project.findById(id);
+    const service = await Service.findOne({ slug: slug });
 
-    if (!project) {
+    if (!service) {
       return NextResponse.json(
         { 
           success: false, 
-          message: 'Project not found' 
+          message: 'Service not found' 
         },
         { status: 404 }
       );
@@ -28,14 +28,14 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      project,
+      service,
     });
   } catch (error: any) {
-    console.error('Project fetch error:', error);
+    console.error('Service fetch error:', error);
     return NextResponse.json(
       { 
         success: false, 
-        message: error.message || 'Failed to fetch project' 
+        message: error.message || 'Failed to fetch service' 
       },
       { status: 500 }
     );
@@ -44,28 +44,28 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
 
     // Await the params Promise
-    const { id } = await params;
+    const { slug } = await params;
     const body = await request.json();
     
-    console.log('Updating project with ID:', id);
+    console.log('Updating service with slug:', slug);
 
-    const project = await Project.findByIdAndUpdate(
-      id,
+    const service = await Service.findOneAndUpdate(
+      { slug: slug },
       body,
       { new: true, runValidators: true }
     );
 
-    if (!project) {
+    if (!service) {
       return NextResponse.json(
         { 
           success: false, 
-          message: 'Project not found' 
+          message: 'Service not found' 
         },
         { status: 404 }
       );
@@ -73,15 +73,15 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      message: 'Project updated successfully',
-      project,
+      message: 'Service updated successfully',
+      service,
     });
   } catch (error: any) {
-    console.error('Project update error:', error);
+    console.error('Service update error:', error);
     return NextResponse.json(
       { 
         success: false, 
-        message: error.message || 'Failed to update project' 
+        message: error.message || 'Failed to update service' 
       },
       { status: 500 }
     );
@@ -90,23 +90,23 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
 
     // Await the params Promise
-    const { id } = await params;
+    const { slug } = await params;
 
-    console.log('Deleting project with ID:', id);
+    console.log('Deleting service with slug:', slug);
 
-    const project = await Project.findByIdAndDelete(id);
+    const service = await Service.findOneAndDelete({ slug: slug });
 
-    if (!project) {
+    if (!service) {
       return NextResponse.json(
         { 
           success: false, 
-          message: 'Project not found' 
+          message: 'Service not found' 
         },
         { status: 404 }
       );
@@ -114,14 +114,14 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Project deleted successfully',
+      message: 'Service deleted successfully',
     });
   } catch (error: any) {
-    console.error('Project delete error:', error);
+    console.error('Service delete error:', error);
     return NextResponse.json(
       { 
         success: false, 
-        message: error.message || 'Failed to delete project' 
+        message: error.message || 'Failed to delete service' 
       },
       { status: 500 }
     );

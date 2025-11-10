@@ -1,17 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import type { ProjectData } from './ProjectWizard';
+import type { ServiceData } from './ServiceWizard';
 
 interface Props {
-  data: ProjectData;
-  updateData: (field: keyof ProjectData, value: any) => void;
+  data: ServiceData;
+  updateData: (field: keyof ServiceData, value: any) => void;
 }
 
 export default function ReviewStep({ data, updateData }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Final validation and submission logic would go here
-    console.log('Submitting project:', data);
+    console.log('Submitting service:', data);
   };
 
   // Safe accessor functions
@@ -39,9 +40,9 @@ export default function ReviewStep({ data, updateData }: Props) {
     <div className="space-y-8">
       <h2 className="text-2xl font-bold text-foreground">Review and publish</h2>
 
-      {/* Project Overview Summary */}
+      {/* Service Overview Summary */}
       <div className="border border-border rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Project Overview</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Service Overview</h3>
         <div className="space-y-3">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Title:</span>
@@ -50,6 +51,10 @@ export default function ReviewStep({ data, updateData }: Props) {
           <div className="flex justify-between">
             <span className="text-muted-foreground">Category:</span>
             <span className="text-foreground font-medium">{getSelectedCategory()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Author:</span>
+            <span className="text-foreground font-medium">{data?.author || 'Not set'}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Search Tags:</span>
@@ -188,7 +193,7 @@ export default function ReviewStep({ data, updateData }: Props) {
 
       {/* Description Summary */}
       <div className="border border-border rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Project Description</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Service Description</h3>
         <div className="space-y-4">
           <div>
             <h4 className="font-medium text-foreground mb-2">Summary</h4>
@@ -196,18 +201,37 @@ export default function ReviewStep({ data, updateData }: Props) {
               {data?.projectSummary || 'No summary provided'}
             </p>
           </div>
+          
+          {/* Author Quote Section */}
+          {data?.authorQuote && (
+            <div>
+              <h4 className="font-medium text-foreground mb-2">Author Quote</h4>
+              <div className="bg-primary/5 rounded-lg border border-primary/20 p-4">
+                <blockquote className="text-foreground italic">
+                  &quot;{data.authorQuote}&quot;
+                </blockquote>
+                <div className="mt-2 text-sm text-muted-foreground">
+                  — {data.author || "Service Author"}
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div>
             <h4 className="font-medium text-foreground mb-2">
-              Project Steps ({data?.projectSteps?.length || 0})
+              Service Steps ({data?.projectSteps?.length || 0})
             </h4>
             {data?.projectSteps && data.projectSteps.length > 0 ? (
-              <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+              <div className="space-y-3">
                 {data.projectSteps.map((step, index) => (
-                  <li key={index}>{step}</li>
+                  <div key={index} className="border-l-2 border-primary pl-4 py-1">
+                    <h5 className="font-medium text-foreground">{step.title}</h5>
+                    <p className="text-muted-foreground text-sm">{step.description}</p>
+                  </div>
                 ))}
-              </ol>
+              </div>
             ) : (
-              <p className="text-muted-foreground text-sm">No project steps added</p>
+              <p className="text-muted-foreground text-sm">No service steps added</p>
             )}
           </div>
           <div>
@@ -230,17 +254,17 @@ export default function ReviewStep({ data, updateData }: Props) {
         </div>
       </div>
 
-      {/* Project Limits and Terms */}
+      {/* Service Limits and Terms */}
       <div className="border border-border rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Project Settings</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Service Settings</h3>
         
-        {/* Maximum Active Projects */}
+        {/* Maximum Active Services */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-foreground mb-2">
-            Maximum number of active projects
+            Maximum number of active services
           </label>
           <p className="text-muted-foreground mb-4">
-            Set a limit on how many clients can purchase this project at the same time.
+            Set a limit on how many clients can purchase this service at the same time.
           </p>
           <select
             value={data?.maxProjects || 20}
@@ -248,7 +272,7 @@ export default function ReviewStep({ data, updateData }: Props) {
             className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
           >
             {[5, 10, 15, 20, 25, 30, 40, 50].map(num => (
-              <option key={num} value={num}>{num} projects</option>
+              <option key={num} value={num}>{num} services</option>
             ))}
           </select>
         </div>
@@ -266,10 +290,10 @@ export default function ReviewStep({ data, updateData }: Props) {
               <span>I agree to the </span>
               <a href="#" className="text-primary hover:underline">Terms of Service</a>
               <span>, </span>
-              <a href="#" className="text-primary hover:underline">Project Agreement</a>
+              <a href="#" className="text-primary hover:underline">Service Agreement</a>
               <span>, and </span>
               <a href="#" className="text-primary hover:underline">Billing Terms</a>
-              <span>. I understand that if I violate these terms, my project may be removed.</span>
+              <span>. I understand that if I violate these terms, my service may be removed.</span>
             </div>
           </label>
         </div>
@@ -279,7 +303,7 @@ export default function ReviewStep({ data, updateData }: Props) {
       <div className="bg-muted p-4 rounded-lg">
         <h4 className="font-semibold text-foreground mb-2">Ready to publish?</h4>
         <p className="text-muted-foreground text-sm">
-          Review all the information above carefully. Once published, your project will be visible to clients and they can start placing orders.
+          Review all the information above carefully. Once published, your service will be visible to clients and they can start placing orders.
         </p>
       </div>
     </div>

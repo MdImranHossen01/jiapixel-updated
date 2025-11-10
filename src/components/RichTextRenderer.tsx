@@ -6,13 +6,18 @@ import DOMPurify from 'dompurify';
 interface RichTextRendererProps {
   content: string;
   className?: string;
+  maxLines?: number; // Add maxLines prop for line-clamp
 }
 
-export default function RichTextRenderer({ content, className = '' }: RichTextRendererProps) {
+export default function RichTextRenderer({ 
+  content, 
+  className = '', 
+  maxLines 
+}: RichTextRendererProps) {
   const [sanitizedContent, setSanitizedContent] = useState('');
 
   useEffect(() => {
-    // Sanitize the HTML content on the client side
+    // Sanitize HTML content on client side
     const cleanHtml = DOMPurify.sanitize(content, {
       ALLOWED_TAGS: [
         'p', 'br', 'strong', 'em', 'u', 's', 'mark', 'code', 'pre', 
@@ -27,9 +32,18 @@ export default function RichTextRenderer({ content, className = '' }: RichTextRe
     setSanitizedContent(cleanHtml);
   }, [content]);
 
+  // Create style object for line-clamp if maxLines is provided
+  const style = maxLines ? {
+    display: '-webkit-box',
+    WebkitLineClamp: maxLines,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden'
+  } : {};
+
   return (
     <div 
       className={`prose prose-lg max-w-none ${className}`}
+      style={style}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );

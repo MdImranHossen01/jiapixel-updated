@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import type { ProjectData } from './ProjectWizard';
+import type { ServiceData } from './ServiceWizard';
 
 interface Props {
-  data: ProjectData;
-  updateData: (field: keyof ProjectData, value: any) => void;
+  data: ServiceData;
+  updateData: (field: keyof ServiceData, value: any) => void;
 }
 
 export default function RequirementsStep({ data, updateData }: Props) {
@@ -70,10 +70,10 @@ export default function RequirementsStep({ data, updateData }: Props) {
           Define what you need from your client upfront
         </h3>
         <p className="text-muted-foreground text-sm">
-          After a client purchases your project, they will be required to answer questions you define before the contract officially starts.
+          After a client purchases your service, they will be required to answer questions you define before the contract officially starts.
         </p>
         <p className="text-muted-foreground text-sm mt-2">
-          The due date for your project is defined by the number of days to deliver, starting from when the client submits.
+          The due date for your service is defined by the number of days to deliver, starting from when the client submits.
         </p>
       </div>
     </div>

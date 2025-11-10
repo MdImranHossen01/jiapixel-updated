@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import type { ProjectData, FAQ } from './ProjectWizard';
+import type { ServiceData, FAQ, IServiceStep } from './ServiceWizard';
 
 // Dynamically import the editor wrapper to avoid SSR
 const TipTapWrapper = dynamic(() => import('./TipTapWrapper'), {
@@ -15,13 +15,13 @@ const TipTapWrapper = dynamic(() => import('./TipTapWrapper'), {
 });
 
 interface Props {
-  data: ProjectData;
-  updateData: (field: keyof ProjectData, value: any) => void;
+  data: ServiceData;
+  updateData: (field: keyof ServiceData, value: any) => void;
 }
 
 export default function DescriptionStep({ data, updateData }: Props) {
   const [newFAQ, setNewFAQ] = useState<FAQ>({ question: '', answer: '' });
-  const [newStep, setNewStep] = useState('');
+  const [newStep, setNewStep] = useState<IServiceStep>({ title: '', description: '' });
 
   const addFAQ = () => {
     if (newFAQ.question.trim() && newFAQ.answer.trim()) {
@@ -34,14 +34,14 @@ export default function DescriptionStep({ data, updateData }: Props) {
     updateData('faqs', data.faqs.filter((_, i) => i !== index));
   };
 
-  const addProjectStep = () => {
-    if (newStep.trim()) {
-      updateData('projectSteps', [...data.projectSteps, newStep.trim()]);
-      setNewStep('');
+  const addServiceStep = () => {
+    if (newStep.title.trim() && newStep.description.trim()) {
+      updateData('projectSteps', [...data.projectSteps, { ...newStep }]);
+      setNewStep({ title: '', description: '' });
     }
   };
 
-  const removeProjectStep = (index: number) => {
+  const removeServiceStep = (index: number) => {
     updateData('projectSteps', data.projectSteps.filter((_, i) => i !== index));
   };
 
@@ -58,15 +58,15 @@ export default function DescriptionStep({ data, updateData }: Props) {
 
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl font-bold text-foreground">Project description</h2>
+      <h2 className="text-2xl font-bold text-foreground">Service description</h2>
 
-      {/* Project Summary with TipTap Editor */}
+      {/* Service Summary with TipTap Editor */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
-          Project summary
+          Service summary
         </label>
         <p className="text-muted-foreground mb-4">
-          Describe what you will deliver and how it benefits the client. This appears at the top of your project page.
+          Describe what you will deliver and how it benefits the client. This appears at the top of your service page.
           You can use the toolbar to format your text.
         </p>
         
@@ -76,70 +76,107 @@ export default function DescriptionStep({ data, updateData }: Props) {
         />
       </div>
 
-      {/* Rest of your component remains exactly the same */}
-      {/* Project Steps */}
+      {/* Author Quote Section */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
-          Project steps
+          Author Quote/Speech
         </label>
         <p className="text-muted-foreground mb-4">
-          Break down your project into clear, actionable steps.
+          Add a quote, speech, or personal message from the service author. This will be displayed prominently on the service page.
+        </p>
+        
+        <textarea
+          value={data.authorQuote}
+          onChange={(e) => updateData('authorQuote', e.target.value)}
+          rows={3}
+          placeholder="Enter a quote, speech, or personal message from the author..."
+          className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background resize-none"
+        />
+      </div>
+
+      {/* Service Steps */}
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-2">
+          Service steps
+        </label>
+        <p className="text-muted-foreground mb-4">
+          Break down your service into clear, actionable steps with titles and descriptions.
         </p>
         
         <div className="space-y-3 mb-4">
           {data.projectSteps.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">
-              No project steps added yet. Add your first step below.
+              No service steps added yet. Add your first step below.
             </p>
           ) : (
             data.projectSteps.map((step, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 border border-border rounded-lg">
-                <div className="flex flex-col gap-1 mt-1">
+              <div key={index} className="flex flex-col gap-2 p-3 border border-border rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex flex-col gap-1 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => moveStep(index, 'up')}
+                      disabled={index === 0}
+                      className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveStep(index, 'down')}
+                      disabled={index === data.projectSteps.length - 1}
+                      className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    >
+                      ↓
+                    </button>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-foreground">{step.title}</h4>
+                    <p className="text-muted-foreground text-sm mt-1">{step.description}</p>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => moveStep(index, 'up')}
-                    disabled={index === 0}
-                    className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    onClick={() => removeServiceStep(index)}
+                    className="text-destructive hover:text-destructive/70 mt-1"
                   >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => moveStep(index, 'down')}
-                    disabled={index === data.projectSteps.length - 1}
-                    className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"
-                  >
-                    ↓
+                    Remove
                   </button>
                 </div>
-                <div className="flex-1">
-                  <span className="text-foreground">{index + 1}. {step}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeProjectStep(index)}
-                  className="text-destructive hover:text-destructive/70 mt-1"
-                >
-                  Remove
-                </button>
               </div>
             ))
           )}
         </div>
 
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newStep}
-            onChange={(e) => setNewStep(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addProjectStep())}
-            placeholder="Add a project step"
-            className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
-          />
+        <div className="border border-border rounded-lg p-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Step Title
+            </label>
+            <input
+              type="text"
+              value={newStep.title}
+              onChange={(e) => setNewStep(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="Enter step title"
+              className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Step Description
+            </label>
+            <textarea
+              value={newStep.description}
+              onChange={(e) => setNewStep(prev => ({ ...prev, description: e.target.value }))}
+              rows={3}
+              placeholder="Describe this step in detail"
+              className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background resize-none"
+            />
+          </div>
           <button
             type="button"
-            onClick={addProjectStep}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            onClick={addServiceStep}
+            disabled={!newStep.title.trim() || !newStep.description.trim()}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Add Step
           </button>
@@ -152,7 +189,7 @@ export default function DescriptionStep({ data, updateData }: Props) {
           Frequently asked questions
         </label>
         <p className="text-muted-foreground mb-4">
-          Add common questions and answers about your project.
+          Add common questions and answers about your service.
         </p>
 
         {data.faqs.length === 0 ? (

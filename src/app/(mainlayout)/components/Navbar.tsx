@@ -72,7 +72,7 @@ const Navbar = () => {
   // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
     return (
-      <nav className="container mx-auto fixed top-0 left-0 right-0 z-50 py-4 flex items-center justify-between bg-transparent text-foreground">
+      <nav className="container mx-auto fixed top-0 left-0 right-0 z-50 py-4 flex items-center justify-between bg-background text-foreground">
         {/* Simplified loading navbar */}
         <div className="flex items-center space-x-2">
           <div className="text-2xl font-bold tracking-tight text-primary">
@@ -87,7 +87,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="container mx-auto fixed top-0 left-0 right-0 z-50 py-4 flex items-center justify-between bg-transparent text-foreground">
+      <nav className="container mx-auto fixed top-0 left-0 right-0 z-50 pt-2 pb-0 flex items-center justify-between bg-background text-foreground">
         {/* Hamburger Menu Button - Visible on mobile */}
         <div className="md:hidden flex items-center">
           <Button
@@ -122,7 +122,7 @@ const Navbar = () => {
         </Link>
 
         {/* Navigation Links - Hidden on mobile */}
-        <div className="hidden md:flex items-center bg-transparent px-4 py-2 border border-border rounded-full space-x-6">
+        <div className="hidden md:flex items-center bg-background px-4 py-2 border border-border rounded-full space-x-6">
           <NavLink href="/services">Services</NavLink>
           <NavLink href="/products">Products</NavLink>
           <NavLink href="/portfolios">Portfolios</NavLink>

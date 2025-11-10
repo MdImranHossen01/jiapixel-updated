@@ -8,11 +8,14 @@ import RequirementsStep from "./RequirementsStep";
 import DescriptionStep from "./DescriptionStep";
 import ReviewStep from "./ReviewStep";
 
-export interface ProjectData {
+// Updated ServiceData interface with new fields
+export interface ServiceData {
   // Overview Step
   title: string;
   category: string;
   searchTags: string[];
+  author: string; // Added author field
+  authorQuote: string; // Added author quote/speech field
 
   // Pricing Step
   pricingTiers: '1' | '3';
@@ -31,12 +34,18 @@ export interface ProjectData {
 
   // Description Step
   projectSummary: string;
-  projectSteps: string[];
+  projectSteps: IServiceStep[]; // Changed from string[] to IServiceStep[]
   faqs: FAQ[];
 
   // Review Step
   maxProjects: number;
   agreeToTerms: boolean;
+}
+
+// New interface for service steps
+export interface IServiceStep {
+  title: string;
+  description: string;
 }
 
 export interface TierData {
@@ -69,13 +78,15 @@ const steps = [
   { id: "review", title: "Review", completed: false, active: false },
 ];
 
-export default function ProjectWizard() {
+export default function ServiceWizard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [projectData, setProjectData] = useState<ProjectData>({
+  const [serviceData, setServiceData] = useState<ServiceData>({
     title: "",
     category: "",
     searchTags: [],
+    author: "JiaPixel Team", // Added author field with default value
+    authorQuote: "", // Added author quote/speech field
     pricingTiers: "3",
     tiers: {
       starter: {
@@ -107,14 +118,14 @@ export default function ProjectWizard() {
     documents: [],
     requirements: [],
     projectSummary: "",
-    projectSteps: [],
+    projectSteps: [], // Now an array of IServiceStep objects
     faqs: [],
     maxProjects: 20,
     agreeToTerms: false,
   });
 
-  const updateProjectData = (field: keyof ProjectData, value: any) => {
-    setProjectData((prev) => ({ ...prev, [field]: value }));
+  const updateServiceData = (field: keyof ServiceData, value: any) => {
+    setServiceData((prev) => ({ ...prev, [field]: value }));
   };
 
   const nextStep = () => {
@@ -137,20 +148,20 @@ export default function ProjectWizard() {
       const formData = new FormData();
 
       // Append files
-      projectData.images.forEach((file) => {
+      serviceData.images.forEach((file) => {
         formData.append("images", file);
       });
 
-      projectData.documents.forEach((file) => {
+      serviceData.documents.forEach((file) => {
         formData.append("documents", file);
       });
 
-      // Append project data as JSON - REMOVED status field
-      const { images, documents, ...projectDataWithoutFiles } = projectData;
+      // Append service data as JSON - REMOVED status field
+      const { images, documents, ...serviceDataWithoutFiles } = serviceData;
       // No need to add status field - it will be set to "published" by default in the model
-      formData.append("projectData", JSON.stringify(projectDataWithoutFiles));
+      formData.append("projectData", JSON.stringify(serviceDataWithoutFiles));
 
-      const response = await fetch("/api/projects", {
+      const response = await fetch("/api/services", {
         method: "POST",
         body: formData,
       });
@@ -158,15 +169,15 @@ export default function ProjectWizard() {
       const result = await response.json();
 
       if (result.success) {
-        console.log("Project created successfully:", result.project);
-        alert("Project created successfully!");
-        // You can redirect here: router.push('/dashboard/projects')
+        console.log("Service created successfully:", result.service);
+        alert("Service created successfully!");
+        // You can redirect here: router.push('/dashboard/services')
       } else {
         throw new Error(result.message);
       }
     } catch (error: any) {
-      console.error("Project submission error:", error);
-      alert(`Failed to create project: ${error.message}`);
+      console.error("Service submission error:", error);
+      alert(`Failed to create service: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -176,26 +187,26 @@ export default function ProjectWizard() {
     switch (currentStep) {
       case 0:
         return (
-          <OverviewStep data={projectData} updateData={updateProjectData} />
+          <OverviewStep data={serviceData} updateData={updateServiceData} />
         );
       case 1:
         return (
-          <PricingStep data={projectData} updateData={updateProjectData} />
+          <PricingStep data={serviceData} updateData={updateServiceData} />
         );
       case 2:
         return (
-          <GalleryStep data={projectData} updateData={updateProjectData} />
+          <GalleryStep data={serviceData} updateData={updateServiceData} />
         );
       case 3:
         return (
-          <RequirementsStep data={projectData} updateData={updateProjectData} />
+          <RequirementsStep data={serviceData} updateData={updateServiceData} />
         );
       case 4:
         return (
-          <DescriptionStep data={projectData} updateData={updateProjectData} />
+          <DescriptionStep data={serviceData} updateData={updateServiceData} />
         );
       case 5:
-        return <ReviewStep data={projectData} updateData={updateProjectData} />;
+        return <ReviewStep data={serviceData} updateData={updateServiceData} />;
       default:
         return null;
     }
@@ -276,10 +287,10 @@ export default function ProjectWizard() {
         ) : (
           <button
             type="submit"
-            disabled={isSubmitting || !projectData.agreeToTerms}
+            disabled={isSubmitting || !serviceData.agreeToTerms}
             className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Creating..." : "Create Project"}
+            {isSubmitting ? "Creating..." : "Create Service"}
           </button>
         )}
       </div>
