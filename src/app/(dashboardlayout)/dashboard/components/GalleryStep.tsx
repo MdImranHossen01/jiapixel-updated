@@ -35,7 +35,7 @@ export default function GalleryStep({ data, updateData }: Props) {
     updateData(type, updatedFiles);
   };
 
-  const triggerFileInput = (ref: React.RefObject<HTMLInputElement>) => {
+  const triggerFileInput = (ref: React.RefObject<HTMLInputElement | null>) => {
     ref.current?.click();
   };
 
