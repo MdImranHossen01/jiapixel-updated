@@ -20,7 +20,18 @@ export default function RichTextRenderer({
     // Only sanitize if content exists
     if (!content) return "";
 
-    return DOMPurify.sanitize(content, {
+    // Add DOMPurify hook to enforce rel="noopener noreferrer" on external links
+    DOMPurify.addHook("afterSanitizeAttributes", function (node) {
+      if (
+        node.tagName &&
+        node.tagName.toUpperCase() === "A" &&
+        node.getAttribute("target") === "_blank"
+      ) {
+        node.setAttribute("rel", "noopener noreferrer");
+      }
+    });
+
+    const sanitized = DOMPurify.sanitize(content, {
       ALLOWED_TAGS: [
         "p",
         "br",
@@ -60,6 +71,10 @@ export default function RichTextRenderer({
         "data-color",
       ],
     });
+
+    // Remove the hook after use to avoid side effects in other renders
+    DOMPurify.removeAllHooks();
+    return sanitized;
   }, [content]);
 
   // Create style object for line-clamp if maxLines is provided
