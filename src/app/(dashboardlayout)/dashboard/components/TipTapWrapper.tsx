@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, Editor } from '@tiptap/react'; // Import Editor type
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Highlight from '@tiptap/extension-highlight';
@@ -62,7 +62,7 @@ function TipTapEditor({ content, onChange }: TipTapWrapperProps) {
       }),
     ],
     content: content,
-    onUpdate: ({ editor }) => {
+    onUpdate: ({ editor }: { editor: Editor }) => { // Explicitly type the editor parameter
       const html = editor.getHTML();
       onChange(html);
     },
@@ -99,6 +99,9 @@ function TipTapEditor({ content, onChange }: TipTapWrapperProps) {
     }
   }, [editor, fullscreenEditor, content]);
 
+  // Rest of the component remains exactly the same...
+  // [All the existing code below remains unchanged]
+
   // Image resize and drag functionality
   useEffect(() => {
     if (!editor || !mounted) return;
@@ -121,14 +124,16 @@ function TipTapEditor({ content, onChange }: TipTapWrapperProps) {
     };
 
     const editorElement = editor.options.element;
-    if (editorElement) {
+    const isValidElement = editorElement instanceof HTMLElement;
+    
+    if (isValidElement) {
       editorElement.addEventListener('click', handleImageClick);
       document.addEventListener('click', handleClickOutside);
     }
 
     return () => {
-      if (editorElement) {
-        editorElement.removeEventListener('click', handleImageClick);
+      if (isValidElement) {
+        (editorElement as HTMLElement).removeEventListener('click', handleImageClick);
       }
       document.removeEventListener('click', handleClickOutside);
     };
