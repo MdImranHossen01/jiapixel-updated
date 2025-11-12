@@ -1,3 +1,5 @@
+"use client";
+
 import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
@@ -16,7 +18,6 @@ const LoginPage = () => {
         callbackUrl: "/",
         redirect: true,
       });
-      // This will only execute if there's an error and redirect is false
       if (result?.error) {
         console.error("Google login error:", result.error);
       }
