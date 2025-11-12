@@ -27,18 +27,18 @@ export default function PricingStep({ data, updateData }: Props) {
     });
   };
 
-  const updateFeature = (tier: keyof typeof data.tiers, feature: string, value: boolean) => {
-    updateData('tiers', {
-      ...data.tiers,
-      [tier]: {
-        ...data.tiers[tier],
-        features: {
-          ...data.tiers[tier].features,
-          [feature]: value
-        }
+const updateFeature = (tier: keyof typeof data.tiers, feature: string, value: boolean) => {
+  updateData('tiers', {
+    ...data.tiers,
+    [tier]: {
+      ...data.tiers[tier],
+      features: {
+        ...(data.tiers[tier]?.features || {}),
+        [feature]: value
       }
-    });
-  };
+    }
+  });
+};
 
   const updatePrice = (tier: keyof typeof data.tiers, value: string) => {
     const price = parseFloat(value) || 0;
