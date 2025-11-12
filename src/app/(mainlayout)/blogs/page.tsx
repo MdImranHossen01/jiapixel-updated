@@ -9,7 +9,7 @@ async function getBlogs() {
       : 'http://localhost:3000';
     // Use relative URL for API calls
     const response = await fetch(`${baseUrl}/api/blogs`, {
-      next: { revalidate: 60 }
+      next: { revalidate: 300 }
     });
     
     if (!response.ok) {

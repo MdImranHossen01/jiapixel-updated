@@ -18,7 +18,7 @@ async function getServices() {
       ? process.env.API_URL || 'https://jiapixel.com'
       : 'http://localhost:3000';    
     const response = await fetch(`${baseUrl}/api/services`, {
-      next: { revalidate: 60 }
+       next: { revalidate: 300 }
     });
 
     if (!response.ok) {

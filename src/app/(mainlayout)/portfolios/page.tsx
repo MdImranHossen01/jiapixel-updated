@@ -1,4 +1,3 @@
-import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -50,7 +49,7 @@ async function getPortfolios(): Promise<PortfoliosResponse> {
         'Content-Type': 'application/json',
       },
       next: { 
-        revalidate: 60 // Revalidate every 60 seconds
+        revalidate: 300 // Revalidate every 60 seconds
       }
     });
 

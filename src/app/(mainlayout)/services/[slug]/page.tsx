@@ -11,6 +11,7 @@ interface PageProps {
     slug: string;
   }>;
 }
+
 async function getService(slug: string) {
   try {
     // Use environment-aware URL for API calls
@@ -19,26 +20,23 @@ async function getService(slug: string) {
       : 'http://localhost:3000';
     
     const response = await fetch(`${baseUrl}/api/services/${slug}`, {
-      next: { revalidate: 60 }
+      cache: 'force-cache'
     });
 
     if (!response.ok) {
-      console.error('Error fetching services:', response.status);
+      console.error('Error fetching service:', response.status);
       return null;
     }
 
     const data = await response.json();
-    // Extract and return the first service object if data.services is an array, otherwise null
-    if (Array.isArray(data.services) && data.services.length > 0) {
-      return data.services[0];
-    }
-    return data.services || null;
+    
+    // Correct: Access data.service (singular) as per your API response
+    return data.service || null;
   } catch (error) {
-    console.error('Error fetching services:', error);
+    console.error('Error fetching service:', error);
     return null;
   }
 }
-
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
@@ -75,13 +73,12 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
   return (
     <div className="bg-background overflow-hidden py-20">
       <div className="container mx-auto px-4 w-full">
-        {/* Hero Section */}
-
         <HeroSection
           service={service}
           mainCategory={mainCategory}
           subcategory={subcategory}
         />
+        
         {/* Service Description */}
         <section className="p-6">
           <h2 className="text-2xl font-bold text-foreground mb-6">

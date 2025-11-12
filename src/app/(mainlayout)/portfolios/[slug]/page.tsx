@@ -1,9 +1,7 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
+import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import ShareButtons from './ShareButtons'; 
 
 interface Portfolio {
   _id: string;
@@ -27,94 +25,67 @@ interface Portfolio {
   updatedAt: string;
 }
 
-export default function PortfolioDetailPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  
-  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
 
-  useEffect(() => {
-    async function fetchPortfolio() {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const baseUrl = process.env.NODE_ENV === 'production' 
+async function getPortfolio(slug: string): Promise<Portfolio | null> {
+  try {
+    const baseUrl = process.env.NODE_ENV === 'production' 
       ? process.env.NEXT_PUBLIC_API_URL || 'https://jiapixel.com'
       : 'http://localhost:3000';
-        
-        // Use relative URL instead of localhost
-        const response = await fetch(`${baseUrl}/api/portfolios/${slug}`);
+    
+    const response = await fetch(`${baseUrl}/api/portfolios/${slug}`, {
+      cache: 'force-cache'
+    });
 
-        console.log('📡 Response status:', response.status);
-        
-        if (!response.ok) {
-          if (response.status === 404) {
-            setError('Portfolio not found');
-            return;
-          }
-          throw new Error(`Failed to fetch portfolio: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('✅ Portfolio data received:', data.portfolio ? 'Yes' : 'No');
-        
-        // Only show published portfolios on public pages
-        if (data.portfolio.status !== 'published') {
-          setError('Portfolio not found');
-          return;
-        }
-        
-        setPortfolio(data.portfolio);
-      } catch (err) {
-        console.error('❌ Error fetching portfolio:', err);
-        setError('Failed to load portfolio');
-      } finally {
-        setLoading(false);
-      }
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error(`Failed to fetch portfolio: ${response.status}`);
     }
 
-    if (slug) {
-      fetchPortfolio();
+    const data = await response.json();
+    
+    if (data.portfolio.status !== 'published') {
+      return null;
     }
-  }, [slug]);
+    
+    return data.portfolio;
+  } catch (error) {
+    console.error('Error fetching portfolio:', error);
+    return null;
+  }
+}
 
-  const copyToClipboard = () => {
-    // Use current window location for the URL
-    navigator.clipboard.writeText(`${window.location.origin}/portfolios/${slug}`);
-    alert('Link copied to clipboard!');
-  };
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
+  const portfolio = await getPortfolio(slug);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background pt-20 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-foreground">Loading portfolio...</p>
-        </div>
-      </div>
-    );
+  if (!portfolio) {
+    return {
+      title: 'Portfolio Not Found',
+    };
   }
 
-  if (error || !portfolio) {
-    return (
-      <div className="min-h-screen bg-background pt-20 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Portfolio Not Found</h1>
-          <p className="text-muted-foreground mb-6">
-            {error || 'The portfolio you are looking for does not exist.'}
-          </p>
-          <Link
-            href="/portfolios"
-            className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Back to Portfolios
-          </Link>
-        </div>
-      </div>
-    );
+  return {
+    title: `${portfolio.title} - Jiapixel Portfolio`,
+    description: portfolio.metaDescription || portfolio.description,
+    openGraph: {
+      title: portfolio.title,
+      description: portfolio.description,
+      images: [portfolio.featuredImage],
+    },
+  };
+}
+
+export default async function PortfolioDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const portfolio = await getPortfolio(slug);
+
+  if (!portfolio) {
+    notFound();
   }
 
   return (
@@ -245,32 +216,8 @@ export default function PortfolioDetailPage() {
                     )}
                   </div>
 
-                  {/* Share Project */}
-                  <div className="mt-6 pt-6 border-t border-border">
-                    <h4 className="font-semibold text-foreground mb-3">Share Project</h4>
-                    <div className="flex gap-2">
-                      <Link
-                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(portfolio.title)}&url=${encodeURIComponent(`${window.location.origin}/portfolios/${portfolio.slug}`)}`}
-                        target="_blank"
-                        className="flex-1 px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors text-center"
-                      >
-                        Twitter
-                      </Link>
-                      <Link
-                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${window.location.origin}/portfolios/${portfolio.slug}`)}`}
-                        target="_blank"
-                        className="flex-1 px-3 py-2 bg-blue-800 text-white rounded text-sm hover:bg-blue-900 transition-colors text-center"
-                      >
-                        LinkedIn
-                      </Link>
-                      <button
-                        onClick={copyToClipboard}
-                        className="flex-1 px-3 py-2 bg-gray-800 text-white rounded text-sm hover:bg-gray-900 transition-colors"
-                      >
-                        Copy Link
-                      </button>
-                    </div>
-                  </div>
+                  {/* Share Project - Client Component */}
+                  <ShareButtons portfolio={portfolio} />
                 </div>
               </div>
             </div>

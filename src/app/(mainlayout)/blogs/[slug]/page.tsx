@@ -3,8 +3,6 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
-
-
 async function getBlog(slug: string) {
   try {
     // Use environment-aware URL for API calls
@@ -13,19 +11,20 @@ async function getBlog(slug: string) {
       : 'http://localhost:3000';
     
     const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
-      next: { revalidate: 60 }
+      cache: 'force-cache'
     });
 
     if (!response.ok) {
+      if (response.status === 404) return null;
       console.error('Error fetching blog:', response.status);
-      return [];
+      return null;
     }
 
     const data = await response.json();
-    return data.blog || [];
+    return data.blog || null; 
   } catch (error) {
     console.error('Error fetching blog:', error);
-    return [];
+    return null;
   }
 }
 
@@ -37,13 +36,11 @@ interface PageProps {
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const data = await getBlog(slug);
+  const blog = await getBlog(slug); 
   
-  if (!data || !data.blog) {
+  if (!blog) {
     notFound();
   }
-
-  const { blog } = data;
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -134,9 +131,12 @@ export default async function BlogPostPage({ params }: PageProps) {
 // Generate static params for better performance
 export async function generateStaticParams() {
   try {
-    // Use relative URL for API calls
-    const response = await fetch(`/api/blogs`, {
-      next: { revalidate: 60 }
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://jiapixel.com'
+      : 'http://localhost:3000';
+    
+    const response = await fetch(`${baseUrl}/api/blogs`, {
+      cache: 'force-cache'
     });
     
     if (!response.ok) {
