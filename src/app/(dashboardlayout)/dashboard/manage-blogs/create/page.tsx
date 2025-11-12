@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 // Dynamically import TipTapWrapper with no SSR
 const TipTapWrapper = dynamic(
-  () => import('@/app/dashboard/components/TipTapWrapper'),
+  () => import('../../../dashboard/components/TipTapWrapper'),
   { 
     ssr: false,
     loading: () => (
