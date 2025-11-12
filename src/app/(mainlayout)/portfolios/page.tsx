@@ -38,8 +38,13 @@ interface PortfoliosResponse {
 
 async function getPortfolios(): Promise<PortfoliosResponse> {
   try {
-    // Use relative URL instead of absolute localhost URL
-    const response = await fetch(`/api/portfolios?status=published&limit=50`, {
+
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://jiapixel.com'
+      : 'http://localhost:3000';
+    
+    
+    const response = await fetch(`${baseUrl}/api/portfolios?status=published&limit=50`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

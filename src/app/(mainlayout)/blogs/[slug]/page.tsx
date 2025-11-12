@@ -3,24 +3,29 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
+
+
 async function getBlog(slug: string) {
   try {
-    // Use relative URL for API calls
-    const response = await fetch(`/api/blogs/${slug}`, {
+    // Use environment-aware URL for API calls
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://jiapixel.com'
+      : 'http://localhost:3000';
+    
+    const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
       next: { revalidate: 60 }
     });
-    
+
     if (!response.ok) {
-      if (response.status === 404) {
-        return null;
-      }
-      throw new Error('Failed to fetch blog');
+      console.error('Error fetching blog:', response.status);
+      return [];
     }
-    
-    return response.json();
+
+    const data = await response.json();
+    return data.blog || [];
   } catch (error) {
     console.error('Error fetching blog:', error);
-    return null;
+    return [];
   }
 }
 

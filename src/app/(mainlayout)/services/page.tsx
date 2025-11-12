@@ -1,12 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import RichTextRenderer from '@/components/RichTextRenderer';
 
+// Service category icons
+const categoryIcons = {
+  'Web Development': '💻',
+  'SEO Services': '🔍',
+  'Digital Marketing': '📈',
+};
+
 async function getServices() {
   try {
-    // Use relative URL for API calls
-    const response = await fetch(`/api/services`, {
+    // Use environment-aware URL for API calls
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.API_URL || 'https://jiapixel.com'
+      : 'http://localhost:3000';    
+    const response = await fetch(`${baseUrl}/api/services`, {
       next: { revalidate: 60 }
     });
 
@@ -22,14 +33,6 @@ async function getServices() {
     return [];
   }
 }
-
-
-// Service category icons
-const categoryIcons = {
-  'Web Development': '💻',
-  'SEO Services': '🔍',
-  'Digital Marketing': '📈',
-};
 
 const ServicesPage = async () => {
   const services = await getServices();
@@ -59,7 +62,6 @@ const ServicesPage = async () => {
               Discover our comprehensive range of digital services designed to elevate your business. 
               From web development to digital marketing, we&apos;ve got you covered.
             </p>
-          
           </div>
         </div>
       </section>
@@ -91,7 +93,7 @@ const ServicesPage = async () => {
                       return (
                         <Link
                           key={service._id}
-                          href={`/services/${service.slug}`} // Use slug instead of _id
+                          href={`/services/${service.slug}`}
                           className="group"
                         >
                           <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/50 transition-all duration-300 h-full flex flex-col">
@@ -126,7 +128,6 @@ const ServicesPage = async () => {
                                   {service.title}
                                 </h3>
                                 <div className="text-muted-foreground mb-4 line-clamp-3 text-sm leading-relaxed">
-                                  {/* Use RichTextRenderer for projectSummary */}
                                   <RichTextRenderer 
                                     content={service.projectSummary} 
                                     className="line-clamp-3"
@@ -213,8 +214,6 @@ const ServicesPage = async () => {
           )}
         </div>
       </section>
-
-    
     </div>
   );
 };

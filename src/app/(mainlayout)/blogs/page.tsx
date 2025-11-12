@@ -4,8 +4,11 @@ import Image from 'next/image';
 
 async function getBlogs() {
   try {
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://jiapixel.com'
+      : 'http://localhost:3000';
     // Use relative URL for API calls
-    const response = await fetch(`/api/blogs`, {
+    const response = await fetch(`${baseUrl}/api/blogs`, {
       next: { revalidate: 60 }
     });
     

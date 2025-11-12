@@ -11,28 +11,34 @@ interface PageProps {
     slug: string;
   }>;
 }
-
 async function getService(slug: string) {
   try {
-    // Use relative URL for API calls
-    const response = await fetch(`/api/services/${slug}`, {
+    // Use environment-aware URL for API calls
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://jiapixel.com'
+      : 'http://localhost:3000';
+    
+    const response = await fetch(`${baseUrl}/api/services/${slug}`, {
       next: { revalidate: 60 }
     });
 
     if (!response.ok) {
-      if (response.status === 404) {
-        return null;
-      }
-      throw new Error('Failed to fetch service');
+      console.error('Error fetching services:', response.status);
+      return null;
     }
 
     const data = await response.json();
-    return data.service || null;
+    // Extract and return the first service object if data.services is an array, otherwise null
+    if (Array.isArray(data.services) && data.services.length > 0) {
+      return data.services[0];
+    }
+    return data.services || null;
   } catch (error) {
-    console.error("Error fetching service:", error);
+    console.error('Error fetching services:', error);
     return null;
   }
 }
+
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;

@@ -41,10 +41,12 @@ export default function PortfolioDetailPage() {
         setLoading(true);
         setError(null);
         
-        console.log('🔍 Fetching portfolio with slug:', slug);
+        const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://jiapixel.com'
+      : 'http://localhost:3000';
         
         // Use relative URL instead of localhost
-        const response = await fetch(`/api/portfolios/${slug}`);
+        const response = await fetch(`${baseUrl}/api/portfolios/${slug}`);
 
         console.log('📡 Response status:', response.status);
         
