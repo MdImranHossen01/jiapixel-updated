@@ -5,8 +5,8 @@ import Image from 'next/image';
 
 async function getBlog(slug: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
+    // Use relative URL for API calls
+    const response = await fetch(`/api/blogs/${slug}`, {
       next: { revalidate: 60 }
     });
     
@@ -31,7 +31,6 @@ interface PageProps {
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
-  // Await the params Promise in Next.js 16
   const { slug } = await params;
   const data = await getBlog(slug);
   
@@ -130,17 +129,19 @@ export default async function BlogPostPage({ params }: PageProps) {
 // Generate static params for better performance
 export async function generateStaticParams() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/blogs`);
+    // Use relative URL for API calls
+    const response = await fetch(`/api/blogs`, {
+      next: { revalidate: 60 }
+    });
     
     if (!response.ok) {
       return [];
     }
     
     const data = await response.json();
-    return data.blogs.map((blog: any) => ({
+    return data.blogs?.map((blog: any) => ({
       slug: blog.slug,
-    }));
+    })) || [];
   } catch (error) {
     return [];
   }

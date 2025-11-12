@@ -1,26 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
-import connectDB from '@/lib/db';
-import Service from '@/models/Project'; // Import Service model
 import Link from 'next/link';
 import Image from 'next/image';
-import RichTextRenderer from '@/components/RichTextRenderer'; // Import RichTextRenderer
+import RichTextRenderer from '@/components/RichTextRenderer';
 
 async function getServices() {
   try {
-    await connectDB();
-    // Remove the status filter to show all services, including drafts
-    const services = await Service.find({ status: 'published' })
-      .sort({ createdAt: -1 })
-      .limit(20)
-      .exec();
+    // Use relative URL for API calls
+    const response = await fetch(`/api/services`, {
+      next: { revalidate: 60 }
+    });
 
-    return JSON.parse(JSON.stringify(services));
+    if (!response.ok) {
+      console.error('Error fetching services:', response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.services || [];
   } catch (error) {
     console.error('Error fetching services:', error);
     return [];
   }
 }
+
 
 // Service category icons
 const categoryIcons = {

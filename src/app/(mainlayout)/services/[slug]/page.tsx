@@ -1,11 +1,8 @@
-import React from "react";
-import connectDB from "@/lib/db";
-import Service from "@/models/Project"; // Import Service model
 import { notFound } from "next/navigation";
 import RichTextRenderer from "@/components/RichTextRenderer";
 import PricingComponent from "../components/Pricing";
 import { FAQSection } from "../components/Faq";
-import ServiceSteps from "../components/ServiceSteps"; // Import the ServiceSteps component
+import ServiceSteps from "../components/ServiceSteps";
 import AuthorQuote from "../components/AuthorQuote";
 import HeroSection from "../components/HeroSection";
 
@@ -17,14 +14,20 @@ interface PageProps {
 
 async function getService(slug: string) {
   try {
-    await connectDB();
-    const service = await Service.findOne({ slug: slug }).exec();
+    // Use relative URL for API calls
+    const response = await fetch(`/api/services/${slug}`, {
+      next: { revalidate: 60 }
+    });
 
-    if (!service) {
-      return null;
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error('Failed to fetch service');
     }
 
-    return JSON.parse(JSON.stringify(service));
+    const data = await response.json();
+    return data.service || null;
   } catch (error) {
     console.error("Error fetching service:", error);
     return null;

@@ -38,13 +38,12 @@ interface PortfoliosResponse {
 
 async function getPortfolios(): Promise<PortfoliosResponse> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/portfolios?status=published&limit=50`, {
+    // Use relative URL instead of absolute localhost URL
+    const response = await fetch(`/api/portfolios?status=published&limit=50`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      // Add revalidation if needed
       next: { 
         revalidate: 60 // Revalidate every 60 seconds
       }
@@ -97,16 +96,16 @@ async function PortfoliosPage() {
       {/* Portfolio Grid */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          {/* Category Filter */}
+          {/* Category Filter - Note: This is static for now, needs client component for interactivity */}
           {categories.length > 0 && (
             <div className="flex flex-wrap justify-center gap-4 mb-12">
               {categories.map((category) => (
-                <button
+                <span
                   key={category}
-                  className="px-6 py-2 rounded-full border border-border bg-card hover:bg-accent transition-colors text-foreground"
+                  className="px-6 py-2 rounded-full border border-border bg-card text-foreground"
                 >
                   {category}
-                </button>
+                </span>
               ))}
             </div>
           )}
@@ -146,12 +145,12 @@ async function PortfoliosPage() {
             )}
           </div>
 
-          {/* Load More Button (if pagination is implemented) */}
+          {/* Load More Button - Note: This needs client component for interactivity */}
           {data.pagination.hasNext && (
             <div className="text-center mt-12">
-              <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-                Load More Projects
-              </button>
+              <p className="text-muted-foreground text-sm">
+                More projects available - pagination coming soon
+              </p>
             </div>
           )}
         </div>

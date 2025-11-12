@@ -43,8 +43,8 @@ export default function PortfolioDetailPage() {
         
         console.log('🔍 Fetching portfolio with slug:', slug);
         
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/portfolios/${slug}`);
+        // Use relative URL instead of localhost
+        const response = await fetch(`/api/portfolios/${slug}`);
 
         console.log('📡 Response status:', response.status);
         
@@ -80,7 +80,8 @@ export default function PortfolioDetailPage() {
   }, [slug]);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/portfolios/${slug}`);
+    // Use current window location for the URL
+    navigator.clipboard.writeText(`${window.location.origin}/portfolios/${slug}`);
     alert('Link copied to clipboard!');
   };
 
@@ -247,14 +248,14 @@ export default function PortfolioDetailPage() {
                     <h4 className="font-semibold text-foreground mb-3">Share Project</h4>
                     <div className="flex gap-2">
                       <Link
-                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(portfolio.title)}&url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/portfolios/${portfolio.slug}`)}`}
+                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(portfolio.title)}&url=${encodeURIComponent(`${window.location.origin}/portfolios/${portfolio.slug}`)}`}
                         target="_blank"
                         className="flex-1 px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors text-center"
                       >
                         Twitter
                       </Link>
                       <Link
-                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/portfolios/${portfolio.slug}`)}`}
+                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${window.location.origin}/portfolios/${portfolio.slug}`)}`}
                         target="_blank"
                         className="flex-1 px-3 py-2 bg-blue-800 text-white rounded text-sm hover:bg-blue-900 transition-colors text-center"
                       >

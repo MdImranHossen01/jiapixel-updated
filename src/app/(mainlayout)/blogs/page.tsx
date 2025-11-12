@@ -1,31 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 async function getBlogs() {
   try {
-    // Use relative URL for API calls in the same app
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/blogs`, {
-      next: { revalidate: 60 } // Revalidate every 60 seconds
+    // Use relative URL for API calls
+    const response = await fetch(`/api/blogs`, {
+      next: { revalidate: 60 }
     });
     
     if (!response.ok) {
-      console.error('API response not OK:', response.status, response.statusText);
       return { blogs: [], error: `Failed to fetch blogs: ${response.status}` };
     }
     
     const data = await response.json();
     
     if (!data.success) {
-      console.error('API returned error:', data.error);
       return { blogs: [], error: data.error };
     }
     
     return data;
   } catch (error) {
-    console.error('Error fetching blogs:', error);
     return { 
       blogs: [], 
       error: error instanceof Error ? error.message : 'Failed to fetch blogs' 
@@ -52,12 +47,8 @@ export default async function BlogsPage() {
             <div className="bg-destructive/10 border border-destructive rounded-lg p-6 max-w-md mx-auto">
               <h2 className="text-xl font-semibold text-destructive mb-2">Error Loading Blogs</h2>
               <p className="text-muted-foreground mb-4">{data.error}</p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-              >
-                Try Again
-              </button>
+              {/* Remove the onClick button or use a client component */}
+              <p className="text-sm text-muted-foreground">Please try refreshing the page in your browser.</p>
             </div>
           </div>
         ) : blogs.length === 0 ? (
