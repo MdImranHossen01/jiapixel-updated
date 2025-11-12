@@ -30,7 +30,10 @@ const Navbar = () => {
       if (!target.closest(".user-dropdown")) {
         setIsDropdownOpen(false);
       }
-      if (!target.closest(".mobile-menu") && !target.closest(".hamburger-btn")) {
+      if (
+        !target.closest(".mobile-menu") &&
+        !target.closest(".hamburger-btn")
+      ) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -42,12 +45,12 @@ const Navbar = () => {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMobileMenuOpen]);
 
@@ -72,146 +75,150 @@ const Navbar = () => {
   // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
     return (
-      <nav className="container mx-auto fixed top-0 left-0 right-0 z-50 py-4 flex items-center justify-between bg-background text-foreground">
+      <nav className="w-full bg-background">
         {/* Simplified loading navbar */}
-        <div className="flex items-center space-x-2">
+        <div className="container mx-auto px-4 fixed top-0 left-0 right-0 z-50 py-2 flex items-center justify-between text-foreground">
+          <div className="flex items-center space-x-2">
           <div className="text-2xl font-bold tracking-tight text-primary">
             <span className="text-3xl font-extrabold">JIA</span>
             <span className="ml-1 text-base text-foreground">Pixel</span>
           </div>
         </div>
         <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
+        </div>
       </nav>
     );
   }
 
   return (
     <>
-      <nav className="container mx-auto fixed top-0 left-0 right-0 z-50 pt-2 pb-0 flex items-center justify-between bg-background text-foreground">
-        {/* Hamburger Menu Button - Visible on mobile */}
-        <div className="md:hidden flex items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleMobileMenu}
-            className="hamburger-btn"
-          >
-            {isMobileMenuOpen ? (
-              <FaTimes className="h-5 w-5" />
-            ) : (
-              <FaBars className="h-5 w-5" />
-            )}
-          </Button>
-        </div>
+      <nav className="bg-background shadow-sm w-full ">
+        <div className="container mx-auto fixed top-0 left-0 right-0 z-50 py-1.5 flex items-center justify-between  text-foreground">
+          {/* Hamburger Menu Button - Visible on mobile */}
+          <div className="md:hidden flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMobileMenu}
+              className="hamburger-btn"
+            >
+              {isMobileMenuOpen ? (
+                <FaTimes className="h-5 w-5" />
+              ) : (
+                <FaBars className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
 
-        {/* Logo - Centered on mobile, left on desktop */}
-        <Link href="/" className="md:flex-1 md:flex md:justify-start">
-          <div className="flex items-center space-x-1 justify-center md:justify-start">
-            <Image
-              src="/Jia-Pixel-Logo.svg"
-              alt="Jia Pixel Logo"
-              width={30}
-              height={30}
-              className="text-yellow-700"
-            />
-            <div className="text-2xl font-bold tracking-tight text-primary">
-              <span className="text-3xl font-extrabold">JIA</span>
-              <span className="ml-1 text-base text-foreground">Pixel</span>
+          {/* Logo - Centered on mobile, left on desktop */}
+          <Link href="/" className="md:flex-1 md:flex md:justify-start">
+            <div className="flex items-center space-x-1 justify-center md:justify-start">
+              <Image
+                src="/Jia-Pixel-Logo.svg"
+                alt="Jia Pixel Logo"
+                width={30}
+                height={30}
+                className="text-yellow-700"
+              />
+              <div className="text-2xl font-bold tracking-tight text-primary">
+                <span className="text-3xl font-extrabold">JIA</span>
+                <span className="ml-1 text-base text-foreground">Pixel</span>
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
 
-        {/* Navigation Links - Hidden on mobile */}
-        <div className="hidden md:flex items-center bg-background px-4 py-2 border border-border rounded-full space-x-6">
-          <NavLink href="/services">Services</NavLink>
-          <NavLink href="/products">Products</NavLink>
-          <NavLink href="/portfolios">Portfolios</NavLink>
-          <NavLink href="/blogs">Blogs</NavLink>
-        </div>
-
-        {/* Right Side - Social Icons & User Menu */}
-        <div className="flex items-center space-x-4 md:flex-1 md:justify-end">
-          {/* Social Icons - Hidden on mobile */}
-          <div className="hidden md:flex items-center space-x-2">
-            <Button variant="ghost" size="icon" asChild>
-              <a
-                href="https://wa.me/yourphonenumber"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaWhatsapp className="h-5 w-5" />
-              </a>
-            </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <a href="mailto:your_email@example.com">
-                <FaEnvelope className="h-5 w-5" />
-              </a>
-            </Button>
+          {/* Navigation Links - Hidden on mobile */}
+          <div className="hidden md:flex items-center bg-background px-4 py-2 border border-border rounded-full space-x-6">
+            <NavLink href="/services">Services</NavLink>
+            <NavLink href="/products">Products</NavLink>
+            <NavLink href="/portfolios">Portfolios</NavLink>
+            <NavLink href="/blogs">Blogs</NavLink>
           </div>
 
-          {/* User Authentication Section */}
-          {status === "loading" ? (
-            <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
-          ) : session ? (
-            <div className="relative user-dropdown">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent transition-colors"
-              >
-                {session.user?.image ? (
-                  <img
-                    src={session.user.image}
-                    alt={session.user.name || "User"}
-                    className="w-8 h-8 rounded-full border-2 border-primary"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                    <FiUser className="w-4 h-4 text-primary-foreground" />
+          {/* Right Side - Social Icons & User Menu */}
+          <div className="flex items-center space-x-4 md:flex-1 md:justify-end">
+            {/* Social Icons - Hidden on mobile */}
+            <div className="hidden md:flex items-center space-x-2">
+              <Button variant="ghost" size="icon" asChild>
+                <a
+                  href="https://wa.me/yourphonenumber"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaWhatsapp className="h-5 w-5" />
+                </a>
+              </Button>
+              <Button variant="ghost" size="icon" asChild>
+                <a href="mailto:your_email@example.com">
+                  <FaEnvelope className="h-5 w-5" />
+                </a>
+              </Button>
+            </div>
+
+            {/* User Authentication Section */}
+            {status === "loading" ? (
+              <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
+            ) : session ? (
+              <div className="relative user-dropdown">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent transition-colors"
+                >
+                  {session.user?.image ? (
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
+                      className="w-8 h-8 rounded-full border-2 border-primary"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                      <FiUser className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                  )}
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
+                    <div className="px-4 py-2 border-b border-border">
+                      <p className="text-sm font-medium text-card-foreground truncate">
+                        {session.user?.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {session.user?.email}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={handleDashboard}
+                      className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
+                    >
+                      <FiSettings className="w-4 h-4" />
+                      <span>Dashboard</span>
+                    </button>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-destructive hover:bg-accent transition-colors"
+                    >
+                      <FiLogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </button>
                   </div>
                 )}
-              </button>
-
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
-                  <div className="px-4 py-2 border-b border-border">
-                    <p className="text-sm font-medium text-card-foreground truncate">
-                      {session.user?.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {session.user?.email}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={handleDashboard}
-                    className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
-                  >
-                    <FiSettings className="w-4 h-4" />
-                    <span>Dashboard</span>
-                  </button>
-
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-destructive hover:bg-accent transition-colors"
-                  >
-                    <FiLogOut className="w-4 h-4" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Button
-              onClick={handleLogin}
-              variant="outline"
-              size="sm"
-              className="hidden md:flex items-center space-x-2"
-            >
-              <FiUser className="w-4 h-4" />
-              <span>Login</span>
-            </Button>
-          )}
+              </div>
+            ) : (
+              <Button
+                onClick={handleLogin}
+                variant="outline"
+                size="sm"
+                className="hidden md:flex items-center space-x-2"
+              >
+                <FiUser className="w-4 h-4" />
+                <span>Login</span>
+              </Button>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -222,26 +229,26 @@ const Navbar = () => {
             <div className="flex flex-col h-full pt-20 px-6">
               {/* Mobile Navigation Links */}
               <div className="flex flex-col space-y-6">
-                <MobileNavLink 
-                  href="/services" 
+                <MobileNavLink
+                  href="/services"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Services
                 </MobileNavLink>
-                <MobileNavLink 
-                  href="/products" 
+                <MobileNavLink
+                  href="/products"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Products
                 </MobileNavLink>
-                <MobileNavLink 
-                  href="/portfolios" 
+                <MobileNavLink
+                  href="/portfolios"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Portfolios
                 </MobileNavLink>
-                <MobileNavLink 
-                  href="/blogs" 
+                <MobileNavLink
+                  href="/blogs"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Blogs
@@ -261,7 +268,7 @@ const Navbar = () => {
                   </a>
                 </Button>
                 <Button variant="ghost" size="icon" asChild>
-                  <a 
+                  <a
                     href="mailto:your_email@example.com"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

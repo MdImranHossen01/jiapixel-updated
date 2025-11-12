@@ -118,7 +118,7 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
   }
 
   return (
-    <div className="max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+    <div id='pricing' className="max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
       <div className="grid grid-cols-1 gap-2  sm:items-stretch md:grid-cols-3">
         {allTiers.map((tier, index) => (
           <div key={tier._id || `${tier.serviceId}-${tier.tierType}-${index}`} className="divide-y divide-border rounded-2xl border border-border shadow-xs">
@@ -135,7 +135,7 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
               <p className="mt-2 sm:mt-4">
                 <strong className="text-3xl font-bold text-foreground sm:text-4xl"> ${tier.price} </strong>
 
-                <span className="text-sm font-medium text-muted-foreground">/month</span>
+                <span className="text-sm font-medium text-muted-foreground">/year</span>
               </p>
 
               <div className="mt-4 flex flex-col gap-2 sm:mt-6">

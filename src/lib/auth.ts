@@ -1,7 +1,8 @@
-import NextAuth, { NextAuthOptions } from 'next-auth';
+import NextAuth, { type NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import connectDB from './db';
+import User from '@/models/User';
 
-// For now, let's use a simpler setup without MongoDB adapter
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -9,24 +10,69 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  session: {
-    strategy: 'jwt',
-  },
   callbacks: {
-    async session({ token, session }) {
-      if (token) {
-        session.user.id = token.sub!;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
+    async signIn({ user, account }) {
+      try {
+        // Only handle Google OAuth
+        if (account?.provider === 'google') {
+          await connectDB();
+          
+          // Check if user exists
+          const existingUser = await User.findOne({ email: user.email });
+          
+          if (!existingUser) {
+            // Create new user
+            await User.create({
+              name: user.name,
+              email: user.email,
+              image: user.image,
+              emailVerified: new Date(),
+              role: 'user',
+            });
+            console.log('✅ New user created:', user.email);
+          } else {
+            console.log('✅ User already exists:', user.email);
+            // Update user image if it's different
+            if (user.image && existingUser.image !== user.image) {
+              await User.updateOne(
+                { email: user.email },
+                { image: user.image }
+              );
+            }
+          }
+        }
+        return true;
+      } catch (error) {
+        console.error('❌ SignIn callback error:', error);
+        return false;
       }
-      return session;
     },
+    
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
       }
       return token;
+    },
+    
+    async session({ session, token }) {
+      try {
+        await connectDB();
+        const dbUser = await User.findOne({ email: session.user?.email });
+        
+        if (dbUser) {
+          session.user.id = dbUser._id.toString();
+          session.user.role = dbUser.role;
+          session.user.name = dbUser.name;
+          session.user.image = dbUser.image;
+        }
+        
+        return session;
+      } catch (error) {
+        console.error('❌ Session callback error:', error);
+        return session;
+      }
     },
   },
   pages: {
@@ -34,8 +80,16 @@ export const authOptions: NextAuthOptions = {
     signUp: '/register',
     error: '/login',
   },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  debug: process.env.NODE_ENV === 'development',
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
+// Export the NextAuth instance
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
+export const { auth, signIn, signOut } = handler;

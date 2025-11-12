@@ -57,17 +57,7 @@ const ServicesPage = async () => {
               Discover our comprehensive range of digital services designed to elevate your business. 
               From web development to digital marketing, we&apos;ve got you covered.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold">
-                {services.length}+ Services Available
-              </div>
-              <div className="bg-secondary text-secondary-foreground px-6 py-3 rounded-lg font-semibold">
-                Professional Quality
-              </div>
-              <div className="bg-accent text-accent-foreground px-6 py-3 rounded-lg font-semibold">
-                Fast Delivery
-              </div>
-            </div>
+          
           </div>
         </div>
       </section>
@@ -222,33 +212,7 @@ const ServicesPage = async () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-primary/5 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Ready to Get Started?
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              Browse our services and find the perfect solution for your business needs.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link
-                href="/dashboard/services/create"
-                className="bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
-              >
-                Create a Service
-              </Link>
-              <Link
-                href="/contact"
-                className="bg-secondary text-secondary-foreground px-8 py-4 rounded-lg font-semibold hover:bg-secondary/80 transition-colors"
-              >
-                Contact Us
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+    
     </div>
   );
 };

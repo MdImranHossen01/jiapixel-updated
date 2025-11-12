@@ -10,6 +10,7 @@ export interface IUser extends Document {
   image?: string;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const UserSchema: Schema = new Schema({
@@ -29,7 +30,7 @@ const UserSchema: Schema = new Schema({
   },
   password: {
     type: String,
-    required: false // Not required for OAuth users
+    required: false
   },
   role: {
     type: String,

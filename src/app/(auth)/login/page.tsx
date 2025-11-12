@@ -2,21 +2,30 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FcGoogle } from 'react-icons/fc';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const error = searchParams.get('error');
 
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      await signIn('google', { callbackUrl: '/' }); // Changed to home page
+      const result = await signIn('google', { 
+        callbackUrl: '/',
+        redirect: true // Let NextAuth handle the redirect
+      });
+      
+      // This will only execute if there's an error and redirect is false
+      if (result?.error) {
+        console.error('Google login error:', result.error);
+      }
     } catch (error) {
       console.error('Google login error:', error);
-      alert('Google login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -30,8 +39,15 @@ export default function LoginPage() {
           <p className="mt-2 text-muted-foreground">Sign in to your account</p>
         </div>
 
+        {error && (
+          <div className="bg-destructive/10 border border-destructive text-destructive-foreground px-4 py-3 rounded-md">
+            <p className="text-sm">
+              Authentication failed. Please try again.
+            </p>
+          </div>
+        )}
+
         <div className="bg-card rounded-lg shadow-lg border border-border p-6">
-          {/* Google Sign In Button */}
           <button
             onClick={handleGoogleLogin}
             disabled={loading}
