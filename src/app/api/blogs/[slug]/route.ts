@@ -26,8 +26,7 @@ export async function GET(request: NextRequest, { params }: Params) {
     }
     
     const blog = await Blog.findOne({ slug, status: 'published' })
-      .select('-__v')
-      .lean();
+      .select('-__v');
     
     if (!blog) {
       return NextResponse.json(
