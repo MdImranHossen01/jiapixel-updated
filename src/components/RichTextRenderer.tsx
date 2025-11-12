@@ -21,7 +21,8 @@ export default function RichTextRenderer({
     if (!content) return "";
 
     // Add DOMPurify hook to enforce rel="noopener noreferrer" on external links
-    DOMPurify.addHook("afterSanitizeAttributes", function (node) {
+    // Use a named function so we can remove only this hook later (avoid removeAllHooks)
+    function enforceNoopener(node: any) {
       if (
         node.tagName &&
         node.tagName.toUpperCase() === "A" &&
@@ -29,7 +30,9 @@ export default function RichTextRenderer({
       ) {
         node.setAttribute("rel", "noopener noreferrer");
       }
-    });
+    }
+
+    DOMPurify.addHook("afterSanitizeAttributes", enforceNoopener);
 
     const sanitized = DOMPurify.sanitize(content, {
       ALLOWED_TAGS: [
@@ -72,8 +75,16 @@ export default function RichTextRenderer({
       ],
     });
 
-    // Remove the hook after use to avoid side effects in other renders
-    DOMPurify.removeAllHooks();
+    // Remove only our named hook after use to avoid clearing hooks used elsewhere
+    try {
+      DOMPurify.removeHook("afterSanitizeAttributes", enforceNoopener);
+    } catch {
+      // If removeHook isn't supported in this DOMPurify build, fall back to removeAllHooks
+      // (very unlikely) — swallow the error to avoid breaking rendering.
+      try {
+        DOMPurify.removeAllHooks();
+      } catch {}
+    }
     return sanitized;
   }, [content]);
 

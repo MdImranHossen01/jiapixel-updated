@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/models/Project.ts
 import mongoose, { Document, Schema } from 'mongoose';
 import { generateSlug } from '../lib/slug';
@@ -153,7 +154,7 @@ ServiceSchema.pre('save', async function(next) {
     let counter = 1;
     
     // Check if slug already exists (exclude current document if updating)
-    const existingDoc = await this.constructor.findOne({ 
+    const existingDoc = await (this.constructor as any).findOne({ 
       slug: slug, 
       _id: { $ne: this._id } 
     });
@@ -161,7 +162,7 @@ ServiceSchema.pre('save', async function(next) {
     // If slug exists, append counter
     while (existingDoc) {
       slug = `${baseSlug}-${counter}`;
-      const checkAgain = await this.constructor.findOne({ 
+      const checkAgain = await (this.constructor as any).findOne({ 
         slug: slug, 
         _id: { $ne: this._id } 
       });

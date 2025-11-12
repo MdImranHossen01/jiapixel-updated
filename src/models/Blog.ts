@@ -92,7 +92,7 @@ const BlogSchema: Schema = new Schema({
 });
 
 // Calculate read time before saving
-BlogSchema.pre('save', function(next) {
+BlogSchema.pre('save', function(this: IBlog, next) {
   if (this.isModified('content')) {
     const wordsPerMinute = 200;
     const wordCount = this.content.split(/\s+/).length;
@@ -102,7 +102,7 @@ BlogSchema.pre('save', function(next) {
 });
 
 // Auto-set publishedAt when status changes to published
-BlogSchema.pre('save', function(next) {
+BlogSchema.pre('save', function(this: IBlog, next) {
   if (this.isModified('status') && this.status === 'published' && !this.publishedAt) {
     this.publishedAt = new Date();
   }
@@ -110,7 +110,7 @@ BlogSchema.pre('save', function(next) {
 });
 
 // Create slug from title if not provided
-BlogSchema.pre('save', function(next) {
+BlogSchema.pre('save', function(this: IBlog, next) {
   if (this.isModified('title') && !this.slug) {
     this.slug = this.title
       .toLowerCase()
