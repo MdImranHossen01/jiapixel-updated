@@ -20,7 +20,7 @@ const TermsOfServicePage = () => {
               <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
               <p>
                 By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement. 
-                In addition, when using this website's particular services, you shall be subject to any posted guidelines or rules 
+                In addition, when using this website&apos;s particular services, you shall be subject to any posted guidelines or rules 
                 applicable to such services.
               </p>
             </section>
@@ -28,23 +28,23 @@ const TermsOfServicePage = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">2. Use License</h2>
               <p>
-                Permission is granted to temporarily download one copy of the materials on Jiapixel's website for personal, 
+                Permission is granted to temporarily download one copy of the materials on Jiapixel&apos;s website for personal, 
                 non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this 
                 license you may not:
               </p>
               <ul className="list-disc pl-6 my-4">
                 <li>Modify or copy the materials</li>
                 <li>Use the materials for any commercial purpose</li>
-                <li>Attempt to decompile or reverse engineer any software contained on Jiapixel's website</li>
+                <li>Attempt to decompile or reverse engineer any software contained on Jiapixel&apos;s website</li>
                 <li>Remove any copyright or other proprietary notations from the materials</li>
-                <li>Transfer the materials to another person or "mirror" the materials on any other server</li>
+                <li>Transfer the materials to another person or &#34;mirror&#34; the materials on any other server</li>
               </ul>
             </section>
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">3. Disclaimer</h2>
               <p>
-                The materials on Jiapixel's website are provided on an 'as is' basis. Jiapixel makes no warranties, expressed or implied, 
+                The materials on Jiapixel&apos;s website are provided on an &apos;as is&apos; basis. Jiapixel makes no warranties, expressed or implied, 
                 and hereby disclaims and negates all other warranties including without limitation, implied warranties or conditions of 
                 merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
               </p>
@@ -54,7 +54,7 @@ const TermsOfServicePage = () => {
               <h2 className="text-2xl font-semibold mb-4">4. Limitations</h2>
               <p>
                 In no event shall Jiapixel or its suppliers be liable for any damages (including, without limitation, damages for loss of 
-                data or profit, or due to business interruption) arising out of the use or inability to use the materials on Jiapixel's 
+                data or profit, or due to business interruption) arising out of the use or inability to use the materials on Jiapixel&apos;s 
                 website, even if Jiapixel or a Jiapixel authorized representative has been notified orally or in writing of the possibility 
                 of such damage.
               </p>
@@ -63,7 +63,7 @@ const TermsOfServicePage = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">5. Accuracy of Materials</h2>
               <p>
-                The materials appearing on Jiapixel's website could include technical, typographical, or photographic errors. Jiapixel does 
+                The materials appearing on Jiapixel&apos;s website could include technical, typographical, or photographic errors. Jiapixel does 
                 not warrant that any of the materials on its website are accurate, complete, or current. Jiapixel may make changes to the 
                 materials contained on its website at any time without notice. Jiapixel does not, however, make any commitment to update 
                 the materials.
@@ -75,7 +75,7 @@ const TermsOfServicePage = () => {
               <p>
                 Jiapixel has not reviewed all of the sites linked to its website and is not responsible for the contents of any such 
                 linked site. The inclusion of any link does not imply endorsement by Jiapixel of the site. Use of any such linked website 
-                is at the user's own risk.
+                is at the user&apos;s own risk.
               </p>
             </section>
 

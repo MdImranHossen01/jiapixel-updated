@@ -10,7 +10,7 @@ export function generateSlug(title: string): string {
 export function generateUniqueSlug(title: string, existingSlugs: string[] = []): string {
   let slug = generateSlug(title);
   let counter = 1;
-  let originalSlug = slug;
+  const originalSlug = slug;
 
   while (existingSlugs.includes(slug)) {
     slug = `${originalSlug}-${counter}`;

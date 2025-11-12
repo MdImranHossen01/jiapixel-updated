@@ -14,16 +14,18 @@ const Navbar = () => {
   const { theme } = useTheme();
   const { data: session, status } = useSession();
   const router = useRouter();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Ensure component is mounted to avoid hydration issues
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Close dropdown when clicking outside
+  // ✅ Close dropdown and mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -39,10 +41,12 @@ const Navbar = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
-  // Prevent body scroll when mobile menu is open
+  // ✅ Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -54,6 +58,7 @@ const Navbar = () => {
     };
   }, [isMobileMenuOpen]);
 
+  // ✅ Handlers
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
     setIsDropdownOpen(false);
@@ -69,22 +74,21 @@ const Navbar = () => {
   };
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setIsMobileMenuOpen((prev) => !prev);
   };
 
-  // Prevent hydration mismatch by not rendering until mounted
+  // ✅ Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
     return (
       <nav className="w-full bg-background">
-        {/* Simplified loading navbar */}
         <div className="container mx-auto px-4 fixed top-0 left-0 right-0 z-50 py-2 flex items-center justify-between text-foreground">
           <div className="flex items-center space-x-2">
-          <div className="text-2xl font-bold tracking-tight text-primary">
-            <span className="text-3xl font-extrabold">JIA</span>
-            <span className="ml-1 text-base text-foreground">Pixel</span>
+            <div className="text-2xl font-bold tracking-tight text-primary">
+              <span className="text-3xl font-extrabold">JIA</span>
+              <span className="ml-1 text-base text-foreground">Pixel</span>
+            </div>
           </div>
-        </div>
-        <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
+          <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
         </div>
       </nav>
     );
@@ -92,9 +96,9 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-background shadow-sm w-full ">
-        <div className="container mx-auto fixed top-0 left-0 right-0 z-50 py-1.5 flex items-center justify-between  text-foreground">
-          {/* Hamburger Menu Button - Visible on mobile */}
+      <nav className="bg-background shadow-sm w-full">
+        <div className="container mx-auto fixed top-0 left-0 right-0 z-50 py-1.5 flex items-center justify-between text-foreground">
+          {/* ✅ Hamburger Menu Button */}
           <div className="md:hidden flex items-center">
             <Button
               variant="ghost"
@@ -110,7 +114,7 @@ const Navbar = () => {
             </Button>
           </div>
 
-          {/* Logo - Centered on mobile, left on desktop */}
+          {/* ✅ Logo */}
           <Link href="/" className="md:flex-1 md:flex md:justify-start">
             <div className="flex items-center space-x-1 justify-center md:justify-start">
               <Image
@@ -127,7 +131,7 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* Navigation Links - Hidden on mobile */}
+          {/* ✅ Desktop Navigation */}
           <div className="hidden md:flex items-center bg-background px-4 py-2 border border-border rounded-full space-x-6">
             <NavLink href="/services">Services</NavLink>
             <NavLink href="/products">Products</NavLink>
@@ -135,9 +139,9 @@ const Navbar = () => {
             <NavLink href="/blogs">Blogs</NavLink>
           </div>
 
-          {/* Right Side - Social Icons & User Menu */}
+          {/* ✅ Right Side */}
           <div className="flex items-center space-x-4 md:flex-1 md:justify-end">
-            {/* Social Icons - Hidden on mobile */}
+            {/* Social Icons */}
             <div className="hidden md:flex items-center space-x-2">
               <Button variant="ghost" size="icon" asChild>
                 <a
@@ -155,13 +159,13 @@ const Navbar = () => {
               </Button>
             </div>
 
-            {/* User Authentication Section */}
+            {/* ✅ User Auth Section */}
             {status === "loading" ? (
               <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
             ) : session ? (
               <div className="relative user-dropdown">
                 <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  onClick={() => setIsDropdownOpen((prev) => !prev)}
                   className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent transition-colors"
                 >
                   {session.user?.image ? (
@@ -177,7 +181,7 @@ const Navbar = () => {
                   )}
                 </button>
 
-                {/* Dropdown Menu */}
+                {/* ✅ Dropdown Menu */}
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
                     <div className="px-4 py-2 border-b border-border">
@@ -222,12 +226,11 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
+      {/* ✅ Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden">
           <div className="fixed top-0 left-0 h-full w-4/5 max-w-sm bg-card border-r border-border shadow-lg mobile-menu">
             <div className="flex flex-col h-full pt-20 px-6">
-              {/* Mobile Navigation Links */}
               <div className="flex flex-col space-y-6">
                 <MobileNavLink
                   href="/services"
@@ -255,7 +258,6 @@ const Navbar = () => {
                 </MobileNavLink>
               </div>
 
-              {/* Mobile Social Icons */}
               <div className="flex items-center space-x-4 mt-8 pt-6 border-t border-border">
                 <Button variant="ghost" size="icon" asChild>
                   <a
@@ -277,7 +279,6 @@ const Navbar = () => {
                 </Button>
               </div>
 
-              {/* Mobile Login Button - Only show if not logged in */}
               {!session && status !== "loading" && (
                 <div className="mt-8 pt-6 border-t border-border">
                   <Button
@@ -303,7 +304,9 @@ const Navbar = () => {
 
 export default Navbar;
 
-// Helper component for desktop link styling
+//
+// ✅ Helper Components
+//
 const NavLink = ({
   href,
   children,
@@ -321,7 +324,6 @@ const NavLink = ({
   );
 };
 
-// Helper component for mobile link styling
 const MobileNavLink = ({
   href,
   children,

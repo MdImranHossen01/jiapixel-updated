@@ -92,7 +92,7 @@ const PrivacyPolicyPage = () => {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">6. Children's Privacy</h2>
+              <h2 className="text-2xl font-semibold mb-4">6. Children&apos;s Privacy</h2>
               <p>
                 Our service is not intended for use by children under the age of 13. We do not knowingly collect personally identifiable 
                 information from children under 13. If you are a parent or guardian and you are aware that your child has provided us with 
@@ -115,7 +115,7 @@ const PrivacyPolicyPage = () => {
               <h2 className="text-2xl font-semibold mb-4">8. Links to Other Sites</h2>
               <p>
                 Our service may contain links to other sites that are not operated by us. If you click on a third-party link, you will be 
-                directed to that third party's site. We strongly advise you to review the privacy policy of every site you visit. We have 
+                directed to that third party&apos;s site. We strongly advise you to review the privacy policy of every site you visit. We have 
                 no control over and assume no responsibility for the content, privacy policies or practices of any third-party sites or services.
               </p>
             </section>
@@ -124,7 +124,7 @@ const PrivacyPolicyPage = () => {
               <h2 className="text-2xl font-semibold mb-4">9. Changes to This Privacy Policy</h2>
               <p>
                 We may update our privacy policy from time to time. We will notify you of any changes by posting the new privacy policy on 
-                this page and updating the "Last updated" date at the top of this privacy policy. You are advised to review this privacy 
+                this page and updating the &quot;Last updated&quot; date at the top of this privacy policy. You are advised to review this privacy 
                 policy periodically for any changes.
               </p>
             </section>

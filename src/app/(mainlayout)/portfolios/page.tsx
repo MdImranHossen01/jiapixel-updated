@@ -89,7 +89,7 @@ async function PortfoliosPage() {
             Our Portfolio
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Explore our latest projects and see how we've helped businesses transform their digital presence.
+            Explore our latest projects and see how we have helped businesses transform their digital presence.
           </p>
         </div>
       </section>

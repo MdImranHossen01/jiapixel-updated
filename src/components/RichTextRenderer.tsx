@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import DOMPurify from 'dompurify';
 
 interface RichTextRendererProps {
@@ -14,11 +14,12 @@ export default function RichTextRenderer({
   className = '', 
   maxLines 
 }: RichTextRendererProps) {
-  const [sanitizedContent, setSanitizedContent] = useState('');
-
-  useEffect(() => {
-    // Sanitize HTML content on client side
-    const cleanHtml = DOMPurify.sanitize(content, {
+  // Use useMemo to sanitize HTML content and avoid unnecessary re-sanitization
+  const sanitizedContent = useMemo(() => {
+    // Only sanitize if content exists
+    if (!content) return '';
+    
+    return DOMPurify.sanitize(content, {
       ALLOWED_TAGS: [
         'p', 'br', 'strong', 'em', 'u', 's', 'mark', 'code', 'pre', 
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 
@@ -29,7 +30,6 @@ export default function RichTextRenderer({
         'width', 'height', 'data-color'
       ],
     });
-    setSanitizedContent(cleanHtml);
   }, [content]);
 
   // Create style object for line-clamp if maxLines is provided

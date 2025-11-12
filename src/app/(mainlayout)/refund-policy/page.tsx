@@ -19,7 +19,7 @@ const RefundPolicyPage = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">1. Refund Eligibility</h2>
               <p>
-                At Jiapixel, we strive to provide high-quality services that meet our clients' expectations. 
+                At Jiapixel, we strive to provide high-quality services that meet our clients&apos; expectations. 
                 However, we understand that there may be situations where a refund is requested. This policy 
                 outlines the conditions under which refunds may be issued.
               </p>
@@ -89,7 +89,7 @@ const RefundPolicyPage = () => {
               <p>
                 If you are not satisfied with our decision regarding your refund request, you may request a review 
                 by our management team. To do so, please contact us at <a href="mailto:management@jiapixel.com" className="text-primary hover:underline">management@jiapixel.com</a> 
-                with "Refund Review Request" in the subject line.
+                with &quot;Refund Review Request&quot; in the subject line.
               </p>
             </section>
 
