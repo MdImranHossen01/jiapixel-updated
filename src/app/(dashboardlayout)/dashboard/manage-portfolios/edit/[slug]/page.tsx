@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import EditPortfolioForm from './EditPortfolioForm';
 import { getCurrentUser } from '@/lib/auth-utils';
 import connectDB from '@/lib/db';
-import Portfolio from '@/models/Portfolio';
+import Portfolio from '@/models/Portfolios';
 
 interface EditPortfolioPageProps {
   params: {
@@ -44,7 +44,7 @@ async function EditPortfolioPage({ params }: EditPortfolioPageProps) {
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Portfolio Not Found</h1>
           <p className="text-muted-foreground mb-6">
-            The portfolio you're trying to edit doesn't exist.
+            The portfolio you are trying to edit does not exist.
           </p>
           <a
             href="/dashboard/manage-portfolios"
