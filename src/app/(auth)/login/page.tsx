@@ -1,13 +1,12 @@
-import { Suspense } from "react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 
-export default function LoginPage() {
-  const searchParams = useSearchParams();
+const LoginPage = () => {
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
   const error = searchParams.get("error");
 
   const handleGoogleLogin = async () => {
@@ -15,9 +14,8 @@ export default function LoginPage() {
     try {
       const result = await signIn("google", {
         callbackUrl: "/",
-        redirect: true, // Let NextAuth handle the redirect
+        redirect: true,
       });
-
       // This will only execute if there's an error and redirect is false
       if (result?.error) {
         console.error("Google login error:", result.error);
@@ -76,4 +74,6 @@ export default function LoginPage() {
       </div>
     </Suspense>
   );
-}
+};
+
+export default LoginPage;
