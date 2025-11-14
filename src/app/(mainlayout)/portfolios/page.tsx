@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 
 interface Portfolio {
   _id: string;
@@ -37,11 +38,9 @@ interface PortfoliosResponse {
 
 async function getPortfolios(): Promise<PortfoliosResponse> {
   try {
-
     const baseUrl = process.env.NODE_ENV === 'production' 
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://jiapixel.com'
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
       : 'http://localhost:3000';
-    
     
     const response = await fetch(`${baseUrl}/api/portfolios?status=published&limit=50`, {
       method: 'GET',
@@ -49,7 +48,7 @@ async function getPortfolios(): Promise<PortfoliosResponse> {
         'Content-Type': 'application/json',
       },
       next: { 
-        revalidate: 300 // Revalidate every 60 seconds
+        revalidate: 300
       }
     });
 
@@ -61,7 +60,6 @@ async function getPortfolios(): Promise<PortfoliosResponse> {
     return data;
   } catch (error) {
     console.error('Error fetching portfolios:', error);
-    // Return empty data in case of error
     return {
       portfolios: [],
       pagination: {
@@ -76,90 +74,169 @@ async function getPortfolios(): Promise<PortfoliosResponse> {
   }
 }
 
+// Generate metadata for SEO
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = 'https://www.jiapixel.com';
+  const canonicalUrl = `${baseUrl}/portfolios`;
+
+  return {
+    title: 'Our Portfolio - Web Development Projects & Case Studies | Jiapixel',
+    description: 'Explore our portfolio of web development projects, mobile apps, and digital solutions. See how we help businesses succeed with custom technology solutions.',
+    keywords: 'portfolio, web development projects, case studies, web design, mobile apps, Bangladesh',
+    
+    // Canonical URL
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    
+    // Open Graph
+    openGraph: {
+      title: 'Our Portfolio - Web Development Projects & Case Studies | Jiapixel',
+      description: 'Explore our portfolio of web development projects, mobile apps, and digital solutions.',
+      url: canonicalUrl,
+      siteName: 'Jiapixel',
+      images: [
+        {
+          url: 'https://www.jiapixel.com/icon.png',
+          width: 1200,
+          height: 630,
+          alt: 'Jiapixel Portfolio - Web Development Projects',
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    
+    // Twitter Card
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Our Portfolio - Web Development Projects & Case Studies | Jiapixel',
+      description: 'Explore our portfolio of web development projects, mobile apps, and digital solutions.',
+      images: ['https://www.jiapixel.com/icon.png'],
+      creator: '@jiapixel',
+    },
+  };
+}
+
 async function PortfoliosPage() {
   const data = await getPortfolios();
   const portfolios = data.portfolios;
+
+  // Generate structured data for portfolio listing
+  const portfolioStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Jiapixel Portfolio',
+    description: 'Web development projects and case studies',
+    url: 'https://www.jiapixel.com/portfolios',
+    numberOfItems: portfolios.length,
+    itemListElement: portfolios.map((portfolio: Portfolio, index: number) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'CreativeWork',
+        name: portfolio.title,
+        description: portfolio.description,
+        url: `https://www.jiapixel.com/portfolios/${portfolio.slug}`,
+        image: portfolio.featuredImage,
+        dateCreated: portfolio.projectDate,
+        author: {
+          '@type': 'Organization',
+          name: 'Jiapixel',
+          url: 'https://www.jiapixel.com'
+        }
+      },
+    })),
+  };
 
   // Extract unique categories from portfolios
   const categories = ['All', ...new Set(portfolios.map(p => p.category))].filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-background pt-20">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 to-secondary/10 py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Our Portfolio
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Explore our latest projects and see how we have helped businesses transform their digital presence.
-          </p>
-        </div>
-      </section>
+    <>
+      {/* Structured Data for Portfolio Listing */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData) }}
+      />
+      
+      <div className="min-h-screen bg-background pt-20">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-br from-primary/10 to-secondary/10 py-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+              Our Portfolio
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Explore our latest projects and see how we have helped businesses transform their digital presence.
+            </p>
+          </div>
+        </section>
 
-      {/* Portfolio Grid */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          {/* Category Filter - Note: This is static for now, needs client component for interactivity */}
-          {categories.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              {categories.map((category) => (
-                <span
-                  key={category}
-                  className="px-6 py-2 rounded-full border border-border bg-card text-foreground"
-                >
-                  {category}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Featured Projects */}
-          {portfolios.filter(portfolio => portfolio.featured).length > 0 && (
-            <div className="mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-8 text-center">Featured Projects</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {portfolios
-                  .filter(portfolio => portfolio.featured)
-                  .map((portfolio) => (
-                    <PortfolioCard key={portfolio._id} portfolio={portfolio} />
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* All Projects */}
-          <div>
-            <h2 className="text-3xl font-bold text-foreground mb-8 text-center">
-              {portfolios.length === 0 ? 'No Projects Yet' : 'All Projects'}
-            </h2>
-            
-            {portfolios.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg">
-                  No portfolio projects have been published yet. Please check back later.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {portfolios.map((portfolio) => (
-                  <PortfolioCard key={portfolio._id} portfolio={portfolio} />
+        {/* Portfolio Grid */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            {/* Category Filter */}
+            {categories.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-4 mb-12">
+                {categories.map((category) => (
+                  <span
+                    key={category}
+                    className="px-6 py-2 rounded-full border border-border bg-card text-foreground"
+                  >
+                    {category}
+                  </span>
                 ))}
               </div>
             )}
-          </div>
 
-          {/* Load More Button - Note: This needs client component for interactivity */}
-          {data.pagination.hasNext && (
-            <div className="text-center mt-12">
-              <p className="text-muted-foreground text-sm">
-                More projects available - pagination coming soon
-              </p>
+            {/* Featured Projects */}
+            {portfolios.filter(portfolio => portfolio.featured).length > 0 && (
+              <div className="mb-16">
+                <h2 className="text-3xl font-bold text-foreground mb-8 text-center">Featured Projects</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {portfolios
+                    .filter(portfolio => portfolio.featured)
+                    .map((portfolio) => (
+                      <PortfolioCard key={portfolio._id} portfolio={portfolio} />
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* All Projects */}
+            <div>
+              <h2 className="text-3xl font-bold text-foreground mb-8 text-center">
+                {portfolios.length === 0 ? 'No Projects Yet' : 'All Projects'}
+              </h2>
+              
+              {portfolios.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">
+                    No portfolio projects have been published yet. Please check back later.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {portfolios.map((portfolio) => (
+                    <PortfolioCard key={portfolio._id} portfolio={portfolio} />
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </section>
-    </div>
+
+            {/* Load More Button */}
+            {data.pagination.hasNext && (
+              <div className="text-center mt-12">
+                <p className="text-muted-foreground text-sm">
+                  More projects available - pagination coming soon
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </>
   );
 }
 
