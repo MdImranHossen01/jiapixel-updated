@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import * as React from "react"
@@ -6,92 +5,93 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { ChevronDownIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-// --- FIX: Model থেকে IFAQ এবং IServiceStep আমদানি করা হলো ---
-import { IFAQ } from '@/models/Project';
-
 
 function Accordion({
-  ...props
+  ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Root>) {
-  return <AccordionPrimitive.Root data-slot="accordion" {...props} />
+  return <AccordionPrimitive.Root data-slot="accordion" {...props} />
 }
 
 function AccordionItem({
-  className,
-  ...props
+  className,
+  ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Item>) {
-  return (
-    <AccordionPrimitive.Item
-      data-slot="accordion-item"
-      className={cn("border-b last:border-b-0", className)}
-      {...props}
-    />
-  )
+  return (
+    <AccordionPrimitive.Item
+      data-slot="accordion-item"
+      className={cn("border-b last:border-b-0", className)}
+      {...props}
+    />
+  )
 }
 
 function AccordionTrigger({
-  className,
-  children,
-  ...props
+  className,
+  children,
+  ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
-  return (
-    <AccordionPrimitive.Header className="flex">
-      <AccordionPrimitive.Trigger
-        data-slot="accordion-trigger"
-        className={cn(
-          "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
-          className
-        )}
-        {...props}
-      >
-        {children}
-        <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
-      </AccordionPrimitive.Trigger>
-    </AccordionPrimitive.Header>
-  )
+  return (
+    <AccordionPrimitive.Header className="flex">
+      <AccordionPrimitive.Trigger
+        data-slot="accordion-trigger"
+        className={cn(
+          "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
+          className
+        )}
+        {...props}
+      >
+        {children}
+        <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
+      </AccordionPrimitive.Trigger>
+    </AccordionPrimitive.Header>
+  )
 }
 
 function AccordionContent({
-  className,
-  children,
-  ...props
+  className,
+  children,
+  ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Content>) {
-  return (
-    <AccordionPrimitive.Content
-      data-slot="accordion-content"
-      className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
-      {...props}
-    >
-      <div className={cn("pt-0 pb-4", className)}>{children}</div>
-    </AccordionPrimitive.Content>
-  )
+  return (
+    <AccordionPrimitive.Content
+      data-slot="accordion-content"
+      className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
+      {...props}
+    >
+      <div className={cn("pt-0 pb-4", className)}>{children}</div>
+    </AccordionPrimitive.Content>
+  )
 }
 
 // FAQ Section Component
-// --- FIX: FAQItem interface removed, using IFAQ from model ---
-// Although IFAQ doesn't define _id, MongoDB documents always have it. We use the index if _id is missing.
+interface FAQItem {
+  _id: string;
+  question: string;
+  answer: string;
+}
+
 interface FAQSectionProps {
-  faqs: IFAQ[] | any[]; // Accept IFAQ array
+  faqs: FAQItem[];
 }
 
 const FAQSection: React.FC<FAQSectionProps> = ({ faqs }) => {
-  return (
-    <div className="w-full max-w-3xl mx-auto py-8">
-      <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
-      <Accordion type="single" collapsible className="w-full">
-        {faqs.map((faq, index) => (
-          <AccordionItem key={faq._id || index} value={faq._id || index.toString()}>
-            <AccordionTrigger className="text-left">
-              {faq.question}
-            </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">
-              {faq.answer}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
-    </div>
-  );
+  return (
+    <div className="w-full max-w-3xl mx-auto py-8">
+      <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+      <Accordion type="single" collapsible className="w-full">
+        {faqs.map((faq) => (
+          <AccordionItem key={faq._id} value={faq._id}>
+            <AccordionTrigger className="text-left">
+              {faq.question}
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground">
+              {faq.answer}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </div>
+  );
 };
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent, FAQSection }
