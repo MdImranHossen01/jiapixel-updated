@@ -6,29 +6,24 @@ const BASE_URL = "https://www.jiapixel.com";
 const PORTFOLIO_TITLE = "Portfolio | Featured Web Projects & Case Studies";
 const PORTFOLIO_DESCRIPTION = "Explore the best web development and digital marketing case studies from Jia Pixel. See our results in React, Next.js, and SEO performance.";
 
-// --- FIXED INTERFACE ---
-// 'params' is made optional (?) because the base route (/portfolios) does not have a slug.
+// --- LAYOUT INTERFACE (KEEP AS IS FOR FRAMEWORK) ---
 interface LayoutProps {
   children: React.ReactNode;
   params?: { slug?: string }; 
 }
 
-// --- SEO METADATA CONFIGURATION ---
+// --- SEO METADATA CONFIGURATION (No changes needed) ---
 export const metadata: Metadata = {
-  // A. Core Tags
+// ... (Metadata content is correct)
   metadataBase: new URL(BASE_URL),
   title: {
     default: PORTFOLIO_TITLE,
-    template: "%s | Jia Pixel Portfolios", // This template is crucial for individual portfolio detail pages
+    template: "%s | Jia Pixel Portfolios", 
   },
   description: PORTFOLIO_DESCRIPTION,
-  
-  // B. Canonical Link (Base URL for the index page)
   alternates: {
     canonical: `${BASE_URL}/portfolios`,
   },
-  
-  // C. Open Graph (Social Sharing default)
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -38,22 +33,20 @@ export const metadata: Metadata = {
     siteName: "Jia Pixel Portfolios",
     images: [
       {
-        url: `${BASE_URL}/og-portfolio-default.png`, // Use a dedicated image
+        url: `${BASE_URL}/og-portfolio-default.png`,
         width: 1200,
         height: 630,
         alt: "Jia Pixel Portfolio Showcase",
       },
     ],
   },
-  
-  // D. Robots/Indexing
   robots: {
     index: true,
     follow: true,
   },
 };
 
-// --- ORGANIZATION SCHEMA (Applied globally to the section) ---
+// --- ORGANIZATION SCHEMA (No changes needed) ---
 const OrganizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -66,8 +59,9 @@ const OrganizationSchema = {
     ]
 };
 
-// --- FIX: Ignoring the unused 'params' prop by renaming it to '_params' in destructuring ---
-const PortfoliosLayout = ({ children, params: _params }: LayoutProps) => { 
+// --- FINAL FIX: Remove 'params' from function destructuring to prevent the type error. ---
+// The component is still typed by LayoutProps but only uses the 'children' prop.
+const PortfoliosLayout = ({ children }: LayoutProps) => { 
     return (
         <div className="min-h-screen">
             {/* Inject JSON-LD Organization Schema */}
