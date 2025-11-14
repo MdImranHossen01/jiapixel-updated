@@ -7,7 +7,6 @@ import { Suspense } from "react";
 import StructuredData from "./components/StructuredData";
 import GoogleTagManager from "./components/GoogleTagManager";
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -22,11 +21,17 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.jiapixel.com"),
   title: {
     default: "Jia Pixel | Reliable Web Development & Digital Marketing Agency",
-    template: "%s | Jia Pixel"
+    template: "%s | Jia Pixel",
   },
   description:
     "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
-  keywords: ["web development", "digital marketing", "SEO", "Bangladesh", "agency"],
+  keywords: [
+    "web development",
+    "digital marketing",
+    "SEO",
+    "Bangladesh",
+    "agency",
+  ],
   authors: [{ name: "Jia Pixel" }],
   creator: "Jia Pixel",
   verification: {
@@ -41,9 +46,9 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   openGraph: {
@@ -51,7 +56,8 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://www.jiapixel.com",
     title: "Jia Pixel | Reliable Web Development & Digital Marketing Agency",
-    description: "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
+    description:
+      "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
     siteName: "Jia Pixel",
     images: [
       {
@@ -65,7 +71,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Jia Pixel | Reliable Web Development & Digital Marketing Agency",
-    description: "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
+    description:
+      "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
     images: [
       {
         url: "https://www.jiapixel.com/icon.png",
@@ -77,13 +84,8 @@ export const metadata: Metadata = {
     creator: "@jiapixel",
   },
   icons: {
-    icon: [
-      { url: "/favicon.ico" },
-      { url: "/icon.png", type: "image/png" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", type: "image/png" },
-    ],
+    icon: [{ url: "/favicon.ico" }, { url: "/icon.png", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", type: "image/png" }],
   },
 };
 
@@ -111,7 +113,7 @@ export default function RootLayout({
             sameAs: [
               "https://www.facebook.com/jiapixel",
               "https://www.linkedin.com/company/jiapixel",
-            ]
+            ],
           }}
         />
       </head>
@@ -120,7 +122,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Suspense fallback={null}>
-          <GoogleTagManager/>
+          <GoogleTagManager />
         </Suspense>
         <SessionProvider>
           <ThemeProvider
