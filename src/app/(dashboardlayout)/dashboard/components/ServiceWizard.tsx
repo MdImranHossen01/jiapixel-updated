@@ -15,15 +15,15 @@ export interface ServiceData {
   title: string;
   category: string;
   searchTags: string[];
-  author: string; // Added author field
-  authorQuote: string; // Added author quote/speech field
+  author: string;
+  authorQuote: string;
 
   // Pricing Step
   pricingTiers: '1' | '3';
   tiers: {
     starter: TierData;
-    standard?: TierData; // Make optional
-    advanced?: TierData; // Make optional
+    standard?: TierData;
+    advanced?: TierData;
   };
 
   // Gallery Step
@@ -35,12 +35,15 @@ export interface ServiceData {
 
   // Description Step
   projectSummary: string;
-  projectSteps: IServiceStep[]; // Changed from string[] to IServiceStep[]
+  projectSteps: IServiceStep[];
   faqs: FAQ[];
 
   // Review Step
   maxProjects: number;
   agreeToTerms: boolean;
+
+  // Featured Service ← ADD THIS FIELD
+  isFeatured: boolean;
 }
 
 // New interface for service steps
@@ -86,8 +89,8 @@ export default function ServiceWizard() {
     title: "",
     category: "",
     searchTags: [],
-    author: "JiaPixel Team", // Added author field with default value
-    authorQuote: "", // Added author quote/speech field
+    author: "JiaPixel Team",
+    authorQuote: "",
     pricingTiers: "3",
     tiers: {
       starter: {
@@ -119,10 +122,11 @@ export default function ServiceWizard() {
     documents: [],
     requirements: [],
     projectSummary: "",
-    projectSteps: [], // Now an array of IServiceStep objects
+    projectSteps: [],
     faqs: [],
     maxProjects: 20,
     agreeToTerms: false,
+    isFeatured: true, // ← ADD THIS WITH DEFAULT TRUE
   });
 
   const updateServiceData = (field: keyof ServiceData, value: any) => {
@@ -157,9 +161,8 @@ export default function ServiceWizard() {
         formData.append("documents", file);
       });
 
-      // Append service data as JSON - REMOVED status field
+      // Append service data as JSON
       const { images, documents, ...serviceDataWithoutFiles } = serviceData;
-      // No need to add status field - it will be set to "published" by default in the model
       formData.append("projectData", JSON.stringify(serviceDataWithoutFiles));
 
       const response = await fetch("/api/services", {

@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import Link from 'next/link';
@@ -18,7 +19,7 @@ async function getServices() {
     const baseUrl = process.env.NODE_ENV === 'production' 
       ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
       : 'http://localhost:3000';    
-    const response = await fetch(`${baseUrl}/api/services`, {
+    const response = await fetch(`${baseUrl}/api/services?isFeatured=true`, { // ← ADD FILTER
        next: { revalidate: 300 }
     });
 

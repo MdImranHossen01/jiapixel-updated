@@ -62,6 +62,17 @@ export default function ReviewStep({ data, updateData }: Props) {
               {data?.searchTags?.length || 0} tags
             </span>
           </div>
+          {/* ADD FEATURED STATUS DISPLAY HERE */}
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Featured Service:</span>
+            <span className={`px-2 py-1 rounded text-xs font-medium ${
+              data?.isFeatured 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-gray-100 text-gray-800'
+            }`}>
+              {data?.isFeatured ? 'Yes' : 'No'}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -304,6 +315,10 @@ export default function ReviewStep({ data, updateData }: Props) {
         <h4 className="font-semibold text-foreground mb-2">Ready to publish?</h4>
         <p className="text-muted-foreground text-sm">
           Review all the information above carefully. Once published, your service will be visible to clients and they can start placing orders.
+        </p>
+        {/* ADD FEATURED SERVICE NOTE */}
+        <p className="text-green-600 text-sm mt-2 font-medium">
+          ✓ This service will be featured on the main services page.
         </p>
       </div>
     </div>

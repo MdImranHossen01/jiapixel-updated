@@ -91,6 +91,18 @@ export default function OverviewStep({ data, updateData }: Props) {
     <div className="space-y-8">
       <h2 className="text-2xl font-bold text-foreground">Service overview</h2>
 
+      {/* // In OverviewStep or a new SettingsStep */}
+      <div className="flex items-center space-x-3">
+        <input
+          type="checkbox"
+          checked={data.isFeatured}
+          onChange={(e) => updateData("isFeatured", e.target.checked)}
+          className="text-primary focus:ring-primary"
+        />
+        <label className="text-foreground">
+          Feature this service on the main page
+        </label>
+      </div>
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">

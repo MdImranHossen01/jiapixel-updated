@@ -131,6 +131,7 @@ export async function POST(request: NextRequest) {
       faqs: serviceData.faqs,
       maxProjects: serviceData.maxProjects,
       agreeToTerms: serviceData.agreeToTerms,
+      isFeatured: serviceData.isFeatured !== undefined ? serviceData.isFeatured : true, // Add isFeatured field
       images: imageUrls,
       documents: documentUrls,
       // Use a simple string for createdBy instead of ObjectId for now
@@ -173,10 +174,16 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
+    const isFeatured = searchParams.get('isFeatured'); // ← ADD THIS LINE
 
     const query: any = {};
     if (status) {
       query.status = status;
+    }
+    
+    // Add isFeatured filter if provided ← ADD THIS SECTION
+    if (isFeatured !== null) {
+      query.isFeatured = isFeatured === 'true';
     }
 
     // Don't populate createdBy to avoid User model dependency

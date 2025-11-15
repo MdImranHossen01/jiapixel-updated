@@ -60,6 +60,9 @@ export interface IService extends Document {
   maxProjects: number;
   agreeToTerms: boolean;
 
+  // Featured Service
+  isFeatured: boolean; // ← ADD THIS FIELD
+
   // Metadata
   status: "draft" | "published" | "archived";
   createdBy: string; // Changed to string instead of ObjectId
@@ -134,6 +137,12 @@ const ServiceSchema = new Schema<IService>(
     maxProjects: { type: Number, default: 20 },
     agreeToTerms: { type: Boolean, required: true },
 
+    // Featured Service ← ADD THIS FIELD
+    isFeatured: {
+      type: Boolean,
+      default: true, // Default to true as requested
+    },
+
     // Metadata
     status: {
       type: String,
@@ -183,6 +192,7 @@ ServiceSchema.pre("save", async function (next) {
 
 ServiceSchema.index({ createdBy: 1, status: 1 });
 ServiceSchema.index({ status: 1, createdAt: -1 });
+ServiceSchema.index({ isFeatured: 1 }); // ← ADD INDEX FOR BETTER PERFORMANCE
 
 export default mongoose.models.Service ||
   mongoose.model<IService>("Service", ServiceSchema);
