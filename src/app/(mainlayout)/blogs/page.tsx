@@ -101,7 +101,7 @@ export default async function BlogsPage() {
         dateModified: blog.updatedAt,
         author: {
           '@type': 'Person',
-          name: blog.authorName || 'Jiapixel Team'
+          name: blog.authorName || 'Md Imran Hossen'
         },
         publisher: {
           '@type': 'Organization',

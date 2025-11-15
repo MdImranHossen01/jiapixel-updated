@@ -89,7 +89,7 @@ export default function ServiceWizard() {
     title: "",
     category: "",
     searchTags: [],
-    author: "JiaPixel Team",
+    author: "Md Imran Hossen",
     authorQuote: "",
     pricingTiers: "3",
     tiers: {

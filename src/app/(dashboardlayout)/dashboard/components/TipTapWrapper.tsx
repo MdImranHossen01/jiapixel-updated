@@ -17,6 +17,38 @@ interface TipTapWrapperProps {
   onChange: (content: string) => void;
 }
 
+// Create a custom Color extension that prevents white text colors
+const CustomColor = Color.extend({
+  addAttributes() {
+    return {
+      color: {
+      default: null,
+      parseHTML: (element: HTMLElement): string | null => element.getAttribute('data-color') || element.style.color || null,
+      renderHTML: (attributes: { color?: string }): Record<string, string> => {
+        if (!attributes.color) {
+        return {};
+        }
+
+        // Prevent white colors that cause visibility issues in light mode
+        const color = attributes.color.toLowerCase();
+        if (color === '#ffffff' || color === 'rgb(255, 255, 255)' || color === 'white') {
+        return {
+          'data-color': color,
+          'class': 'text-foreground' // Use theme color instead of white
+        };
+        }
+
+        // For other colors, use inline style but ensure visibility
+        return {
+        style: `color: ${attributes.color}`,
+        'data-color': attributes.color
+        };
+      },
+      },
+    }
+  },
+})
+
 // This component will only render on the client side
 function TipTapEditor({ content, onChange }: TipTapWrapperProps) {
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -49,7 +81,7 @@ function TipTapEditor({ content, onChange }: TipTapWrapperProps) {
         multicolor: true,
       }),
       TextStyle,
-      Color.configure({
+      CustomColor.configure({ // Use custom color extension instead of default
         types: ['textStyle'],
       }),
       Image.configure({
@@ -89,6 +121,21 @@ function TipTapEditor({ content, onChange }: TipTapWrapperProps) {
     setMounted(true);
   }, []);
 
+  // Clean existing content from white text colors when component mounts
+  useEffect(() => {
+    if (editor && content) {
+      const cleanedContent = content
+        .replace(/style="color:\s*rgb\(255,\s*255,\s*255\);?"/gi, 'class="text-foreground"')
+        .replace(/style="color:\s*#ffffff;?"/gi, 'class="text-foreground"')
+        .replace(/style="color:\s*white;?"/gi, 'class="text-foreground"');
+      
+      if (cleanedContent !== content) {
+        editor.commands.setContent(cleanedContent);
+        onChange(cleanedContent);
+      }
+    }
+  }, [editor, content, onChange]);
+
   // Update editor content when prop changes
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
@@ -98,9 +145,6 @@ function TipTapEditor({ content, onChange }: TipTapWrapperProps) {
       fullscreenEditor.commands.setContent(content);
     }
   }, [editor, fullscreenEditor, content]);
-
-  // Rest of the component remains exactly the same...
-  // [All the existing code below remains unchanged]
 
   // Image resize and drag functionality
   useEffect(() => {
@@ -191,8 +235,12 @@ function TipTapEditor({ content, onChange }: TipTapWrapperProps) {
     setShowColorPicker(false);
   };
 
-  // Text color functions
+  // Text color functions - prevent white colors
   const setTextColor = (color: string = '#000000') => {
+    // Prevent setting white color
+    if (color.toLowerCase() === '#ffffff' || color.toLowerCase() === 'white') {
+      color = '#000000'; // Fallback to black
+    }
     editor?.chain().focus().setColor(color).run();
     setShowTextColorPicker(false);
   };
@@ -442,10 +490,10 @@ function TipTapEditor({ content, onChange }: TipTapWrapperProps) {
           <div className="absolute left-0 mt-1 p-3 bg-card border border-border rounded shadow-lg z-20 w-64">
             <div className="grid grid-cols-5 gap-2 mb-3">
               {[
-                '#000000', '#ffffff', '#ef4444', '#f97316', '#eab308',
-                '#22c55e', '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899',
-                '#78716c', '#d6d3d1', '#dc2626', '#ea580c', '#ca8a04',
-                '#16a34a', '#2563eb', '#4f46e5', '#7c3aed', '#db2777'
+                '#000000', '#ef4444', '#f97316', '#eab308', '#22c55e',
+                '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', '#78716c',
+                '#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#2563eb',
+                '#4f46e5', '#7c3aed', '#db2777', '#57534e', '#44403c' 
               ].map((color) => (
                 <button
                   key={color}

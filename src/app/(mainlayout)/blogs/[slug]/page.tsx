@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'article',
       publishedTime: blog.publishedAt || blog.createdAt,
       modifiedTime: blog.updatedAt,
-      authors: [blog.authorName || 'Jiapixel Team'],
+      authors: [blog.authorName || 'Md Imran Hossen'],
       tags: blog.tags || [],
     },
     
@@ -118,7 +118,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     dateModified: blog.updatedAt,
     author: {
       '@type': 'Person',
-      name: blog.authorName || 'Jiapixel Team'
+      name: blog.authorName || 'Md Imran Hossen'
     },
     publisher: {
       '@type': 'Organization',

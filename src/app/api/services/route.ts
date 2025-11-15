@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
       slug: uniqueSlug, // Explicitly set the slug
       category: serviceData.category,
       searchTags: serviceData.searchTags,
-      author: serviceData.author || 'JiaPixel Team', // Add author field with default
+      author: serviceData.author || 'Md Imran Hossen', // Add author field with default
       authorQuote: serviceData.authorQuote || '', // Add author quote field
       pricingTiers: serviceData.pricingTiers,
       tiers: cleanedTiers,

@@ -119,6 +119,7 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
 
   return (
     <div id='pricing' className="max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+      <h2 className="text-2xl font-bold mb-6">Choose The Best Plan</h2>
       <div className="grid grid-cols-1 gap-2  sm:items-stretch md:grid-cols-3">
         {allTiers.map((tier, index) => (
           <div key={tier._id || `${tier.serviceId}-${tier.tierType}-${index}`} className="divide-y divide-border rounded-2xl border border-border shadow-xs">
