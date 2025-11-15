@@ -6,7 +6,7 @@ import { FAQSection } from "../components/Faq";
 import ServiceSteps from "../components/ServiceSteps";
 import AuthorQuote from "../components/AuthorQuote";
 import HeroSection from "../components/HeroSection";
-import FeaturedCard from "../components/FeaturedCard";
+import { FeaturedCard } from "../components/FeaturedCard";
 
 interface PageProps {
   params: Promise<{
@@ -215,7 +215,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
 
           {/* featured card section  */}
 
-          <FeaturedCard />
+          <FeaturedCard/>
 
           {/* Author Quote Component */}
           <AuthorQuote
