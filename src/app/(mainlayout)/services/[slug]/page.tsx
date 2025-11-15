@@ -184,39 +184,38 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
         />
       )}
 
-      <div className="bg-background overflow-hidden py-20">
-         
+      <div className=" overflow-hidden py-20">
         <div className="container mx-auto px-4 w-full">
-         <section>
-           <HeroSection
-            service={service}
-            mainCategory={mainCategory}
-            subcategory={subcategory}
-          />
-         </section>
+          <section>
+            <HeroSection
+              service={service}
+              mainCategory={mainCategory}
+              subcategory={subcategory}
+            />
+          </section>
 
           {/* Service Description */}
           <section className="py-16">
-  
-  <div className="container mx-auto px-4">
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-10">
-        <span className="text-primary font-semibold text-lg mb-2 block">Overview</span>
-        <h2 className="text-4xl font-bold text-foreground">Service Details</h2>
-      </div>
-      <div className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
-        <RichTextRenderer content={service.projectSummary} />
-      </div>
-    </div>
-  </div>
-</section>
+            <div className="container mx-auto px-4">
+              <div className="max-w-3xl mx-auto">
+                <div className="mb-10">
+                  <span className="text-primary font-semibold text-lg mb-2 block">
+                    Overview
+                  </span>
+                  <h2 className="text-4xl font-bold text-foreground">
+                    Service Details
+                  </h2>
+                </div>
+                <div className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
+                  <RichTextRenderer content={service.projectSummary} />
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* featured card section  */}
-         
-            
-              <FeaturedCard />
-          
-          
+
+          <FeaturedCard />
 
           {/* Author Quote Component */}
           <AuthorQuote

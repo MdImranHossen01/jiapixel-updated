@@ -54,7 +54,7 @@ const benefits = [
 
 const WhyChooseUs = () => {
     return (
-        <section className="bg-background text-foreground py-20">
+        <section className="text-foreground py-20">
             <div className="container mx-auto px-4 max-w-7xl">
                 
                 {/* Header */}

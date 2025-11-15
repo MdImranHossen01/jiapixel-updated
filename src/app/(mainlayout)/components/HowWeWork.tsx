@@ -47,7 +47,7 @@ const HowWeWork = () => {
   const totalSteps = WORK_STEPS.length;
 
   return (
-    <section className="bg-background text-foreground py-20 md:py-32">
+    <section className="text-foreground py-20 md:py-32">
       <div className="container mx-auto px-4">
         {/* Headline */}
         <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-16 max-w-4xl mx-auto leading-tight">

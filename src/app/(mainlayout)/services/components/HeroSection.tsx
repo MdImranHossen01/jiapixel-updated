@@ -37,7 +37,7 @@ const HeroSection = ({
   }, [service.images]);
 
   return (
-    <section className="bg-background">
+    <section>
       {/* Hero Section - Text and Title */}
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 items-start md:items-center justify-between mb-4">
         <div>
