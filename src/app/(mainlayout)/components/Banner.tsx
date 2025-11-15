@@ -6,8 +6,8 @@ import { BackgroundLines } from "@/components/ui/background-lines";
 
 const Banner = () => {
   return (
-    <BackgroundLines className="h-auto">
-    // 1. Main container: Relative for positioning, bg-background for theme
+    <BackgroundLines>
+    {/* // 1. Main container: Relative for positioning, bg-background for theme */}
     <section className="relative  text-foreground pt-32 pb-20 md:pt-48 md:pb-32 text-center overflow-hidden">
       {/* 2. Background Effects (Grid and Gradient) */}
      
