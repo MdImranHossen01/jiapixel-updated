@@ -1,5 +1,4 @@
-// G:\jiapixel-updated\src\app\(mainlayout)\contact\page.tsx
-import { Metadata } from 'next';
+"use client";
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,53 +6,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { 
-  Mail, Phone, MapPin, Clock, Send, CheckCircle2 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Clock,
+  Send,
+  CheckCircle2 
 } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Contact JIA Pixel - Get in Touch | Digital Agency',
-  description: 'Contact JIA Pixel digital agency. Let us discuss your project requirements and create amazing digital experiences together. Quick response guaranteed.',
-  keywords: 'contact digital agency, web design contact, get quote, project inquiry, JIA Pixel contact',
-  
-  openGraph: {
-    title: 'Contact JIA Pixel - Get in Touch',
-    description: 'Get in touch with JIA Pixel digital agency to discuss your project requirements',
-    type: 'website',
-    url: 'https://www.jiapixel.com/contact',
-    siteName: 'JIA Pixel',
-    images: [
-      {
-        url: '/og-contact.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Contact JIA Pixel Digital Agency',
-      },
-    ],
-  },
-  
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Contact JIA Pixel - Get in Touch',
-    description: 'Get in touch with JIA Pixel digital agency to discuss your project requirements',
-    images: ['/og-contact.jpg'],
-  },
-  
-  alternates: {
-    canonical: 'https://www.jiapixel.com/contact',
-  },
-  
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-};
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -79,6 +38,7 @@ const structuredData = {
     availableLanguage: 'en',
   },
 };
+
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -103,13 +63,11 @@ const ContactPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     setIsSubmitting(false);
     setIsSubmitted(true);
     
-    // Reset form after success
     setTimeout(() => {
       setIsSubmitted(false);
       setFormData({
@@ -170,25 +128,25 @@ const ContactPage = () => {
   ];
 
   return (
-     <>
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <div className="min-h-screen pb-20">
         <BackgroundLines className="min-h-screen">
-        {/* Header Section */}
-        <section className="pt-32 pb-20 text-center">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Let&apos;s Create Something
-              <span className="text-primary block">Amazing Together</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Ready to transform your digital presence? Get in touch with our team and let&apos;s discuss how we can help your business grow.
-            </p>
-          </div>
-        </section>
+          {/* Your existing contact page content */}
+          <section className="pt-32 pb-20 text-center">
+            <div className="container mx-auto px-4">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+                Let's Create Something
+                <span className="text-primary block">Amazing Together</span>
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Ready to transform your digital presence? Get in touch with our team and let's discuss how we can help your business grow.
+              </p>
+            </div>
+          </section>
 
         {/* Contact Form & Info Section */}
         <section className="py-20">
