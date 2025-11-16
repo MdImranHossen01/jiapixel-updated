@@ -1,5 +1,5 @@
 // G:\jiapixel-updated\src\app\(mainlayout)\contact\page.tsx
-"use client";
+import { Metadata } from 'next';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,14 +7,78 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Clock,
-  Send,
-  CheckCircle2 
+  Mail, Phone, MapPin, Clock, Send, CheckCircle2 
 } from 'lucide-react';
 
+export const metadata: Metadata = {
+  title: 'Contact JIA Pixel - Get in Touch | Digital Agency',
+  description: 'Contact JIA Pixel digital agency. Let us discuss your project requirements and create amazing digital experiences together. Quick response guaranteed.',
+  keywords: 'contact digital agency, web design contact, get quote, project inquiry, JIA Pixel contact',
+  
+  openGraph: {
+    title: 'Contact JIA Pixel - Get in Touch',
+    description: 'Get in touch with JIA Pixel digital agency to discuss your project requirements',
+    type: 'website',
+    url: 'https://www.jiapixel.com/contact',
+    siteName: 'JIA Pixel',
+    images: [
+      {
+        url: '/og-contact.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Contact JIA Pixel Digital Agency',
+      },
+    ],
+  },
+  
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contact JIA Pixel - Get in Touch',
+    description: 'Get in touch with JIA Pixel digital agency to discuss your project requirements',
+    images: ['/og-contact.jpg'],
+  },
+  
+  alternates: {
+    canonical: 'https://www.jiapixel.com/contact',
+  },
+  
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+};
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contact JIA Pixel',
+  description: 'Contact page for JIA Pixel digital agency',
+  url: 'https://www.jiapixel.com/contact',
+  mainEntity: {
+    '@type': 'Organization',
+    name: 'JIA Pixel',
+    description: 'Digital agency creating exceptional digital experiences',
+    email: 'hello@jiapixel.com',
+    telephone: '+1-555-123-4567',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '123 Design Street',
+      addressLocality: 'Creative District',
+      addressRegion: 'CA',
+      postalCode: '90210',
+      addressCountry: 'US',
+    },
+    areaServed: 'US',
+    availableLanguage: 'en',
+  },
+};
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -106,8 +170,13 @@ const ContactPage = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      <BackgroundLines>
+     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <div className="min-h-screen pb-20">
+        <BackgroundLines className="min-h-screen">
         {/* Header Section */}
         <section className="pt-32 pb-20 text-center">
           <div className="container mx-auto px-4">
@@ -328,6 +397,7 @@ const ContactPage = () => {
         </section>
       </BackgroundLines>
     </div>
+    </>
   );
 };
 

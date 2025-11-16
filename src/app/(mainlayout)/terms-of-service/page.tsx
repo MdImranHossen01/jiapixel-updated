@@ -1,119 +1,299 @@
+// G:\jiapixel-updated\src\app\(mainlayout)\terms-of-service\page.tsx
+import { Metadata } from 'next';
 import React from 'react';
-import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service | JIA Pixel - Digital Agency',
+  description: 'Read JIA Pixel Terms of Service. Learn about our policies for website usage, services, intellectual property, payments, and client agreements.',
+  keywords: 'terms of service, legal agreement, digital agency terms, web design terms, development agreement',
+  
+  // Open Graph
+  openGraph: {
+    title: 'Terms of Service | JIA Pixel',
+    description: 'Legal terms and conditions for JIA Pixel digital agency services',
+    type: 'website',
+    url: 'https://www.jiapixel.com/terms-of-service',
+    siteName: 'JIA Pixel',
+    locale: 'en_US',
+    images: [
+      {
+        url: '/og-terms.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'JIA Pixel Terms of Service',
+      },
+    ],
+  },
+  
+  // Twitter Card
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Terms of Service | JIA Pixel',
+    description: 'Legal terms and conditions for JIA Pixel digital agency services',
+    images: ['/og-terms.jpg'],
+  },
+  
+  // Canonical
+  alternates: {
+    canonical: 'https://www.jiapixel.com/terms-of-service',
+  },
+  
+  // Robots
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  
+  // Additional Meta
+  verification: {
+    google: 'your-google-verification-code', // Add your Google Search Console code
+  },
+};
+
+// Add structured data
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Terms of Service',
+  description: 'Terms of Service for JIA Pixel digital agency',
+  url: 'https://www.jiapixel.com/terms-of-service',
+  publisher: {
+    '@type': 'Organization',
+    name: 'JIA Pixel',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://www.jiapixel.com/logo.png',
+    },
+  },
+};
 
 const TermsOfServicePage = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-     
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-20 max-w-4xl">
-        <div className="bg-card rounded-lg border border-border p-8 shadow-sm">
-          <h1 className="text-3xl font-bold mb-6">Terms of Service</h1>
-          <p className="text-muted-foreground mb-8">
-            Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <div className="min-h-screen bg-background py-20">
+      <div className="container mx-auto px-4 max-w-4xl">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Terms of Service</h1>
+          <p className="text-xl text-muted-foreground">
+            Last updated: {new Date().toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
           </p>
-
-          <div className="prose prose-invert max-w-none">
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
-              <p>
-                By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement. 
-                In addition, when using this website&apos;s particular services, you shall be subject to any posted guidelines or rules 
-                applicable to such services.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">2. Use License</h2>
-              <p>
-                Permission is granted to temporarily download one copy of the materials on Jiapixel&apos;s website for personal, 
-                non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this 
-                license you may not:
-              </p>
-              <ul className="list-disc pl-6 my-4">
-                <li>Modify or copy the materials</li>
-                <li>Use the materials for any commercial purpose</li>
-                <li>Attempt to decompile or reverse engineer any software contained on Jiapixel&apos;s website</li>
-                <li>Remove any copyright or other proprietary notations from the materials</li>
-                <li>Transfer the materials to another person or &#34;mirror&#34; the materials on any other server</li>
-              </ul>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">3. Disclaimer</h2>
-              <p>
-                The materials on Jiapixel&apos;s website are provided on an &apos;as is&apos; basis. Jiapixel makes no warranties, expressed or implied, 
-                and hereby disclaims and negates all other warranties including without limitation, implied warranties or conditions of 
-                merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">4. Limitations</h2>
-              <p>
-                In no event shall Jiapixel or its suppliers be liable for any damages (including, without limitation, damages for loss of 
-                data or profit, or due to business interruption) arising out of the use or inability to use the materials on Jiapixel&apos;s 
-                website, even if Jiapixel or a Jiapixel authorized representative has been notified orally or in writing of the possibility 
-                of such damage.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">5. Accuracy of Materials</h2>
-              <p>
-                The materials appearing on Jiapixel&apos;s website could include technical, typographical, or photographic errors. Jiapixel does 
-                not warrant that any of the materials on its website are accurate, complete, or current. Jiapixel may make changes to the 
-                materials contained on its website at any time without notice. Jiapixel does not, however, make any commitment to update 
-                the materials.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">6. Links</h2>
-              <p>
-                Jiapixel has not reviewed all of the sites linked to its website and is not responsible for the contents of any such 
-                linked site. The inclusion of any link does not imply endorsement by Jiapixel of the site. Use of any such linked website 
-                is at the user&apos;s own risk.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">7. Modifications</h2>
-              <p>
-                Jiapixel may revise these terms of service for its website at any time without notice. By using this website you are 
-                agreeing to be bound by the then current version of these terms of service.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">8. Governing Law</h2>
-              <p>
-                These terms and conditions are governed by and construed in accordance with the laws of New York, USA and you irrevocably 
-                submit to the exclusive jurisdiction of the courts in that State or location.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">9. Contact Information</h2>
-              <p>
-                If you have any questions about these Terms of Service, please contact us at:
-              </p>
-              <address className="not-italic mt-4">
-                <p>Jiapixel</p>
-                <p>123 Business Ave, Suite 100</p>
-                <p>New York, NY 10001</p>
-                <p>Email: contact@jiapixel.com</p>
-                <p>Phone: +1 (555) 123-4567</p>
-              </address>
-            </section>
-          </div>
         </div>
-      </main>
 
-     
+        <Card className="shadow-lg">
+          <CardContent className="p-8 md:p-12">
+            <div className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
+              
+              {/* Introduction */}
+              <section className="mb-12">
+                <p className="text-lg leading-relaxed">
+                  Welcome to JIA Pixel. These Terms of Service govern your use of our website and services. 
+                  By accessing or using our services, you agree to be bound by these terms.
+                </p>
+              </section>
+
+              {/* Services Description */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">1. Services Overview</h2>
+                <p className="mb-4">
+                  JIA Pixel provides digital design and development services including but not limited to:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mb-4 ml-4">
+                  <li>Website design and development</li>
+                  <li>UI/UX design services</li>
+                  <li>Brand identity design</li>
+                  <li>Digital marketing services</li>
+                  <li>Consulting and strategy services</li>
+                </ul>
+              </section>
+
+              {/* User Responsibilities */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">2. User Responsibilities</h2>
+                <p className="mb-4">When using our services, you agree to:</p>
+                <ul className="list-disc list-inside space-y-2 mb-4 ml-4">
+                  <li>Provide accurate and complete information</li>
+                  <li>Maintain the confidentiality of your account</li>
+                  <li>Not use our services for any illegal or unauthorized purpose</li>
+                  <li>Not interfere with or disrupt the service or servers</li>
+                  <li>Comply with all applicable laws and regulations</li>
+                </ul>
+              </section>
+
+              {/* Intellectual Property */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">3. Intellectual Property</h2>
+                <p className="mb-4">
+                  All content, features, and functionality on our website, including but not limited to text, 
+                  graphics, logos, and software, are the exclusive property of JIA Pixel and are protected by 
+                  international copyright, trademark, and other intellectual property laws.
+                </p>
+                <p className="mb-4">
+                  Upon full payment, clients receive ownership of the final delivered work, while JIA Pixel 
+                  retains the right to display the work in our portfolio and marketing materials.
+                </p>
+              </section>
+
+              {/* Payments and Refunds */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">4. Payments and Refunds</h2>
+                <p className="mb-4">
+                  <strong>Payment Terms:</strong> Projects require a 50% deposit to begin work, with the 
+                  balance due upon project completion unless otherwise agreed in writing.
+                </p>
+                <p className="mb-4">
+                  <strong>Refund Policy:</strong> Deposits are non-refundable once work has commenced. 
+                  If a project is canceled after work has begun, clients will be billed for work completed 
+                  up to the cancellation date.
+                </p>
+                <p className="mb-4">
+                  <strong>Late Payments:</strong> Accounts overdue by more than 30 days may be subject to 
+                  late fees and suspension of services.
+                </p>
+              </section>
+
+              {/* Project Timelines */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">5. Project Timelines</h2>
+                <p className="mb-4">
+                  Project timelines are estimates and may be affected by client responsiveness, scope changes, 
+                  and other factors. JIA Pixel will make reasonable efforts to meet agreed-upon deadlines but 
+                  cannot guarantee specific completion dates.
+                </p>
+              </section>
+
+              {/* Client Content */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">6. Client Content</h2>
+                <p className="mb-4">
+                  Clients are responsible for providing all necessary content, images, and materials in a 
+                  timely manner. JIA Pixel is not responsible for delays caused by late content delivery.
+                </p>
+                <p className="mb-4">
+                  Clients must ensure they have proper rights and permissions for all materials provided 
+                  to JIA Pixel for use in projects.
+                </p>
+              </section>
+
+              {/* Revisions */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">7. Revisions and Changes</h2>
+                <p className="mb-4">
+                  Each project includes a specified number of revision rounds as outlined in the project proposal. 
+                  Additional revisions may be subject to additional charges.
+                </p>
+                <p className="mb-4">
+                  Significant changes to project scope after work has commenced may require a new proposal 
+                  and adjusted pricing.
+                </p>
+              </section>
+
+              {/* Termination */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">8. Termination</h2>
+                <p className="mb-4">
+                  Either party may terminate a project with written notice. Upon termination, the client 
+                  will be responsible for payment for all work completed up to the termination date.
+                </p>
+              </section>
+
+              {/* Limitation of Liability */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">9. Limitation of Liability</h2>
+                <p className="mb-4">
+                  JIA Pixel's total liability for any claim arising out of or relating to our services shall 
+                  not exceed the total amount paid by the client for the specific project in question.
+                </p>
+                <p className="mb-4">
+                  JIA Pixel shall not be liable for any indirect, special, or consequential damages arising 
+                  from the use of our services.
+                </p>
+              </section>
+
+              {/* Indemnification */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">10. Indemnification</h2>
+                <p className="mb-4">
+                  You agree to indemnify and hold harmless JIA Pixel and its employees from any claims, 
+                  damages, or expenses arising from your use of our services or violation of these terms.
+                </p>
+              </section>
+
+              {/* Governing Law */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">11. Governing Law</h2>
+                <p className="mb-4">
+                  These Terms shall be governed by and construed in accordance with the laws of the State 
+                  of California, without regard to its conflict of law provisions.
+                </p>
+              </section>
+
+              {/* Changes to Terms */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">12. Changes to Terms</h2>
+                <p className="mb-4">
+                  We reserve the right to modify these terms at any time. We will notify users of any 
+                  material changes by posting the new Terms of Service on this page and updating the 
+                  "Last updated" date.
+                </p>
+              </section>
+
+              {/* Contact Information */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">13. Contact Information</h2>
+                <p className="mb-4">
+                  If you have any questions about these Terms of Service, please contact us at:
+                </p>
+                <div className="bg-muted p-4 rounded-lg">
+                  <p className="mb-2"><strong>Email:</strong> legal@jiapixel.com</p>
+                  <p className="mb-2"><strong>Address:</strong> 123 Design Street, Creative District, CA 90210</p>
+                  <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+                </div>
+              </section>
+
+              {/* Acceptance */}
+              <section>
+                <h2 className="text-2xl font-bold mb-6">14. Acceptance of Terms</h2>
+                <p className="mb-4">
+                  By using our website and services, you signify your acceptance of these terms. 
+                  If you do not agree to these terms, please do not use our services.
+                </p>
+                <p>
+                  Your continued use of the website following the posting of changes to these terms 
+                  will be deemed your acceptance of those changes.
+                </p>
+              </section>
+
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Footer Note */}
+        <div className="text-center mt-12 text-muted-foreground">
+          <p>
+            This document constitutes the entire agreement between you and JIA Pixel regarding 
+            the use of our services.
+          </p>
+        </div>
+      </div>
     </div>
+     </>
   );
 };
 

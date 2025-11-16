@@ -1,19 +1,98 @@
 // G:\jiapixel-updated\src\app\(mainlayout)\about\page.tsx
-"use client";
+import { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { 
-  Users, 
-  Target, 
-  Award, 
-  TrendingUp,
-  HeartHandshake,
-  Lightbulb,
-  Rocket,
-  Shield
+  Users, Target, Award, TrendingUp,
+  HeartHandshake, Lightbulb, Rocket, Shield
 } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'About JIA Pixel - Digital Agency | Our Story, Team & Values',
+  description: 'Learn about JIA Pixel digital agency. Our story, team, values, and process for creating exceptional digital experiences that drive business growth.',
+  keywords: 'digital agency about, web design company, development team, creative agency, JIA Pixel team',
+  
+  openGraph: {
+    title: 'About JIA Pixel - Digital Agency',
+    description: 'Learn about our story, team, and values at JIA Pixel digital agency',
+    type: 'website',
+    url: 'https://www.jiapixel.com/about',
+    siteName: 'JIA Pixel',
+    images: [
+      {
+        url: '/og-about.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'About JIA Pixel Digital Agency',
+      },
+    ],
+  },
+  
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About JIA Pixel - Digital Agency',
+    description: 'Learn about our story, team, and values at JIA Pixel digital agency',
+    images: ['/og-about.jpg'],
+  },
+  
+  alternates: {
+    canonical: 'https://www.jiapixel.com/about',
+  },
+  
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+};
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'About JIA Pixel',
+  description: 'Digital agency specializing in web design, development, and digital marketing',
+  url: 'https://www.jiapixel.com/about',
+  publisher: {
+    '@type': 'Organization',
+    name: 'JIA Pixel',
+    description: 'Digital agency creating exceptional digital experiences',
+    url: 'https://www.jiapixel.com',
+    logo: 'https://www.jiapixel.com/logo.png',
+    foundingDate: '2021',
+    founders: [
+      {
+        '@type': 'Person',
+        name: 'Alex Chen',
+      },
+    ],
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '123 Design Street',
+      addressLocality: 'Creative District',
+      addressRegion: 'CA',
+      postalCode: '90210',
+      addressCountry: 'US',
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+1-555-123-4567',
+      contactType: 'customer service',
+      email: 'hello@jiapixel.com',
+      areaServed: 'US',
+      availableLanguage: 'en',
+    },
+  },
+};
+
+
 
 const AboutPage = () => {
   const stats = [
@@ -91,8 +170,13 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      <BackgroundLines>
+   <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <div className="min-h-screen">
+        <BackgroundLines>
         {/* Hero Section */}
         <section className="pt-32 pb-20 text-center">
           <div className="container mx-auto px-4">
@@ -278,6 +362,7 @@ const AboutPage = () => {
         </section>
       </BackgroundLines>
     </div>
+    </>
   );
 };
 
