@@ -1,7 +1,10 @@
-"use client";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "motion/react";
-import React, { useRef, useState, useEffect } from "react";
+
+const randomDirectionX = Math.floor(Math.random() * 80 - 40);
+const randomDirectionY = Math.floor(Math.random() * -50 - 10);
+const randomDuration = Math.random() * 1.5 + 0.5;
 
 export const BackgroundBeamsWithCollision = ({
   children,
@@ -70,7 +73,7 @@ export const BackgroundBeamsWithCollision = ({
     <div
       ref={parentRef}
       className={cn(
-        "rounded-2xl bg-gradient-to-b from-white to-neutral-100  dark:from-neutral-950 dark:to-neutral-800 relative flex items-center w-full justify-center overflow-hidden",
+        "rounded-2xl bg-gradient-to-b from-green-100 to-emarald-200  dark:from-neutral-950 dark:to-neutral-800 relative flex items-center w-full justify-center overflow-hidden",
         // h-screen if you want bigger
         className
       )}
@@ -228,8 +231,8 @@ const Explosion = ({ ...props }: React.HTMLProps<HTMLDivElement>) => {
     id: index,
     initialX: 0,
     initialY: 0,
-    directionX: Math.floor(Math.random() * 80 - 40),
-    directionY: Math.floor(Math.random() * -50 - 10),
+    directionX: randomDirectionX,
+    directionY: randomDirectionY,
   }));
 
   return (
@@ -250,7 +253,7 @@ const Explosion = ({ ...props }: React.HTMLProps<HTMLDivElement>) => {
             y: span.directionY,
             opacity: 0,
           }}
-          transition={{ duration: Math.random() * 1.5 + 0.5, ease: "easeOut" }}
+          transition={{ duration: randomDuration, ease: "easeOut" }}
           className="absolute h-1 w-1 rounded-full bg-gradient-to-b from-indigo-500 to-purple-500"
         />
       ))}

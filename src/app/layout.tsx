@@ -6,6 +6,7 @@ import { SessionProvider } from "@/components/session-provider"; // Changed to n
 import { Suspense } from "react";
 import StructuredData from "./components/StructuredData";
 import GoogleTagManager from "./components/GoogleTagManager";
+import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -131,6 +132,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <ThemeToggle/>
             {children}
           </ThemeProvider>
         </SessionProvider>
