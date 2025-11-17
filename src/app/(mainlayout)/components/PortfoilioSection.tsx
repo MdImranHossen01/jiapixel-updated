@@ -5,7 +5,7 @@ import { ArrowRight, CheckCircle, Star } from 'lucide-react';
 
 const PortfolioSection = () => {
     return (
-        <div className='container grid grid-cols-1 md:grid-cols-2 gap-8 py-16 px-4  mx-auto'>
+        <div className='container py-16 px-4  mx-auto'>
             {/* Left side content */}
             <div className='flex flex-col justify-center space-y-6 md:space-y-8 h-[600px]'>
               
@@ -58,63 +58,7 @@ const PortfolioSection = () => {
                
             </div>
 
-            {/* Right side - 3D Marquee */}
-            <div className='relative h-[600px] flex items-center justify-center'>
-  <div className='w-full h-full'>
-                   <ThreeDMarquee images={[
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-        "https://i.ibb.co.com/zTvN3vSk/Pizza.jpg",
-        "https://i.ibb.co.com/sxMDMFm/Pasta.jpg", 
-        "https://i.ibb.co.com/XkL6XQDv/Snacks.jpg",
-
-        // Add more image paths here
-      ]}/>
-                </div>
-            </div>
+          
         </div>
     );
 };
