@@ -1,7 +1,5 @@
-import { ThreeDMarquee } from '@/components/ui/3d-marquee';
-import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Star } from 'lucide-react';
+import { ArrowRight, CheckCircle } from 'lucide-react';
 
 const PortfolioSection = () => {
     return (

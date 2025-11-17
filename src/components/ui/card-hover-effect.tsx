@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
 
 import { useState } from "react";
-import { BackgroundBeamsWithCollision } from "./background-beams-with-collision";
 
 export const HoverEffect = ({
   items,
@@ -67,7 +66,6 @@ export const Card = ({
   children: React.ReactNode;
 }) => {
   return (
-    <BackgroundBeamsWithCollision>
         <div
       className={cn(
         "rounded-2xl h-full w-full p-4 overflow-hidden border-green-300 border  dark:border-white/[0.2] group-hover:green-700 dark:group-hover:border-slate-700 relative z-20",
@@ -78,7 +76,6 @@ export const Card = ({
         <div className="p-4">{children}</div>
       </div>
     </div>
-    </BackgroundBeamsWithCollision>
   );
 };
 export const CardTitle = ({
