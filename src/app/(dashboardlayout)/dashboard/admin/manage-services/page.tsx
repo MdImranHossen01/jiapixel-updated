@@ -13,6 +13,7 @@ interface Service {
   images: string[];
   status: 'draft' | 'published' | 'archived';
   isFeatured: boolean;
+  isIndexedInGoogle: boolean; // ← ADD THIS
   tiers: {
     starter?: { price: number; deliveryDays: number };
     standard?: { price: number; deliveryDays: number };
@@ -135,6 +136,35 @@ const ManageServicesPage = () => {
     }
   };
 
+  // ADD THIS NEW FUNCTION
+  const handleGoogleIndexToggle = async (serviceId: string, serviceSlug: string, isIndexedInGoogle: boolean) => {
+    setUpdateLoading(serviceId);
+    
+    try {
+      const response = await fetch(`/api/services/${serviceSlug}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ isIndexedInGoogle: !isIndexedInGoogle })
+      });
+
+      if (response.ok) {
+        setServices(services.map(s => 
+          s._id === serviceId ? { ...s, isIndexedInGoogle: !isIndexedInGoogle } : s
+        ));
+      } else {
+        const data = await response.json();
+        alert(`Failed to update Google indexing status: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating Google indexing status:', error);
+      alert('Failed to update Google indexing status');
+    } finally {
+      setUpdateLoading(null);
+    }
+  };
+
   const getTierPrices = (service: Service) => {
     const tiers = service.tiers || {};
     const prices = Object.values(tiers).map((tier: any) => tier.price || 0).filter(price => price > 0);
@@ -148,22 +178,6 @@ const ManageServicesPage = () => {
       return `$${minPrice}`;
     }
     return `$${minPrice} - $${maxPrice}`;
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      draft: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100', label: 'Draft' },
-      published: { color: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100', label: 'Published' },
-      archived: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100', label: 'Archived' },
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
-    
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        {config.label}
-      </span>
-    );
   };
 
   if (loading) {
@@ -203,8 +217,8 @@ const ManageServicesPage = () => {
         </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Stats - UPDATED WITH GOOGLE INDEXED COUNT */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <div className="bg-card rounded-lg p-6 border border-border">
           <div className="text-2xl font-bold text-foreground">
             {services.length}
@@ -228,6 +242,12 @@ const ManageServicesPage = () => {
             {services.filter(s => s.status === 'draft').length}
           </div>
           <div className="text-muted-foreground">Draft</div>
+        </div>
+        <div className="bg-card rounded-lg p-6 border border-border">
+          <div className="text-2xl font-bold text-foreground">
+            {services.filter(s => s.isIndexedInGoogle).length}
+          </div>
+          <div className="text-muted-foreground">Google Indexed</div>
         </div>
       </div>
       
@@ -263,6 +283,7 @@ const ManageServicesPage = () => {
                 service={service}
                 onStatusChange={handleStatusChange}
                 onFeaturedToggle={handleFeaturedToggle}
+                onGoogleIndexToggle={handleGoogleIndexToggle} // ← ADD THIS
                 onDelete={handleDelete}
                 updateLoading={updateLoading}
                 deleteLoading={deleteLoading}
@@ -275,11 +296,12 @@ const ManageServicesPage = () => {
   );
 };
 
-// Service Card Component
+// Service Card Component - UPDATED WITH GOOGLE INDEXING TOGGLE
 function ServiceCard({ 
   service, 
   onStatusChange, 
   onFeaturedToggle, 
+  onGoogleIndexToggle, // ← ADD THIS PROP
   onDelete,
   updateLoading,
   deleteLoading 
@@ -287,6 +309,7 @@ function ServiceCard({
   service: Service;
   onStatusChange: (id: string, slug: string, status: string) => void;
   onFeaturedToggle: (id: string, slug: string, isFeatured: boolean) => void;
+  onGoogleIndexToggle: (id: string, slug: string, isIndexedInGoogle: boolean) => void; // ← ADD THIS
   onDelete: (id: string, slug: string) => void;
   updateLoading: string | null;
   deleteLoading: string | null;
@@ -382,11 +405,12 @@ function ServiceCard({
           <p className="text-sm text-card-foreground">{service.author}</p>
           <p className="text-xs text-muted-foreground">
             {service.isFeatured && '⭐ Featured'}
+            {service.isIndexedInGoogle && ' • 🌐 Google Indexed'}
           </p>
         </div>
       </div>
       
-      {/* Status and Featured Controls */}
+      {/* Status and Featured Controls - UPDATED WITH GOOGLE INDEXING */}
       <div className="flex flex-wrap items-center gap-4 mb-4 p-4 bg-muted/50 rounded-lg">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-card-foreground">Status:</span>
@@ -414,6 +438,24 @@ function ServiceCard({
             <div
               className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${
                 service.isFeatured ? 'left-7' : 'left-1'
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Google Indexing Toggle ← ADD THIS */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-card-foreground">Google Indexed:</span>
+          <button
+            onClick={() => onGoogleIndexToggle(service._id, service.slug, service.isIndexedInGoogle)}
+            disabled={updateLoading === service._id}
+            className={`w-12 h-6 rounded-full transition-colors relative disabled:opacity-50 ${
+              service.isIndexedInGoogle ? 'bg-green-600' : 'bg-muted'
+            }`}
+          >
+            <div
+              className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${
+                service.isIndexedInGoogle ? 'left-7' : 'left-1'
               }`}
             />
           </button>

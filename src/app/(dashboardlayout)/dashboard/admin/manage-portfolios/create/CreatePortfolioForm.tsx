@@ -3,7 +3,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import TipTapWrapper from '../../components/TipTapWrapper';
+import TipTapWrapper from '../../../components/TipTapWrapper';
 
 const CreatePortfolioForm = () => {
   const router = useRouter();

@@ -33,15 +33,15 @@ export interface IService extends Document {
   slug: string;
   category: string;
   searchTags: string[];
-  author: string; // Added author field
-  authorQuote: string; // Added author quote/speech field
+  author: string;
+  authorQuote: string;
 
   // Pricing Step
   pricingTiers: "1" | "3";
   tiers: {
     starter: ITierData;
-    standard?: ITierData; // Make optional
-    advanced?: ITierData; // Make optional
+    standard?: ITierData;
+    advanced?: ITierData;
   };
 
   // Gallery Step
@@ -53,7 +53,7 @@ export interface IService extends Document {
 
   // Description Step
   projectSummary: string;
-  projectSteps: IServiceStep[]; // Changed from string[] to IServiceStep[]
+  projectSteps: IServiceStep[];
   faqs: IFAQ[];
 
   // Review Step
@@ -61,11 +61,14 @@ export interface IService extends Document {
   agreeToTerms: boolean;
 
   // Featured Service
-  isFeatured: boolean; // ← ADD THIS FIELD
+  isFeatured: boolean;
+
+  // Google Indexing Status ← ADD THIS FIELD
+  isIndexedInGoogle: boolean;
 
   // Metadata
   status: "draft" | "published" | "archived";
-  createdBy: string; // Changed to string instead of ObjectId
+  createdBy: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -110,15 +113,15 @@ const ServiceSchema = new Schema<IService>(
     },
     category: { type: String, required: true },
     searchTags: [{ type: String }],
-    author: { type: String, required: true, default: "Md. Imran Hossen" }, // Added author field
-    authorQuote: { type: String, required: false }, // Added author quote/speech field
+    author: { type: String, required: true, default: "Md. Imran Hossen" },
+    authorQuote: { type: String, required: false },
 
     // Pricing Step
     pricingTiers: { type: String, enum: ["1", "3"], required: true },
     tiers: {
       starter: { type: TierDataSchema, required: true },
-      standard: { type: TierDataSchema }, // Not required
-      advanced: { type: TierDataSchema }, // Not required
+      standard: { type: TierDataSchema },
+      advanced: { type: TierDataSchema },
     },
 
     // Gallery Step
@@ -130,17 +133,23 @@ const ServiceSchema = new Schema<IService>(
 
     // Description Step
     projectSummary: { type: String, required: true },
-    projectSteps: [ServiceStepSchema], // Changed from [String] to [ServiceStepSchema]
+    projectSteps: [ServiceStepSchema],
     faqs: [FAQSchema],
 
     // Review Step
     maxProjects: { type: Number, default: 20 },
     agreeToTerms: { type: Boolean, required: true },
 
-    // Featured Service ← ADD THIS FIELD
+    // Featured Service
     isFeatured: {
       type: Boolean,
-      default: true, // Default to true as requested
+      default: true,
+    },
+
+    // Google Indexing Status ← ADD THIS FIELD
+    isIndexedInGoogle: {
+      type: Boolean,
+      default: false, // Default to false as requested
     },
 
     // Metadata
@@ -192,7 +201,8 @@ ServiceSchema.pre("save", async function (next) {
 
 ServiceSchema.index({ createdBy: 1, status: 1 });
 ServiceSchema.index({ status: 1, createdAt: -1 });
-ServiceSchema.index({ isFeatured: 1 }); // ← ADD INDEX FOR BETTER PERFORMANCE
+ServiceSchema.index({ isFeatured: 1 });
+ServiceSchema.index({ isIndexedInGoogle: 1 }); // ← ADD INDEX FOR BETTER PERFORMANCE
 
 export default mongoose.models.Service ||
   mongoose.model<IService>("Service", ServiceSchema);

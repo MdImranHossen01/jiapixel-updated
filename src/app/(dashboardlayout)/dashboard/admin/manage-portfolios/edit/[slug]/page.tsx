@@ -1,4 +1,3 @@
-import React from 'react';
 import { redirect } from 'next/navigation';
 import EditPortfolioForm from './EditPortfolioForm';
 import { getCurrentUser } from '@/lib/auth-utils';

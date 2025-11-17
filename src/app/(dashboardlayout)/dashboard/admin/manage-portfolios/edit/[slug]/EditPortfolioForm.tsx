@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import TipTapWrapper from '../../../components/TipTapWrapper';
+import TipTapWrapper from '../../../../components/TipTapWrapper';
 
 interface Portfolio {
   _id: string;
