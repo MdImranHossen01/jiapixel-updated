@@ -11,7 +11,7 @@ const HomePage = () => {
   return (
     <div>
       <Banner/>
-       <PortfoilioSection/>
+       {/* <PortfoilioSection/> */}
        <HoverServices/>
       <HowWeWork/>
       <WhyChooseUs/>
