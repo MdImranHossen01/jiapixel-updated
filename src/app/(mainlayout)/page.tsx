@@ -1,18 +1,15 @@
 
 
-import Banner from "./components/Banner";
-import HoverServices from "./components/HoverServices";
 import HowWeWork from "./components/HowWeWork";
-import PortfoilioSection from "./components/PortfoilioSection";
 import WebFeatures from "./components/WebFeatures";
 import WhyChooseUs from "./components/whyChooseUs";
 
 const HomePage = () => {
   return (
     <div>
-      <Banner/>
+      {/* <Banner/> */}
        {/* <PortfoilioSection/> */}
-       <HoverServices/>
+       {/* <HoverServices/> */}
       <HowWeWork/>
       <WhyChooseUs/>
       <WebFeatures/>
