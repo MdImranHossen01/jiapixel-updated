@@ -139,11 +139,11 @@ const ContactPage = () => {
           <section className="pt-32 pb-20 text-center">
             <div className="container mx-auto px-4">
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Let's Create Something
+                Let&apos;s Create Something
                 <span className="text-primary block">Amazing Together</span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Ready to transform your digital presence? Get in touch with our team and let's discuss how we can help your business grow.
+                Ready to transform your digital presence? Get in touch with our team and let&apos;s discuss how we can help your business grow.
               </p>
             </div>
           </section>

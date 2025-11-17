@@ -1,6 +1,5 @@
 // G:\jiapixel-updated\src\app\(mainlayout)\refund-policy\page.tsx
 import { Metadata } from 'next';
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 
@@ -265,7 +264,7 @@ const RefundPolicyPage = () => {
               <div className="border-l-4 border-l-green-500 pl-4 py-2">
                 <h3 className="font-semibold text-foreground mb-1">Service Quality Issues</h3>
                 <p className="text-muted-foreground">
-                  If you're unsatisfied with the quality of our work, we'll make every reasonable effort 
+                  If you&apos;re unsatisfied with the quality of our work, we&apos;ll make every reasonable effort 
                   to correct the issues before considering a refund. Your satisfaction is our priority.
                 </p>
               </div>
@@ -293,7 +292,7 @@ const RefundPolicyPage = () => {
             <h2 className="text-2xl font-bold mb-4">Need Help?</h2>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
               If you have questions about our refund policy or need to request a refund, 
-              please contact our support team. We're here to help.
+              please contact our support team. We&apos;re here to help.
             </p>
             <div className="grid md:grid-cols-3 gap-6 max-w-2xl mx-auto">
               <div>

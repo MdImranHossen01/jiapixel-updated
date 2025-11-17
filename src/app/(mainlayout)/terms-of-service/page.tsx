@@ -217,7 +217,7 @@ const TermsOfServicePage = () => {
               <section className="mb-12">
                 <h2 className="text-2xl font-bold mb-6">9. Limitation of Liability</h2>
                 <p className="mb-4">
-                  JIA Pixel's total liability for any claim arising out of or relating to our services shall 
+                  JIA Pixel&apos;s total liability for any claim arising out of or relating to our services shall 
                   not exceed the total amount paid by the client for the specific project in question.
                 </p>
                 <p className="mb-4">
@@ -250,7 +250,7 @@ const TermsOfServicePage = () => {
                 <p className="mb-4">
                   We reserve the right to modify these terms at any time. We will notify users of any 
                   material changes by posting the new Terms of Service on this page and updating the 
-                  "Last updated" date.
+                  &quot;Last updated&quot; date.
                 </p>
               </section>
 

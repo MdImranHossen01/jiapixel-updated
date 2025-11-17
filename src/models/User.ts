@@ -1,56 +1,55 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import bcrypt from 'bcryptjs';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import mongoose from 'mongoose';
 
-export interface IUser extends Document {
-  name: string;
-  email: string;
-  password?: string;
-  role: 'admin' | 'author' | 'user';
-  emailVerified?: Date;
-  image?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  comparePassword(candidatePassword: string): Promise<boolean>;
-}
-
-const UserSchema: Schema = new Schema({
-  name: {
+const RefreshTokenSchema = new mongoose.Schema({
+  token: {
     type: String,
-    required: [true, 'Name is required'],
-    trim: true,
-    maxlength: [100, 'Name cannot be more than 100 characters']
+    required: true,
   },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+  expiresAt: {
+    type: Date,
+    required: true,
   },
-  password: {
-    type: String,
-    required: false
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
-  role: {
-    type: String,
-    enum: ['admin', 'author', 'user'],
-    default: 'user'
-  },
-  emailVerified: {
-    type: Date
-  },
-  image: {
-    type: String
-  }
-}, {
-  timestamps: true
 });
 
-// Password comparison method
-UserSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
-  if (!this.password) return false;
-  return bcrypt.compare(candidatePassword, this.password);
+const UserSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    image: {
+      type: String,
+    },
+    emailVerified: {
+      type: Date,
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
+    refreshTokens: [RefreshTokenSchema],
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Clean up expired refresh tokens
+UserSchema.methods.cleanExpiredTokens = function() {
+  this.refreshTokens = this.refreshTokens.filter(
+    (token: any) => token.expiresAt > new Date()
+  );
 };
 
-export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+export default mongoose.models.User || mongoose.model('User', UserSchema);
