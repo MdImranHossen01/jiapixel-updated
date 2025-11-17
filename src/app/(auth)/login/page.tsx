@@ -36,9 +36,7 @@ const LoginPage = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
-          <p className="mt-2 text-muted-foreground">
-            Sign in to your account
-          </p>
+          
         </div>
 
         {error && (
@@ -57,21 +55,11 @@ const LoginPage = () => {
           >
             <FcGoogle className="w-5 h-5" />
             <span className="text-foreground font-medium">
-              {loading ? "Signing in..." : "Continue with Google"}
+              {loading ? "Signing in..." : "Sign in with Google"}
             </span>
           </button>
 
-          <div className="mt-6 text-center">
-            <p className="text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/register"
-                className="text-primary hover:text-primary/80 font-medium"
-              >
-                Sign up
-              </Link>
-            </p>
-          </div>
+         
         </div>
       </div>
     </div>
