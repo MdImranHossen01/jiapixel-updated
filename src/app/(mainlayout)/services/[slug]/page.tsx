@@ -38,6 +38,8 @@ async function getService(slug: string) {
   }
 }
 
+
+
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const service = await getService(slug);
@@ -48,27 +50,32 @@ export async function generateMetadata({ params }: PageProps) {
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://jiapixel.com";
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://www.jiapixel.com";
   const canonicalUrl = `${baseUrl}/services/${service.slug}`;
 
-  // Create plain text descriptions
-  const plainTextDescription = service.projectSummary
-    ? service.projectSummary.replace(/<[^>]*>/g, "").substring(0, 160)
-    : `Professional ${service.title} service by Jiapixel. ${
-        service.tiers?.starter?.description || "Get started today!"
-      }`;
+  // Use custom meta title and description if provided, otherwise generate from service data
+  const metaTitle = service.metaTitle 
+    ? (service.metaTitle.length > 60 
+        ? `${service.metaTitle.substring(0, 57)}`
+        : `${service.metaTitle} - Jiapixel Services`)
+    : (service.title.length > 60 
+        ? `${service.title.substring(0, 57)}`
+        : `${service.title} - Jiapixel Services`);
 
-  const plainTextTitle =
-    service.title.length > 60
-      ? `${service.title.substring(0, 57)}... - Jiapixel`
-      : `${service.title} - Jiapixel Services`;
+  const metaDescription = service.metaDescription 
+    ? service.metaDescription.substring(0, 160)
+    : (service.projectSummary
+        ? service.projectSummary.replace(/<[^>]*>/g, "").substring(0, 160)
+        : `Professional ${service.title} service by Jiapixel. ${
+            service.tiers?.starter?.description || "Get started today!"
+          }`);
 
   // Featured image for social sharing
   const featuredImage = service.images?.[0] || "/icon.png";
 
   return {
-    title: plainTextTitle,
-    description: plainTextDescription,
+    title: metaTitle,
+    description: metaDescription,
     keywords:
       service.searchTags?.join(", ") ||
       `${service.category}, web development, digital services`,
@@ -80,8 +87,8 @@ export async function generateMetadata({ params }: PageProps) {
 
     // Open Graph
     openGraph: {
-      title: plainTextTitle,
-      description: plainTextDescription,
+      title: metaTitle,
+      description: metaDescription,
       url: canonicalUrl,
       siteName: "Jiapixel",
       images: [
@@ -99,8 +106,8 @@ export async function generateMetadata({ params }: PageProps) {
     // Twitter Card
     twitter: {
       card: "summary_large_image",
-      title: plainTextTitle,
-      description: plainTextDescription,
+      title: metaTitle,
+      description: metaDescription,
       images: [featuredImage],
       creator: "@jiapixel",
     },

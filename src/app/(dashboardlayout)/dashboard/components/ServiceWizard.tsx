@@ -9,7 +9,7 @@ import RequirementsStep from "./RequirementsStep";
 import DescriptionStep from "./DescriptionStep";
 import ReviewStep from "./ReviewStep";
 
-// Updated ServiceData interface with new fields
+// Updated ServiceData interface with new meta fields
 export interface ServiceData {
   // Overview Step
   title: string;
@@ -17,6 +17,10 @@ export interface ServiceData {
   searchTags: string[];
   author: string;
   authorQuote: string;
+
+  // NEW: Meta fields
+  metaTitle: string;
+  metaDescription: string;
 
   // Pricing Step
   pricingTiers: '1' | '3';
@@ -42,7 +46,7 @@ export interface ServiceData {
   maxProjects: number;
   agreeToTerms: boolean;
 
-  // Featured Service ← ADD THIS FIELD
+  // Featured Service
   isFeatured: boolean;
 }
 
@@ -91,6 +95,11 @@ export default function ServiceWizard() {
     searchTags: [],
     author: "Md Imran Hossen",
     authorQuote: "",
+    
+    // NEW: Meta fields with initial values
+    metaTitle: "",
+    metaDescription: "",
+
     pricingTiers: "3",
     tiers: {
       starter: {
@@ -126,7 +135,7 @@ export default function ServiceWizard() {
     faqs: [],
     maxProjects: 20,
     agreeToTerms: false,
-    isFeatured: true, // ← ADD THIS WITH DEFAULT TRUE
+    isFeatured: true,
   });
 
   const updateServiceData = (field: keyof ServiceData, value: any) => {

@@ -91,7 +91,7 @@ export default function OverviewStep({ data, updateData }: Props) {
     <div className="space-y-8">
       <h2 className="text-2xl font-bold text-foreground">Service overview</h2>
 
-      {/* // In OverviewStep or a new SettingsStep */}
+      {/* Featured Service Checkbox */}
       <div className="flex items-center space-x-3">
         <input
           type="checkbox"
@@ -103,6 +103,7 @@ export default function OverviewStep({ data, updateData }: Props) {
           Feature this service on the main page
         </label>
       </div>
+
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
@@ -119,6 +120,58 @@ export default function OverviewStep({ data, updateData }: Props) {
         </div>
         <div className="text-sm text-muted-foreground mt-1">
           {data.title.length}/75 characters (min. 7 words)
+        </div>
+      </div>
+
+      {/* NEW: Meta Title Field */}
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-2">
+          Meta Title
+        </label>
+        <div className="relative">
+          <input
+            type="text"
+            value={data.metaTitle}
+            onChange={(e) => updateData("metaTitle", e.target.value)}
+            placeholder="Optimized title for search engines (50-60 characters recommended)"
+            className="w-full pl-3 pr-3 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+          />
+        </div>
+        <div className="text-sm text-muted-foreground mt-1">
+          {data.metaTitle.length}/60 characters - 
+          {data.metaTitle.length >= 50 && data.metaTitle.length <= 60 ? (
+            <span className="text-green-600"> Perfect length!</span>
+          ) : data.metaTitle.length > 60 ? (
+            <span className="text-red-600"> Too long</span>
+          ) : data.metaTitle.length > 0 ? (
+            <span className="text-yellow-600"> Could be longer</span>
+          ) : null}
+        </div>
+      </div>
+
+      {/* NEW: Meta Description Field */}
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-2">
+          Meta Description
+        </label>
+        <div className="relative">
+          <textarea
+            value={data.metaDescription}
+            onChange={(e) => updateData("metaDescription", e.target.value)}
+            placeholder="Brief description for search engine results (150-160 characters recommended)"
+            rows={3}
+            className="w-full pl-3 pr-3 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background resize-none"
+          />
+        </div>
+        <div className="text-sm text-muted-foreground mt-1">
+          {data.metaDescription.length}/160 characters - 
+          {data.metaDescription.length >= 150 && data.metaDescription.length <= 160 ? (
+            <span className="text-green-600"> Perfect length!</span>
+          ) : data.metaDescription.length > 160 ? (
+            <span className="text-red-600"> Too long</span>
+          ) : data.metaDescription.length > 0 ? (
+            <span className="text-yellow-600"> Could be longer</span>
+          ) : null}
         </div>
       </div>
 

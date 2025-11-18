@@ -103,7 +103,7 @@ if (BlogSchema.indexes().some((idx) => idx[0].slug)) {
   BlogSchema.index({ slug: 1 }); // optional, but keep only if necessary
 }
 
-// 🧠 Calculate read time before saving
+//  Calculate read time before saving
 BlogSchema.pre("save", function (this: IBlog, next) {
   if (this.isModified("content")) {
     const wordsPerMinute = 200;

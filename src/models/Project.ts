@@ -36,6 +36,10 @@ export interface IService extends Document {
   author: string;
   authorQuote: string;
 
+  // NEW: Meta fields
+  metaTitle: string;
+  metaDescription: string;
+
   // Pricing Step
   pricingTiers: "1" | "3";
   tiers: {
@@ -63,7 +67,7 @@ export interface IService extends Document {
   // Featured Service
   isFeatured: boolean;
 
-  // Google Indexing Status ← ADD THIS FIELD
+  // Google Indexing Status
   isIndexedInGoogle: boolean;
 
   // Metadata
@@ -116,6 +120,18 @@ const ServiceSchema = new Schema<IService>(
     author: { type: String, required: true, default: "Md. Imran Hossen" },
     authorQuote: { type: String, required: false },
 
+    // NEW: Meta fields
+    metaTitle: { 
+      type: String, 
+      required: false,
+      default: "" 
+    },
+    metaDescription: { 
+      type: String, 
+      required: false,
+      default: "" 
+    },
+
     // Pricing Step
     pricingTiers: { type: String, enum: ["1", "3"], required: true },
     tiers: {
@@ -146,10 +162,10 @@ const ServiceSchema = new Schema<IService>(
       default: true,
     },
 
-    // Google Indexing Status ← ADD THIS FIELD
+    // Google Indexing Status
     isIndexedInGoogle: {
       type: Boolean,
-      default: false, // Default to false as requested
+      default: false,
     },
 
     // Metadata
@@ -196,6 +212,23 @@ ServiceSchema.pre("save", async function (next) {
 
     this.slug = slug;
   }
+  next();
+});
+
+// Set default meta title and description if not provided
+ServiceSchema.pre("save", function (next) {
+  if (!this.metaTitle && this.title) {
+    this.metaTitle = this.title;
+  }
+  
+  if (!this.metaDescription && this.projectSummary) {
+    // Create a plain text version of project summary for meta description
+    const plainTextDescription = this.projectSummary
+      .replace(/<[^>]*>/g, "")
+      .substring(0, 160);
+    this.metaDescription = plainTextDescription;
+  }
+  
   next();
 });
 
