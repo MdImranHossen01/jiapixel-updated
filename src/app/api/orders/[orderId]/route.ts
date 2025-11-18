@@ -3,20 +3,16 @@ import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import { getToken } from "next-auth/jwt";
 
-// Define the context type for clarity
-type RouteContext = {
-  params: {
-    orderId: string;
-  };
-};
-
-export async function GET(req: NextRequest, context: RouteContext) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ orderId: string }> }
+) {
   const token = await getToken({ req });
   if (!token || token.role !== "admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 401 });
   }
 
-  const { orderId } = await context.params;
+  const { orderId } = await params;
 
   await dbConnect();
 
@@ -35,13 +31,16 @@ export async function GET(req: NextRequest, context: RouteContext) {
   }
 }
 
-export async function PUT(req: NextRequest, context: RouteContext) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ orderId: string }> }
+) {
   const token = await getToken({ req });
   if (!token || token.role !== "admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 401 });
   }
 
-  const { orderId } = await context.params;
+  const { orderId } = await params;
 
   await dbConnect();
 
@@ -65,13 +64,16 @@ export async function PUT(req: NextRequest, context: RouteContext) {
   }
 }
 
-export async function DELETE(req: NextRequest, context: RouteContext) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ orderId: string }> }
+) {
   const token = await getToken({ req });
   if (!token || token.role !== "admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 401 });
   }
 
-  const { orderId } = await context.params;
+  const { orderId } = await params;
 
   await dbConnect();
 
