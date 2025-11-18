@@ -3,18 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Briefcase, 
-  Settings, 
+import {
+  LayoutDashboard,
+  FileText,
+  Briefcase,
+  Settings,
   Users,
   Image,
   Server,
   LogOut,
   User,
   Menu,
-  X
+  X,
+  ShoppingBag, // Import the ShoppingBag icon
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 
@@ -70,6 +71,15 @@ useEffect(() => {
       current: pathname.startsWith('/dashboard/admin/manage-services'),
       adminOnly: true,
     },
+    // Start of new code to be added
+    {
+      name: 'Manage Orders',
+      href: '/dashboard/admin/manage-orders',
+      icon: ShoppingBag,
+      current: pathname.startsWith('/dashboard/admin/manage-orders'),
+      adminOnly: true,
+    },
+    // End of new code to be added
   ];
 
   const isAdmin = session?.user?.role === 'admin';
