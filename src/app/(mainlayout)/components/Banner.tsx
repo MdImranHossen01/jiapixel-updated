@@ -1,6 +1,7 @@
 // src/app/components/Banner.tsx
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const Banner = () => {
   return (
@@ -20,7 +21,9 @@ const Banner = () => {
         </p>
         {/* Call to Action Button */}
         <div className="mx-auto w-max">
-       <Button variant="default"> Explore Services</Button>
+       <Link href="/services">
+         <Button variant="default"> Explore Services</Button>
+        </Link>
         </div>
       </div>
     </section>

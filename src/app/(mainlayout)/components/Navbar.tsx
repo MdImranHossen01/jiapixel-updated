@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { FaWhatsapp, FaEnvelope, FaBars, FaTimes, FaComments } from "react-icons/fa";
+import { FaWhatsapp, FaEnvelope, FaBars, FaTimes} from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { FiUser, FiLogOut, FiSettings, FiMessageCircle } from "react-icons/fi";
+import { FiUser, FiLogOut, FiSettings} from "react-icons/fi";
 import Image from "next/image";
 
 const Navbar = () => {
@@ -170,8 +170,21 @@ useEffect(() => {
           </div>
 
           {/* ✅ Right Side */}
-          <div className="flex items-center space-x-4 md:flex-1 md:justify-end">
-               {session && (
+          <div className="flex items-center space-x-2 md:flex-1 md:justify-end">
+              {/* Social Icons */}
+               <div className="hidden md:flex">
+                 
+              <Button variant="ghost" size="icon" asChild>
+                <a
+                  href="https://wa.me/8801919011101"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaWhatsapp className="h-5 w-5" />
+                </a>
+              </Button>
+             
+            </div>
               <div className="relative">
                 <Button
                   variant="ghost"
@@ -179,7 +192,7 @@ useEffect(() => {
                   onClick={handleMessages}
                   className="relative"
                 >
-                  <FiMessageCircle className="h-5 w-5" />
+                  <FaEnvelope className="h-5 w-5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {unreadCount > 9 ? '9+' : unreadCount}
@@ -187,24 +200,9 @@ useEffect(() => {
                   )}
                 </Button>
               </div>
-            )}
-            {/* Social Icons */}
-            <div className="hidden md:flex items-center space-x-2">
-              <Button variant="ghost" size="icon" asChild>
-                <a
-                  href="https://wa.me/yourphonenumber"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaWhatsapp className="h-5 w-5" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <a href="mailto:your_email@example.com">
-                  <FaEnvelope className="h-5 w-5" />
-                </a>
-              </Button>
-            </div>
+        
+           
+           
 
             {/* ✅ User Auth Section */}
             {status === "loading" ? (
