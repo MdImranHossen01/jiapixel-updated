@@ -94,12 +94,15 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
     }
   };
 
-  const handleSendMessage = async (message: string) => {
-    try {
-      // First create the order
-      if (selectedTier && service) {
-        await createOrder(selectedTier);
-      }
+ const handleSendMessage = async (message: string) => {
+  try {
+    // First create the order
+    if (selectedTier && service) {
+      await createOrder({
+        ...selectedTier,
+        features: {}, // Add the required 'features' property here
+      });
+    }
 
       // Then send message to admin
       const usersResponse = await fetch('/api/users?role=admin');
