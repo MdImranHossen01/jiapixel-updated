@@ -20,27 +20,27 @@ const Footer = () => {
       title: "Company",
       links: [
         { name: "About Us", href: "/about" },
-        { name: "Our Team", href: "/team" },
-        { name: "Careers", href: "/careers" },
-        { name: "Blog", href: "/blog" },
+        { name: "Book A meeting", href: "https://meet.google.com/qnu-vfvg-qnf" },
+        { name: "Review Us", href: "https://g.page/r/CWA1sOPE9QeJEBM/review" },
+        { name: "Blogs", href: "/blogs" },
       ],
     },
     {
       title: "Services",
       links: [
-        { name: "Web Development", href: "/services/web-development" },
-        { name: "Mobile Apps", href: "/services/mobile-apps" },
-        { name: "UI/UX Design", href: "/services/ui-ux-design" },
-        { name: "Digital Marketing", href: "/services/digital-marketing" },
+        { name: "Web Development", href: "/services" },
+        { name: "Mobile Apps", href: "/services" },
+        { name: "UI/UX Design", href: "/services" },
+        { name: "Digital Marketing", href: "/services" },
       ],
     },
     {
       title: "Support",
       links: [
-        { name: "Help Center", href: "/help" },
         { name: "Contact Us", href: "/contact" },
-        { name: "Privacy Policy", href: "/privacy" },
-        { name: "Terms of Service", href: "/terms" },
+        { name: "Refund Policy", href: "/refund-policy" },
+        { name: "Privacy Policy", href: "/privacy-policy" },
+        { name: "Terms of Service", href: "/terms-of-service" },
       ],
     },
   ];
