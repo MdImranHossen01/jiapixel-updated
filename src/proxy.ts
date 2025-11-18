@@ -67,14 +67,10 @@ export async function proxy(request: NextRequest) {
   const userRole = token?.role as UserRole || null;
   const hasAccessToken = !!token?.accessToken;
 
-  console.log('🔐 Proxy - Path:', pathname);
-  console.log('🔐 Proxy - Authenticated:', isAuthenticated);
-  console.log('🔐 Proxy - User Role:', userRole);
-  console.log('🔐 Proxy - Has Access Token:', hasAccessToken);
+ 
 
   // If user is on auth route but already logged in, redirect to dashboard
   if (isAuthRoute(pathname) && isAuthenticated && userRole) {
-    console.log('🔐 Redirecting from auth route to dashboard');
     return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole), request.url));
   }
 
@@ -83,7 +79,6 @@ export async function proxy(request: NextRequest) {
   
   // If route is protected and user is not authenticated, redirect to login
   if (routeOwner !== "null" && !isAuthenticated) {
-    console.log('🔐 Redirecting to login - not authenticated');
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
@@ -91,13 +86,11 @@ export async function proxy(request: NextRequest) {
 
   // Check admin routes - if user is not admin, redirect to unauthorized
   if (routeOwner === "admin" && userRole !== "admin") {
-    console.log('🔐 Redirecting - admin access required');
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // Check if tokens are present for protected routes
   if (routeOwner !== "null" && isAuthenticated && !hasAccessToken) {
-    console.log('🔐 No access token - redirecting to login');
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);

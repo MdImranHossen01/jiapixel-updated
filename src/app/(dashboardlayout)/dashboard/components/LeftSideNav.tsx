@@ -8,8 +8,6 @@ import {
   FileText, 
   Briefcase, 
   Settings, 
-  Users,
-  Image,
   Server,
   LogOut,
   User,
@@ -169,7 +167,7 @@ useEffect(() => {
                   }
                 `}
               >
-                <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                <Icon className="mr-3 h-5 w-5 shrink-0" />
                 {item.name}
               </Link>
             );
