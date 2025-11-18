@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 
 const LoginPage = () => {

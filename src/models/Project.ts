@@ -202,7 +202,7 @@ ServiceSchema.pre("save", async function (next) {
 ServiceSchema.index({ createdBy: 1, status: 1 });
 ServiceSchema.index({ status: 1, createdAt: -1 });
 ServiceSchema.index({ isFeatured: 1 });
-ServiceSchema.index({ isIndexedInGoogle: 1 }); // ← ADD INDEX FOR BETTER PERFORMANCE
+ServiceSchema.index({ isIndexedInGoogle: 1 }); 
 
 export default mongoose.models.Service ||
   mongoose.model<IService>("Service", ServiceSchema);

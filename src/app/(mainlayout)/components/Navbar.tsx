@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { FaWhatsapp, FaEnvelope, FaBars, FaTimes } from "react-icons/fa";
+import { FaWhatsapp, FaEnvelope, FaBars, FaTimes, FaComments } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { FiUser, FiLogOut, FiSettings } from "react-icons/fi";
+import { FiUser, FiLogOut, FiSettings, FiMessageCircle } from "react-icons/fi";
 import Image from "next/image";
 
 const Navbar = () => {
@@ -18,12 +18,37 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => {
+  // Update the state asynchronously
+  const updateMountedState = () => {
+    setMounted(prevMountedState => !prevMountedState);
+  };
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  if (!mounted) {
+    updateMountedState();
+  }
+}, []);
+
+  // Fetch unread message count
+useEffect(() => {
+  if (session?.user?.id) {
+    const updateUnreadCount = async () => {
+      try {
+        const response = await fetch('/api/messages/unread-count');
+        if (response.ok) {
+          const data = await response.json();
+          setUnreadCount(data.count);
+        }
+      } catch (error) {
+        console.error('Error fetching unread count:', error);
+      }
+    };
+
+    updateUnreadCount();
+  }
+}, [session]);
 
   // ✅ Close dropdown and mobile menu when clicking outside
   useEffect(() => {
@@ -75,6 +100,11 @@ const Navbar = () => {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen((prev) => !prev);
+  };
+
+    const handleMessages = () => {
+    router.push('/messages');
+    setIsDropdownOpen(false);
   };
 
   // ✅ Prevent hydration mismatch by not rendering until mounted
@@ -141,6 +171,23 @@ const Navbar = () => {
 
           {/* ✅ Right Side */}
           <div className="flex items-center space-x-4 md:flex-1 md:justify-end">
+               {session && (
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleMessages}
+                  className="relative"
+                >
+                  <FiMessageCircle className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </div>
+            )}
             {/* Social Icons */}
             <div className="hidden md:flex items-center space-x-2">
               <Button variant="ghost" size="icon" asChild>
