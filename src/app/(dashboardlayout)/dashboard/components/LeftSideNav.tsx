@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  LayoutDashboard,
-  FileText,
-  Briefcase,
-  Settings,
+import { 
+  LayoutDashboard, 
+  FileText, 
+  Briefcase, 
+  Settings, 
   Users,
   Image,
   Server,
@@ -15,7 +15,7 @@ import {
   User,
   Menu,
   X,
-  ShoppingBag, // Import the ShoppingBag icon
+  ShoppingBag // Ensure ShoppingBag is imported
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 
@@ -42,6 +42,13 @@ useEffect(() => {
       href: '/dashboard',
       icon: LayoutDashboard,
       current: pathname === '/dashboard',
+    },
+     {
+      name: 'My Orders',
+      href: '/dashboard/my-orders',
+      icon: ShoppingBag,
+      current: pathname.startsWith('/dashboard/my-orders'),
+      adminOnly: false, // This makes it visible to all logged-in users
     },
     {
       name: 'Admin Dashboard',

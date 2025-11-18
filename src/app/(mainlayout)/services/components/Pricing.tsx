@@ -4,6 +4,7 @@
 import React from 'react';
 import { useAuthModal } from '@/hooks/useAuthModal';
 import AuthModal from '@/components/AuthModal';
+import { useSession } from 'next-auth/react';
 
 interface Tier {
   _id?: string;
@@ -20,7 +21,7 @@ interface Tier {
 interface Service {
   _id: string;
   title: string;
-  slug: string; // Make sure slug is included
+  slug: string;
   tiers?: {
     [key: string]: Tier;
   };
@@ -34,6 +35,7 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
   const [services, setServices] = React.useState<Service[]>([]);
   const [loading, setLoading] = React.useState(!service);
   const [error, setError] = React.useState<string | null>(null);
+  const { data: session } = useSession();
   
   const {
     isOpen,
@@ -46,23 +48,60 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
   } = useAuthModal();
 
   // Get current service URL
- const getServiceUrl = () => {
-  if (!service?.slug) return '';
-  
-  // Use relative URL or construct from environment variables
-  if (typeof window !== 'undefined') {
-    // Client-side
-    return `${window.location.origin}/services/${service.slug}`;
-  } else {
-    // Server-side - use environment variable or relative path
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
-    return `${baseUrl}/services/${service.slug}`;
-  }
-};
+  const getServiceUrl = () => {
+    if (!service?.slug) return '';
+    
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}/services/${service.slug}`;
+    } else {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+      return `${baseUrl}/services/${service.slug}`;
+    }
+  };
+
+  const createOrder = async (tier: Tier) => {
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service: service?._id,
+          tier: {
+            title: tier.title,
+            price: tier.price,
+            deliveryDays: tier.deliveryDays,
+            revisions: tier.revisions,
+            features: tier.features,
+          },
+          requirements: `Service: ${service?.title}, Package: ${tier.title}`,
+        }),
+      });
+
+      if (response.ok) {
+        const orderData = await response.json();
+        console.log('Order created successfully:', orderData);
+        return orderData;
+      } else {
+        const errorData = await response.json();
+        console.error('Error creating order:', errorData);
+        throw new Error(errorData.message || 'Failed to create order');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      throw error;
+    }
+  };
 
   const handleSendMessage = async (message: string) => {
     try {
-      // Get admin user
+      // First create the order
+      if (selectedTier && service) {
+        await createOrder(selectedTier);
+      }
+
+      // Then send message to admin
       const usersResponse = await fetch('/api/users?role=admin');
       if (!usersResponse.ok) {
         throw new Error('Failed to fetch admin user');
@@ -78,7 +117,6 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
 
       const adminUser = adminUsers[0];
 
-      // Send message to admin
       const response = await fetch('/api/messages', {
         method: 'POST',
         headers: {
@@ -91,24 +129,22 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
       });
 
       if (response.ok) {
-        alert('Message sent to admin successfully! They will get back to you soon.');
+        alert('Order placed and message sent to admin successfully! They will get back to you soon.');
       } else {
-        alert('Error sending message. Please try again.');
+        alert('Message sent but there was an issue with order placement. Please check your orders.');
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      alert('Error sending message. Please try again.');
+      console.error('Error in handleSendMessage:', error);
+      alert('Error processing your request. Please try again.');
     }
   };
 
-const handleGetStarted = (tier: Tier) => {
-  if (!service) return;
-  
-  // Generate message with service URL
-  const serviceUrl = getServiceUrl();
-  
-  openModal(service.title, tier, serviceUrl); // Pass service URL
-};
+  const handleGetStarted = (tier: Tier) => {
+    if (!service) return;
+    
+    const serviceUrl = getServiceUrl();
+    openModal(service.title, tier, serviceUrl);
+  };
 
   React.useEffect(() => {
     if (service) {
@@ -269,7 +305,7 @@ const handleGetStarted = (tier: Tier) => {
         isOpen={isOpen}
         serviceTitle={serviceTitle}
         selectedTier={selectedTier}
-        serviceUrl={getServiceUrl()} // Pass service URL to modal
+        serviceUrl={getServiceUrl()}
         onClose={closeModal}
         onMessageSend={handleSendMessage}
       />
