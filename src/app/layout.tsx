@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.jiapixel.com"),
   title: {
-    default: "Jia Pixel | Reliable Web Development & Digital Marketing Agency",
+    default: "Jia Pixel | Your Partner in Digital Transformation",
     template: "%s | Jia Pixel",
   },
   description:

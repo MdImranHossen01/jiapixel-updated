@@ -1,8 +1,11 @@
-import React from "react";
-import Navbar from "./components/Navbar";
+"use client";
+import React, { useState } from 'react';
 import Footer from "./components/Footer";
+import { AiStylistModal } from "./components/banner/components/AiStylistModal";
+import { Navbar } from "./components/banner/components/Navbar";
 
 const Mainlayout = ({ children }: { children: React.ReactNode }) => {
+   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   return (
     <div className="min-h-screen w-full relative">
       {/* Dark Mode Background */}
@@ -34,14 +37,19 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
         }}
       />
       
-      {/* Content container with relative positioning */}
+      {/* Content container */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        <header className="relative z-20">
-          <Navbar />
-        </header>
+        {/* Navbar is now fixed and will stick to top */}
+        <Navbar onSearchClick={() => setIsAiModalOpen(true)} />
+        
         <main className="grow relative z-10">
           {children}
+          <AiStylistModal 
+            isOpen={isAiModalOpen} 
+            onClose={() => setIsAiModalOpen(false)} 
+          />
         </main>
+        
         <footer className="relative z-20">
           <Footer />
         </footer>
@@ -51,4 +59,3 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default Mainlayout;
-

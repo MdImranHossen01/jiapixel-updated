@@ -1,8 +1,8 @@
 
 
-import Banner from "./components/Banner";
+import Banner from "./components/banner/Banner";
+import FaqSection from "./components/faq/FaqSection";
 import HoverServices from "./components/HoverServices";
-import HowWeWork from "./components/HowWeWork";
 import PortfoilioSection from "./components/PortfoilioSection";
 import WebFeatures from "./components/WebFeatures";
 import WhyChooseUs from "./components/whyChooseUs";
@@ -13,9 +13,9 @@ const HomePage = () => {
       <Banner/>
        <PortfoilioSection/>
        <HoverServices/>
-      <HowWeWork/>
       <WhyChooseUs/>
       <WebFeatures/>
+   <FaqSection/>
     </div>
   );
 };

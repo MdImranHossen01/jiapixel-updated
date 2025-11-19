@@ -11,7 +11,7 @@ const WORK_STEPS = [
     title: "Free Audit & Strategic Game Plan",
     description:
       "Book your free website audit with our conversion expert, tailored specifically for startup founders.",
-    imageUrl: "/Kimbap.jpg",
+    imageUrl: "https://i.ibb.co.com/S8Lmthf/banner4.png",
   },
   {
     id: "tab2",

@@ -53,11 +53,11 @@ const HoverServices = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Header Section */}
-            <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            <div className="text-center mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                     Our <span className="text-primary">Services</span>
                 </h2>
-                <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+                <p className=" text-muted-foreground max-w-3xl mx-auto">
                     Comprehensive digital solutions tailored to your business needs. 
                     From concept to deployment, we deliver excellence at every step.
                 </p>
