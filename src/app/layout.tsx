@@ -56,13 +56,13 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://www.jiapixel.com",
-    title: "Jia Pixel | Reliable Web Development & Digital Marketing Agency",
+    title: "Jia Pixel | Your Partner in Digital Transformation",
     description:
       "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
     siteName: "Jia Pixel",
     images: [
       {
-        url: "https://www.jiapixel.com/icon.png",
+        url: "/Jia-pixel-your-partner-in-digital-transformation.png",
         width: 1200,
         height: 630,
         alt: "Jia Pixel - Reliable Web Development & Digital Marketing Agency",
@@ -71,12 +71,12 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Jia Pixel | Reliable Web Development & Digital Marketing Agency",
+    title: "Jia Pixel | Your Partner in Digital Transformation",
     description:
       "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
     images: [
       {
-        url: "https://www.jiapixel.com/icon.png",
+        url: "/Jia-pixel-your-partner-in-digital-transformation.png",
         width: 1200,
         height: 630,
         alt: "Jia Pixel - Reliable Web Development & Digital Marketing Agency",
