@@ -85,7 +85,7 @@ export const HeroGrid: React.FC = () => {
         {/* Large Hero Image */}
         <div className="relative w-full h-[400px] lg:h-[500px] rounded-4xl overflow-hidden group">
           <Image
-            src="https://i.ibb.co.com/yc7g1Rbd/Jia-Pixel-Banner.png"
+            src="/Assets/banner/Jia_Pixel_Banner.webp"
             alt="Hero Model"
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-75"
@@ -187,7 +187,7 @@ export const HeroGrid: React.FC = () => {
           onClick={() => handleFreeServiceClick("website")}
         >
           <Image
-            src="https://i.ibb.co.com/SwQK8Wpf/Login-1.png"
+            src="/Assets/portfolios/Loginbanner.webp"
             alt="Free Website"
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105 filter sepia-[.25]"
@@ -214,7 +214,7 @@ export const HeroGrid: React.FC = () => {
           onClick={() => handleFreeServiceClick("seo-audit")}
         >
           <Image
-            src="https://i.ibb.co.com/846LJDM3/Free-SEO-Audit-Jia-Pixel.jpg"
+            src="/Assets/banner/Free-SEO-Audit-Jia-Pixel.webp"
             alt="Free SEO Audit"
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105 filter grayscale-[0.3]"
@@ -241,7 +241,7 @@ export const HeroGrid: React.FC = () => {
           onClick={() => handleFreeServiceClick("analytics")}
         >
           <Image
-            src="https://i.ibb.co.com/XrxRBwy7/Free-Web-Analytics-Setup-Jia-Pixel.jpg"
+            src="/Assets/banner/Free-Web-Analytics-Setup-Jia-Pixel.webp"
             alt="Free Analytics Setup"
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105 filter grayscale-[0.8] contrast-125"
