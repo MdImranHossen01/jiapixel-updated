@@ -3,15 +3,18 @@ import HoverServices from "./HoverServices";
 import WhyChooseUs from "./whyChooseUs";
 import WebFeatures from "./WebFeatures";
 import FaqSection from "./faq/FaqSection";
+import AboutUsSection from "./aboutus/AboutUsSection";
 
 const MainContent = () => {
   return (
     <>
-      <PortfoilioSection/>
-      <HoverServices/>
-      <WhyChooseUs/>
-      <WebFeatures/>
-      <FaqSection/>
+      <AboutUsSection />
+      <PortfoilioSection />
+      <HoverServices />
+
+      <WhyChooseUs />
+      <WebFeatures />
+      <FaqSection />
     </>
   );
 };
