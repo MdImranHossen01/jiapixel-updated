@@ -4,13 +4,6 @@ import type { Metadata } from "next";
 import ServiceCard from "@/components/ServiceCard";
 import ServicesStructuredData from "@/components/ServicesStructuredData";
 
-// Service category icons
-const categoryIcons = {
-  "Web Development": "💻",
-  "SEO Services": "🔍",
-  "Digital Marketing": "📈",
-};
-
 async function getServices() {
   try {
     // Use environment-aware URL for API calls
@@ -19,7 +12,6 @@ async function getServices() {
         ? process.env.NEXT_PUBLIC_API_URL || "https://www.jiapixel.com"
         : "http://localhost:3000";
     const response = await fetch(`${baseUrl}/api/services?isFeatured=true`, {
-      // ← ADD FILTER
       next: { revalidate: 300 },
     });
 
@@ -118,83 +110,44 @@ const ServicesPage = async () => {
     })),
   };
 
-  // Group services by category
-  const servicesByCategory = services.reduce((acc: any, service: any) => {
-    const mainCategory = service.category?.split(" > ")[0] || "Other";
-    if (!acc[mainCategory]) {
-      acc[mainCategory] = [];
-    }
-    acc[mainCategory].push(service);
-    return acc;
-  }, {});
-
-  const categories = Object.keys(servicesByCategory);
-
   return (
     <>
       <ServicesStructuredData data={servicesStructuredData} />
 
-
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 via-primary/5 to-background py-20">
+        <section className=" py-4">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold py-4 text-foreground">
                 Our Professional Services
               </h1>
-              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+              <p className="text-xl text-muted-foreground  leading-relaxed">
                 Discover our comprehensive range of digital services designed to
                 elevate your business. From web development to digital
                 marketing, we&apos;ve got you covered.
               </p>
+              
             </div>
           </div>
         </section>
 
         {/* Services Grid */}
-        <section className="py-16">
+        <section className="py-8">
           <div className="container mx-auto px-4">
-            {/* Services by Category */}
-            {categories.length > 0 ? (
-              <div className="space-y-16">
-                {categories.map((category) => (
-                  <div
-                    key={category}
-                    id={category.toLowerCase().replace(" ", "-")}
-                  >
-                    <div className="flex items-center gap-4 mb-8">
-                      <div className="text-3xl">
-                        {categoryIcons[
-                          category as keyof typeof categoryIcons
-                        ] || "⚡"}
-                      </div>
-                      <h2 className="text-3xl font-bold text-foreground">
-                        {category}
-                      </h2>
-                      <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">
-                        {servicesByCategory[category].length} services
-                      </span>
-                    </div>
+            {services.length > 0 ? (
+              <div>
+                {/* All Services Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {services.map((service: any) => (
+                    <ServiceCard
+                      key={service._id}
+                      service={service}
+                    />
+                  ))}
+                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {servicesByCategory[category].map((service: any) => {
-                        const subcategory =
-                          service.category?.split(" > ")[1] ||
-                          "General Service";
-
-                        return (
-                          <ServiceCard
-                            key={service._id}
-                            service={service}
-                            category={category}
-                            subcategory={subcategory}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
+                
               </div>
             ) : (
               /* Empty State */
