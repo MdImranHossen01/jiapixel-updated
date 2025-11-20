@@ -1,9 +1,9 @@
 import PortfoilioSection from "./PortfoilioSection";
 import HoverServices from "./HoverServices";
-import WhyChooseUs from "./whyChooseUs";
-import WebFeatures from "./WebFeatures";
 import FaqSection from "./faq/FaqSection";
 import AboutUsSection from "./aboutus/AboutUsSection";
+import MarketingFeatures from "./MarketingFeatures";
+import SEOFeatures from "./SEOFeatures";
 
 const MainContent = () => {
   return (
@@ -12,8 +12,8 @@ const MainContent = () => {
       <PortfoilioSection />
       <HoverServices />
 
-      <WhyChooseUs />
-      <WebFeatures />
+      <SEOFeatures />
+      <MarketingFeatures />
       <FaqSection />
     </>
   );

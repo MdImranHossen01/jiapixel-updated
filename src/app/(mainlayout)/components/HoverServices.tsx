@@ -4,71 +4,83 @@ import { HoverEffect } from '@/components/ui/card-hover-effect';
 const HoverServices = () => {
     const services = [
         {
-            title: "Web Development",
-            description: "Custom websites and web applications built with modern technologies like React, Next.js, and Node.js.",
-            link: "/services/web-development"
+            title: "PWA Development",
+            description: "Progressive Web Apps with offline functionality, push notifications, and app-like experience across all devices.",
+            link: "/services/pwa-development"
         },
         {
-            title: "Mobile App Development",
-            description: "Cross-platform mobile applications for iOS and Android using React Native and Flutter, delivering native-like performance.",
-            link: "/services/mobile-development"
+            title: "Dark/Light Theme",
+            description: "Seamless theme switching with system preference detection and persistent user preferences for better UX.",
+            link: "/services/theme-system"
         },
         {
-            title: "UI/UX Design",
-            description: "User-centered design solutions that create intuitive, engaging, and beautiful interfaces that drive user satisfaction and conversion.",
-            link: "/services/ui-ux-design"
+            title: "Smooth Scrolling",
+            description: "Buttery smooth Lenis scroll animations and parallax effects for enhanced user engagement and modern feel.",
+            link: "/services/smooth-scroll"
         },
         {
-            title: "E-Commerce Solutions",
-            description: "Complete online store development with secure payment gateways, inventory management, and seamless shopping experiences.",
-            link: "/services/ecommerce"
+            title: "Live Chat Integration",
+            description: "Real-time chat systems with AI-powered responses, file sharing, and multi-platform support for instant customer service.",
+            link: "/services/live-chat"
+        },
+        {
+            title: "Live Analytics",
+            description: "Real-time traffic monitoring, user behavior tracking, and performance metrics with beautiful dashboards.",
+            link: "/services/analytics"
+        },
+        {
+            title: "AI Chatbot",
+            description: "Intelligent AI assistants trained on your data for 24/7 customer support, lead generation, and user assistance.",
+            link: "/services/ai-chatbot"
+        },
+        {
+            title: "Advanced Animations",
+            description: "Micro-interactions, page transitions, and scroll-triggered animations using Framer Motion and GSAP.",
+            link: "/services/animations"
+        },
+        {
+            title: "Authentication System",
+            description: "Secure multi-provider auth (Google, GitHub, Email) with role-based access control and session management.",
+            link: "/services/authentication"
+        },
+        {
+            title: "Responsive Design",
+            description: "Mobile-first, fully responsive designs that work perfectly on all devices from smartphones to 4K displays.",
+            link: "/services/responsive-design"
+        },
+        {
+            title: "Advanced Dashboard",
+            description: "Custom admin panels with data visualization, real-time updates, and comprehensive business insights.",
+            link: "/services/dashboard"
+        },
+        {
+            title: "Performance Optimization",
+            description: "Lighthouse 90+ scores with code splitting, image optimization, and CDN integration for blazing fast sites.",
+            link: "/services/performance"
         },
         {
             title: "SEO Optimization",
-            description: "Boost your online visibility with comprehensive SEO strategies, keyword research, and technical optimization for higher search rankings.",
-            link: "/services/seo"
-        },
-        {
-            title: "Digital Marketing",
-            description: "Data-driven marketing campaigns including social media marketing, PPC advertising, and content strategy to grow your business.",
-            link: "/services/digital-marketing"
-        },
-        {
-            title: "Cloud Solutions",
-            description: "Scalable cloud infrastructure setup and migration using AWS, Google Cloud, and Azure for reliable and cost-effective operations.",
-            link: "/services/cloud"
-        },
-        {
-            title: "Maintenance & Support",
-            description: "Ongoing technical support, updates, and maintenance services to keep your digital products running smoothly and securely.",
-            link: "/services/support"
-        },
-        {
-            title: "Consulting",
-            description: "Expert technology consulting to help you make informed decisions about your digital strategy and technology stack.",
-            link: "/services/consulting"
+            description: "Technical SEO, structured data, meta optimization, and content strategy for top search engine rankings.",
+            link: "/services/seo-optimization"
         }
     ];
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Header Section */}
             <div className="text-center mb-6">
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                    Our <span className="text-primary">Services</span>
+                    Advanced <span className="text-primary">Web Features</span>
                 </h2>
-                <p className=" text-muted-foreground max-w-3xl mx-auto">
-                    Comprehensive digital solutions tailored to your business needs. 
-                    From concept to deployment, we deliver excellence at every step.
+                <p className="text-muted-foreground max-w-3xl mx-auto">
+                    Cutting-edge web technologies and modern features that elevate user experience, 
+                    boost performance, and drive business growth.
                 </p>
             </div>
 
             {/* Hover Effect Cards */}
             <HoverEffect items={services} />
-            
-           
-           
-        </div>
+        </section>
     );
 };
 

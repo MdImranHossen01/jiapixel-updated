@@ -20,7 +20,10 @@ const Footer = () => {
       title: "Company",
       links: [
         { name: "About Us", href: "/about" },
-        { name: "Book A meeting", href: "https://meet.google.com/qnu-vfvg-qnf" },
+        {
+          name: "Book A meeting",
+          href: "https://meet.google.com/qnu-vfvg-qnf",
+        },
         { name: "Review Us", href: "https://g.page/r/CWA1sOPE9QeJEBM/review" },
         { name: "Blogs", href: "/blogs" },
       ],
@@ -117,19 +120,19 @@ const Footer = () => {
 
         {/* Contact Info */}
         <div className="mt-12 pt-8 border-t border-border">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 mb-6 md:mb-0">
+          <div className="flex flex-col justify-center items-center space-y-4 md:space-y-6">
+            <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <FaMapMarkerAlt />
-                <span>123 Business Ave, Suite 100, New York, NY 10001</span>
+                <span>Nabokalosh, Matlab Dakkhin, Chandpur</span>
               </div>
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <FaPhone />
-                <span>+1 (555) 123-4567</span>
+                <span>+8801919011101</span>
               </div>
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <FaEnvelope />
-                <span>contact@jiapixel.com</span>
+                <span>mail.jiapixel@gmail.com</span>
               </div>
             </div>
           </div>
