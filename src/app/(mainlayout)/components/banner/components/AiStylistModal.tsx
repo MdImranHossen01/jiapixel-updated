@@ -50,7 +50,7 @@ export const AiStylistModal: React.FC<AiStylistModalProps> = ({
           <div className="mb-3">{messageText}</div>
           <button
             onClick={handleSendMessageToAdmin}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-full text-sm font-medium hover:from-purple-700 hover:to-blue-600 transition-all duration-300 shadow-lg"
+            className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-purple-600 to-blue-500 text-white rounded-full text-sm font-medium hover:from-purple-700 hover:to-blue-600 transition-all duration-300 shadow-lg"
           >
             <MessageCircle size={16} />
             {buttonText}
@@ -88,12 +88,12 @@ export const AiStylistModal: React.FC<AiStylistModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="w-full max-w-2xl bg-[#111] border border-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
         {/* Header */}
         <div className="p-6 border-b border-gray-800 flex items-center justify-between bg-[#161616]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-linear-to-tr from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
               <Sparkles size={20} className="text-white" />
             </div>
             <div>

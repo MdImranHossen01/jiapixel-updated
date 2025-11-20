@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import Banner from "./components/banner/Banner";
+import { FAQ_DATA } from "./components/faq/constants";
 
 // Group components that appear together
 const MainContent = lazy(() => import("./components/MainContent"));
@@ -12,8 +13,30 @@ const LoadingFallback = () => (
 );
 
 const HomePage = () => {
+  // Generate FAQ structured data for homepage
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": FAQ_DATA.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
+
   return (
     <div>
+      {/* FAQ Structured Data for Homepage */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqStructuredData),
+        }}
+      />
+      
       {/* Banner is critical - load immediately */}
       <Banner/>
       
