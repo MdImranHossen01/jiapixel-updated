@@ -162,13 +162,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
               {/* Social Icons */}
               <div className="hidden md:flex">
                 <Button variant="ghost" size="icon" asChild>
-                  <a
+                  <Link
                     href="https://wa.me/8801919011101"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <FaWhatsapp className="h-5 w-5 text-foreground" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
               
@@ -177,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                   variant="ghost"
                   size="icon"
                   onClick={handleMessages}
-                  className="relative text-foreground"
+                  className="relative text-foreground cursor-pointer"
                 >
                   <FaEnvelope className="h-5 w-5" />
                   {unreadCount > 0 && (
@@ -195,7 +195,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                 <div className="relative user-dropdown">
                   <button
                     onClick={() => setIsDropdownOpen((prev) => !prev)}
-                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent transition-colors"
+                    className="flex items-center cursor-pointer space-x-2 p-2 rounded-lg hover:bg-accent transition-colors"
                   >
                     {session.user?.image ? (
                       <Image

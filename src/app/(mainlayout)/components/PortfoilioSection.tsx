@@ -110,7 +110,7 @@ const PortfolioSection = () => {
             </div>
             
             {/* Right side content with three marquees - larger images */}
-            <div className='relative flex h-[650px] justify-center gap-3 lg:gap-4 overflow-hidden'>
+            <div className='relative flex h-[350px] md:h-[600px] justify-center gap-3 rounded-4xl lg:gap-4 overflow-hidden'>
                 
                 {/* First Column: Top to Bottom */}
                 <Marquee vertical pauseOnHover className="[--duration:80s] w-48 lg:w-52">

@@ -1,11 +1,8 @@
-"use client";
-import React, { useState } from 'react';
+import React from 'react';
 import Footer from "./components/Footer";
-import { AiStylistModal } from "./components/banner/components/AiStylistModal";
-import { Navbar } from "./components/banner/components/Navbar";
+import AiStylistModalWrapper from './components/AiStylistModalWrapper';
 
 const Mainlayout = ({ children }: { children: React.ReactNode }) => {
-   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   return (
     <div className="min-h-screen w-full relative">
       {/* Dark Mode Background */}
@@ -39,15 +36,11 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
       
       {/* Content container */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Navbar is now fixed and will stick to top */}
-        <Navbar onSearchClick={() => setIsAiModalOpen(true)} />
+        {/* Navbar with modal wrapper */}
+        <AiStylistModalWrapper />
         
         <main className="grow relative z-10">
           {children}
-          <AiStylistModal 
-            isOpen={isAiModalOpen} 
-            onClose={() => setIsAiModalOpen(false)} 
-          />
         </main>
         
         <footer className="relative z-20">
