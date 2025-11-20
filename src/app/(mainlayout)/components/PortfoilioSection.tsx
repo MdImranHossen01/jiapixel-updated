@@ -21,7 +21,7 @@ const portfolioImages = [
   "/Assets/portfolios/testimonial.webp",
   "/Assets/portfolios/pricing2.webp",
   "/Assets/portfolios/pricing.webp",
-  "/Assets/portfolios/product-cart.webp",
+  "/Assets/portfolios/productcart.webp",
   "/Assets/portfolios/Loginbanner.webp",
   "/Assets/portfolios/Login.webp",
 ];
