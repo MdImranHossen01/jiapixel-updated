@@ -132,10 +132,10 @@ export const HeroGrid: React.FC = () => {
               transition={{ delay: 0.8 }}
             >
               <Link href="/services">
-              <button className="px-6 py-3 cursor-pointer bg-white text-black rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center gap-2">
-                <Code size={20} />
-                View Projects
-              </button>
+                <button className="px-6 py-3 cursor-pointer bg-white text-black rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center gap-2">
+                  <Code size={20} />
+                  View Projects
+                </button>
               </Link>
               <Link href="/messages">
                 <button className="px-6 py-3 cursor-pointer border border-white/30 text-white rounded-full font-semibold hover:bg-white/10 transition-all duration-300">
@@ -147,12 +147,7 @@ export const HeroGrid: React.FC = () => {
         </div>
 
         {/* Bottom Left CTA Card */}
-        <motion.div
-          className="bg-gradient-to-r from-gray-900 to-black rounded-4xl p-8 lg:p-9 flex flex-col md:flex-row items-center justify-between gap-6 min-h-[180px] border border-gray-800"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-        >
+        <div className="bg-linear-to-r from-gray-900 to-black rounded-4xl p-8 lg:p-9 flex flex-col md:flex-row items-center justify-between gap-6 min-h-[180px] border border-gray-800">
           <div className="flex-1">
             <h3 className="text-white text-xl lg:text-2xl font-bold mb-3">
               Ready to Transform Your Digital Presence?
@@ -167,16 +162,16 @@ export const HeroGrid: React.FC = () => {
               -- Md. Imran Hossen, CEO, Jia Pixel
             </p>
           </div>
-         <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full  flex items-center justify-center group hover:scale-105 transition-all duration-300 shrink-0 shadow-lg overflow-hidden border-2 border-primary">
-  <Image
-    src="/Expert-Full-Stack-Web-Applications-Developer-in-Bangladesh-Md-Imran-Hossen-Jia-Pixel.png"
-    height={80}
-    width={80}
-    alt="Md. Imran Hossen, CEO, Jia Pixel"
-    className="w-full h-full object-cover"
-  />
-</div>
-        </motion.div>
+          <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full  flex items-center justify-center group hover:scale-105 transition-all duration-300 shrink-0 shadow-lg overflow-hidden border-2 border-primary">
+            <Image
+              src="/Expert-Full-Stack-Web-Applications-Developer-in-Bangladesh-Md-Imran-Hossen-Jia-Pixel.png"
+              height={80}
+              width={80}
+              alt="Md. Imran Hossen, CEO, Jia Pixel"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Right Column Container (Spans 4) */}
