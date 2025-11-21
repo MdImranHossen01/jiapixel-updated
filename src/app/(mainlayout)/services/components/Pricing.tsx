@@ -246,7 +246,7 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
 
                 <p className="mt-2 sm:mt-4">
                   <strong className="text-3xl font-bold text-foreground sm:text-4xl"> ${tier.price} </strong>
-                  <span className="text-sm font-medium text-muted-foreground">/project</span>
+                  <span className="text-sm font-medium text-muted-foreground">/Yearly</span>
                 </p>
 
                 <div className="mt-4 flex flex-col gap-2 sm:mt-6">
@@ -266,7 +266,7 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
 
                 <button 
                   onClick={() => handleGetStarted(tier)}
-                  className="mt-4 block w-full rounded-sm border border-primary bg-primary px-12 py-3 text-center text-sm font-medium text-primary-foreground hover:bg-transparent hover:text-primary sm:mt-6 transition-colors"
+                  className="mt-4 block w-full cursor-pointer rounded-sm border border-primary bg-primary px-12 py-3 text-center text-sm font-medium text-primary-foreground hover:bg-transparent hover:text-primary sm:mt-6 transition-colors"
                 >
                   Get Started
                 </button>

@@ -240,28 +240,14 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
           </div>
 
           {/* Service Steps */}
-          {service.projectSteps && service.projectSteps.length > 0 && (
-            <ServiceSteps steps={service.projectSteps} />
-          )}
+         {/* Service Steps */}
+          {service.projectSteps && service.projectSteps.length > 0 && (
+            <ServiceSteps 
+              steps={service.projectSteps}
+              requirements={service.requirements} 
+            />
+          )}
 
-          {/* Requirements */}
-          {service.requirements && service.requirements.length > 0 && (
-            <section className="bg-card rounded-lg border p-6">
-              <h2 className="text-2xl font-bold text-foreground mb-6">
-                What I Need From You
-              </h2>
-              <div className="space-y-3">
-                {service.requirements.map(
-                  (requirement: string, index: number) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-foreground">{requirement}</span>
-                    </div>
-                  )
-                )}
-              </div>
-            </section>
-          )}
         </div>
       </div>
     </>

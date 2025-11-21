@@ -77,37 +77,7 @@ const AuthModal = ({
             </button>
           </div>
 
-          {/* Service Details */}
-          {selectedTier && (
-            <div className="mb-6 p-4 bg-accent rounded-lg">
-              <h4 className="font-medium text-foreground mb-2">{serviceTitle}</h4>
-              <div className="space-y-1 text-sm text-muted-foreground">
-                <div className="flex justify-between">
-                  <span>Package:</span>
-                  <span className="font-medium">{selectedTier.title}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Price:</span>
-                  <span className="font-medium">${selectedTier.price}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Delivery:</span>
-                  <span>{selectedTier.deliveryDays} days</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Revisions:</span>
-                  <span>{selectedTier.revisions}</span>
-                </div>
-              </div>
-              {serviceUrl && (
-                <div className="mt-3 pt-3 border-t border-border/50">
-                  <p className="text-xs text-muted-foreground">
-                    Service URL will be included in your message
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+     
 
           {/* Content based on auth status */}
           {isLoading ? (
@@ -121,7 +91,7 @@ const AuthModal = ({
               <div className="bg-background border border-border rounded-lg p-4">
                 <p className="text-sm text-foreground whitespace-pre-line">
                   {selectedTier 
-                    ? `Hello! I'm interested in the ${serviceTitle} - ${selectedTier.title} package ($${selectedTier.price}). Please provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
+                    ? `Hello!\n I'm interested in the ${serviceTitle} \n\n Package: ${selectedTier.title}  ($${selectedTier.price}).\n Please provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
                     : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
                   }
                 </p>
