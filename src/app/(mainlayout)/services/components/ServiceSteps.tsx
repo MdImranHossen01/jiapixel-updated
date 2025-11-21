@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FaChevronDown, FaChevronUp, FaCheckSquare } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { IoIosCheckmarkCircleOutline } from 'react-icons/io';
 
 // --- 1. INTERFACES (Ensure these match your models/Project.ts) ---
@@ -53,7 +53,7 @@ const renderListAlphabetically = (items: string[], isRequirements: boolean) => (
                 key={index} 
                 className={`flex items-start gap-2 ${isRequirements ? 'text-foreground' : 'text-foreground'}`}
             >
-                <span className="flex-shrink-0 text-sm font-semibold pt-[1px] w-4">
+                <span className="shrink-0 text-sm font-semibold pt-px w-4">
                     {/* Use lower-case letters (a, b, c...) */}
                     {String.fromCharCode(97 + index)}.
                 </span>
@@ -98,7 +98,7 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                 
                 {/* --- Step 1: Fixed Step & Collapsible Requirements --- */}
                 <div className="flex gap-4 relative">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
+                    <div className="shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
                         {FIXED_STEPS[0].number}
                     </div>
                     <div className="flex-1 pb-8">
@@ -109,7 +109,7 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                 </div>
                 {/* step 2 */}
 <div className="flex gap-4 relative">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
+                    <div className="shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
                         {FIXED_STEPS[1].number}
                     </div>
                     <div className="flex-1 pb-8">
@@ -122,7 +122,7 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                 </div>
                 {/* step 3 */}
                 <div className="flex gap-4 relative">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
+                    <div className="shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
                         {FIXED_STEPS[2].number}
                     </div>
                     <div className="flex-1 pb-8">
@@ -133,7 +133,7 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                         {requirements && requirements.length > 0 && (
                             <div className="bg-foreground/5 dark:bg-card/30 p-4 rounded-lg border border-border/50">
                                 <p 
-                                    className="text-primary font-semibold text-sm cursor-pointer hover:underline mb-2"
+                                    className="text-primary font-semibold text-sm cursor-pointer hover:underline"
                                     onClick={() => setShowRequirements(!showRequirements)}
                                 >
                                     {showRequirements ? 'Hide requirements' : 'Show requirements'}
@@ -154,7 +154,7 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                 </div>
                 {/* --- Step 4: Dynamic Processing Steps (Database Data) --- */}
                 <div className="flex gap-4 relative">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
+                    <div className="shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
                         {PROCESSING_STEP_NUMBER}
                     </div>
                     <div className="flex-1 pb-8">
@@ -174,16 +174,16 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                                     onClick={() => toggleStep(index)}
                                 >
                                     <div className="flex gap-3 items-start">
-                                        <IoIosCheckmarkCircleOutline className="flex-shrink-0 w-5 h-5 mt-0.5 text-primary" /> 
+                                        <IoIosCheckmarkCircleOutline className="shrink-0 w-5 h-5 mt-0.5 text-primary" /> 
                                         <div className="flex-1">
                                             <div className="flex items-center justify-between">
                                                 <h4 className="font-medium text-foreground pr-2">
                                                     {step.title}
                                                 </h4>
                                                 {isStepExpanded(index) ? (
-                                                    <FaChevronUp className="flex-shrink-0 w-3 h-3 text-primary mt-1" />
+                                                    <FaChevronUp className="shrink-0 w-3 h-3 text-primary mt-1" />
                                                 ) : (
-                                                    <FaChevronDown className="flex-shrink-0 w-3 h-3 text-primary mt-1" />
+                                                    <FaChevronDown className="shrink-0 w-3 h-3 text-primary mt-1" />
                                                 )}
                                             </div>
                                             {isStepExpanded(index) && (
@@ -201,7 +201,7 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
 
                 {/* --- Step 5: Final Fixed Step --- */}
                  <div className="flex gap-4 relative">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
+                    <div className="shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
                         {FIXED_STEPS[3].number}
                     </div>
                     <div className="flex-1 pb-8">

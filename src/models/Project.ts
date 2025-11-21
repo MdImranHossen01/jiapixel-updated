@@ -87,8 +87,8 @@ const TierFeatureSchema = new Schema<ITierFeature>(
 const TierDataSchema = new Schema<ITierData>({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  deliveryDays: { type: Number, required: true, default: 3 },
-  revisions: { type: Number, required: true, default: 1 },
+  deliveryDays: { type: Number, required: true, default: 0 },
+  revisions: { type: Number, required: true, default: 0 },
   price: { type: Number, required: true, default: 0 },
   features: { type: TierFeatureSchema, required: true, default: {} },
 });
