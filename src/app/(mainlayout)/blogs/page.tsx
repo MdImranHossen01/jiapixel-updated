@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import RichTextRenderer from '@/components/RichTextRenderer';
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -222,26 +221,7 @@ export default async function BlogsPage() {
                       </Link>
                     </h2>
                     
-                    {/* Using RichTextRenderer for excerpt with maxLines */}
-                    <div className="mb-4 min-h-[72px]">
-                      {blog.excerpt ? (
-                        <RichTextRenderer
-                          content={blog.excerpt}
-                          maxLines={3}
-                          className="text-muted-foreground text-sm leading-relaxed"
-                        />
-                      ) : blog.content ? (
-                        <RichTextRenderer
-                          content={blog.content}
-                          maxLines={3}
-                          className="text-muted-foreground text-sm leading-relaxed"
-                        />
-                      ) : (
-                        <p className="text-muted-foreground text-sm italic">
-                          No excerpt available
-                        </p>
-                      )}
-                    </div>
+                   
                     
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-muted-foreground">

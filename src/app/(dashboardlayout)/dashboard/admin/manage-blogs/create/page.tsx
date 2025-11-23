@@ -1,22 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import Image from 'next/image';
-
-// Dynamically import TipTapWrapper with no SSR
-const TipTapWrapper = dynamic(
-  () => import('../../../../dashboard/components/TipTapWrapper'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="border border-border rounded-lg bg-background min-h-[200px] p-6 flex items-center justify-center">
-        <div className="text-muted-foreground">Loading editor...</div>
-      </div>
-    )
-  }
-);
+import { SimpleEditor, SimpleEditorRef } from '@/components/tiptap-templates/simple/simple-editor';
 
 // Helper function to validate URL
 const isValidUrl = (url: string): boolean => {
@@ -45,6 +32,9 @@ export default function CreateBlogPage() {
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
+  
+  // Ref to access editor content
+  const editorRef = useRef<SimpleEditorRef>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -64,13 +54,6 @@ export default function CreateBlogPage() {
     }
   };
 
-  const handleContentChange = (content: string) => {
-    setFormData(prev => ({
-      ...prev,
-      content
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -78,20 +61,43 @@ export default function CreateBlogPage() {
     try {
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
       
+      // Get the HTML content from the editor
+      let editorContent = '';
+      if (editorRef.current) {
+        editorContent = editorRef.current.getContent();
+      }
+      
+      // Validate required fields
+      if (!formData.title.trim() || !editorContent.trim() || !formData.category.trim()) {
+        alert('Title, content, and category are required');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Submitting blog with content length:', editorContent.length);
+      
       const response = await fetch('/api/blogs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          tags: tagsArray
+          title: formData.title,
+          content: editorContent,
+          excerpt: formData.excerpt,
+          featuredImage: formData.featuredImage,
+          tags: tagsArray,
+          category: formData.category,
+          status: formData.status,
+          seoTitle: formData.seoTitle,
+          seoDescription: formData.seoDescription
         }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        router.push('/dashboard/blogs');
+        alert('Blog created successfully!');
+        router.push('/dashboard/admin/manage-blogs');
       } else {
         const error = await response.json();
         alert(error.error || 'Failed to create blog');
@@ -161,10 +167,10 @@ export default function CreateBlogPage() {
               <label className="block text-lg font-semibold text-card-foreground mb-3">
                 Blog Content *
               </label>
-              <TipTapWrapper
-                content={formData.content}
-                onChange={handleContentChange}
-              />
+              <SimpleEditor ref={editorRef} />
+              <div className="text-sm text-muted-foreground mt-2">
+                Write your blog content above. Images will be automatically uploaded to ImgBB.
+              </div>
             </div>
 
             {/* Excerpt */}
@@ -365,7 +371,7 @@ export default function CreateBlogPage() {
           </button>
           <button
             type="submit"
-            disabled={loading || !formData.title || !formData.content || !formData.category}
+            disabled={loading}
             className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (

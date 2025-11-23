@@ -3,64 +3,16 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import RichTextRenderer from '@/components/RichTextRenderer';
-
-// Helper function to get base URL
-function getBaseUrl() {
-  if (typeof window !== 'undefined') {
-    // Client side
-    return window.location.origin;
-  }
-  // Server side
-  if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
-  }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-}
-
-// Function to clean blog content before rendering
-function cleanBlogContent(content: string): string {
-  if (!content) return '';
-  
-  let cleanedContent = content;
-
-  // Remove duplicate class attributes
-  cleanedContent = cleanedContent
-    .replace(/class="([^"]*)" class="([^"]*)"/gi, 'class="$1 $2"')
-    .replace(/class="text-foreground text-foreground"/gi, 'class="text-foreground"')
-    .replace(/<span class="text-foreground" class="text-foreground">/gi, '<span class="text-foreground">');
-
-  // Remove link styling from headings
-  cleanedContent = cleanedContent
-    .replace(/<h2 class="italic no-underline hover:opacity-80 transition-opacity text-foreground">/gi, '<h2 class="text-2xl text-foreground font-bold">')
-    .replace(/<h3 class="italic no-underline hover:opacity-80 transition-opacity text-foreground">/gi, '<h3 class="text-xl text-foreground font-semibold">');
-
-  // Clean up empty paragraphs and excessive line breaks
-  cleanedContent = cleanedContent
-    .replace(/<p class="text-foreground"><\/p>/gi, '')
-    .replace(/<p><\/p>/gi, '')
-    .replace(/(<br\/>){3,}/gi, '<br/><br/>');
-
-  // Convert raw image URLs to proper img tags
-  cleanedContent = cleanedContent
-    .replace(/\/\/(i\.ibb\.co\/[^<>\s]+\.(jpg|jpeg|png|gif|webp))/gi, (match) => {
-      const fullUrl = `https:${match}`;
-      return `<img src="${fullUrl}" alt="Blog image" class="rounded-lg max-w-full h-auto my-6" loading="lazy" />`;
-    });
-
-  return cleanedContent;
-}
+import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
 
 async function getBlog(slug: string) {
   try {
-    const baseUrl = getBaseUrl();
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+      : 'http://localhost:3000';
     
     const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
-      cache: 'force-cache',
-      next: { 
-        tags: [`blog-${slug}`],
-        revalidate: 3600 // 1 hour
-      }
+      cache: 'force-cache'
     });
 
     if (!response.ok) {
@@ -98,17 +50,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   // Create plain text descriptions
   const plainTextDescription = blog.excerpt || 
-    (blog.content ? blog.content.replace(/<[^>]*>/g, "").substring(0, 160) : '') || 
+    blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) || 
     `Read ${blog.title} on Jiapixel blog.`;
 
-  const plainTextTitle = blog.title && blog.title.length > 60 
+  const plainTextTitle = blog.title.length > 60 
     ? `${blog.title.substring(0, 57)}... - Jiapixel Blog`
-    : `${blog.title || 'Blog Post'} - Jiapixel Blog`;
+    : `${blog.title} - Jiapixel Blog`;
 
   return {
     title: plainTextTitle,
     description: plainTextDescription,
-    keywords: blog.tags?.join(', ') || `${blog.category || 'general'}, web development, digital marketing`,
+    keywords: blog.tags?.join(', ') || `${blog.category}, web development, digital marketing`,
     
     // Canonical URL
     alternates: {
@@ -123,10 +75,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       siteName: 'Jiapixel',
       images: [
         {
-          url: blog.featuredImage || `${baseUrl}/icon.png`,
+          url: blog.featuredImage || 'https://www.jiapixel.com/icon.png',
           width: 1200,
           height: 630,
-          alt: blog.title || 'Blog Post',
+          alt: blog.title,
         },
       ],
       locale: 'en_US',
@@ -142,7 +94,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: 'summary_large_image',
       title: plainTextTitle,
       description: plainTextDescription,
-      images: [blog.featuredImage || `${baseUrl}/icon.png`],
+      images: [blog.featuredImage || 'https://www.jiapixel.com/icon.png'],
       creator: '@jiapixel',
     },
   };
@@ -156,27 +108,14 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
-  // Clean the blog content before rendering
-  const cleanedContent = cleanBlogContent(blog.content);
-
-  // Safe date formatting
-  const publishedDate = blog.publishedAt || blog.createdAt;
-  const formattedDate = publishedDate 
-    ? new Date(publishedDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
-    : 'Unknown date';
-
   // Generate structured data for individual blog post
   const blogStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: blog.title || 'Blog Post',
+    headline: blog.title,
     description: blog.excerpt,
     image: blog.featuredImage || 'https://www.jiapixel.com/icon.png',
-    datePublished: publishedDate,
+    datePublished: blog.publishedAt || blog.createdAt,
     dateModified: blog.updatedAt,
     author: {
       '@type': 'Person',
@@ -195,8 +134,8 @@ export default async function BlogPostPage({ params }: PageProps) {
       '@type': 'WebPage',
       '@id': `https://www.jiapixel.com/blogs/${blog.slug}`
     },
-    articleSection: blog.category || 'General',
-    keywords: blog.tags?.join(', ') || ''
+    articleSection: blog.category,
+    keywords: blog.tags?.join(', ')
   };
 
   return (
@@ -219,75 +158,13 @@ export default async function BlogPostPage({ params }: PageProps) {
             </Link>
           </nav>
 
-          <article className="bg-card rounded-lg shadow-lg overflow-hidden border border-border">
-            {blog.featuredImage && (
-              <div className="relative h-64 md:h-96 overflow-hidden">
-                <Image
-                  src={blog.featuredImage}
-                  alt={blog.title || 'Blog post image'}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                  priority
-                />
-              </div>
-            )}
-            
-            <div className="p-8">
-              <header className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
-                    {blog.category || 'Uncategorized'}
-                  </span>
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <span>{blog.readTime || 5} min read</span>
-                    <span>•</span>
-                    <span>{blog.views || 0} views</span>
-                  </div>
-                </div>
-                
-                <h1 className="text-3xl md:text-4xl font-bold text-card-foreground mb-4 leading-tight">
-                  {blog.title || 'Untitled Blog Post'}
-                </h1>
-                
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    {blog.authorName && (
-                      <span className="mr-4">By {blog.authorName}</span>
-                    )}
-                    <span>
-                      Published on {formattedDate}
-                    </span>
-                  </div>
-                </div>
-              </header>
-
-              {blog.tags && blog.tags.length > 0 && (
-                <div className="mb-8">
-                  <div className="flex flex-wrap gap-2">
-                    {blog.tags.map((tag: string, index: number) => (
-                      <span
-                        key={index}
-                        className="inline-block bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* USING CLEANED CONTENT WITH RICHTEXTRENDERER */}
-              {cleanedContent ? (
-                <RichTextRenderer 
-                  content={cleanedContent}
-                  className="text-card-foreground"
-                />
-              ) : (
-                <p className="text-muted-foreground italic">No content available for this blog post.</p>
-              )}
-            </div>
-          </article>
+        <article className="border rounded-lg p-8">
+        <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
+        <p className="text-sm text-slate-500 mb-8">
+          {new Date(blog.createdAt).toLocaleDateString()}
+        </p>
+        <ReadOnlyEditor content={blog.content} />
+      </article>
         </div>
       </div>
     </>
@@ -297,24 +174,23 @@ export default async function BlogPostPage({ params }: PageProps) {
 // Generate static params for better performance
 export async function generateStaticParams() {
   try {
-    const baseUrl = getBaseUrl();
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+      : 'http://localhost:3000';
     
     const response = await fetch(`${baseUrl}/api/blogs`, {
-      cache: 'force-cache',
-      next: { revalidate: 3600 } // 1 hour
+      cache: 'force-cache'
     });
     
     if (!response.ok) {
-      console.warn('Failed to fetch blogs for static params');
       return [];
     }
     
     const data = await response.json();
-    return (data.blogs || []).map((blog: any) => ({
+    return data.blogs?.map((blog: any) => ({
       slug: blog.slug,
-    }));
+    })) || [];
   } catch (error) {
-    console.error('Error generating static params:', error);
     return [];
   }
 }
