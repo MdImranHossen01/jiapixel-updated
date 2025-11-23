@@ -105,7 +105,11 @@ export function useLinkHandler(props: LinkHandlerProps) {
     const { href } = editor.getAttributes("link")
 
     if (isLinkActive(editor) && url === null) {
-      setUrl(href || "")
+      // Use setTimeout to make the state update asynchronous
+      const timer = setTimeout(() => {
+        setUrl(href || "")
+      }, 0)
+      return () => clearTimeout(timer)
     }
   }, [editor, url])
 
@@ -114,7 +118,10 @@ export function useLinkHandler(props: LinkHandlerProps) {
 
     const updateLinkState = () => {
       const { href } = editor.getAttributes("link")
-      setUrl(href || "")
+      // Use requestAnimationFrame to make state updates asynchronous
+      requestAnimationFrame(() => {
+        setUrl(href || "")
+      })
     }
 
     editor.on("selectionUpdate", updateLinkState)
@@ -195,19 +202,24 @@ export function useLinkState(props: {
     if (!editor) return
 
     const handleSelectionUpdate = () => {
-      setIsVisible(
-        shouldShowLinkButton({
-          editor,
-          hideWhenUnavailable,
-        })
-      )
+      // Use requestAnimationFrame to make state updates asynchronous
+      requestAnimationFrame(() => {
+        setIsVisible(
+          shouldShowLinkButton({
+            editor,
+            hideWhenUnavailable,
+          })
+        )
+      })
     }
 
-    handleSelectionUpdate()
+    // Initial update - also make it asynchronous
+    const rafId = requestAnimationFrame(handleSelectionUpdate)
 
     editor.on("selectionUpdate", handleSelectionUpdate)
 
     return () => {
+      cancelAnimationFrame(rafId)
       editor.off("selectionUpdate", handleSelectionUpdate)
     }
   }, [editor, hideWhenUnavailable])

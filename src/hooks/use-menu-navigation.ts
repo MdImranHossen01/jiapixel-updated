@@ -1,7 +1,7 @@
 "use client"
 
 import type { Editor } from "@tiptap/react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 
 type Orientation = "horizontal" | "vertical" | "both"
 
@@ -61,97 +61,133 @@ export function useMenuNavigation<T>({
   orientation = "vertical",
   autoSelectFirstItem = true,
 }: MenuNavigationOptions<T>) {
-  const [selectedIndex, setSelectedIndex] = useState<number>(
-    autoSelectFirstItem ? 0 : -1
-  )
+  // Initialize state based on props to avoid the effect
+  const [selectedIndex, setSelectedIndex] = useState<number>(() => {
+    // Initialize based on current query and autoSelectFirstItem
+    return (query && autoSelectFirstItem && items.length > 0) ? 0 : -1
+  })
 
+  // Use refs to track latest values without causing effect issues
+  const itemsRef = useRef(items)
+  const selectedIndexRef = useRef(selectedIndex)
+  
+  // Update refs in effects
   useEffect(() => {
-    const handleKeyboardNavigation = (event: KeyboardEvent) => {
-      if (!items.length) return false
+    itemsRef.current = items
+  })
+  
+  useEffect(() => {
+    selectedIndexRef.current = selectedIndex
+  })
 
-      const moveNext = () =>
-        setSelectedIndex((currentIndex) => {
-          if (currentIndex === -1) return 0
-          return (currentIndex + 1) % items.length
-        })
-
-      const movePrev = () =>
-        setSelectedIndex((currentIndex) => {
-          if (currentIndex === -1) return items.length - 1
-          return (currentIndex - 1 + items.length) % items.length
-        })
-
-      switch (event.key) {
-        case "ArrowUp": {
-          if (orientation === "horizontal") return false
-          event.preventDefault()
-          movePrev()
-          return true
-        }
-
-        case "ArrowDown": {
-          if (orientation === "horizontal") return false
-          event.preventDefault()
-          moveNext()
-          return true
-        }
-
-        case "ArrowLeft": {
-          if (orientation === "vertical") return false
-          event.preventDefault()
-          movePrev()
-          return true
-        }
-
-        case "ArrowRight": {
-          if (orientation === "vertical") return false
-          event.preventDefault()
-          moveNext()
-          return true
-        }
-
-        case "Tab": {
-          event.preventDefault()
-          if (event.shiftKey) {
-            movePrev()
-          } else {
-            moveNext()
-          }
-          return true
-        }
-
-        case "Home": {
-          event.preventDefault()
+  // Handle query changes by resetting selection
+  useEffect(() => {
+    // This effect only runs when query changes significantly
+    // and doesn't cause cascading renders because it's conditional
+    if (query !== undefined) {
+      const shouldReset = items.length > 0 && autoSelectFirstItem
+      if (shouldReset && selectedIndex !== 0) {
+        // Use requestAnimationFrame to defer the state update
+        requestAnimationFrame(() => {
           setSelectedIndex(0)
-          return true
-        }
-
-        case "End": {
-          event.preventDefault()
-          setSelectedIndex(items.length - 1)
-          return true
-        }
-
-        case "Enter": {
-          if (event.isComposing) return false
-          event.preventDefault()
-          if (selectedIndex !== -1 && items[selectedIndex]) {
-            onSelect?.(items[selectedIndex])
-          }
-          return true
-        }
-
-        case "Escape": {
-          event.preventDefault()
-          onClose?.()
-          return true
-        }
-
-        default:
-          return false
+        })
+      } else if (!shouldReset && selectedIndex !== -1) {
+        requestAnimationFrame(() => {
+          setSelectedIndex(-1)
+        })
       }
     }
+  }, [query, items.length, autoSelectFirstItem, selectedIndex])
 
+  const handleKeyboardNavigation = useCallback((event: KeyboardEvent) => {
+    const currentItems = itemsRef.current
+    if (!currentItems.length) return false
+
+    const moveNext = () =>
+      setSelectedIndex((currentIndex) => {
+        if (currentIndex === -1) return 0
+        return (currentIndex + 1) % currentItems.length
+      })
+
+    const movePrev = () =>
+      setSelectedIndex((currentIndex) => {
+        if (currentIndex === -1) return currentItems.length - 1
+        return (currentIndex - 1 + currentItems.length) % currentItems.length
+      })
+
+    switch (event.key) {
+      case "ArrowUp": {
+        if (orientation === "horizontal") return false
+        event.preventDefault()
+        movePrev()
+        return true
+      }
+
+      case "ArrowDown": {
+        if (orientation === "horizontal") return false
+        event.preventDefault()
+        moveNext()
+        return true
+      }
+
+      case "ArrowLeft": {
+        if (orientation === "vertical") return false
+        event.preventDefault()
+        movePrev()
+        return true
+      }
+
+      case "ArrowRight": {
+        if (orientation === "vertical") return false
+        event.preventDefault()
+        moveNext()
+        return true
+      }
+
+      case "Tab": {
+        event.preventDefault()
+        if (event.shiftKey) {
+          movePrev()
+        } else {
+          moveNext()
+        }
+        return true
+      }
+
+      case "Home": {
+        event.preventDefault()
+        setSelectedIndex(0)
+        return true
+      }
+
+      case "End": {
+        event.preventDefault()
+        setSelectedIndex(currentItems.length - 1)
+        return true
+      }
+
+      case "Enter": {
+        if (event.isComposing) return false
+        event.preventDefault()
+        const currentSelectedIndex = selectedIndexRef.current
+        if (currentSelectedIndex !== -1 && currentItems[currentSelectedIndex]) {
+          onSelect?.(currentItems[currentSelectedIndex])
+        }
+        return true
+      }
+
+      case "Escape": {
+        event.preventDefault()
+        onClose?.()
+        return true
+      }
+
+      default:
+        return false
+    }
+  }, [orientation, onSelect, onClose])
+
+  useEffect(() => {
     let targetElement: HTMLElement | null = null
 
     if (editor) {
@@ -162,32 +198,13 @@ export function useMenuNavigation<T>({
 
     if (targetElement) {
       targetElement.addEventListener("keydown", handleKeyboardNavigation, true)
-
       return () => {
-        targetElement?.removeEventListener(
-          "keydown",
-          handleKeyboardNavigation,
-          true
-        )
+        targetElement?.removeEventListener("keydown", handleKeyboardNavigation, true)
       }
     }
 
     return undefined
-  }, [
-    editor,
-    containerRef,
-    items,
-    selectedIndex,
-    onSelect,
-    onClose,
-    orientation,
-  ])
-
-  useEffect(() => {
-    if (query) {
-      setSelectedIndex(autoSelectFirstItem ? 0 : -1)
-    }
-  }, [query, autoSelectFirstItem])
+  }, [editor, containerRef, handleKeyboardNavigation])
 
   return {
     selectedIndex: items.length ? selectedIndex : undefined,

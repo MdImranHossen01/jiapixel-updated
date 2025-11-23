@@ -105,14 +105,15 @@ export function useElementRect({
 
   useEffect(() => {
     if (!enabled || !isClientSide()) {
-      setRect(initialRect)
+      // Don't set state here - let the updateRect callback handle it
       return
     }
 
     const targetElement = getTargetElement()
     if (!targetElement) return
 
-    updateRect()
+    // Use requestAnimationFrame for initial update
+    const rafId = requestAnimationFrame(updateRect)
 
     const cleanup: (() => void)[] = []
 
@@ -136,7 +137,7 @@ export function useElementRect({
 
     return () => {
       cleanup.forEach((fn) => fn())
-      setRect(initialRect)
+      cancelAnimationFrame(rafId)
     }
   }, [enabled, getTargetElement, updateRect, useResizeObserver])
 

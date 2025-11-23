@@ -260,9 +260,14 @@ export const LinkPopover = forwardRef<HTMLButtonElement, LinkPopoverProps>(
       [onClick, isOpen]
     )
 
+    // Fix the problematic effect by making state update asynchronous
     useEffect(() => {
       if (autoOpenOnLinkActive && isActive) {
-        setIsOpen(true)
+        // Use setTimeout to make the state update asynchronous
+        const timer = setTimeout(() => {
+          setIsOpen(true)
+        }, 0)
+        return () => clearTimeout(timer)
       }
     }, [autoOpenOnLinkActive, isActive])
 

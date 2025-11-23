@@ -73,7 +73,7 @@ export const HIGHLIGHT_COLORS = [
 ]
 export type HighlightColor = (typeof HIGHLIGHT_COLORS)[number]
 
-export type HighlightMode = "mark" | "node"
+export type HighlightMode = "mark" // Remove "node" mode since we don't have the extension
 
 /**
  * Configuration for the color highlight functionality
@@ -99,7 +99,6 @@ export interface UseColorHighlightConfig {
   /**
    * The highlighting mode to use.
    * - "mark": Uses the highlight mark extension (default)
-   * - "node": Uses the node background extension
    * @default "mark"
    */
   mode?: HighlightMode
@@ -135,23 +134,11 @@ export function canColorHighlight(
 ): boolean {
   if (!editor || !editor.isEditable) return false
 
-  if (mode === "mark") {
-    if (
-      !isMarkInSchema("highlight", editor) ||
-      isNodeTypeSelected(editor, ["image"])
-    )
-      return false
+  // Only support mark mode
+  if (!isMarkInSchema("highlight", editor) || isNodeTypeSelected(editor, ["image"]))
+    return false
 
-    return editor.can().setMark("highlight")
-  } else {
-    if (!isExtensionAvailable(editor, ["nodeBackground"])) return false
-
-    try {
-      return editor.can().toggleNodeBackgroundColor("test")
-    } catch {
-      return false
-    }
-  }
+  return editor.can().setMark("highlight")
 }
 
 /**
@@ -164,29 +151,9 @@ export function isColorHighlightActive(
 ): boolean {
   if (!editor || !editor.isEditable) return false
 
-  if (mode === "mark") {
-    return highlightColor
-      ? editor.isActive("highlight", { color: highlightColor })
-      : editor.isActive("highlight")
-  } else {
-    if (!highlightColor) return false
-
-    try {
-      const { state } = editor
-      const { selection } = state
-
-      const $pos = selection.$anchor
-      for (let depth = $pos.depth; depth >= 0; depth--) {
-        const node = $pos.node(depth)
-        if (node && node.attrs?.backgroundColor === highlightColor) {
-          return true
-        }
-      }
-      return false
-    } catch {
-      return false
-    }
-  }
+  return highlightColor
+    ? editor.isActive("highlight", { color: highlightColor })
+    : editor.isActive("highlight")
 }
 
 /**
@@ -199,11 +166,7 @@ export function removeHighlight(
   if (!editor || !editor.isEditable) return false
   if (!canColorHighlight(editor, mode)) return false
 
-  if (mode === "mark") {
-    return editor.chain().focus().unsetMark("highlight").run()
-  } else {
-    return editor.chain().focus().unsetNodeBackgroundColor().run()
-  }
+  return editor.chain().focus().unsetMark("highlight").run()
 }
 
 /**
@@ -218,11 +181,7 @@ export function shouldShowButton(props: {
 
   if (!editor || !editor.isEditable) return false
 
-  if (mode === "mark") {
-    if (!isMarkInSchema("highlight", editor)) return false
-  } else {
-    if (!isExtensionAvailable(editor, ["nodeBackground"])) return false
-  }
+  if (!isMarkInSchema("highlight", editor)) return false
 
   if (hideWhenUnavailable && !editor.isActive("code")) {
     return canColorHighlight(editor, mode)
@@ -267,41 +226,28 @@ export function useColorHighlight(config: UseColorHighlightConfig) {
     if (!editor || !canColorHighlightState || !highlightColor || !label)
       return false
 
-    if (mode === "mark") {
-      if (editor.state.storedMarks) {
-        const highlightMarkType = editor.schema.marks.highlight
-        if (highlightMarkType) {
-          editor.view.dispatch(
-            editor.state.tr.removeStoredMark(highlightMarkType)
-          )
-        }
+    if (editor.state.storedMarks) {
+      const highlightMarkType = editor.schema.marks.highlight
+      if (highlightMarkType) {
+        editor.view.dispatch(
+          editor.state.tr.removeStoredMark(highlightMarkType)
+        )
       }
+    }
 
-      setTimeout(() => {
-        const success = editor
-          .chain()
-          .focus()
-          .toggleMark("highlight", { color: highlightColor })
-          .run()
-        if (success) {
-          onApplied?.({ color: highlightColor, label, mode })
-        }
-        return success
-      }, 0)
-
-      return true
-    } else {
+    setTimeout(() => {
       const success = editor
         .chain()
         .focus()
-        .toggleNodeBackgroundColor(highlightColor)
+        .toggleMark("highlight", { color: highlightColor })
         .run()
-
       if (success) {
         onApplied?.({ color: highlightColor, label, mode })
       }
       return success
-    }
+    }, 0)
+
+    return true
   }, [canColorHighlightState, highlightColor, editor, label, onApplied, mode])
 
   const handleRemoveHighlight = useCallback(() => {
