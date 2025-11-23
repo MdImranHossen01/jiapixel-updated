@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { notFound } from "next/navigation";
-import RichTextRenderer from "@/components/RichTextRenderer";
+// import RichTextRenderer from "@/components/RichTextRenderer";
 import PricingComponent from "../components/Pricing";
 import { FAQSection } from "../components/Faq";
 import ServiceSteps from "../components/ServiceSteps";
 import AuthorQuote from "../components/AuthorQuote";
 import HeroSection from "../components/HeroSection";
 import { FeaturedCard } from "../components/FeaturedCard";
+import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
 
 interface PageProps {
   params: Promise<{
@@ -214,7 +215,8 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                   </h2>
                 </div>
                 <div className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
-                  <RichTextRenderer content={service.projectSummary} />
+                  {/* <RichTextRenderer content={service.projectSummary} /> */}
+                  <ReadOnlyEditor content={service.projectSummary}/>
                 </div>
               </div>
             </div>
