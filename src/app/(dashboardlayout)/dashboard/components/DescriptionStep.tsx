@@ -1,19 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState } from 'react';
-import dynamic from 'next/dynamic';
+import { useState, useRef } from 'react';
 import type { ServiceData, FAQ, IServiceStep } from './ServiceWizard';
+import { SimpleEditor, SimpleEditorRef } from '@/components/tiptap-templates/simple/simple-editor';
 
-// Dynamically import the editor wrapper to avoid SSR
-const TipTapWrapper = dynamic(() => import('./TipTapWrapper'), {
-  ssr: false,
-  loading: () => (
-    <div className="border border-border rounded-lg bg-background min-h-[200px] p-3 flex items-center justify-center">
-      <div className="text-muted-foreground">Loading editor...</div>
-    </div>
-  )
-});
+
 
 interface Props {
   data: ServiceData;
@@ -23,7 +15,7 @@ interface Props {
 export default function DescriptionStep({ data, updateData }: Props) {
   const [newFAQ, setNewFAQ] = useState<FAQ>({ question: '', answer: '' });
   const [newStep, setNewStep] = useState<IServiceStep>({ title: '', description: '' });
-
+const editorRef = useRef<SimpleEditorRef>(null);
   const addFAQ = () => {
     if (newFAQ.question.trim() && newFAQ.answer.trim()) {
       updateData('faqs', [...data.faqs, { ...newFAQ }]);
@@ -71,10 +63,7 @@ export default function DescriptionStep({ data, updateData }: Props) {
           You can use the toolbar to format your text.
         </p>
         
-        <TipTapWrapper 
-          content={data.projectSummary} 
-          onChange={(content) => updateData('projectSummary', content)} 
-        />
+       <SimpleEditor ref={editorRef} />
       </div>
 
       {/* Author Quote Section */}
