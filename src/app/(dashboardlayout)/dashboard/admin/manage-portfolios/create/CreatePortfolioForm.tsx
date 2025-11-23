@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import TipTapWrapper from '../../../components/TipTapWrapper';
+import { SimpleEditor, SimpleEditorRef } from '@/components/tiptap-templates/simple/simple-editor';
 
 const CreatePortfolioForm = () => {
   const router = useRouter();
-  
+  const editorRef = useRef<SimpleEditorRef>(null);
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -40,9 +40,7 @@ const CreatePortfolioForm = () => {
     }));
   };
 
-  const handleContentChange = useCallback((content: string) => {
-    setFormData(prev => ({ ...prev, content }));
-  }, []);
+
 
   const generateSlug = () => {
     const slug = formData.title
@@ -317,10 +315,9 @@ const CreatePortfolioForm = () => {
         <div className="bg-card rounded-lg border border-border p-6">
           <h2 className="text-xl font-semibold text-foreground mb-4">Project Content</h2>
           
-          <TipTapWrapper
-            content={formData.content}
-            onChange={handleContentChange}
-          />
+          <SimpleEditor ref={editorRef}  />
+            
+          
         </div>
 
         {/* Technologies */}

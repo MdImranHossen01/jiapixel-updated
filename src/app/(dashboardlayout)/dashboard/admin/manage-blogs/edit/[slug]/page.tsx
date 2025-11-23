@@ -1,22 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import Image from 'next/image';
 
-// Dynamically import TipTapWrapper with no SSR
-const TipTapWrapper = dynamic(
-  () => import('../../../../../dashboard/components/TipTapWrapper'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="border border-border rounded-lg bg-background min-h-[200px] p-6 flex items-center justify-center">
-        <div className="text-muted-foreground">Loading editor...</div>
-      </div>
-    )
-  }
-);
+import Image from 'next/image';
+import { SimpleEditor, SimpleEditorRef } from '@/components/tiptap-templates/simple/simple-editor';
+
+
 
 // Helper function to validate URL
 const isValidUrl = (url: string): boolean => {
@@ -56,6 +46,7 @@ interface PageProps {
 }
 
 export default function EditBlogPage({ params }: PageProps) {
+   const editorRef = useRef<SimpleEditorRef>(null);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -126,14 +117,7 @@ export default function EditBlogPage({ params }: PageProps) {
     }
   };
 
-  const handleContentChange = (content: string) => {
-    if (!blog) return;
-    
-    setBlog(prev => prev ? {
-      ...prev,
-      content
-    } : null);
-  };
+  
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!blog) return;
@@ -272,10 +256,9 @@ export default function EditBlogPage({ params }: PageProps) {
               <label className="block text-lg font-semibold text-card-foreground mb-3">
                 Blog Content *
               </label>
-              <TipTapWrapper
-                content={blog.content}
-                onChange={handleContentChange}
-              />
+               <SimpleEditor ref={editorRef}  />TapWrapper
+                
+             
             </div>
 
             {/* Excerpt */}
