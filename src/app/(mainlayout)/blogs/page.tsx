@@ -2,12 +2,51 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
+import RichTextRenderer from '@/components/RichTextRenderer';
+
+// Helper function to get base URL
+function getBaseUrl() {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+}
+
+// Helper function to safely format dates
+function formatBlogDate(dateString?: string): string {
+  if (!dateString) {
+    return 'Recently';
+  }
+  
+  try {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  } catch (error) {
+    return 'Recently';
+  }
+}
+
+// Helper function to create plain text excerpt from HTML
+function createPlainTextExcerpt(html: string, maxLength: number = 150): string {
+  if (!html) return '';
+  
+  // Remove HTML tags and trim
+  const plainText = html.replace(/<[^>]*>/g, '').trim();
+  
+  // Return truncated text with ellipsis if needed
+  if (plainText.length <= maxLength) return plainText;
+  return plainText.substring(0, maxLength).trim() + '...';
+}
 
 async function getBlogs() {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
+    const baseUrl = getBaseUrl();
     
     const response = await fetch(`${baseUrl}/api/blogs`, {
       next: { revalidate: 300 }
@@ -94,7 +133,7 @@ export default async function BlogsPage() {
       item: {
         '@type': 'BlogPosting',
         headline: blog.title,
-        description: blog.excerpt,
+        description: blog.excerpt ? createPlainTextExcerpt(blog.excerpt) : '',
         url: `https://www.jiapixel.com/blogs/${blog.slug}`,
         image: blog.featuredImage,
         datePublished: blog.publishedAt || blog.createdAt,
@@ -157,7 +196,7 @@ export default async function BlogsPage() {
                     <div className="relative h-48 overflow-hidden">
                       <Image
                         src={blog.featuredImage}
-                        alt={blog.title}
+                        alt={blog.title || 'Blog post image'}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -167,10 +206,10 @@ export default async function BlogsPage() {
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-3">
                       <span className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
-                        {blog.category}
+                        {blog.category || 'Uncategorized'}
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        {blog.readTime} min read
+                        {blog.readTime || 5} min read
                       </span>
                     </div>
                     
@@ -179,17 +218,35 @@ export default async function BlogsPage() {
                         href={`/blogs/${blog.slug}`}
                         className="hover:text-primary transition-colors"
                       >
-                        {blog.title}
+                        {blog.title || 'Untitled Blog Post'}
                       </Link>
                     </h2>
                     
-                    <p className="text-muted-foreground mb-4 line-clamp-3">
-                      {blog.excerpt}
-                    </p>
+                    {/* Using RichTextRenderer for excerpt with maxLines */}
+                    <div className="mb-4 min-h-[72px]">
+                      {blog.excerpt ? (
+                        <RichTextRenderer
+                          content={blog.excerpt}
+                          maxLines={3}
+                          className="text-muted-foreground text-sm leading-relaxed"
+                        />
+                      ) : blog.content ? (
+                        <RichTextRenderer
+                          content={blog.content}
+                          maxLines={3}
+                          className="text-muted-foreground text-sm leading-relaxed"
+                        />
+                      ) : (
+                        <p className="text-muted-foreground text-sm italic">
+                          No excerpt available
+                        </p>
+                      )}
+                    </div>
                     
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-muted-foreground">
-                        {new Date(blog.publishedAt || blog.createdAt).toLocaleDateString()}
+                        {/* FIXED: Using the safe date formatting function - NO MORE Date.now() */}
+                        {formatBlogDate(blog.publishedAt || blog.createdAt)}
                       </div>
                       <Link
                         href={`/blogs/${blog.slug}`}

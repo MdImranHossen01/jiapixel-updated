@@ -3,15 +3,31 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
+import RichTextRenderer from '@/components/RichTextRenderer'; // ADDED: Import your renderer
+
+// Helper function to get base URL
+function getBaseUrl() {
+  if (typeof window !== 'undefined') {
+    // Client side
+    return window.location.origin;
+  }
+  // Server side
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+}
 
 async function getBlog(slug: string) {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
+    const baseUrl = getBaseUrl();
     
     const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
-      cache: 'force-cache'
+      cache: 'force-cache',
+      next: { 
+        tags: [`blog-${slug}`],
+        revalidate: 3600 // 1 hour
+      }
     });
 
     if (!response.ok) {
@@ -49,17 +65,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   // Create plain text descriptions
   const plainTextDescription = blog.excerpt || 
-    blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) || 
+    (blog.content ? blog.content.replace(/<[^>]*>/g, "").substring(0, 160) : '') || 
     `Read ${blog.title} on Jiapixel blog.`;
 
-  const plainTextTitle = blog.title.length > 60 
+  const plainTextTitle = blog.title && blog.title.length > 60 
     ? `${blog.title.substring(0, 57)}... - Jiapixel Blog`
-    : `${blog.title} - Jiapixel Blog`;
+    : `${blog.title || 'Blog Post'} - Jiapixel Blog`;
 
   return {
     title: plainTextTitle,
     description: plainTextDescription,
-    keywords: blog.tags?.join(', ') || `${blog.category}, web development, digital marketing`,
+    keywords: blog.tags?.join(', ') || `${blog.category || 'general'}, web development, digital marketing`,
     
     // Canonical URL
     alternates: {
@@ -74,10 +90,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       siteName: 'Jiapixel',
       images: [
         {
-          url: blog.featuredImage || 'https://www.jiapixel.com/icon.png',
+          url: blog.featuredImage || `${baseUrl}/icon.png`,
           width: 1200,
           height: 630,
-          alt: blog.title,
+          alt: blog.title || 'Blog Post',
         },
       ],
       locale: 'en_US',
@@ -93,7 +109,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: 'summary_large_image',
       title: plainTextTitle,
       description: plainTextDescription,
-      images: [blog.featuredImage || 'https://www.jiapixel.com/icon.png'],
+      images: [blog.featuredImage || `${baseUrl}/icon.png`],
       creator: '@jiapixel',
     },
   };
@@ -107,14 +123,24 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
+  // Safe date formatting
+  const publishedDate = blog.publishedAt || blog.createdAt;
+  const formattedDate = publishedDate 
+    ? new Date(publishedDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    : 'Unknown date';
+
   // Generate structured data for individual blog post
   const blogStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: blog.title,
+    headline: blog.title || 'Blog Post',
     description: blog.excerpt,
     image: blog.featuredImage || 'https://www.jiapixel.com/icon.png',
-    datePublished: blog.publishedAt || blog.createdAt,
+    datePublished: publishedDate,
     dateModified: blog.updatedAt,
     author: {
       '@type': 'Person',
@@ -133,8 +159,8 @@ export default async function BlogPostPage({ params }: PageProps) {
       '@type': 'WebPage',
       '@id': `https://www.jiapixel.com/blogs/${blog.slug}`
     },
-    articleSection: blog.category,
-    keywords: blog.tags?.join(', ')
+    articleSection: blog.category || 'General',
+    keywords: blog.tags?.join(', ') || ''
   };
 
   return (
@@ -162,7 +188,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               <div className="relative h-64 md:h-96 overflow-hidden">
                 <Image
                   src={blog.featuredImage}
-                  alt={blog.title}
+                  alt={blog.title || 'Blog post image'}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
@@ -175,17 +201,17 @@ export default async function BlogPostPage({ params }: PageProps) {
               <header className="mb-8">
                 <div className="flex items-center justify-between mb-4">
                   <span className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
-                    {blog.category}
+                    {blog.category || 'Uncategorized'}
                   </span>
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <span>{blog.readTime} min read</span>
+                    <span>{blog.readTime || 5} min read</span>
                     <span>•</span>
-                    <span>{blog.views} views</span>
+                    <span>{blog.views || 0} views</span>
                   </div>
                 </div>
                 
                 <h1 className="text-3xl md:text-4xl font-bold text-card-foreground mb-4 leading-tight">
-                  {blog.title}
+                  {blog.title || 'Untitled Blog Post'}
                 </h1>
                 
                 <div className="flex items-center justify-between">
@@ -194,11 +220,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                       <span className="mr-4">By {blog.authorName}</span>
                     )}
                     <span>
-                      Published on {new Date(blog.publishedAt || blog.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
+                      Published on {formattedDate}
                     </span>
                   </div>
                 </div>
@@ -219,10 +241,15 @@ export default async function BlogPostPage({ params }: PageProps) {
                 </div>
               )}
 
-              <div 
-                className="prose prose-lg max-w-none text-card-foreground"
-                dangerouslySetInnerHTML={{ __html: blog.content }}
-              />
+              {/* USING YOUR RICHTEXTRENDERER COMPONENT */}
+              {blog.content ? (
+                <RichTextRenderer 
+                  content={blog.content}
+                  className="text-card-foreground"
+                />
+              ) : (
+                <p className="text-muted-foreground italic">No content available for this blog post.</p>
+              )}
             </div>
           </article>
         </div>
@@ -234,23 +261,24 @@ export default async function BlogPostPage({ params }: PageProps) {
 // Generate static params for better performance
 export async function generateStaticParams() {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
+    const baseUrl = getBaseUrl();
     
     const response = await fetch(`${baseUrl}/api/blogs`, {
-      cache: 'force-cache'
+      cache: 'force-cache',
+      next: { revalidate: 3600 } // 1 hour
     });
     
     if (!response.ok) {
+      console.warn('Failed to fetch blogs for static params');
       return [];
     }
     
     const data = await response.json();
-    return data.blogs?.map((blog: any) => ({
+    return (data.blogs || []).map((blog: any) => ({
       slug: blog.slug,
-    })) || [];
+    }));
   } catch (error) {
+    console.error('Error generating static params:', error);
     return [];
   }
 }
