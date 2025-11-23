@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import RichTextRenderer from '@/components/RichTextRenderer'; // ADDED: Import your renderer
+import RichTextRenderer from '@/components/RichTextRenderer';
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -16,6 +16,39 @@ function getBaseUrl() {
     return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
   }
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+}
+
+// Function to clean blog content before rendering
+function cleanBlogContent(content: string): string {
+  if (!content) return '';
+  
+  let cleanedContent = content;
+
+  // Remove duplicate class attributes
+  cleanedContent = cleanedContent
+    .replace(/class="([^"]*)" class="([^"]*)"/gi, 'class="$1 $2"')
+    .replace(/class="text-foreground text-foreground"/gi, 'class="text-foreground"')
+    .replace(/<span class="text-foreground" class="text-foreground">/gi, '<span class="text-foreground">');
+
+  // Remove link styling from headings
+  cleanedContent = cleanedContent
+    .replace(/<h2 class="italic no-underline hover:opacity-80 transition-opacity text-foreground">/gi, '<h2 class="text-2xl text-foreground font-bold">')
+    .replace(/<h3 class="italic no-underline hover:opacity-80 transition-opacity text-foreground">/gi, '<h3 class="text-xl text-foreground font-semibold">');
+
+  // Clean up empty paragraphs and excessive line breaks
+  cleanedContent = cleanedContent
+    .replace(/<p class="text-foreground"><\/p>/gi, '')
+    .replace(/<p><\/p>/gi, '')
+    .replace(/(<br\/>){3,}/gi, '<br/><br/>');
+
+  // Convert raw image URLs to proper img tags
+  cleanedContent = cleanedContent
+    .replace(/\/\/(i\.ibb\.co\/[^<>\s]+\.(jpg|jpeg|png|gif|webp))/gi, (match) => {
+      const fullUrl = `https:${match}`;
+      return `<img src="${fullUrl}" alt="Blog image" class="rounded-lg max-w-full h-auto my-6" loading="lazy" />`;
+    });
+
+  return cleanedContent;
 }
 
 async function getBlog(slug: string) {
@@ -122,6 +155,9 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!blog) {
     notFound();
   }
+
+  // Clean the blog content before rendering
+  const cleanedContent = cleanBlogContent(blog.content);
 
   // Safe date formatting
   const publishedDate = blog.publishedAt || blog.createdAt;
@@ -241,10 +277,10 @@ export default async function BlogPostPage({ params }: PageProps) {
                 </div>
               )}
 
-              {/* USING YOUR RICHTEXTRENDERER COMPONENT */}
-              {blog.content ? (
+              {/* USING CLEANED CONTENT WITH RICHTEXTRENDERER */}
+              {cleanedContent ? (
                 <RichTextRenderer 
-                  content={blog.content}
+                  content={cleanedContent}
                   className="text-card-foreground"
                 />
               ) : (
