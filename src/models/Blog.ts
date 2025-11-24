@@ -53,7 +53,7 @@ const BlogSchema: Schema = new Schema(
     },
     authorName: {
       type: String,
-      default: "Admin",
+      default: "Md. Imran Hossen",
     },
     tags: [
       {
