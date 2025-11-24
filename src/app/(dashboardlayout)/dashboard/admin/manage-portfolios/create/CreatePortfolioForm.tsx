@@ -12,7 +12,7 @@ const CreatePortfolioForm = () => {
     title: '',
     slug: '',
     description: '',
-    content: '',
+    content: '', // This is empty and never gets updated!
     featuredImage: '',
     images: [] as string[],
     technologies: [] as string[],
@@ -32,6 +32,27 @@ const CreatePortfolioForm = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  // Add this function to get content from editor
+  const updateContentFromEditor = () => {
+    if (editorRef.current) {
+      const content = editorRef.current.getContent();
+      console.log('📝 Editor content:', content); // Debug log
+      setFormData(prev => ({ ...prev, content }));
+      return content;
+    }
+    return '';
+  };
+
+  // Update content before submit
+  useEffect(() => {
+    // Optional: You can also set up automatic content updates
+    const interval = setInterval(() => {
+      updateContentFromEditor();
+    }, 2000); // Update every 2 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
@@ -39,21 +60,6 @@ const CreatePortfolioForm = () => {
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
   };
-
-  // Function to update content from editor
-  const updateContentFromEditor = () => {
-    if (editorRef.current) {
-      const content = editorRef.current.getContent();
-      setFormData(prev => ({ ...prev, content }));
-    }
-  };
-
-  // Update content when component unmounts or before submit
-  useEffect(() => {
-    return () => {
-      updateContentFromEditor();
-    };
-  }, []);
 
   const generateSlug = () => {
     const slug = formData.title
@@ -146,54 +152,14 @@ const CreatePortfolioForm = () => {
     setLoading(true);
 
     try {
-      // Ensure we have the latest content from the editor
-      updateContentFromEditor();
+      // CRITICAL: Get the latest content from editor before submitting
+      const content = updateContentFromEditor();
+      console.log('🟡 Final content before submit:', content);
+      console.log('🟡 Full formData:', formData);
 
-      // Validate required fields
-      if (!formData.title.trim()) {
-        alert('Project title is required');
-        setLoading(false);
-        return;
-      }
-
-      if (!formData.slug.trim()) {
-        alert('Slug is required');
-        setLoading(false);
-        return;
-      }
-
-      if (!formData.description.trim()) {
-        alert('Description is required');
-        setLoading(false);
-        return;
-      }
-
-      if (!formData.content.trim()) {
-        alert('Project content is required');
-        setLoading(false);
-        return;
-      }
-
-      if (!formData.featuredImage.trim()) {
-        alert('Featured image is required');
-        setLoading(false);
-        return;
-      }
-
-      if (!formData.category.trim()) {
-        alert('Category is required');
-        setLoading(false);
-        return;
-      }
-
-      if (!formData.client.trim()) {
-        alert('Client is required');
-        setLoading(false);
-        return;
-      }
-
-      if (!formData.projectDate.trim()) {
-        alert('Project date is required');
+      // Validate that content is not empty
+      if (!content.trim()) {
+        alert('Project content is required. Please add some content to the editor.');
         setLoading(false);
         return;
       }
@@ -203,15 +169,19 @@ const CreatePortfolioForm = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          content: content // Ensure we send the updated content
+        })
       });
 
       const data = await response.json();
+      console.log('🟡 API Response:', { status: response.status, data });
 
       if (response.ok) {
         alert('Portfolio created successfully!');
         router.push('/dashboard/admin/manage-portfolios');
-        router.refresh(); // Refresh the page to update the list
+        router.refresh();
       } else {
         alert(`Error: ${data.error}`);
       }
@@ -387,14 +357,7 @@ const CreatePortfolioForm = () => {
             <SimpleEditor ref={editorRef} />
           </div>
           
-          {/* Hidden textarea to store the content */}
-          <textarea
-            value={formData.content}
-            onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-            className="hidden"
-            aria-hidden="true"
-          />
-          
+          {/* Content status indicator */}
           <div className="flex items-center justify-between mt-2">
             <p className="text-sm text-muted-foreground">
               {formData.content ? 'Content will be saved automatically' : 'Add content above'}
@@ -415,6 +378,7 @@ const CreatePortfolioForm = () => {
           )}
         </div>
 
+        {/* Rest of your form remains the same */}
         {/* Technologies */}
         <div className="bg-card rounded-lg border border-border p-6">
           <h2 className="text-xl font-semibold text-foreground mb-4">Technologies Used</h2>
