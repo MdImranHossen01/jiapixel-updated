@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { ServiceData, FAQ, IServiceStep } from './ServiceWizard';
 import { SimpleEditor, SimpleEditorRef } from '@/components/tiptap-templates/simple/simple-editor';
-
-
 
 interface Props {
   data: ServiceData;
@@ -15,7 +13,30 @@ interface Props {
 export default function DescriptionStep({ data, updateData }: Props) {
   const [newFAQ, setNewFAQ] = useState<FAQ>({ question: '', answer: '' });
   const [newStep, setNewStep] = useState<IServiceStep>({ title: '', description: '' });
-const editorRef = useRef<SimpleEditorRef>(null);
+  const editorRef = useRef<SimpleEditorRef>(null);
+
+  // Initialize editor with existing projectSummary content
+  useEffect(() => {
+    // If we have existing projectSummary content, we need to set it in the editor
+    // This would require the SimpleEditor to support setting initial content via ref
+    // For now, we'll rely on the editor's internal state
+  }, []);
+
+  // Function to get content from editor and update projectSummary
+  const updateProjectSummary = () => {
+    if (editorRef.current) {
+      const content = editorRef.current.getContent();
+      updateData('projectSummary', content);
+    }
+  };
+
+  // Update projectSummary when component unmounts or when moving to next step
+  useEffect(() => {
+    return () => {
+      updateProjectSummary();
+    };
+  }, []);
+
   const addFAQ = () => {
     if (newFAQ.question.trim() && newFAQ.answer.trim()) {
       updateData('faqs', [...data.faqs, { ...newFAQ }]);
@@ -49,6 +70,11 @@ const editorRef = useRef<SimpleEditorRef>(null);
     }
   };
 
+  // Handle manual save of editor content
+  const handleEditorBlur = () => {
+    updateProjectSummary();
+  };
+
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold text-foreground">Service description</h2>
@@ -56,14 +82,46 @@ const editorRef = useRef<SimpleEditorRef>(null);
       {/* Service Summary with TipTap Editor */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
-          Service summary
+          Service summary *
         </label>
         <p className="text-muted-foreground mb-4">
           Describe what you will deliver and how it benefits the client. This appears at the top of your service page.
           You can use the toolbar to format your text.
         </p>
         
-       <SimpleEditor ref={editorRef} />
+        <div 
+          className="border border-border rounded-lg overflow-hidden"
+          onBlur={handleEditorBlur}
+        >
+          <SimpleEditor ref={editorRef} />
+        </div>
+        
+        {/* Hidden textarea to store the HTML content */}
+        <textarea
+          value={data.projectSummary}
+          onChange={(e) => updateData('projectSummary', e.target.value)}
+          className="hidden"
+          aria-hidden="true"
+        />
+        
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-sm text-muted-foreground">
+            {data.projectSummary ? 'Content saved' : 'Content will be automatically saved'}
+          </p>
+          <button
+            type="button"
+            onClick={updateProjectSummary}
+            className="text-sm text-primary hover:text-primary/80"
+          >
+            Save Content
+          </button>
+        </div>
+        
+        {!data.projectSummary && (
+          <p className="text-destructive text-sm mt-2">
+            Service summary is required. Please add content above.
+          </p>
+        )}
       </div>
 
       {/* Author Quote Section */}
@@ -87,7 +145,7 @@ const editorRef = useRef<SimpleEditorRef>(null);
       {/* Service Steps */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
-          Service steps
+          Service steps *
         </label>
         <p className="text-muted-foreground mb-4">
           Break down your service into clear, actionable steps with titles and descriptions.
@@ -95,9 +153,11 @@ const editorRef = useRef<SimpleEditorRef>(null);
         
         <div className="space-y-3 mb-4">
           {data.projectSteps.length === 0 ? (
-            <p className="text-muted-foreground text-center py-4">
-              No service steps added yet. Add your first step below.
-            </p>
+            <div className="text-center py-4 border-2 border-dashed border-border rounded-lg">
+              <p className="text-muted-foreground">
+                No service steps added yet. Add your first step below.
+              </p>
+            </div>
           ) : (
             data.projectSteps.map((step, index) => (
               <div key={index} className="flex flex-col gap-2 p-3 border border-border rounded-lg">
@@ -140,7 +200,7 @@ const editorRef = useRef<SimpleEditorRef>(null);
         <div className="border border-border rounded-lg p-4 space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Step Title
+              Step Title *
             </label>
             <input
               type="text"
@@ -152,7 +212,7 @@ const editorRef = useRef<SimpleEditorRef>(null);
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Step Description
+              Step Description *
             </label>
             <textarea
               value={newStep.description}
@@ -171,6 +231,12 @@ const editorRef = useRef<SimpleEditorRef>(null);
             Add Step
           </button>
         </div>
+        
+        {data.projectSteps.length === 0 && (
+          <p className="text-destructive text-sm mt-2">
+            At least one service step is required.
+          </p>
+        )}
       </div>
 
       {/* Frequently Asked Questions */}
@@ -183,9 +249,11 @@ const editorRef = useRef<SimpleEditorRef>(null);
         </p>
 
         {data.faqs.length === 0 ? (
-          <p className="text-muted-foreground text-center py-4">
-            No FAQs added yet. Add your first FAQ below.
-          </p>
+          <div className="text-center py-4 border-2 border-dashed border-border rounded-lg">
+            <p className="text-muted-foreground">
+              No FAQs added yet. Add your first FAQ below.
+            </p>
+          </div>
         ) : (
           <div className="space-y-6 mb-6">
             {data.faqs.map((faq, index) => (
@@ -209,7 +277,7 @@ const editorRef = useRef<SimpleEditorRef>(null);
         <div className="border border-border rounded-lg p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Question
+              Question *
             </label>
             <input
               type="text"
@@ -221,7 +289,7 @@ const editorRef = useRef<SimpleEditorRef>(null);
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Answer
+              Answer *
             </label>
             <textarea
               value={newFAQ.answer}

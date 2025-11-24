@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SimpleEditor, SimpleEditorRef } from '@/components/tiptap-templates/simple/simple-editor';
 
@@ -40,7 +40,20 @@ const CreatePortfolioForm = () => {
     }));
   };
 
+  // Function to update content from editor
+  const updateContentFromEditor = () => {
+    if (editorRef.current) {
+      const content = editorRef.current.getContent();
+      setFormData(prev => ({ ...prev, content }));
+    }
+  };
 
+  // Update content when component unmounts or before submit
+  useEffect(() => {
+    return () => {
+      updateContentFromEditor();
+    };
+  }, []);
 
   const generateSlug = () => {
     const slug = formData.title
@@ -133,6 +146,58 @@ const CreatePortfolioForm = () => {
     setLoading(true);
 
     try {
+      // Ensure we have the latest content from the editor
+      updateContentFromEditor();
+
+      // Validate required fields
+      if (!formData.title.trim()) {
+        alert('Project title is required');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.slug.trim()) {
+        alert('Slug is required');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.description.trim()) {
+        alert('Description is required');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.content.trim()) {
+        alert('Project content is required');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.featuredImage.trim()) {
+        alert('Featured image is required');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.category.trim()) {
+        alert('Category is required');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.client.trim()) {
+        alert('Client is required');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.projectDate.trim()) {
+        alert('Project date is required');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch('/api/portfolios', {
         method: 'POST',
         headers: {
@@ -145,7 +210,7 @@ const CreatePortfolioForm = () => {
 
       if (response.ok) {
         alert('Portfolio created successfully!');
-        router.push('/dashboard/manage-portfolios');
+        router.push('/dashboard/admin/manage-portfolios');
         router.refresh(); // Refresh the page to update the list
       } else {
         alert(`Error: ${data.error}`);
@@ -283,11 +348,11 @@ const CreatePortfolioForm = () => {
 
         {/* Featured Image */}
         <div className="bg-card rounded-lg border border-border p-6">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Featured Image</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-4">Featured Image *</h2>
           
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Upload Featured Image *
+              Upload Featured Image
             </label>
             <input
               type="file"
@@ -308,16 +373,46 @@ const CreatePortfolioForm = () => {
                 />
               </div>
             )}
+            {!formData.featuredImage && (
+              <p className="text-destructive text-sm mt-2">Featured image is required</p>
+            )}
           </div>
         </div>
 
         {/* Project Content */}
         <div className="bg-card rounded-lg border border-border p-6">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Project Content</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-4">Project Content *</h2>
           
-          <SimpleEditor ref={editorRef}  />
-            
+          <div className="border border-border rounded-lg overflow-hidden">
+            <SimpleEditor ref={editorRef} />
+          </div>
           
+          {/* Hidden textarea to store the content */}
+          <textarea
+            value={formData.content}
+            onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+            className="hidden"
+            aria-hidden="true"
+          />
+          
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-sm text-muted-foreground">
+              {formData.content ? 'Content will be saved automatically' : 'Add content above'}
+            </p>
+            <button
+              type="button"
+              onClick={updateContentFromEditor}
+              className="text-sm text-primary hover:text-primary/80"
+            >
+              Save Content
+            </button>
+          </div>
+          
+          {!formData.content && (
+            <p className="text-destructive text-sm mt-2">
+              Project content is required. Please add content above.
+            </p>
+          )}
         </div>
 
         {/* Technologies */}
