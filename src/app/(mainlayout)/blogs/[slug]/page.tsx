@@ -146,7 +146,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
       />
       
-      <div className="min-h-screen bg-background py-8">
+      <div className="min-h-screen  py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <nav className="mb-8">
             <Link 
