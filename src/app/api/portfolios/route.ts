@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth'; // Fixed import path
 
 // GET all portfolios (public)
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -15,15 +16,15 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '12');
     const category = searchParams.get('category');
     const featured = searchParams.get('featured');
-    const status = searchParams.get('status') || 'published';
+    // Removed status and showAll parameters
     
     const skip = (page - 1) * limit;
     
-    // Build filter
+    // Build filter - NO status filtering
     const filter: any = {};
     if (category) filter.category = category;
     if (featured) filter.featured = featured === 'true';
-    filter.status = status;
+    // No status filter applied - shows all portfolios
     
     const portfolios = await Portfolio.find(filter)
       .sort({ featured: -1, createdAt: -1 })

@@ -49,9 +49,10 @@ async function getPortfolio(slug: string): Promise<Portfolio | null> {
 
     const data = await response.json();
     
-    if (data.portfolio.status !== 'published') {
-      return null;
-    }
+    // REMOVE THIS STATUS CHECK - show all portfolios regardless of status
+    // if (data.portfolio.status !== 'published') {
+    //   return null;
+    // }
     
     return data.portfolio;
   } catch (error) {

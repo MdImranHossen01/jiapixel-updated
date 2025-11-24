@@ -19,6 +19,7 @@ const isValidUrl = (url: string): boolean => {
 export default function CreateBlogPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -51,6 +52,57 @@ export default function CreateBlogPage() {
       } else {
         setImagePreview(null);
       }
+    }
+  };
+
+  // Handle image upload to ImgBB
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image size should be less than 10MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const imageUrl = result.data.url;
+        setFormData(prev => ({
+          ...prev,
+          featuredImage: imageUrl
+        }));
+        setImagePreview(imageUrl);
+        setImageError(false);
+      } else {
+        throw new Error(result.error?.message || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+      // Reset the file input
+      e.target.value = '';
     }
   };
 
@@ -138,9 +190,9 @@ export default function CreateBlogPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Main Content Column */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             {/* Blog Title */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <label htmlFor="title" className="block text-lg font-semibold text-card-foreground mb-3">
@@ -194,7 +246,6 @@ export default function CreateBlogPage() {
             </div>
           </div>
 
-          {/* Sidebar Column */}
           <div className="space-y-6">
             {/* Publishing Settings */}
             <div className="bg-card rounded-lg shadow p-6 border">
@@ -285,14 +336,46 @@ export default function CreateBlogPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
+                  {/* Upload Button */}
                   <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                    <div className="text-muted-foreground mb-2">
-                      No featured image selected
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Add a valid URL to display a featured image
-                    </div>
+                    <input
+                      type="file"
+                      id="image-upload"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {uploading ? (
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          <span className="text-sm text-muted-foreground">Uploading...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="text-2xl mb-2">📁</div>
+                          <div className="text-sm font-medium text-foreground mb-1">
+                            Upload Featured Image
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Click to upload or drag and drop
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            PNG, JPG, GIF up to 10MB
+                          </div>
+                        </>
+                      )}
+                    </label>
                   </div>
+
+                  {/* Or use URL */}
+                  <div className="text-center text-xs text-muted-foreground">OR</div>
+
+                  {/* URL Input */}
                   <div>
                     <input
                       type="url"
@@ -300,7 +383,7 @@ export default function CreateBlogPage() {
                       value={formData.featuredImage}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground text-sm"
-                      placeholder="https://example.com/image.jpg"
+                      placeholder="Or paste image URL here"
                     />
                     {formData.featuredImage && !isValidUrl(formData.featuredImage) && (
                       <div className="text-xs text-destructive mt-1">
@@ -364,14 +447,14 @@ export default function CreateBlogPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            disabled={loading}
+            disabled={loading || uploading}
             className="px-6 py-3 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || uploading}
             className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
