@@ -83,6 +83,13 @@ useEffect(() => {
       current: pathname.startsWith('/dashboard/admin/manage-products'),
       adminOnly: true,
     },
+    {
+      name: 'Manage Users',
+      href: '/dashboard/admin/manage-users',
+      icon: Server,
+      current: pathname.startsWith('/dashboard/admin/manage-users'),
+      adminOnly: true,
+    },
     // Start of new code to be added
     {
       name: 'Manage Orders',
