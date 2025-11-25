@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import type { Metadata } from 'next';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
 
