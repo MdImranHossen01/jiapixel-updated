@@ -23,9 +23,8 @@ async function getService(slug: string) {
         : "http://localhost:3000";
 
     const response = await fetch(`${baseUrl}/api/services/${slug}`, {
-      cache: "force-cache",
+      next: { revalidate: 300 },
     });
-
     if (!response.ok) {
       console.error("Error fetching service:", response.status);
       return null;
@@ -38,8 +37,6 @@ async function getService(slug: string) {
     return null;
   }
 }
-
-
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
@@ -55,21 +52,21 @@ export async function generateMetadata({ params }: PageProps) {
   const canonicalUrl = `${baseUrl}/services/${service.slug}`;
 
   // Use custom meta title and description if provided, otherwise generate from service data
-  const metaTitle = service.metaTitle 
-    ? (service.metaTitle.length > 60 
-        ? `${service.metaTitle.substring(0, 57)}`
-        : `${service.metaTitle} - Jiapixel Services`)
-    : (service.title.length > 60 
-        ? `${service.title.substring(0, 57)}`
-        : `${service.title} - Jiapixel Services`);
+  const metaTitle = service.metaTitle
+    ? service.metaTitle.length > 60
+      ? `${service.metaTitle.substring(0, 57)}`
+      : `${service.metaTitle} - Jiapixel Services`
+    : service.title.length > 60
+    ? `${service.title.substring(0, 57)}`
+    : `${service.title} - Jiapixel Services`;
 
-  const metaDescription = service.metaDescription 
+  const metaDescription = service.metaDescription
     ? service.metaDescription.substring(0, 160)
-    : (service.projectSummary
-        ? service.projectSummary.replace(/<[^>]*>/g, "").substring(0, 160)
-        : `Professional ${service.title} service by Jiapixel. ${
-            service.tiers?.starter?.description || "Get started today!"
-          }`);
+    : service.projectSummary
+    ? service.projectSummary.replace(/<[^>]*>/g, "").substring(0, 160)
+    : `Professional ${service.title} service by Jiapixel. ${
+        service.tiers?.starter?.description || "Get started today!"
+      }`;
 
   // Featured image for social sharing
   const featuredImage = service.images?.[0] || "/icon.png";
@@ -201,7 +198,6 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
               subcategory={subcategory}
             />
           </section>
-
           {/* Service Description */}
           <section className="py-16">
             <div className="container mx-auto px-4">
@@ -216,40 +212,33 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                 </div>
                 <div className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
                   {/* <RichTextRenderer content={service.projectSummary} /> */}
-                  <ReadOnlyEditor content={service.projectSummary}/>
+                  <ReadOnlyEditor content={service.projectSummary} />
                 </div>
               </div>
             </div>
           </section>
-
           {/* featured card section  */}
-
-          <FeaturedCard/>
-
+          <FeaturedCard />
           {/* Author Quote Component */}
           <AuthorQuote
             author={service.author}
             authorQuote={service.authorQuote}
           />
-
           {/* Pricing Component - Only show if service has tiers */}
           {service.tiers && Object.keys(service.tiers).length > 0 && (
             <PricingComponent service={service} />
           )}
-
           <div>
             <FAQSection faqs={service.faqs} />
           </div>
-
           {/* Service Steps */}
-         {/* Service Steps */}
-          {service.projectSteps && service.projectSteps.length > 0 && (
-            <ServiceSteps 
-              steps={service.projectSteps}
-              requirements={service.requirements} 
-            />
-          )}
-
+          {/* Service Steps */}         {" "}
+          {service.projectSteps && service.projectSteps.length > 0 && (
+            <ServiceSteps
+              steps={service.projectSteps}
+              requirements={service.requirements}
+            />
+          )}
         </div>
       </div>
     </>
