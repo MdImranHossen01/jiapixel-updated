@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.jiapixel.com"),
   title: {
-    default: "Jia Pixel | Your Partner in Digital Transformation",
+    default: "Jia Pixel | Leading Digital Agency in Bangladesh",
     template: "%s | Jia Pixel",
   },
   description:
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://www.jiapixel.com",
-    title: "Jia Pixel | Your Partner in Digital Transformation",
+    title: "Jia Pixel | Leading Digital Agency in Bangladesh",
     description:
       "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
     siteName: "Jia Pixel",
