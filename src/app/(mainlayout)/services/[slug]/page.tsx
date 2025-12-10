@@ -53,11 +53,11 @@ export async function generateMetadata({ params }: PageProps) {
 
   // Use custom meta title and description if provided, otherwise generate from service data
   const metaTitle = service.metaTitle
-    ? service.metaTitle.length > 60
-      ? `${service.metaTitle.substring(0, 57)}`
+    ? service.metaTitle.length > 100
+      ? `${service.metaTitle.substring(0, 97)}`
       : `${service.metaTitle} - Jiapixel Services`
-    : service.title.length > 60
-    ? `${service.title.substring(0, 57)}`
+    : service.title.length > 100
+    ? `${service.title.substring(0, 97)}`
     : `${service.title} - Jiapixel Services`;
 
   const metaDescription = service.metaDescription
