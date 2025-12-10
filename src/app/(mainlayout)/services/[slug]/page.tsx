@@ -61,9 +61,9 @@ export async function generateMetadata({ params }: PageProps) {
     : `${service.title}`;
 
   const metaDescription = service.metaDescription
-    ? service.metaDescription.substring(0, 160)
+    ? service.metaDescription.substring(0, 300)
     : service.projectSummary
-    ? service.projectSummary.replace(/<[^>]*>/g, "").substring(0, 160)
+    ? service.projectSummary.replace(/<[^>]*>/g, "").substring(0, 300)
     : `Professional ${service.title} service by Jiapixel. ${
         service.tiers?.starter?.description || "Get started today!"
       }`;
