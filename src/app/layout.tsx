@@ -72,7 +72,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Jia Pixel | Your Partner in Digital Transformation",
+    title: "Jia Pixel | Leading Digital Agency in Bangladesh",
     description:
       "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
     images: [
