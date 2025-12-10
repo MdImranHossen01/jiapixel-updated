@@ -155,7 +155,7 @@ export const HeroGrid: React.FC = () => {
             <p className="text-gray-300 text-sm font-light leading-relaxed">
               <span className="italic ">
                 &quot;Let&apos;s build something amazing together. From concept
-                to deployment, I deliver cutting-edge solutions that drive
+                to deployment, Jia Pixel | Leading Digital Agency in Bangladesh, deliver cutting-edge solutions that drive
                 results.&quot;
               </span>
               <br />
