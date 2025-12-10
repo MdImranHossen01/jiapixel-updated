@@ -55,10 +55,10 @@ export async function generateMetadata({ params }: PageProps) {
   const metaTitle = service.metaTitle
     ? service.metaTitle.length > 100
       ? `${service.metaTitle.substring(0, 97)}`
-      : `${service.metaTitle} - Jiapixel Services`
+      : `${service.metaTitle}`
     : service.title.length > 100
     ? `${service.title.substring(0, 97)}`
-    : `${service.title} - Jiapixel Services`;
+    : `${service.title}`;
 
   const metaDescription = service.metaDescription
     ? service.metaDescription.substring(0, 160)
