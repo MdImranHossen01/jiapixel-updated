@@ -203,12 +203,10 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
                 <div className="mb-10">
-                  <span className="text-primary font-semibold text-lg mb-2 block">
-                    Overview
-                  </span>
-                  <h2 className="text-4xl font-bold text-foreground">
+                  
+                  <p className="text-4xl font-bold text-foreground">
                     Service Details
-                  </h2>
+                  </p>
                 </div>
                 <div className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
                   {/* <RichTextRenderer content={service.projectSummary} /> */}

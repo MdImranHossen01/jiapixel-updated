@@ -1,4 +1,3 @@
-// G:\jiapixel-updated\src\components\tiptap-templates\simple\read-only-editor.tsx
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
