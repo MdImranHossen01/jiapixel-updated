@@ -10,7 +10,7 @@ import { Typography } from "@tiptap/extension-typography";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
-import { useEffect } from "react";
+import { useEffect, useState, startTransition } from "react";
 
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/code-block-node/code-block-node.scss";
@@ -22,7 +22,7 @@ import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 
 export default function ReadOnlyEditor({ content }: { content: string }) {
-  const isClient = typeof window !== 'undefined';
+  const [isClient, setIsClient] = useState(false);
   
   const editor = useEditor({
     immediatelyRender: false,
@@ -38,8 +38,15 @@ export default function ReadOnlyEditor({ content }: { content: string }) {
       Superscript,
       Subscript,
     ],
-    content: isClient ? content : "",
+    content: isClient ? content : "", // Only set content on client
   });
+
+  useEffect(() => {
+    // Use startTransition to avoid cascading updates
+    startTransition(() => {
+      setIsClient(true);
+    });
+  }, []);
 
   useEffect(() => {
     if (editor && isClient && content) {
@@ -49,7 +56,7 @@ export default function ReadOnlyEditor({ content }: { content: string }) {
 
   return (
     <>
-      {/* SEO HTML for crawlers (always rendered) */}
+      {/* SEO HTML for crawlers */}
       <div 
         className="simple-editor-content tiptap"
         style={{
@@ -61,7 +68,7 @@ export default function ReadOnlyEditor({ content }: { content: string }) {
         dangerouslySetInnerHTML={{ __html: content || '' }}
       />
       
-      {/* TipTap editor for users (only on client) */}
+      {/* TipTap editor for users */}
       {isClient && editor && (
         <EditorContent editor={editor} className="simple-editor-content" />
       )}
