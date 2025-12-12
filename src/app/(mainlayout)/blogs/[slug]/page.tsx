@@ -1,29 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import type { Metadata } from 'next';
-import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import type { Metadata } from "next";
+// import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
+import ServerBlogContent from "@/components/ServerBlogContent";
 
 async function getBlog(slug: string) {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-    
+    const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXT_PUBLIC_API_URL || "https://www.jiapixel.com"
+        : "http://localhost:3000";
+
     const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
-      cache: 'force-cache'
+      next: { revalidate: 300 },
     });
 
     if (!response.ok) {
       if (response.status === 404) return null;
-      console.error('Error fetching blog:', response.status);
+      console.error("Error fetching blog:", response.status);
       return null;
     }
 
     const data = await response.json();
-    return data.blog || null; 
+    return data.blog || null;
   } catch (error) {
-    console.error('Error fetching blog:', error);
+    console.error("Error fetching blog:", error);
     return null;
   }
 }
@@ -34,107 +36,111 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const blog = await getBlog(slug);
 
   if (!blog) {
     return {
-      title: 'Blog Post Not Found - Jiapixel',
+      title: "Blog Post Not Found - Jiapixel",
     };
   }
 
-  const baseUrl = 'https://www.jiapixel.com';
+  const baseUrl = "https://www.jiapixel.com";
   const canonicalUrl = `${baseUrl}/blogs/${blog.slug}`;
 
   // Create plain text descriptions
-  const plainTextDescription = blog.excerpt || 
-    blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) || 
+  const plainTextDescription =
+    blog.excerpt ||
+    blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) ||
     `Read ${blog.title} on Jiapixel blog.`;
 
-  const plainTextTitle = blog.title.length > 60 
-    ? `${blog.title.substring(0, 57)}`
-    : `${blog.title}`;
+  const plainTextTitle =
+    blog.title.length > 60 ? `${blog.title.substring(0, 57)}` : `${blog.title}`;
 
   return {
     title: plainTextTitle,
     description: plainTextDescription,
-    keywords: blog.tags?.join(', ') || `${blog.category}, web development, digital marketing`,
-    
+    keywords:
+      blog.tags?.join(", ") ||
+      `${blog.category}, web development, digital marketing`,
+
     // Canonical URL
     alternates: {
       canonical: canonicalUrl,
     },
-    
+
     // Open Graph
     openGraph: {
       title: plainTextTitle,
       description: plainTextDescription,
       url: canonicalUrl,
-      siteName: 'Jiapixel',
+      siteName: "Jiapixel",
       images: [
         {
-          url: blog.featuredImage || 'https://www.jiapixel.com/icon.png',
+          url: blog.featuredImage || "https://www.jiapixel.com/icon.png",
           width: 1200,
           height: 630,
           alt: blog.title,
         },
       ],
-      locale: 'en_US',
-      type: 'article',
+      locale: "en_US",
+      type: "article",
       publishedTime: blog.publishedAt || blog.createdAt,
       modifiedTime: blog.updatedAt,
-      authors: [blog.authorName || 'Md Imran Hossen'],
+      authors: [blog.authorName || "Md Imran Hossen"],
       tags: blog.tags || [],
     },
-    
+
     // Twitter Card
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: plainTextTitle,
       description: plainTextDescription,
-      images: [blog.featuredImage || 'https://www.jiapixel.com/icon.png'],
-      creator: '@jiapixel',
+      images: [blog.featuredImage || "https://www.jiapixel.com/icon.png"],
+      creator: "@jiapixel",
     },
   };
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const blog = await getBlog(slug); 
-  
+  const blog = await getBlog(slug);
+
   if (!blog) {
     notFound();
   }
 
   // Generate structured data for individual blog post
   const blogStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
     headline: blog.title,
     description: blog.excerpt,
-    image: blog.featuredImage || 'https://www.jiapixel.com/icon.png',
+    image: blog.featuredImage || "https://www.jiapixel.com/icon.png",
     datePublished: blog.publishedAt || blog.createdAt,
     dateModified: blog.updatedAt,
     author: {
-      '@type': 'Person',
-      name: blog.authorName || 'Md Imran Hossen'
+      "@type": "Person",
+      name: blog.authorName || "Md Imran Hossen",
     },
     publisher: {
-      '@type': 'Organization',
-      name: 'Jiapixel',
-      url: 'https://www.jiapixel.com',
+      "@type": "Organization",
+      name: "Jiapixel",
+      url: "https://www.jiapixel.com",
       logo: {
-        '@type': 'ImageObject',
-        url: 'https://www.jiapixel.com/icon.png'
-      }
+        "@type": "ImageObject",
+        url: "https://www.jiapixel.com/icon.png",
+      },
     },
     mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': `https://www.jiapixel.com/blogs/${blog.slug}`
+      "@type": "WebPage",
+      "@id": `https://www.jiapixel.com/blogs/${blog.slug}`,
     },
     articleSection: blog.category,
-    keywords: blog.tags?.join(', ')
+    keywords: blog.tags?.join(", "),
   };
 
   return (
@@ -144,11 +150,11 @@ export default async function BlogPostPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
       />
-      
+
       <div className="min-h-screen  py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <nav className="mb-8">
-            <Link 
+            <Link
               href="/blogs"
               className="text-primary hover:text-primary/80 font-medium transition-colors inline-flex items-center space-x-2"
             >
@@ -157,13 +163,13 @@ export default async function BlogPostPage({ params }: PageProps) {
             </Link>
           </nav>
 
-        <article className="border rounded-lg p-8">
-        <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
-        <p className="text-sm text-slate-500 mb-8">
-          {new Date(blog.createdAt).toLocaleDateString()}
-        </p>
-        <ReadOnlyEditor content={blog.content} />
-      </article>
+          <article className="border rounded-lg p-8">
+            <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
+            <p className="text-sm text-slate-500 mb-8">
+              {new Date(blog.createdAt).toLocaleDateString()}
+            </p>
+            <ServerBlogContent content={blog.content} />
+          </article>
         </div>
       </div>
     </>
@@ -173,22 +179,25 @@ export default async function BlogPostPage({ params }: PageProps) {
 // Generate static params for better performance
 export async function generateStaticParams() {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-    
+    const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXT_PUBLIC_API_URL || "https://www.jiapixel.com"
+        : "http://localhost:3000";
+
     const response = await fetch(`${baseUrl}/api/blogs`, {
-      cache: 'force-cache'
+      cache: "force-cache",
     });
-    
+
     if (!response.ok) {
       return [];
     }
-    
+
     const data = await response.json();
-    return data.blogs?.map((blog: any) => ({
-      slug: blog.slug,
-    })) || [];
+    return (
+      data.blogs?.map((blog: any) => ({
+        slug: blog.slug,
+      })) || []
+    );
   } catch (error) {
     return [];
   }
