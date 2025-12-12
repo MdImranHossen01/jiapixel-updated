@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const plainTextTitle = blog.title.length > 60 
     ? `${blog.title.substring(0, 57)}`
-    : `${blog.title} - Jiapixel Blog`;
+    : `${blog.title}`;
 
   return {
     title: plainTextTitle,
