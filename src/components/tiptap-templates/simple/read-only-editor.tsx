@@ -9,7 +9,7 @@ import { Typography } from "@tiptap/extension-typography";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
-import { useEffect } from "react";
+import { useEffect, useState, startTransition } from "react";
 
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/code-block-node/code-block-node.scss";
@@ -21,7 +21,7 @@ import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 
 export default function ReadOnlyEditor({ content }: { content: string }) {
-  const isClient = typeof window !== 'undefined';
+  const [isClient, setIsClient] = useState(false);
   
   const editor = useEditor({
     immediatelyRender: false,
@@ -37,33 +37,40 @@ export default function ReadOnlyEditor({ content }: { content: string }) {
       Superscript,
       Subscript,
     ],
-    content: isClient ? content : "",
+    content: isClient ? content : "", // Only set content on client
   });
 
   useEffect(() => {
-    if (editor && content) {
+    // Use startTransition to avoid cascading updates
+    startTransition(() => {
+      setIsClient(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (editor && isClient && content) {
       editor.commands.setContent(content);
     }
-  }, [editor, content]);
+  }, [editor, isClient, content]);
 
   return (
-    <div className="readonly-editor-container">
-      {/* SEO HTML - hidden on client via CSS */}
+    <>
+      {/* SEO HTML for crawlers */}
       <div 
         className="simple-editor-content tiptap"
-        data-seo-content
-        aria-hidden={isClient ? "true" : "false"}
+        style={{
+          display: isClient ? 'none' : 'block',
+          visibility: isClient ? 'hidden' : 'visible',
+          height: isClient ? 0 : 'auto',
+          overflow: isClient ? 'hidden' : 'visible'
+        }}
         dangerouslySetInnerHTML={{ __html: content || '' }}
       />
       
-      {/* TipTap editor - visible on client */}
+      {/* TipTap editor for users */}
       {isClient && editor && (
-        <EditorContent 
-          editor={editor} 
-          className="simple-editor-content" 
-          data-tiptap-editor
-        />
+        <EditorContent editor={editor} className="simple-editor-content" />
       )}
-    </div>
+    </>
   );
 }
