@@ -80,3 +80,24 @@ body,
     padding: 1rem 1.5rem 30vh;
   }
 }
+
+.simple-editor-content {
+  .tiptap {
+    a {
+      color: inherit !important; 
+      
+      text-decoration: none !important;
+      
+      font-style: italic !important;
+      
+     
+      cursor: pointer;
+      
+     
+      &:hover {
+        color: var(--primary) !important; 
+        text-decoration: underline !important;
+      }
+    }
+  }
+}

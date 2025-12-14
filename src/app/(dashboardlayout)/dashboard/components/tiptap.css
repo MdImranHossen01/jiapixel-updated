@@ -1,5 +1,4 @@
 /* Add to your globals.css for tiptap text editor */
-/* Add to your globals.css for tiptap text editor */
 /* TipTap Editor Styles */
 .ProseMirror {
   outline: none;
@@ -42,6 +41,7 @@
   color: var(--foreground);
 }
 
+/* Placeholder styling (Unified) */
 .ProseMirror p.is-editor-empty:first-child::before {
   color: var(--muted-foreground);
   content: attr(data-placeholder);
@@ -118,39 +118,30 @@
   font-size: 0.9em;
 }
 
-/* Links */
+/* --- Links (FIXED for your requirements) --- */
 .ProseMirror a {
-  color: var(--primary);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 0.2s ease;
+  color: inherit !important; /* প্রাইমারি কালার হবে না */
+  text-decoration: none !important; /* আন্ডারলাইন থাকবে না */
+  font-style: italic !important; /* ইটালিক হবে */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* লিংকের ভেতরের u ট্যাগ হাইড করা */
+.ProseMirror a u {
+  text-decoration: none !important;
 }
 
 .ProseMirror a:hover {
-  color: var(--ring);
-  text-decoration: none;
+  color: hsl(var(--primary)) !important; /* হোভারে কালার আসবে */
+  text-decoration: underline !important;
 }
 
 /* Highlight/Text Mark */
 .ProseMirror mark {
   border-radius: 0.25rem;
   padding: 0.1rem 0.2rem;
-  background-color: #fffb0080; /* Default yellow */
-}
-
-.ProseMirror mark[style*="background-color"] {
-  /* Ensure highlight colors are visible */
-}
-
-/* Text Colors - Ensure visibility in both light and dark modes */
-.ProseMirror [style*="color"] {
-  border-radius: 0.125rem;
-}
-
-/* Ensure text with custom colors is visible */
-.ProseMirror span[style*="color"] {
-  /* Force visibility */
-  opacity: 1 !important;
+  background-color: #fffb0080;
 }
 
 /* Images */
@@ -215,59 +206,21 @@
 }
 
 /* Custom highlight color classes */
-.ProseMirror .highlight-yellow {
-  background-color: #fffb0080 !important;
-}
-
-.ProseMirror .highlight-pink {
-  background-color: #ffa8a880 !important;
-}
-
-.ProseMirror .highlight-blue {
-  background-color: #a5d8ff80 !important;
-}
-
-.ProseMirror .highlight-green {
-  background-color: #96f2d780 !important;
-}
-
-.ProseMirror .highlight-purple {
-  background-color: #d0bfff80 !important;
-}
-
-.ProseMirror .highlight-orange {
-  background-color: #ffd8a880 !important;
-}
-
-.ProseMirror .highlight-red {
-  background-color: #ffc9c980 !important;
-}
-
-.ProseMirror .highlight-light-green {
-  background-color: #b2f2bb80 !important;
-}
-
-.ProseMirror .highlight-light-purple {
-  background-color: #eebefa80 !important;
-}
-
-.ProseMirror .highlight-lime {
-  background-color: #a9e34b80 !important;
-}
+.ProseMirror .highlight-yellow { background-color: #fffb0080 !important; }
+.ProseMirror .highlight-pink { background-color: #ffa8a880 !important; }
+.ProseMirror .highlight-blue { background-color: #a5d8ff80 !important; }
+.ProseMirror .highlight-green { background-color: #96f2d780 !important; }
+.ProseMirror .highlight-purple { background-color: #d0bfff80 !important; }
+.ProseMirror .highlight-orange { background-color: #ffd8a880 !important; }
+.ProseMirror .highlight-red { background-color: #ffc9c980 !important; }
+.ProseMirror .highlight-light-green { background-color: #b2f2bb80 !important; }
+.ProseMirror .highlight-light-purple { background-color: #eebefa80 !important; }
+.ProseMirror .highlight-lime { background-color: #a9e34b80 !important; }
 
 /* Active states for toolbar buttons */
 .tiptap-toolbar button.is-active {
   background-color: var(--accent) !important;
   color: var(--accent-foreground) !important;
-}
-
-/* Placeholder styling */
-.ProseMirror .is-empty::before {
-  color: var(--muted-foreground);
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
 }
 
 /* Selection styling */
@@ -280,46 +233,6 @@
 .ProseMirror:focus-visible {
   ring: 2px solid var(--ring);
   ring-offset: 2px;
-}
-
-/* Dark mode specific adjustments */
-.dark .ProseMirror {
-  background-color: var(--card);
-}
-
-.dark .ProseMirror h2,
-.dark .ProseMirror h3 {
-  color: var(--card-foreground);
-}
-
-.dark .ProseMirror code {
-  background-color: var(--muted);
-  color: var(--destructive);
-}
-
-/* Ensure text visibility in both modes */
-.ProseMirror * {
-  color: inherit !important;
-}
-
-.ProseMirror span[style*="color"] {
-  color: inherit !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .ProseMirror {
-    padding: 0.75rem;
-    font-size: 0.95em;
-  }
-  
-  .ProseMirror h2 {
-    font-size: 1.35em;
-  }
-  
-  .ProseMirror h3 {
-    font-size: 1.15em;
-  }
 }
 
 /* Custom scrollbar for editor */

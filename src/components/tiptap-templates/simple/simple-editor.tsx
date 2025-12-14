@@ -228,7 +228,7 @@ export const SimpleEditor = forwardRef<SimpleEditorRef>((props, ref) => {
           HTMLAttributes: {
             rel: null,
             target: null,
-            class: "text-primary italic no-underline cursor-pointer",
+            class: "text-foreground italic no-underline cursor-pointer",
           },
         },
       }),
