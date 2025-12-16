@@ -139,10 +139,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
             <Logo/>
             <div className="hidden lg:block w-px h-6 bg-border"></div>
             
-            {/* Desktop Links */}
+            Desktop Links
             <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-foreground">
               <Link href="/services" className="hover:text-primary transition-colors">Services</Link>
-              <Link href="/products" className="hover:text-primary transition-colors">Products</Link>
+              {/* <Link href="/products" className="hover:text-primary transition-colors">Products</Link> */}
               <Link href="/portfolios" className="hover:text-primary transition-colors">Portfolios</Link>
               <Link href="/blogs" className="hover:text-primary transition-colors">Blogs</Link>
             </div>
@@ -270,7 +270,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
       {isMobileMenuOpen && (
         <div className="fixed top-16 left-0 right-0 w-full bg-card border-t border-border p-6 flex flex-col gap-4 lg:hidden mobile-menu shadow-lg z-50">
           <Link href="/services" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Services</Link>
-          <Link href="/products" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link>
+          {/* <Link href="/products" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link> */}
           <Link href="/portfolios" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Portfolios</Link>
           <Link href="/blogs" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Blogs</Link>
           <div 
