@@ -139,7 +139,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
             <Logo/>
             <div className="hidden lg:block w-px h-6 bg-border"></div>
             
-            Desktop Links
+            {/* Desktop Links */}
             <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-foreground">
               <Link href="/services" className="hover:text-primary transition-colors">Services</Link>
               {/* <Link href="/products" className="hover:text-primary transition-colors">Products</Link> */}
