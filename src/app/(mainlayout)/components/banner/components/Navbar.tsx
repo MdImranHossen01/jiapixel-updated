@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Menu, X } from 'lucide-react';
-import { FiUser, FiLogOut, FiSettings} from "react-icons/fi";
-import { FaWhatsapp, FaEnvelope} from "react-icons/fa";
+import { Search, Menu, X, User, LogOut, Settings, Mail } from 'lucide-react';
+import { WhatsappIcon } from '@/components/CustomIcons';
 import Logo from '../../Logo';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
   const router = useRouter();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
+
   const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -36,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
 
     // Add event listener
     window.addEventListener('scroll', handleScroll, { passive: true });
-    
+
     // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -128,17 +127,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
   return (
     <>
       {/* Sticky Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 w-full py-4 px-4 flex items-center justify-between z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-background/95 backdrop-blur-md border-b border-border shadow-lg' 
-          : 'bg-background/90 backdrop-blur-sm'
-      }`}>
+      <nav className={`fixed top-0 left-0 right-0 w-full py-4 px-4 flex items-center justify-between z-50 transition-all duration-300 ${isScrolled
+        ? 'bg-background/95 backdrop-blur-md border-b border-border shadow-lg'
+        : 'bg-background/90 backdrop-blur-sm'
+        }`}>
         <div className="container mx-auto flex items-center justify-between">
           {/* Logo Section */}
           <div className="flex items-center gap-8">
-            <Logo/>
+            <Logo />
             <div className="hidden lg:block w-px h-6 bg-border"></div>
-            
+
             {/* Desktop Links */}
             <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-foreground">
               <Link href="/services" className="hover:text-primary transition-colors">Services</Link>
@@ -149,13 +147,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
           </div>
 
           {/* Right Actions */}
+          {/* Right Actions */}
           <div className="flex items-center gap-4">
-            <div 
+            <div
               onClick={onSearchClick}
+              role="button"
+              aria-label="Open AI Stylist Search"
               className="hidden md:flex items-center gap-3 bg-accent border border-border rounded-full px-4 py-2.5 min-w-60 cursor-pointer group hover:border-primary transition-colors"
             >
-              <Search size={18} className="text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm text-muted-foreground group-hover:text-primary transition-colors">Ask AI Stylist...</span>
+              <Search size={18} className="text-foreground/60 group-hover:text-primary transition-colors" />
+              <span className="text-sm text-foreground/60 group-hover:text-primary transition-colors">Ask AI Stylist...</span>
             </div>
 
             <div className="flex items-center space-x-2 md:flex-1 md:justify-end">
@@ -166,20 +167,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                     href="https://wa.me/8801919011101"
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="Contact on WhatsApp"
                   >
-                    <FaWhatsapp className="h-5 w-5 text-foreground" />
+                    <WhatsappIcon className="h-5 w-5 text-foreground" />
                   </Link>
                 </Button>
               </div>
-              
+
               <div className="relative">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={handleMessages}
                   className="relative text-foreground cursor-pointer"
+                  aria-label="View Messages"
                 >
-                  <FaEnvelope className="h-5 w-5" />
+                  <Mail className="h-5 w-5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {unreadCount > 9 ? '9+' : unreadCount}
@@ -196,6 +199,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                   <button
                     onClick={() => setIsDropdownOpen((prev) => !prev)}
                     className="flex items-center cursor-pointer space-x-2 p-2 rounded-lg hover:bg-accent transition-colors"
+                    aria-label="User Menu"
+                    aria-expanded={isDropdownOpen}
                   >
                     {session.user?.image ? (
                       <Image
@@ -207,7 +212,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                        <FiUser className="w-4 h-4 text-primary-foreground" />
+                        <User className="w-4 h-4 text-primary-foreground" />
                       </div>
                     )}
                   </button>
@@ -227,16 +232,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                       <button
                         onClick={handleDashboard}
                         className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
+                        aria-label="Go to Dashboard"
                       >
-                        <FiSettings className="w-4 h-4" />
+                        <Settings className="w-4 h-4" />
                         <span>Dashboard</span>
                       </button>
 
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-destructive hover:bg-accent transition-colors"
+                        aria-label="Sign Out"
                       >
-                        <FiLogOut className="w-4 h-4" />
+                        <LogOut className="w-4 h-4" />
                         <span>Sign Out</span>
                       </button>
                     </div>
@@ -248,17 +255,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                   variant="outline"
                   size="sm"
                   className="hidden md:flex items-center space-x-2"
+                  aria-label="Login"
                 >
-                  <FiUser className="w-4 h-4" />
+                  <User className="w-4 h-4" />
                   <span>Login</span>
                 </Button>
               )}
             </div>
 
             {/* Mobile Menu Toggle */}
-            <button 
+            <button
               className="lg:hidden text-foreground hamburger-btn"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle Mobile Menu"
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? <X /> : <Menu />}
             </button>
@@ -273,7 +283,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
           {/* <Link href="/products" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link> */}
           <Link href="/portfolios" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Portfolios</Link>
           <Link href="/blogs" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Blogs</Link>
-          <div 
+          <div
             onClick={() => {
               onSearchClick();
               setIsMobileMenuOpen(false);

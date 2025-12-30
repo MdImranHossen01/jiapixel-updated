@@ -1,25 +1,19 @@
 import ServiceCard from "@/components/ServiceCard";
 import React from "react";
+import connectDB from "@/lib/db";
+import Project from "@/models/Project";
 
 async function getFeaturedServices() {
     try {
-        // Use environment-aware URL for API calls
-        const baseUrl =
-            process.env.NODE_ENV === "production"
-                ? process.env.NEXT_PUBLIC_API_URL || "https://www.jiapixel.com"
-                : "http://localhost:3000";
+        await connectDB();
+        // Direct DB fetch - much faster than HTTP request to own API
+        const services = await Project.find({ isFeatured: true })
+            .sort({ createdAt: -1 })
+            .limit(8)
+            .lean();
 
-        const response = await fetch(`${baseUrl}/api/services?isFeatured=true&limit=8`, {
-            next: { revalidate: 300 },
-        });
-
-        if (!response.ok) {
-            console.error("Error fetching services:", response.status);
-            return [];
-        }
-
-        const data = await response.json();
-        return data.services || [];
+        // Serialize MongoDB objects (convert _id to string)
+        return JSON.parse(JSON.stringify(services));
     } catch (error) {
         console.error("Error fetching services:", error);
         return [];
@@ -46,6 +40,7 @@ export default async function FeaturedServiceSection() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {services.map((service: any) => (
                         <ServiceCard key={service._id} service={service} />
                     ))}

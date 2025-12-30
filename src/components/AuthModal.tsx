@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { FcGoogle } from "react-icons/fc";
+import { GoogleIcon } from "./CustomIcons";
 import { useSession } from "next-auth/react";
 
 interface ServiceTier {
@@ -21,13 +21,13 @@ interface AuthModalProps {
   onMessageSend: (message: string) => void;
 }
 
-const AuthModal = ({ 
-  isOpen, 
-  serviceTitle, 
-  selectedTier, 
-  serviceUrl, 
-  onClose, 
-  onMessageSend 
+const AuthModal = ({
+  isOpen,
+  serviceTitle,
+  selectedTier,
+  serviceUrl,
+  onClose,
+  onMessageSend
 }: AuthModalProps) => {
   const { data: session, status } = useSession();
   const isLoggedIn = !!session;
@@ -45,15 +45,15 @@ const AuthModal = ({
 
   const handleSendMessage = () => {
     if (!selectedTier) return;
-    
+
     // Generate message with service URL
     let message = `Hello! I'm interested in the ${serviceTitle} - ${selectedTier.title} package ($${selectedTier.price}). Please provide more details.`;
-    
+
     // Add service URL if available
     if (serviceUrl) {
       message += `\n\nService Details: ${serviceUrl}`;
     }
-    
+
     onMessageSend(message);
     onClose();
   };
@@ -77,7 +77,7 @@ const AuthModal = ({
             </button>
           </div>
 
-     
+
 
           {/* Content based on auth status */}
           {isLoading ? (
@@ -90,7 +90,7 @@ const AuthModal = ({
             <div className="space-y-4">
               <div className="bg-background border border-border rounded-lg p-4">
                 <p className="text-sm text-foreground whitespace-pre-line">
-                  {selectedTier 
+                  {selectedTier
                     ? `Hello!\n I'm interested in the ${serviceTitle} \n\n Package: ${selectedTier.title}  ($${selectedTier.price}).\n Please provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
                     : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
                   }
@@ -109,12 +109,12 @@ const AuthModal = ({
               <p className="text-sm text-muted-foreground text-center">
                 Please login to send a message about this service
               </p>
-              
+
               <button
                 onClick={handleGoogleLogin}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-border rounded-lg hover:bg-accent transition-colors"
               >
-                <FcGoogle className="w-5 h-5" />
+                <GoogleIcon className="w-5 h-5" />
                 <span className="text-foreground font-medium">
                   Sign in with Google
                 </span>

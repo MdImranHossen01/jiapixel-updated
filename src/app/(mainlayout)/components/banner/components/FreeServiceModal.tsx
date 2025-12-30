@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { FcGoogle } from "react-icons/fc";
+import { GoogleIcon } from "@/components/CustomIcons";
 import { useSession } from "next-auth/react";
 
 interface FreeServiceModalProps {
@@ -12,12 +12,12 @@ interface FreeServiceModalProps {
   onMessageSend: (message: string) => void;
 }
 
-const FreeServiceModal = ({ 
-  isOpen, 
-  serviceTitle, 
-  serviceType, 
-  onClose, 
-  onMessageSend 
+const FreeServiceModal = ({
+  isOpen,
+  serviceTitle,
+  serviceType,
+  onClose,
+  onMessageSend
 }: FreeServiceModalProps) => {
   const { data: session, status } = useSession();
   const isLoggedIn = !!session;
@@ -98,12 +98,12 @@ const FreeServiceModal = ({
               <p className="text-sm text-muted-foreground text-center">
                 Please login to send a message about this service
               </p>
-              
+
               <button
                 onClick={handleGoogleLogin}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-border rounded-lg hover:bg-accent transition-colors"
               >
-                <FcGoogle className="w-5 h-5" />
+                <GoogleIcon className="w-5 h-5" />
                 <span className="text-foreground font-medium">
                   Sign in with Google
                 </span>

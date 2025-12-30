@@ -3,8 +3,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { FaMoon } from "react-icons/fa6";
-import { MdSunny } from "react-icons/md";
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
@@ -29,7 +28,7 @@ export default function ThemeToggle() {
     // Simply toggle the theme without any audio effects
     setTheme(theme === "dark" ? "light" : "dark");
   };
-  
+
   // Use resolvedTheme to avoid UI flicker on initial load
   const currentTheme = theme === "system" ? resolvedTheme : theme;
 
@@ -37,27 +36,26 @@ export default function ThemeToggle() {
     <div className="p-0.5 rounded-full hover:bg-orange-100 duration-500 max-w-16 fixed top-40 rotate-90 z-20">
       <div className="p-1 rounded-full bg-orange-100">
         <label
-          className={`relative flex items-center cursor-pointer w-12 h-6 border border-orange-300 rounded-full transition-colors duration-300 ${
-            currentTheme === "dark" ? "bg-gray-800" : "bg-orange-50"
-          }`}
+          className={`relative flex items-center cursor-pointer w-12 h-6 border border-orange-300 rounded-full transition-colors duration-300 ${currentTheme === "dark" ? "bg-gray-800" : "bg-orange-50"
+            }`}
         >
           <input
             type="checkbox"
             checked={currentTheme === "dark"}
             onChange={handleToggle}
             className="sr-only"
+            aria-label="Toggle theme"
           />
 
           {/* Toggle knob */}
           <div
-            className={`absolute w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-              currentTheme === "dark" ? "translate-x-6" : "translate-x-0"
-            }`}
+            className={`absolute w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${currentTheme === "dark" ? "translate-x-6" : "translate-x-0"
+              }`}
           >
             {currentTheme === "dark" ? (
-              <FaMoon className="text-orange-400 p-0.5 -rotate-90 text-sm bg-gray-900 rounded-full" />
+              <Moon className="text-orange-400 p-0.5 -rotate-90 text-sm bg-gray-900 rounded-full h-full w-full" />
             ) : (
-              <MdSunny className="text-orange-500 p-0.5 text-sm bg-orange-100 rounded-full" />
+              <Sun className="text-orange-500 p-0.5 text-sm bg-orange-100 rounded-full h-full w-full" />
             )}
           </div>
         </label>

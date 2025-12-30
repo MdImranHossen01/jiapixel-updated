@@ -134,8 +134,9 @@ const PortfolioSection = () => {
                 <Image
                   src={src}
                   alt={`Portfolio image ${index + 1}`}
-                  width={380}
-                  height={214}
+                  width={300}
+                  height={169}
+                  sizes="(max-width: 768px) 192px, 208px"
                   className="w-full h-auto object-cover aspect-video"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -178,9 +179,8 @@ const PortfolioSection = () => {
               <div className="relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform group-hover:scale-[1.02]">
                 <Image
                   src={src}
-                  alt={`Portfolio image ${
-                    index + 1 + firstRow.length + secondRow.length
-                  }`}
+                  alt={`Portfolio image ${index + 1 + firstRow.length + secondRow.length
+                    }`}
                   width={380}
                   height={214}
                   className="w-full h-auto object-cover aspect-video"

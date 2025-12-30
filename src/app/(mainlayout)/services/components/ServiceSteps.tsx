@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { IoIosCheckmarkCircleOutline } from 'react-icons/io';
+import { ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 
 // --- 1. INTERFACES (Ensure these match your models/Project.ts) ---
 
@@ -49,8 +48,8 @@ const FIXED_STEPS = [
 const renderListAlphabetically = (items: string[], isRequirements: boolean) => (
     <ul className="list-none space-y-2 mt-3">
         {items.map((item, index) => (
-            <li 
-                key={index} 
+            <li
+                key={index}
                 className={`flex items-start gap-2 ${isRequirements ? 'text-foreground' : 'text-foreground'}`}
             >
                 <span className="shrink-0 text-sm font-semibold pt-px w-4">
@@ -76,9 +75,9 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
 
     // Toggle individual step expansion
     const toggleStep = (index: number) => {
-        setExpandedSteps(prev => 
-            prev.includes(index) 
-                ? prev.filter(i => i !== index) 
+        setExpandedSteps(prev =>
+            prev.includes(index)
+                ? prev.filter(i => i !== index)
                 : [...prev, index]
         );
     };
@@ -91,11 +90,11 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
             <h2 className="text-2xl font-bold text-foreground mb-6">
                 Steps for completing your project
             </h2>
-            
+
             <div className="space-y-0 relative">
                 {/* Vertical Line */}
                 <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primary/20 -z-10"></div>
-                
+
                 {/* --- Step 1: Fixed Step & Collapsible Requirements --- */}
                 <div className="flex gap-4 relative">
                     <div className="shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
@@ -108,7 +107,7 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                     </div>
                 </div>
                 {/* step 2 */}
-<div className="flex gap-4 relative">
+                <div className="flex gap-4 relative">
                     <div className="shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
                         {FIXED_STEPS[1].number}
                     </div>
@@ -116,8 +115,8 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                         <h3 className="text-lg font-semibold text-foreground mb-2">{FIXED_STEPS[1].title}</h3>
                         <p className="text-muted-foreground mb-3">{FIXED_STEPS[1].detail}</p>
 
-                        
-                     
+
+
                     </div>
                 </div>
                 {/* step 3 */}
@@ -132,17 +131,17 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                         {/* Collapsible Requirements/Things Needed */}
                         {requirements && requirements.length > 0 && (
                             <div className="bg-foreground/5 dark:bg-card/30 p-4 rounded-lg border border-border/50">
-                                <p 
+                                <p
                                     className="text-primary font-semibold text-sm cursor-pointer hover:underline"
                                     onClick={() => setShowRequirements(!showRequirements)}
                                 >
                                     {showRequirements ? 'Hide requirements' : 'Show requirements'}
-                                    {showRequirements ? <FaChevronUp className="inline ml-1 w-3 h-3" /> : <FaChevronDown className="inline ml-1 w-3 h-3" />}
+                                    {showRequirements ? <ChevronUp className="inline ml-1 w-3 h-3" /> : <ChevronDown className="inline ml-1 w-3 h-3" />}
                                 </p>
 
                                 {showRequirements && (
                                     <div className="mt-2 text-sm space-y-2">
-                                                                                
+
                                         {/* --- FIX: Requirements as ABC List (from data) --- */}
                                         {/* This fulfills the user's request to include requirements under the place order step. */}
                                         {renderListAlphabetically(requirements, true)}
@@ -168,22 +167,22 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                         {/* Dynamic Steps List with Individual Accordion */}
                         <div className="space-y-3">
                             {steps.map((step, index) => (
-                                <div 
-                                    key={index} 
+                                <div
+                                    key={index}
                                     className="bg-foreground/5 dark:bg-card/30 p-4 rounded-lg border border-border/50 cursor-pointer hover:bg-foreground/10 transition-colors"
                                     onClick={() => toggleStep(index)}
                                 >
                                     <div className="flex gap-3 items-start">
-                                        <IoIosCheckmarkCircleOutline className="shrink-0 w-5 h-5 mt-0.5 text-primary" /> 
+                                        <CheckCircle className="shrink-0 w-5 h-5 mt-0.5 text-primary" />
                                         <div className="flex-1">
                                             <div className="flex items-center justify-between">
                                                 <h4 className="font-medium text-foreground pr-2">
                                                     {step.title}
                                                 </h4>
                                                 {isStepExpanded(index) ? (
-                                                    <FaChevronUp className="shrink-0 w-3 h-3 text-primary mt-1" />
+                                                    <ChevronUp className="shrink-0 w-3 h-3 text-primary mt-1" />
                                                 ) : (
-                                                    <FaChevronDown className="shrink-0 w-3 h-3 text-primary mt-1" />
+                                                    <ChevronDown className="shrink-0 w-3 h-3 text-primary mt-1" />
                                                 )}
                                             </div>
                                             {isStepExpanded(index) && (
@@ -200,7 +199,7 @@ const ServiceSteps = ({ steps, requirements }: ServiceStepsProps) => {
                 </div>
 
                 {/* --- Step 5: Final Fixed Step --- */}
-                 <div className="flex gap-4 relative">
+                <div className="flex gap-4 relative">
                     <div className="shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold z-10">
                         {FIXED_STEPS[3].number}
                     </div>

@@ -1,112 +1,113 @@
 import React from "react";
+
 import {
-  FiTarget,
-  FiBarChart2,
-  FiDollarSign,
-  FiUsers,
-  FiMessageCircle,
-  FiTrendingUp,
-  FiShare2,
-  FiMail,
-  FiSearch,
-  FiVideo,
-  FiImage,
-  FiGlobe,
-  FiPieChart,
-  FiAward,
-  FiSmartphone,
-} from "react-icons/fi";
+  Target,
+  BarChart2,
+  DollarSign,
+  Users,
+  MessageCircle,
+  TrendingUp,
+  Share2,
+  Mail,
+  Search,
+  Video,
+  Image as LucideImage,
+  Globe,
+  PieChart,
+  Award,
+  Smartphone,
+} from "lucide-react";
 
 const featuresData = [
   {
     title: "Facebook Pixel Setup",
     description:
       "Track conversions, build audiences, and optimize ads with precise Facebook Pixel implementation.",
-    icon: <FiTarget className="w-8 h-8" />,
+    icon: <Target className="w-8 h-8" />,
   },
   {
     title: "Google Ads Campaigns",
     description:
       "Strategic PPC campaigns with keyword optimization, ad copy, and conversion tracking.",
-    icon: <FiDollarSign className="w-8 h-8" />,
+    icon: <DollarSign className="w-8 h-8" />,
   },
   {
     title: "Meta Ads Management",
     description:
       "Complete Facebook & Instagram ad management with audience targeting and creative optimization.",
-    icon: <FiUsers className="w-8 h-8" />,
+    icon: <Users className="w-8 h-8" />,
   },
   {
     title: "Conversion Tracking",
     description:
       "Set up and monitor key conversion events across all platforms for ROI measurement.",
-    icon: <FiBarChart2 className="w-8 h-8" />,
+    icon: <BarChart2 className="w-8 h-8" />,
   },
   {
     title: "Social Media Marketing",
     description:
       "Organic growth strategies and paid campaigns across all major social platforms.",
-    icon: <FiShare2 className="w-8 h-8" />,
+    icon: <Share2 className="w-8 h-8" />,
   },
   {
     title: "Email Marketing",
     description:
       "Automated email campaigns, newsletter design, and subscriber management systems.",
-    icon: <FiMail className="w-8 h-8" />,
+    icon: <Mail className="w-8 h-8" />,
   },
   {
     title: "SEO Strategy",
     description:
       "Comprehensive SEO including technical optimization, content strategy, and link building.",
-    icon: <FiSearch className="w-8 h-8" />,
+    icon: <Search className="w-8 h-8" />,
   },
   {
     title: "Content Marketing",
     description:
       "Strategic content creation including blogs, videos, and social media content.",
-    icon: <FiTrendingUp className="w-8 h-8" />,
+    icon: <TrendingUp className="w-8 h-8" />,
   },
   {
     title: "Video Marketing",
     description:
       "YouTube optimization, video ads, and engaging video content for social media.",
-    icon: <FiVideo className="w-8 h-8" />,
+    icon: <Video className="w-8 h-8" />,
   },
   {
     title: "Influencer Marketing",
     description:
       "Identify and collaborate with relevant influencers to amplify your brand reach.",
-    icon: <FiMessageCircle className="w-8 h-8" />,
+    icon: <MessageCircle className="w-8 h-8" />,
   },
   {
     title: "Google Analytics Setup",
     description:
       "Complete GA4 implementation with custom events, goals, and e-commerce tracking.",
-    icon: <FiPieChart className="w-8 h-8" />,
+    icon: <PieChart className="w-8 h-8" />,
   },
   {
     title: "Retargeting Campaigns",
     description:
       "Win back lost customers with strategic retargeting across multiple platforms.",
-    icon: <FiGlobe className="w-8 h-8" />,
+    icon: <Globe className="w-8 h-8" />,
   },
   {
     title: "Ad Creative Design",
     description:
       "Eye-catching ad creatives, banners, and social media visuals that convert.",
-    icon: <FiImage className="w-8 h-8" />,
+    icon: <LucideImage className="w-8 h-8" />,
   },
   {
     title: "Mobile Advertising",
     description:
       "Optimized mobile ad campaigns for in-app and mobile web experiences.",
-    icon: <FiSmartphone className="w-8 h-8" />,
+    icon: <Smartphone className="w-8 h-8" />,
   },
   {
     title: "ROI Optimization",
     description:
       "Continuous campaign optimization to maximize return on advertising spend.",
-    icon: <FiAward className="w-8 h-8" />,
+    icon: <Award className="w-8 h-8" />,
   },
 ];
 

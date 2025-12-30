@@ -89,7 +89,7 @@ export const HeroGrid: React.FC = () => {
             alt="Hero Model"
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-75"
-            sizes="(max-width: 1024px) 100vw, 66vw"
+            sizes="(max-width: 640px) 90vw, (max-width: 1024px) 90vw, 75vw"
             priority
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-80"></div>
@@ -104,7 +104,7 @@ export const HeroGrid: React.FC = () => {
               Your Partner in Digital <br />
               Transformation <br />
               <motion.span
-                className="text-3xl lg:w-5xl mt-4 text-white font-medium h-10"
+                className="text-3xl lg:text-4xl mt-4 text-white font-medium block min-h-[4rem] lg:min-h-[5rem]"
                 variants={itemVariants}
               >
                 <TypeAnimation

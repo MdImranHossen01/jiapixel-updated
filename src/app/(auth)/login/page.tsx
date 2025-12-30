@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { FcGoogle } from "react-icons/fc";
+import { GoogleIcon } from "@/components/CustomIcons";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ const LoginPage = () => {
         callbackUrl: "/",
         redirect: true,
       });
-      
+
       // If we're still here and there's an error, handle it
       if (result?.error) {
         setError("Authentication failed. Please try again.");
@@ -35,7 +35,7 @@ const LoginPage = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
-          
+
         </div>
 
         {error && (
@@ -52,13 +52,13 @@ const LoginPage = () => {
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-border rounded-lg hover:bg-accent transition-colors disabled:opacity-50"
           >
-            <FcGoogle className="w-5 h-5" />
+            <GoogleIcon className="w-5 h-5" />
             <span className="text-foreground font-medium">
               {loading ? "Signing in..." : "Sign in with Google"}
             </span>
           </button>
 
-         
+
         </div>
       </div>
     </div>

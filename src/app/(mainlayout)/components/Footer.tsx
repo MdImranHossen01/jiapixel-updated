@@ -1,15 +1,14 @@
 import React from "react";
 import Link from "next/link";
 import {
-  FaGithub,
-  FaWhatsapp,
-  FaGoogle,
-  FaLinkedin,
-  FaYoutube,
-  FaEnvelope,
-  FaMapMarkerAlt,
-  FaPhone,
-} from "react-icons/fa";
+  Github,
+  Linkedin,
+  Youtube,
+  Mail,
+  MapPin,
+  Phone,
+} from "lucide-react";
+import { GoogleIcon, WhatsappIcon } from "@/components/CustomIcons";
 import Logo from "./Logo";
 
 const Footer = () => {
@@ -50,24 +49,24 @@ const Footer = () => {
 
   const socialLinks = [
     {
-      icon: <FaGoogle className="text-xl" />,
+      icon: <GoogleIcon className="text-xl" />,
       href: "https://business.google.com/n/10330903490487912460/profile?fid=9874130934015472992",
       label: "Google Business",
     },
     {
-      icon: <FaGithub className="text-xl" />,
+      icon: <Github className="w-5 h-5" />, // matched size to typical xl or lucide default
       href: "https://github.com/MdImranHossen01",
       label: "GitHub",
     },
 
     {
-      icon: <FaLinkedin className="text-xl" />,
+      icon: <Linkedin className="w-5 h-5" />,
       href: "https://www.linkedin.com/in/expert-full-stack-web-applications-developer-in-bangladesh-md-imran-hossen/",
       label: "LinkedIn",
     },
 
     {
-      icon: <FaWhatsapp className="text-xl" />,
+      icon: <WhatsappIcon className="text-xl" />,
       href: "https://wa.me/8801919011101",
       label: "WhatsApp",
     },
@@ -123,15 +122,15 @@ const Footer = () => {
           <div className="flex flex-col justify-center items-center space-y-4 md:space-y-6">
             <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
               <div className="flex items-center space-x-2 text-muted-foreground">
-                <FaMapMarkerAlt />
+                <MapPin className="w-4 h-4" />
                 <span>Nabokalosh, Matlab Dakkhin, Chandpur</span>
               </div>
               <div className="flex items-center space-x-2 text-muted-foreground">
-                <FaPhone />
+                <Phone className="w-4 h-4" />
                 <span>+8801919011101</span>
               </div>
               <div className="flex items-center space-x-2 text-muted-foreground">
-                <FaEnvelope />
+                <Mail className="w-4 h-4" />
                 <span>mail.jiapixel@gmail.com</span>
               </div>
             </div>
