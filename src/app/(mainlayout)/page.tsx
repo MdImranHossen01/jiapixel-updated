@@ -1,9 +1,9 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import Banner from "./components/banner/Banner";
 import { FAQ_DATA } from "./components/faq/constants";
 
 // Group components that appear together
-const MainContent = lazy(() => import("./components/MainContent"));
+import MainContent from "./components/MainContent";
 
 // Loading component
 const LoadingFallback = () => (
@@ -36,10 +36,10 @@ const HomePage = () => {
           __html: JSON.stringify(faqStructuredData),
         }}
       />
-      
+
       {/* Banner is critical - load immediately */}
-      <Banner/>
-      
+      <Banner />
+
       {/* Lazy load the rest of the content */}
       <Suspense fallback={<LoadingFallback />}>
         <MainContent />

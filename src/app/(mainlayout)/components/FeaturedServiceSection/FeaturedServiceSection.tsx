@@ -34,8 +34,8 @@ export default async function FeaturedServiceSection() {
     }
 
     return (
-        <section className="py-16 px-4 md:px-8 bg-background">
-            <div className="max-w-7xl mx-auto">
+        <section className="py-12">
+            <div className="container px-4 mx-auto">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
                         Featured <span className="text-primary">Services</span>
