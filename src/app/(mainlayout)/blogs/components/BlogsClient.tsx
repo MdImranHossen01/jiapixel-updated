@@ -49,20 +49,7 @@ const BlogsClient: React.FC<BlogsClientProps> = ({ initialBlogs }) => {
             if (searchQuery.trim()) {
                 const query = searchQuery.toLowerCase().trim();
 
-                const titleMatch = blog.title?.toLowerCase().includes(query);
-
-                // Check excerpt or create one from content if available
-                const content = blog.content || "";
-                const plainContent = createPlainTextExcerpt(content, 1000).toLowerCase();
-                const excerpt = blog.excerpt?.toLowerCase() || "";
-
-                const contentMatch = plainContent.includes(query) || excerpt.includes(query);
-
-                const categoryMatch = blog.category?.toLowerCase().includes(query);
-
-                const authorMatch = blog.authorName?.toLowerCase().includes(query);
-
-                return titleMatch || contentMatch || categoryMatch || authorMatch;
+                return blog.title?.toLowerCase().includes(query);
             }
 
             return true;

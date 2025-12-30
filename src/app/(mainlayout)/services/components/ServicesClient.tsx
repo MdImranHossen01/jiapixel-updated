@@ -20,20 +20,7 @@ const ServicesClient: React.FC<ServicesClientProps> = ({ initialServices }) => {
             if (searchQuery.trim()) {
                 const query = searchQuery.toLowerCase().trim();
 
-                const titleMatch = service.title?.toLowerCase().includes(query);
-
-                // Check projectSummary or description form tiers
-                const description = service.projectSummary || service.tiers?.starter?.description || "";
-                // Remove HTML tags for cleaner search if description contains HTML
-                const cleanDescription = description.replace(/<[^>]*>/g, "").toLowerCase();
-                const descriptionMatch = cleanDescription.includes(query);
-
-                // Check tags
-                const tagsMatch = service.searchTags?.some((tag: string) =>
-                    tag.toLowerCase().includes(query)
-                );
-
-                return titleMatch || descriptionMatch || tagsMatch;
+                return service.title?.toLowerCase().includes(query);
             }
 
             return true;
