@@ -3,22 +3,28 @@ import React from "react";
 import connectDB from "@/lib/db";
 import Project from "@/models/Project";
 
-async function getFeaturedServices() {
-    try {
-        await connectDB();
-        // Direct DB fetch - much faster than HTTP request to own API
-        const services = await Project.find({ isFeatured: true })
-            .sort({ createdAt: -1 })
-            .limit(8)
-            .lean();
+import { unstable_cache } from 'next/cache';
 
-        // Serialize MongoDB objects (convert _id to string)
-        return JSON.parse(JSON.stringify(services));
-    } catch (error) {
-        console.error("Error fetching services:", error);
-        return [];
-    }
-}
+const getFeaturedServices = unstable_cache(
+    async () => {
+        try {
+            await connectDB();
+            // Direct DB fetch - much faster than HTTP request to own API
+            const services = await Project.find({ isFeatured: true })
+                .sort({ createdAt: -1 })
+                .limit(8)
+                .lean();
+
+            // Serialize MongoDB objects (convert _id to string)
+            return JSON.parse(JSON.stringify(services));
+        } catch (error) {
+            console.error("Error fetching services:", error);
+            return [];
+        }
+    },
+    ['featured-services'],
+    { revalidate: 300, tags: ['services'] }
+);
 
 export default async function FeaturedServiceSection() {
     const services = await getFeaturedServices();
