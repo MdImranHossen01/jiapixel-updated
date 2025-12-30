@@ -1,27 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Link from "next/link";
+import React from 'react';
 import type { Metadata } from "next";
-import ServiceCard from "@/components/ServiceCard";
 import ServicesStructuredData from "@/components/ServicesStructuredData";
+import connectDB from "@/lib/db";
+import Project from "@/models/Project";
+import ServicesClient from "./components/ServicesClient";
 
+// Fetch all services directly from DB for initial render + search pool
 async function getServices() {
   try {
-    // Use environment-aware URL for API calls
-    const baseUrl =
-      process.env.NODE_ENV === "production"
-        ? process.env.NEXT_PUBLIC_API_URL || "https://www.jiapixel.com"
-        : "http://localhost:3000";
-    const response = await fetch(`${baseUrl}/api/services?isFeatured=true`, {
-      next: { revalidate: 300 },
-    });
+    await connectDB();
 
-    if (!response.ok) {
-      console.error("Error fetching services:", response.status);
-      return [];
-    }
+    // Fetch all published services
+    const services = await Project.find({ status: { $ne: 'draft' } }) // Assuming we show published and archived? Or just published.
+      .sort({ createdAt: -1 })
+      .lean();
 
-    const data = await response.json();
-    return data.services || [];
+    // Serialize for Client Component
+    return JSON.parse(JSON.stringify(services));
   } catch (error) {
     console.error("Error fetching services:", error);
     return [];
@@ -127,49 +123,15 @@ const ServicesPage = async () => {
                 elevate your business. From web development to digital
                 marketing, we&apos;ve got you covered.
               </p>
-              
+
             </div>
           </div>
         </section>
 
-        {/* Services Grid */}
+        {/* Services Client Component (Search, Filter, Grid) */}
         <section className="py-8">
           <div className="container mx-auto px-4">
-            {services.length > 0 ? (
-              <div>
-                {/* All Services Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {services.map((service: any) => (
-                    <ServiceCard
-                      key={service._id}
-                      service={service}
-                    />
-                  ))}
-                </div>
-
-                
-              </div>
-            ) : (
-              /* Empty State */
-              <div className="text-center py-16">
-                <div className="max-w-md mx-auto">
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-2xl font-bold text-foreground mb-4">
-                    No Services Available
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    We&apos;re currently setting up our services. Please check
-                    back soon for amazing offers!
-                  </p>
-                  <Link
-                    href="/dashboard/services/create"
-                    className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
-                  >
-                    Create Your First Service
-                  </Link>
-                </div>
-              </div>
-            )}
+            <ServicesClient initialServices={services} />
           </div>
         </section>
       </div>

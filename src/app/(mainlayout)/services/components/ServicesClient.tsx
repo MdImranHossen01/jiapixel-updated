@@ -1,0 +1,139 @@
+"use client";
+
+import React, { useState, useMemo } from "react";
+import ServiceCard from "@/components/ServiceCard";
+import { Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+interface ServicesClientProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    initialServices: any[];
+}
+
+const ServicesClient: React.FC<ServicesClientProps> = ({ initialServices }) => {
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("All");
+
+    // Extract unique categories
+    const categories = useMemo(() => {
+        const cats = new Set(initialServices.map((service) => service.category));
+        return ["All", ...Array.from(cats)].filter(Boolean);
+    }, [initialServices]);
+
+    // Filter services based on search and category
+    const filteredServices = useMemo(() => {
+        return initialServices.filter((service) => {
+            // 1. Category Filter
+            if (selectedCategory !== "All" && service.category !== selectedCategory) {
+                return false;
+            }
+
+            // 2. Search Filter (Partial Match on Title, Description, Tags)
+            if (searchQuery.trim()) {
+                const query = searchQuery.toLowerCase().trim();
+
+                const titleMatch = service.title?.toLowerCase().includes(query);
+
+                // Check projectSummary or description form tiers
+                const description = service.projectSummary || service.tiers?.starter?.description || "";
+                // Remove HTML tags for cleaner search if description contains HTML
+                const cleanDescription = description.replace(/<[^>]*>/g, "").toLowerCase();
+                const descriptionMatch = cleanDescription.includes(query);
+
+                // Check tags
+                const tagsMatch = service.searchTags?.some((tag: string) =>
+                    tag.toLowerCase().includes(query)
+                );
+
+                return titleMatch || descriptionMatch || tagsMatch;
+            }
+
+            return true;
+        });
+    }, [initialServices, searchQuery, selectedCategory]);
+
+    return (
+        <div className="space-y-8">
+            {/* Search and Filter Controls */}
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-card p-4 rounded-xl border border-border sticky top-20 z-30 shadow-sm">
+
+                {/* Search Bar */}
+                <div className="relative w-full md:max-w-md">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <input
+                        type="text"
+                        className="block w-full pl-10 pr-10 py-2.5 border border-input rounded-lg bg-background focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                        placeholder="Search services by keyword, description..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery("")}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    )}
+                </div>
+
+                {/* Category Filters (Scrollable on mobile) */}
+                <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+                    {categories.map((category) => (
+                        <Button
+                            key={category}
+                            variant={selectedCategory === category ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setSelectedCategory(category)}
+                            className="whitespace-nowrap"
+                        >
+                            {category}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Results Count */}
+            <div className="text-muted-foreground text-sm">
+                Showing {filteredServices.length} result{filteredServices.length !== 1 && 's'}
+            </div>
+
+            {/* Services Grid */}
+            {filteredServices.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {filteredServices.map((service: any) => (
+                        <ServiceCard key={service._id} service={service} />
+                    ))}
+                </div>
+            ) : (
+                /* Empty State */
+                <div className="text-center py-16 bg-card/50 rounded-xl border border-border/50 border-dashed">
+                    <div className="max-w-md mx-auto">
+                        <div className="text-6xl mb-4">🔍</div>
+                        <h3 className="text-2xl font-bold text-foreground mb-2">
+                            No matching services found
+                        </h3>
+                        <p className="text-muted-foreground">
+                            Try adjusting your search terms or changing the category filter.
+                        </p>
+                        <Button
+                            variant="link"
+                            onClick={() => {
+                                setSearchQuery("");
+                                setSelectedCategory("All");
+                            }}
+                            className="mt-4"
+                        >
+                            Clear all filters
+                        </Button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ServicesClient;
