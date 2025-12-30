@@ -109,7 +109,7 @@ export const HeroGrid: React.FC = () => {
               >
                 <TypeAnimation
                   sequence={[
-                    "World Class Web Application Development ",
+                    "World Class Web Development ",
                     1500,
                     "SEO Optimization to Rank Higher",
                     1500,
