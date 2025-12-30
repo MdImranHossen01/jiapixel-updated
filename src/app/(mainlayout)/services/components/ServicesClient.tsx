@@ -12,23 +12,11 @@ interface ServicesClientProps {
 
 const ServicesClient: React.FC<ServicesClientProps> = ({ initialServices }) => {
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All");
 
-    // Extract unique categories
-    const categories = useMemo(() => {
-        const cats = new Set(initialServices.map((service) => service.category));
-        return ["All", ...Array.from(cats)].filter(Boolean);
-    }, [initialServices]);
-
-    // Filter services based on search and category
+    // Filter services based on search
     const filteredServices = useMemo(() => {
         return initialServices.filter((service) => {
-            // 1. Category Filter
-            if (selectedCategory !== "All" && service.category !== selectedCategory) {
-                return false;
-            }
-
-            // 2. Search Filter (Partial Match on Title, Description, Tags)
+            // Search Filter (Partial Match on Title, Description, Tags)
             if (searchQuery.trim()) {
                 const query = searchQuery.toLowerCase().trim();
 
@@ -50,55 +38,40 @@ const ServicesClient: React.FC<ServicesClientProps> = ({ initialServices }) => {
 
             return true;
         });
-    }, [initialServices, searchQuery, selectedCategory]);
+    }, [initialServices, searchQuery]);
 
     return (
         <div className="space-y-8">
-            {/* Search and Filter Controls */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-card p-4 rounded-xl border border-border sticky top-20 z-30 shadow-sm">
-
-                {/* Search Bar */}
-                <div className="relative w-full md:max-w-md">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            {/* Search Control */}
+            <div className="flex justify-center mb-8">
+                <div className="relative w-full max-w-2xl">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <Search className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <input
                         type="text"
-                        className="block w-full pl-10 pr-10 py-2.5 border border-input rounded-lg bg-background focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                        placeholder="Search services by keyword, description..."
+                        className="block w-full pl-12 pr-12 py-4 border border-border rounded-full bg-card shadow-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-lg placeholder:text-muted-foreground/70"
+                        placeholder="Search for services..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery("")}
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-foreground transition-colors"
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-5 w-5" />
                         </button>
                     )}
-                </div>
-
-                {/* Category Filters (Scrollable on mobile) */}
-                <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
-                    {categories.map((category) => (
-                        <Button
-                            key={category}
-                            variant={selectedCategory === category ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setSelectedCategory(category)}
-                            className="whitespace-nowrap"
-                        >
-                            {category}
-                        </Button>
-                    ))}
                 </div>
             </div>
 
             {/* Results Count */}
-            <div className="text-muted-foreground text-sm">
-                Showing {filteredServices.length} result{filteredServices.length !== 1 && 's'}
-            </div>
+            {searchQuery && (
+                <div className="text-muted-foreground text-sm text-center">
+                    Found {filteredServices.length} result{filteredServices.length !== 1 && 's'}
+                </div>
+            )}
 
             {/* Services Grid */}
             {filteredServices.length > 0 ? (
@@ -117,17 +90,14 @@ const ServicesClient: React.FC<ServicesClientProps> = ({ initialServices }) => {
                             No matching services found
                         </h3>
                         <p className="text-muted-foreground">
-                            Try adjusting your search terms or changing the category filter.
+                            Try adjusting your search terms.
                         </p>
                         <Button
                             variant="link"
-                            onClick={() => {
-                                setSearchQuery("");
-                                setSelectedCategory("All");
-                            }}
+                            onClick={() => setSearchQuery("")}
                             className="mt-4"
                         >
-                            Clear all filters
+                            Clear search
                         </Button>
                     </div>
                 </div>

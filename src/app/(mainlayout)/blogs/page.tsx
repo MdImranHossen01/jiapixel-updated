@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import Link from 'next/link';
-import Image from 'next/image';
 import type { Metadata } from 'next';
+import BlogsClient from './components/BlogsClient';
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -14,58 +12,29 @@ function getBaseUrl() {
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 }
 
-// Helper function to safely format dates
-function formatBlogDate(dateString?: string): string {
-  if (!dateString) {
-    return 'Recently';
-  }
-  
-  try {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  } catch (error) {
-    return 'Recently';
-  }
-}
-
-// Helper function to create plain text excerpt from HTML
-function createPlainTextExcerpt(html: string, maxLength: number = 150): string {
-  if (!html) return '';
-  
-  // Remove HTML tags and trim
-  const plainText = html.replace(/<[^>]*>/g, '').trim();
-  
-  // Return truncated text with ellipsis if needed
-  if (plainText.length <= maxLength) return plainText;
-  return plainText.substring(0, maxLength).trim() + '...';
-}
-
 async function getBlogs() {
   try {
     const baseUrl = getBaseUrl();
-    
+
     const response = await fetch(`${baseUrl}/api/blogs`, {
       next: { revalidate: 300 }
     });
-    
+
     if (!response.ok) {
       return { blogs: [], error: `Failed to fetch blogs: ${response.status}` };
     }
-    
+
     const data = await response.json();
-    
+
     if (!data.success) {
       return { blogs: [], error: data.error };
     }
-    
+
     return data;
   } catch (error) {
-    return { 
-      blogs: [], 
-      error: error instanceof Error ? error.message : 'Failed to fetch blogs' 
+    return {
+      blogs: [],
+      error: error instanceof Error ? error.message : 'Failed to fetch blogs'
     };
   }
 }
@@ -79,12 +48,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: 'Our Blog - Web Development Insights & Digital Marketing Tips | Jiapixel',
     description: 'Read our latest blog posts about web development, digital marketing, SEO strategies, and technology insights. Stay updated with industry trends and best practices.',
     keywords: 'blog, web development, digital marketing, SEO, technology, tutorials, insights',
-    
+
     // Canonical URL
     alternates: {
       canonical: canonicalUrl,
     },
-    
+
     // Open Graph
     openGraph: {
       title: 'Our Blog - Web Development Insights & Digital Marketing Tips | Jiapixel',
@@ -102,7 +71,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'en_US',
       type: 'website',
     },
-    
+
     // Twitter Card
     twitter: {
       card: 'summary_large_image',
@@ -112,6 +81,14 @@ export async function generateMetadata(): Promise<Metadata> {
       creator: '@jiapixel',
     },
   };
+}
+
+// Helper function to create plain text excerpt from HTML (replicated here only for structured data if needed, or we can just remove it if structured data is not critical to keep exactly as is, but assuming we want to keep structured data)
+function createPlainTextExcerpt(html: string, maxLength: number = 150): string {
+  if (!html) return '';
+  const plainText = html.replace(/<[^>]*>/g, '').trim();
+  if (plainText.length <= maxLength) return plainText;
+  return plainText.substring(0, maxLength).trim() + '...';
 }
 
 export default async function BlogsPage() {
@@ -161,7 +138,7 @@ export default async function BlogsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
       />
-      
+
       <div className="min-h-screen bg-background py-8">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -185,60 +162,7 @@ export default async function BlogsPage() {
               <p className="text-muted-foreground">Check back later for new content!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {blogs.map((blog: any) => (
-                <article 
-                  key={blog._id} 
-                  className="bg-card rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-shadow duration-300 group"
-                >
-                  {blog.featuredImage && (
-                    <div className="relative h-48 overflow-hidden">
-                      <Image
-                        src={blog.featuredImage}
-                        alt={blog.title || 'Blog post image'}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    </div>
-                  )}
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
-                        {blog.category || 'Uncategorized'}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {blog.readTime || 5} min read
-                      </span>
-                    </div>
-                    
-                    <h2 className="text-xl font-bold text-card-foreground mb-3 line-clamp-2">
-                      <Link 
-                        href={`/blogs/${blog.slug}`}
-                        className="hover:text-primary transition-colors"
-                      >
-                        {blog.title || 'Untitled Blog Post'}
-                      </Link>
-                    </h2>
-                    
-                   
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-muted-foreground">
-                        {/* FIXED: Using the safe date formatting function - NO MORE Date.now() */}
-                        {formatBlogDate(blog.publishedAt || blog.createdAt)}
-                      </div>
-                      <Link
-                        href={`/blogs/${blog.slug}`}
-                        className="text-primary hover:text-primary/80 font-medium text-sm transition-colors"
-                      >
-                        Read More →
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+            <BlogsClient initialBlogs={blogs} />
           )}
         </div>
       </div>
