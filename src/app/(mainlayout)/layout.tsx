@@ -11,7 +11,7 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
         {/* Navbar with modal wrapper */}
         <AiStylistModalWrapper />
 
-        <main className="grow relative z-10">
+        <main className="grow relative">
           {children}
         </main>
 

@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 const SplashScreen = () => {
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 dark:bg-gray-950 z-[9999]">
+        <div className="fixed inset-0 flex items-center justify-center bg-background z-[99999]">
             <motion.div
                 animate={{
                     scale: [1, 1.2, 1],
