@@ -9,33 +9,41 @@ import HeroSection from "../components/HeroSection";
 import { FeaturedCard } from "../components/FeaturedCard";
 import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
 
+import connectDB from "@/lib/db";
+import Project from "@/models/Project";
+
 interface PageProps {
   params: Promise<{
     slug: string;
   }>;
 }
 
+// Fetch service directly from DB for better performance/SEO
 async function getService(slug: string) {
   try {
-    const baseUrl =
-      process.env.NODE_ENV === "production"
-        ? process.env.NEXT_PUBLIC_API_URL || "https://jiapixel.com"
-        : "http://localhost:3000";
+    await connectDB();
+    const service = await Project.findOne({ slug: slug }).lean();
 
-    const response = await fetch(`${baseUrl}/api/services/${slug}`, {
-      next: { revalidate: 300 },
-    });
-    if (!response.ok) {
-      console.error("Error fetching service:", response.status);
-      return null;
-    }
+    if (!service) return null;
 
-    const data = await response.json();
-    return data.service || null;
+    // Serialize object to pass to components (Mongoose documents are not plain objects)
+    return JSON.parse(JSON.stringify(service));
   } catch (error) {
     console.error("Error fetching service:", error);
     return null;
   }
+}
+
+export const revalidate = 300; // Revalidate cache every 5 minutes
+
+// Generate static params for all services (SSG)
+export async function generateStaticParams() {
+  await connectDB();
+  const services = await Project.find({ status: { $ne: 'draft' } }).select('slug').lean();
+
+  return services.map((service: any) => ({
+    slug: service.slug,
+  }));
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -57,15 +65,14 @@ export async function generateMetadata({ params }: PageProps) {
       ? `${service.metaTitle.substring(0, 97)}`
       : `${service.metaTitle}`
     : service.title.length > 100
-    ? `${service.title.substring(0, 97)}`
-    : `${service.title}`;
+      ? `${service.title.substring(0, 97)}`
+      : `${service.title}`;
 
   const metaDescription = service.metaDescription
     ? service.metaDescription.substring(0, 300)
     : service.projectSummary
-    ? service.projectSummary.replace(/<[^>]*>/g, "").substring(0, 300)
-    : `Professional ${service.title} service by Jiapixel. ${
-        service.tiers?.starter?.description || "Get started today!"
+      ? service.projectSummary.replace(/<[^>]*>/g, "").substring(0, 300)
+      : `Professional ${service.title} service by Jiapixel. ${service.tiers?.starter?.description || "Get started today!"
       }`;
 
   // Featured image for social sharing
@@ -156,17 +163,17 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
   const faqStructuredData =
     service.faqs && service.faqs.length > 0
       ? {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: service.faqs.map((faq: any) => ({
-            "@type": "Question",
-            name: faq.question,
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: faq.answer,
-            },
-          })),
-        }
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: service.faqs.map((faq: any) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      }
       : null;
 
   return (
@@ -203,7 +210,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
                 <div className="mb-10">
-                  
+
                   <p className="text-4xl font-bold text-foreground">
                     Service Details
                   </p>
