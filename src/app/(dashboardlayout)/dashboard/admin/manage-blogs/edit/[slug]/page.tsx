@@ -46,7 +46,7 @@ interface PageProps {
 }
 
 export default function EditBlogPage({ params }: PageProps) {
-   const editorRef = useRef<SimpleEditorRef>(null);
+  const editorRef = useRef<SimpleEditorRef>(null);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -75,11 +75,11 @@ export default function EditBlogPage({ params }: PageProps) {
     try {
       setLoading(true);
       const response = await fetch(`/api/blogs/${slug}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch blog');
       }
-      
+
       const data = await response.json();
       if (data.success) {
         setBlog(data.blog);
@@ -117,11 +117,11 @@ export default function EditBlogPage({ params }: PageProps) {
     }
   };
 
-  
+
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!blog) return;
-    
+
     const tagsString = e.target.value;
     setBlog(prev => prev ? {
       ...prev,
@@ -136,12 +136,20 @@ export default function EditBlogPage({ params }: PageProps) {
     setSaving(true);
 
     try {
+      // Get latest content from editor
+      let content = blog.content;
+      if (editorRef.current) {
+        content = editorRef.current.getContent();
+      }
+
+      const updatedBlog = { ...blog, content };
+
       const response = await fetch(`/api/blogs/${blog.slug}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(blog),
+        body: JSON.stringify(updatedBlog),
       });
 
       if (response.ok) {
@@ -162,7 +170,7 @@ export default function EditBlogPage({ params }: PageProps) {
 
   const clearFeaturedImage = () => {
     if (!blog) return;
-    
+
     setBlog(prev => prev ? { ...prev, featuredImage: '' } : null);
     setImagePreview(null);
     setImageError(false);
@@ -256,9 +264,7 @@ export default function EditBlogPage({ params }: PageProps) {
               <label className="block text-lg font-semibold text-card-foreground mb-3">
                 Blog Content *
               </label>
-               <SimpleEditor ref={editorRef}  />TapWrapper
-                
-             
+              <SimpleEditor ref={editorRef} initialContent={blog.content} />
             </div>
 
             {/* Excerpt */}
@@ -287,7 +293,7 @@ export default function EditBlogPage({ params }: PageProps) {
             {/* Publishing Settings */}
             <div className="bg-card rounded-lg shadow p-6 border border-border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Publishing Settings</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="status" className="block text-sm font-medium text-card-foreground mb-2">
@@ -360,7 +366,7 @@ export default function EditBlogPage({ params }: PageProps) {
             {/* Featured Image */}
             <div className="bg-card rounded-lg shadow p-6 border border-border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Featured Image</h3>
-              
+
               {imagePreview && isValidUrl(blog.featuredImage || '') ? (
                 <div className="space-y-3">
                   <div className="relative aspect-video rounded-lg overflow-hidden border border-border">
@@ -419,7 +425,7 @@ export default function EditBlogPage({ params }: PageProps) {
             {/* SEO Settings */}
             <div className="bg-card rounded-lg shadow p-6 border border-border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">
@@ -464,7 +470,7 @@ export default function EditBlogPage({ params }: PageProps) {
             {/* Blog Statistics */}
             <div className="bg-card rounded-lg shadow p-6 border border-border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Blog Statistics</h3>
-              
+
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Read Time:</span>
