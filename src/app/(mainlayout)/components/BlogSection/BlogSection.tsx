@@ -56,10 +56,10 @@ export default async function BlogSection() {
     }
 
     return (
-        <section className="py-20 bg-background/50">
+        <section className="overflow-hidden">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold mb-4">Latest Blog & News</h2>
+                    <h2 className="text-3xl font-bold mb-4">Latest <span className="text-primary">Blog & News</span></h2>
                     <p className="text-muted-foreground max-w-2xl mx-auto">
                         Stay updated with our latest insights, tutorials, and industry news.
                     </p>
