@@ -5,6 +5,7 @@ import AboutUsSection from "./aboutus/AboutUsSection";
 import MarketingFeatures from "./MarketingFeatures";
 import SEOFeatures from "./SEOFeatures";
 import FeaturedServiceSection from "./FeaturedServiceSection/FeaturedServiceSection";
+import BlogSection from "./BlogSection/BlogSection";
 
 const MainContent = () => {
   return (
@@ -16,6 +17,7 @@ const MainContent = () => {
 
       <SEOFeatures />
       <MarketingFeatures />
+      <BlogSection />
       <FaqSection />
     </>
   );

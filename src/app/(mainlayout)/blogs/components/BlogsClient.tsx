@@ -6,34 +6,8 @@ import Image from 'next/image';
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Helper function to safely format dates
-function formatBlogDate(dateString?: string): string {
-    if (!dateString) {
-        return 'Recently';
-    }
-
-    try {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    } catch (error) {
-        return 'Recently';
-    }
-}
-
-// Helper function to create plain text excerpt from HTML
-function createPlainTextExcerpt(html: string, maxLength: number = 150): string {
-    if (!html) return '';
-
-    // Remove HTML tags and trim
-    const plainText = html.replace(/<[^>]*>/g, '').trim();
-
-    // Return truncated text with ellipsis if needed
-    if (plainText.length <= maxLength) return plainText;
-    return plainText.substring(0, maxLength).trim() + '...';
-}
+import { formatBlogDate } from '@/lib/utils';
+import BlogCard from '../../components/BlogSection/BlogCard';
 
 interface BlogsClientProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,53 +68,7 @@ const BlogsClient: React.FC<BlogsClientProps> = ({ initialBlogs }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {filteredBlogs.map((blog: any) => (
-                        <article
-                            key={blog._id}
-                            className="bg-card rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-shadow duration-300 group"
-                        >
-                            {blog.featuredImage && (
-                                <div className="relative h-48 overflow-hidden">
-                                    <Image
-                                        src={blog.featuredImage}
-                                        alt={blog.title || 'Blog post image'}
-                                        fill
-                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                    />
-                                </div>
-                            )}
-                            <div className="p-6">
-                                <div className="flex items-center justify-between mb-3">
-                                    <span className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
-                                        {blog.category || 'Uncategorized'}
-                                    </span>
-                                    <span className="text-sm text-muted-foreground">
-                                        {blog.readTime || 5} min read
-                                    </span>
-                                </div>
-
-                                <h2 className="text-xl font-bold text-card-foreground mb-3 line-clamp-2">
-                                    <Link
-                                        href={`/blogs/${blog.slug}`}
-                                        className="hover:text-primary transition-colors"
-                                    >
-                                        {blog.title || 'Untitled Blog Post'}
-                                    </Link>
-                                </h2>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="text-sm text-muted-foreground">
-                                        {formatBlogDate(blog.publishedAt || blog.createdAt)}
-                                    </div>
-                                    <Link
-                                        href={`/blogs/${blog.slug}`}
-                                        className="text-primary hover:text-primary/80 font-medium text-sm transition-colors"
-                                    >
-                                        Read More →
-                                    </Link>
-                                </div>
-                            </div>
-                        </article>
+                        <BlogCard key={blog._id} blog={blog} />
                     ))}
                 </div>
             ) : (

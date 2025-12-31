@@ -37,8 +37,12 @@ const nextConfig = {
         hostname: "i.ibb.co",
       },
       {
-        protocol: "https", 
+        protocol: "https",
         hostname: "*.ibb.co",
+      },
+      {
+        protocol: "https",
+        hostname: "www.livelearnleverage.org",
       },
     ],
     formats: ["image/avif", "image/webp"],
@@ -50,15 +54,15 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  
+
   // Add these for better performance and security
   experimental: {
     optimizeCss: true,
   },
-  
+
   // Enable SWC minification (faster than Terser)
   swcMinify: true,
-  
+
   // Only enable these optimizations in production
   compiler:
     process.env.NODE_ENV === "production"

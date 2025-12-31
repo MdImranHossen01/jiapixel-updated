@@ -156,7 +156,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
               className="hidden md:flex items-center gap-3 bg-accent border border-border rounded-full px-4 py-2.5 min-w-60 cursor-pointer group hover:border-primary transition-colors"
             >
               <Search size={18} className="text-foreground/60 group-hover:text-primary transition-colors" />
-              <span className="text-sm text-foreground/60 group-hover:text-primary transition-colors">Ask AI Stylist...</span>
+              <span className="text-sm text-foreground/60 group-hover:text-primary transition-colors">Ask AI...</span>
             </div>
 
             <div className="flex items-center space-x-2 md:flex-1 md:justify-end">
