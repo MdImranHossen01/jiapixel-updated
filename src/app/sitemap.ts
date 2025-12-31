@@ -3,6 +3,8 @@
 
 import { MetadataRoute } from "next";
 import connectDB from "@/lib/db";
+import Category from "@/models/Category";
+
 import Blog from "@/models/Blog";
 import Project from "@/models/Project";
 import Portfolio from "@/models/Portfolios";
@@ -15,7 +17,7 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
   try {
     await connectDB();
 
-    const [blogs, services, portfolios] = await Promise.all([
+    const [blogs, services, portfolios, categories] = await Promise.all([
       Blog.find({ status: { $in: ["published", "draft"] } }, "slug updatedAt")
         .lean()
         .exec(),
@@ -28,6 +30,8 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
         .exec(),
 
       Portfolio.find({}, "slug updatedAt").lean().exec(),
+
+      Category.find({}, "slug updatedAt").lean().exec(),
     ]);
 
     const blogRoutes: MetadataRoute.Sitemap = blogs.map((item: any) => ({
@@ -53,7 +57,14 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
       })
     );
 
-    return [...blogRoutes, ...serviceRoutes, ...portfolioRoutes];
+    const categoryRoutes: MetadataRoute.Sitemap = categories.map((item: any) => ({
+      url: `${BASE_URL}/${item.slug}`,
+      lastModified: item.updatedAt || new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    }));
+
+    return [...blogRoutes, ...serviceRoutes, ...portfolioRoutes, ...categoryRoutes];
   } catch (error) {
     console.error("Error generating dynamic sitemap routes:", error);
     return [];
