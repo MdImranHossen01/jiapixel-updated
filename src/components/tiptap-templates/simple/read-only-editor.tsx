@@ -2,6 +2,7 @@
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import { TextAlign } from "@tiptap/extension-text-align";
@@ -22,12 +23,20 @@ import "@/components/tiptap-templates/simple/simple-editor.scss";
 
 export default function ReadOnlyEditor({ content }: { content: string }) {
   const [isClient, setIsClient] = useState(false);
-  
+
   const editor = useEditor({
     immediatelyRender: false,
     editable: false,
     extensions: [
       StarterKit,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          rel: 'noopener noreferrer', // Explicitly remove nofollow
+          class: "text-foreground italic no-underline cursor-pointer",
+          target: '_blank',
+        },
+      }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList,
       TaskItem.configure({ nested: true }),
@@ -56,7 +65,7 @@ export default function ReadOnlyEditor({ content }: { content: string }) {
   return (
     <>
       {/* SEO HTML for crawlers */}
-      <div 
+      <div
         className="simple-editor-content tiptap"
         style={{
           display: isClient ? 'none' : 'block',
@@ -66,7 +75,7 @@ export default function ReadOnlyEditor({ content }: { content: string }) {
         }}
         dangerouslySetInnerHTML={{ __html: content || '' }}
       />
-      
+
       {/* TipTap editor for users */}
       {isClient && editor && (
         <EditorContent editor={editor} className="simple-editor-content" />

@@ -12,6 +12,7 @@ import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import { TextAlign } from "@tiptap/extension-text-align";
@@ -226,14 +227,14 @@ export const SimpleEditor = forwardRef<SimpleEditorRef, SimpleEditorProps>(({ in
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
-        link: {
-          openOnClick: false,
-          enableClickSelection: true,
-          HTMLAttributes: {
-            rel: null,
-            target: null,
-            class: "text-foreground italic no-underline cursor-pointer",
-          },
+      }),
+      Link.configure({
+        openOnClick: false,
+        enableClickSelection: true,
+        HTMLAttributes: {
+          rel: 'noopener noreferrer',
+          class: "text-foreground italic no-underline cursor-pointer",
+          target: '_blank',
         },
       }),
       HorizontalRule,
