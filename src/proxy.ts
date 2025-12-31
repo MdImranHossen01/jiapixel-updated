@@ -56,9 +56,9 @@ const getDefaultDashboardRoute = (role: UserRole): string => {
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  
+
   // Get the session token using NextAuth (this contains your JWT tokens)
-  const token = await getToken({ 
+  const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET
   });
@@ -67,16 +67,16 @@ export async function proxy(request: NextRequest) {
   const userRole = token?.role as UserRole || null;
   const hasAccessToken = !!token?.accessToken;
 
- 
+
 
   // If user is on auth route but already logged in, redirect to dashboard
-  if (isAuthRoute(pathname) && isAuthenticated && userRole) {
-    return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole), request.url));
-  }
+  // if (isAuthRoute(pathname) && isAuthenticated && userRole) {
+  //   return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole), request.url));
+  // }
 
   // Check if route requires authentication
   const routeOwner = getRouteOwner(pathname);
-  
+
   // If route is protected and user is not authenticated, redirect to login
   if (routeOwner !== "null" && !isAuthenticated) {
     const loginUrl = new URL("/login", request.url);

@@ -31,8 +31,8 @@ export interface ServiceData {
   };
 
   // Gallery Step
-  images: File[];
-  documents: File[];
+  images: (File | string)[]; // Changed from File[] to (File | string)[]
+  documents: (File | string)[]; // Changed from File[] to (File | string)[]
 
   // Requirements Step
   requirements: string[];
@@ -86,16 +86,22 @@ const steps = [
   { id: "review", title: "Review", completed: false, active: false },
 ];
 
-export default function ServiceWizard() {
+interface ServiceWizardProps {
+  initialData?: ServiceData;
+  isEdit?: boolean;
+  serviceSlug?: string;
+}
+
+export default function ServiceWizard({ initialData, isEdit, serviceSlug }: ServiceWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [serviceData, setServiceData] = useState<ServiceData>({
+  const [serviceData, setServiceData] = useState<ServiceData>(initialData || {
     title: "",
     category: "",
     searchTags: [],
     author: "Md Imran Hossen",
     authorQuote: "",
-    
+
     // NEW: Meta fields with initial values
     metaTitle: "",
     metaDescription: "",
@@ -161,36 +167,56 @@ export default function ServiceWizard() {
     try {
       const formData = new FormData();
 
-      // Append files
-      serviceData.images.forEach((file) => {
+      // Separate Files (new uploads) and strings (existing URLs)
+      const imageFiles = serviceData.images.filter((img): img is File => img instanceof File);
+      const existingImages = serviceData.images.filter((img): img is string => typeof img === 'string');
+
+      const documentFiles = serviceData.documents.filter((doc): doc is File => doc instanceof File);
+      const existingDocuments = serviceData.documents.filter((doc): doc is string => typeof doc === 'string');
+
+      // Append new files
+      imageFiles.forEach((file) => {
         formData.append("images", file);
       });
 
-      serviceData.documents.forEach((file) => {
+      documentFiles.forEach((file) => {
         formData.append("documents", file);
       });
 
-      // Append service data as JSON
-      const { images, documents, ...serviceDataWithoutFiles } = serviceData;
-      formData.append("projectData", JSON.stringify(serviceDataWithoutFiles));
+      // Prepare data JSON
+      // Include existing URL arrays in the JSON so the server knows what to keep
+      const { images, documents, ...rest } = serviceData;
+      const projectDataToSubmit = {
+        ...rest,
+        images: existingImages, // Send existing URLs
+        documents: existingDocuments, // Send existing URLs
+      };
 
-      const response = await fetch("/api/services", {
-        method: "POST",
+      formData.append("projectData", JSON.stringify(projectDataToSubmit));
+
+      const url = isEdit && serviceSlug
+        ? `/api/services/${serviceSlug}`
+        : "/api/services";
+
+      const method = isEdit ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
         body: formData,
       });
 
       const result = await response.json();
 
-      if (result.success) {
-        console.log("Service created successfully:", result.service);
-        alert("Service created successfully!");
+      if (response.ok) { // Check response.ok instead of relying on result.success for 404/500
+        console.log(`Service ${isEdit ? 'updated' : 'created'} successfully:`, result.service);
+        alert(`Service ${isEdit ? 'updated' : 'created'} successfully!`);
         // You can redirect here: router.push('/dashboard/services')
       } else {
-        throw new Error(result.message);
+        throw new Error(result.message || "Operation failed");
       }
     } catch (error: any) {
       console.error("Service submission error:", error);
-      alert(`Failed to create service: ${error.message}`);
+      alert(`Failed to ${isEdit ? 'update' : 'create'} service: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -233,41 +259,37 @@ export default function ServiceWizard() {
           {steps.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div
-                className={`flex flex-col items-center ${
-                  index <= currentStep
+                className={`flex flex-col items-center ${index <= currentStep
                     ? "text-primary"
                     : "text-muted-foreground"
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                    index <= currentStep
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${index <= currentStep
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-background border-muted-foreground"
-                  }`}
+                    }`}
                 >
                   {index + 1}
                 </div>
                 <span className="text-sm mt-2 font-medium">{step.title}</span>
                 <span
-                  className={`text-xs mt-1 ${
-                    index === currentStep
+                  className={`text-xs mt-1 ${index === currentStep
                       ? "text-primary"
                       : "text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   {index === currentStep
                     ? "Active"
                     : index < currentStep
-                    ? "Completed"
-                    : "Upcoming"}
+                      ? "Completed"
+                      : "Upcoming"}
                 </span>
               </div>
               {index < steps.length - 1 && (
                 <div
-                  className={`w-16 h-0.5 mx-4 ${
-                    index < currentStep ? "bg-primary" : "bg-muted"
-                  }`}
+                  className={`w-16 h-0.5 mx-4 ${index < currentStep ? "bg-primary" : "bg-muted"
+                    }`}
                 />
               )}
             </div>

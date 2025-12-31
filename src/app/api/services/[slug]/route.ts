@@ -9,19 +9,19 @@ export async function GET(
 ) {
   try {
     await connectDB();
-    
+
     // Await the params Promise in Next.js 16
     const { slug } = await params;
-    
+
     console.log('Fetching service with slug:', slug);
 
     const service = await Service.findOne({ slug: slug });
 
     if (!service) {
       return NextResponse.json(
-        { 
-          success: false, 
-          message: 'Service not found' 
+        {
+          success: false,
+          message: 'Service not found'
         },
         { status: 404 }
       );
@@ -34,9 +34,9 @@ export async function GET(
   } catch (error: any) {
     console.error('Service fetch error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        message: error.message || 'Failed to fetch service' 
+      {
+        success: false,
+        message: error.message || 'Failed to fetch service'
       },
       { status: 500 }
     );
@@ -52,21 +52,97 @@ export async function PUT(
 
     // Await the params Promise
     const { slug } = await params;
-    const body = await request.json();
-    
+
     console.log('Updating service with slug:', slug);
+
+    let updateData: any = {};
+    const contentType = request.headers.get('content-type') || '';
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+
+      const imageFiles = formData.getAll('images') as File[];
+      const documentFiles = formData.getAll('documents') as File[];
+
+      // Upload new images
+      let newImageUrls: string[] = [];
+      if (imageFiles.length > 0 && imageFiles[0].size > 0) {
+        try {
+          const { uploadMultipleToImgBB } = await import('../../../../lib/imgbb');
+          newImageUrls = await uploadMultipleToImgBB(imageFiles);
+        } catch (uploadError) {
+          console.error('Image upload error:', uploadError);
+        }
+      }
+
+      // Upload new documents
+      let newDocumentUrls: string[] = [];
+      if (documentFiles.length > 0 && documentFiles[0].size > 0) {
+        try {
+          const { uploadMultipleToImgBB } = await import('../../../../lib/imgbb');
+          newDocumentUrls = await uploadMultipleToImgBB(documentFiles);
+        } catch (uploadError) {
+          console.error('Document upload error:', uploadError);
+        }
+      }
+
+      const projectDataRaw = formData.get('projectData');
+      if (projectDataRaw && typeof projectDataRaw === 'string') {
+        updateData = JSON.parse(projectDataRaw);
+
+        // Handle Steps Parsing (reusing logic from POST)
+        if (updateData.projectSteps) {
+          if (typeof updateData.projectSteps === 'string') {
+            try {
+              updateData.projectSteps = JSON.parse(updateData.projectSteps.trim());
+            } catch (e) {
+              updateData.projectSteps = [];
+            }
+          }
+          if (Array.isArray(updateData.projectSteps)) {
+            updateData.projectSteps = updateData.projectSteps.map((step: any) => {
+              if (typeof step === 'string') return { title: step, description: '' };
+              return { title: step.title || '', description: step.description || '' };
+            });
+          }
+        }
+
+        // Handle Tiers (reusing logic from POST)
+        const cleanedTiers: any = { starter: updateData.tiers.starter };
+        if (updateData.pricingTiers === '3') {
+          cleanedTiers.standard = updateData.tiers.standard;
+          cleanedTiers.advanced = updateData.tiers.advanced;
+        } else {
+          cleanedTiers.standard = undefined;
+          cleanedTiers.advanced = undefined;
+        }
+        updateData.tiers = cleanedTiers;
+
+        // Merge Images and Documents
+        // updateData.images contains existing URLs (strings)
+        // newImageUrls contains newly uploaded URLs
+        const existingImages = Array.isArray(updateData.images) ? updateData.images : [];
+        updateData.images = [...existingImages, ...newImageUrls];
+
+        const existingDocuments = Array.isArray(updateData.documents) ? updateData.documents : [];
+        updateData.documents = [...existingDocuments, ...newDocumentUrls];
+      }
+    } else {
+      // Fallback for JSON-only updates (if used elsewhere)
+      updateData = await request.json();
+    }
 
     const service = await Service.findOneAndUpdate(
       { slug: slug },
-      body,
+      updateData,
       { new: true, runValidators: true }
     );
 
     if (!service) {
       return NextResponse.json(
-        { 
-          success: false, 
-          message: 'Service not found' 
+        {
+          success: false,
+          message: 'Service not found'
         },
         { status: 404 }
       );
@@ -80,9 +156,9 @@ export async function PUT(
   } catch (error: any) {
     console.error('Service update error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        message: error.message || 'Failed to update service' 
+      {
+        success: false,
+        message: error.message || 'Failed to update service'
       },
       { status: 500 }
     );
@@ -105,9 +181,9 @@ export async function DELETE(
 
     if (!service) {
       return NextResponse.json(
-        { 
-          success: false, 
-          message: 'Service not found' 
+        {
+          success: false,
+          message: 'Service not found'
         },
         { status: 404 }
       );
@@ -120,9 +196,9 @@ export async function DELETE(
   } catch (error: any) {
     console.error('Service delete error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        message: error.message || 'Failed to delete service' 
+      {
+        success: false,
+        message: error.message || 'Failed to delete service'
       },
       { status: 500 }
     );
