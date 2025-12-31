@@ -138,7 +138,7 @@ export default function OverviewStep({ data, updateData }: Props) {
           />
         </div>
         <div className="text-sm text-muted-foreground mt-1">
-          {data.metaTitle.length}/60 characters - 
+          {data.metaTitle.length}/60 characters -
           {data.metaTitle.length >= 50 && data.metaTitle.length <= 60 ? (
             <span className="text-green-600"> Perfect length!</span>
           ) : data.metaTitle.length > 60 ? (
@@ -164,7 +164,7 @@ export default function OverviewStep({ data, updateData }: Props) {
           />
         </div>
         <div className="text-sm text-muted-foreground mt-1">
-          {data.metaDescription.length}/160 characters - 
+          {data.metaDescription.length}/160 characters -
           {data.metaDescription.length >= 150 && data.metaDescription.length <= 160 ? (
             <span className="text-green-600"> Perfect length!</span>
           ) : data.metaDescription.length > 160 ? (

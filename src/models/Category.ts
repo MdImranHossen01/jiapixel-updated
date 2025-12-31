@@ -1,0 +1,79 @@
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface ICategory extends Document {
+    title: string;
+    slug: string;
+    banner: string;
+    seoTitle: string;
+    metaDescription: string;
+    description: string;
+    excerpt: string;
+    faqs: {
+        question: string;
+        answer: string;
+    }[];
+    tags: string[];
+    selectedServices: string[];
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const CategorySchema: Schema = new Schema({
+    title: {
+        type: String,
+        required: [true, 'Title is required'],
+        unique: true,
+        trim: true,
+    },
+    slug: {
+        type: String,
+        required: [true, 'Slug is required'],
+        unique: true,
+        lowercase: true,
+        trim: true,
+    },
+    banner: {
+        type: String,
+        required: false, // Optional banner
+    },
+    seoTitle: {
+        type: String,
+        trim: true,
+    },
+    metaDescription: {
+        type: String,
+        trim: true,
+    },
+    description: {
+        type: String,
+        trim: true,
+    },
+    excerpt: {
+        type: String,
+        trim: true,
+    },
+    faqs: [{
+        question: { type: String, required: true },
+        answer: { type: String, required: true },
+    }],
+    tags: [{
+        type: String,
+        trim: true,
+    }],
+    selectedServices: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Service'
+    }]
+}, {
+    timestamps: true,
+});
+
+// Index for faster lookups
+// CategorySchema.index({ slug: 1 }); // unique: true already creates an index
+
+// Force model recompilation if it exists (Fix for Schema changes during Dev HMR)
+if (mongoose.models.Category) {
+    delete mongoose.models.Category;
+}
+
+export default mongoose.model<ICategory>('Category', CategorySchema);

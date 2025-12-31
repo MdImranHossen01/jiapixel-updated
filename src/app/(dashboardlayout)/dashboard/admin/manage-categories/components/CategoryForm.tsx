@@ -1,0 +1,453 @@
+"use client";
+
+import React, { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Plus, X } from "lucide-react";
+import Image from "next/image";
+import { SimpleEditor, SimpleEditorRef } from "@/components/tiptap-templates/simple/simple-editor";
+
+// Helper function to validate URL
+const isValidUrl = (url: string): boolean => {
+    if (!url) return false;
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+interface CategoryFormProps {
+    initialData?: any;
+    isEdit?: boolean;
+}
+
+const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [formData, setFormData] = useState({
+        title: "",
+        slug: "",
+        banner: "",
+        seoTitle: "",
+        metaDescription: "",
+        description: "",
+        excerpt: "",
+        tags: [] as string[],
+        selectedServices: [] as string[],
+        faqs: [] as { question: string; answer: string }[],
+    });
+
+    const [currentTag, setCurrentTag] = useState("");
+    const editorRef = useRef<SimpleEditorRef>(null);
+
+    useEffect(() => {
+        if (initialData) {
+            setFormData(initialData);
+        }
+    }, [initialData]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleAddTag = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && currentTag.trim()) {
+            e.preventDefault();
+            if (!formData.tags.includes(currentTag.trim())) {
+                setFormData({ ...formData, tags: [...formData.tags, currentTag.trim()] });
+            }
+            setCurrentTag("");
+        }
+    };
+
+    const removeTag = (tagToRemove: string) => {
+        setFormData({
+            ...formData,
+            tags: formData.tags.filter((tag) => tag !== tagToRemove),
+        });
+    };
+
+    const addFaq = () => {
+        setFormData({
+            ...formData,
+            faqs: [...formData.faqs, { question: "", answer: "" }],
+        });
+    };
+
+    const removeFaq = (index: number) => {
+        const newFaqs = [...formData.faqs];
+        newFaqs.splice(index, 1);
+        setFormData({ ...formData, faqs: newFaqs });
+    };
+
+    const handleFaqChange = (index: number, field: "question" | "answer", value: string) => {
+        const newFaqs = [...formData.faqs];
+        newFaqs[index][field] = value;
+        setFormData({ ...formData, faqs: newFaqs });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            let descriptionContent = "";
+            if (editorRef.current) {
+                descriptionContent = editorRef.current.getContent();
+            }
+
+            const submissionData = {
+                ...formData,
+                description: descriptionContent
+            };
+
+            const url = isEdit
+                ? `/api/categories/${initialData._id}`
+                : "/api/categories";
+            const method = isEdit ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(submissionData),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                toast.success(`Category ${isEdit ? "updated" : "created"} successfully`);
+                router.push("/dashboard/admin/manage-categories");
+            } else {
+                toast.error(data.error || "Something went wrong");
+            }
+        } catch (error) {
+            toast.error("Failed to save category");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please select a valid image file');
+            return;
+        }
+
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('Image size should be less than 10MB');
+            return;
+        }
+
+        setUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const imageUrl = result.data.url;
+                setFormData(prev => ({
+                    ...prev,
+                    banner: imageUrl
+                }));
+                toast.success('Image uploaded successfully');
+            } else {
+                throw new Error(result.error?.message || 'Upload failed');
+            }
+        } catch (error) {
+            console.error('Image upload error:', error);
+            toast.error('Failed to upload image. Please try again.');
+        } finally {
+            setUploading(false);
+            e.target.value = '';
+        }
+    };
+
+    const clearBanner = () => {
+        setFormData(prev => ({ ...prev, banner: '' }));
+    };
+
+    // Fetch all services
+    const [availableServices, setAvailableServices] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            try {
+                const res = await fetch('/api/services?limit=100'); // Fetch all
+                const data = await res.json();
+                if (data.success) {
+                    setAvailableServices(data.services);
+                }
+            } catch (error) {
+                console.error("Failed to fetch services", error);
+            }
+        };
+        fetchServices();
+    }, []);
+
+    const toggleService = (serviceId: string) => {
+        const currentSelected = formData.selectedServices || [];
+        const newSelected = currentSelected.includes(serviceId)
+            ? currentSelected.filter((id: string) => id !== serviceId)
+            : [...currentSelected, serviceId];
+
+        setFormData({ ...formData, selectedServices: newSelected });
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="bg-card p-6 rounded-lg shadow space-y-6 text-card-foreground">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label className="block text-sm font-medium text-foreground mb-1">Title</label>
+                    <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
+                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-foreground mb-1">Slug</label>
+                    <input
+                        type="text"
+                        name="slug"
+                        value={formData.slug}
+                        onChange={handleChange}
+                        placeholder="Auto-generated if empty"
+                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                    />
+                </div>
+            </div>
+
+            {/* Manual Service Selection */}
+            <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Select Services to Display on Page</label>
+                <div className="border border-border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
+                    {availableServices.length > 0 ? (
+                        <div className="space-y-2">
+                            {availableServices.map((service) => (
+                                <label key={service._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded text-foreground">
+                                    <input
+                                        type="checkbox"
+                                        checked={(formData.selectedServices || []).includes(service._id)}
+                                        onChange={() => toggleService(service._id)}
+                                        className="h-4 w-4 text-primary border-input bg-background rounded focus:ring-primary"
+                                    />
+                                    <span className="text-sm">{service.title}</span>
+                                </label>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-muted-foreground text-sm">Loading services or no services found...</p>
+                    )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Check the services you want to appear on this category page.</p>
+            </div>
+
+            {/* Banner Upload */}
+            <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Banner Image</label>
+
+                {formData.banner && isValidUrl(formData.banner) ? (
+                    <div className="space-y-3">
+                        <div className="relative aspect-video rounded-lg overflow-hidden border border-border h-48 w-full md:w-1/2">
+                            <Image
+                                src={formData.banner}
+                                alt="Banner preview"
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 400px"
+                                unoptimized
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={clearBanner}
+                            className="px-3 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors text-sm"
+                        >
+                            Remove Image
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {/* Upload Button */}
+                        <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:bg-muted/30 transition-colors">
+                            <input
+                                type="file"
+                                id="banner-upload"
+                                accept="image/*"
+                                onChange={handleBannerUpload}
+                                className="hidden"
+                                disabled={uploading}
+                            />
+                            <label
+                                htmlFor="banner-upload"
+                                className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                {uploading ? (
+                                    <div className="flex flex-col items-center space-y-2">
+                                        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                        <span className="text-sm text-muted-foreground">Uploading...</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="text-2xl mb-2">📁</div>
+                                        <div className="text-sm font-medium text-foreground mb-1">
+                                            Upload Banner Image
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                            Click to upload or drag and drop
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                            PNG, JPG, GIF up to 10MB
+                                        </div>
+                                    </>
+                                )}
+                            </label>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-foreground mb-3">Description</label>
+                <SimpleEditor ref={editorRef} initialContent={initialData?.description || ""} />
+            </div>
+
+            {/* ... (rest of the form) ... */}
+            <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Excerpt</label>
+                <textarea
+                    name="excerpt"
+                    value={formData.excerpt}
+                    onChange={handleChange}
+                    rows={3}
+                    className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label className="block text-sm font-medium text-foreground mb-1">SEO Title</label>
+                    <input
+                        type="text"
+                        name="seoTitle"
+                        value={formData.seoTitle}
+                        onChange={handleChange}
+                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                    />
+                </div>
+                <div className="col-span-1 md:col-span-2">
+                    <label className="block text-sm font-medium text-foreground mb-1">Meta Description</label>
+                    <textarea
+                        name="metaDescription"
+                        value={formData.metaDescription}
+                        onChange={handleChange}
+                        rows={3}
+                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                    />
+                </div>
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Tags (Press Enter to add)</label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                    {formData.tags.map((tag) => (
+                        <span key={tag} className="bg-secondary px-3 py-1 rounded-full text-sm flex items-center gap-1 text-secondary-foreground">
+                            {tag}
+                            <button type="button" onClick={() => removeTag(tag)} className="text-muted-foreground hover:text-destructive">
+                                <X size={14} />
+                            </button>
+                        </span>
+                    ))}
+                </div>
+                <input
+                    type="text"
+                    value={currentTag}
+                    onChange={(e) => setCurrentTag(e.target.value)}
+                    onKeyDown={handleAddTag}
+                    className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                    placeholder="Add tags..."
+                />
+            </div>
+
+            <div>
+                <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-medium text-foreground">FAQs</label>
+                    <button
+                        type="button"
+                        onClick={addFaq}
+                        className="text-primary text-sm font-medium flex items-center gap-1 hover:text-primary/90"
+                    >
+                        <Plus size={16} /> Add FAQ
+                    </button>
+                </div>
+                <div className="space-y-4">
+                    {formData.faqs.map((faq, index) => (
+                        <div key={index} className="border border-border p-4 rounded-md relative group bg-muted/30">
+                            <button
+                                type="button"
+                                onClick={() => removeFaq(index)}
+                                className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
+                            >
+                                <X size={16} />
+                            </button>
+                            <div className="mb-2">
+                                <input
+                                    type="text"
+                                    placeholder="Question"
+                                    value={faq.question}
+                                    onChange={(e) => handleFaqChange(index, "question", e.target.value)}
+                                    className="w-full border border-input bg-background rounded-md px-3 py-2 mb-2 text-foreground focus:ring-ring focus:border-ring"
+                                />
+                                <textarea
+                                    placeholder="Answer"
+                                    rows={2}
+                                    value={faq.answer}
+                                    onChange={(e) => handleFaqChange(index, "answer", e.target.value)}
+                                    className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                                />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="flex justify-end gap-4">
+                <button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="px-4 py-2 text-muted-foreground hover:bg-accent rounded-lg"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-primary text-primary-foreground px-6 py-2 rounded-lg disabled:opacity-50 hover:bg-primary/90"
+                >
+                    {loading ? "Saving..." : isEdit ? "Update Category" : "Create Category"}
+                </button>
+            </div>
+        </form>
+    );
+};
+
+export default CategoryForm;

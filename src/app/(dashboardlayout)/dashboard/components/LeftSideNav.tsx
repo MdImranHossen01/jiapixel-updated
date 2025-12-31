@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Briefcase, 
-  Settings, 
+import {
+  LayoutDashboard,
+  FileText,
+  Briefcase,
+  Settings,
   Server,
   LogOut,
   User,
@@ -23,16 +23,16 @@ const LeftSideNav = () => {
   const { data: session, status } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
- const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-useEffect(() => {
-  const initializeMounted = async () => {
-    await new Promise(resolve => setTimeout(resolve, 0));
-    setMounted(true);
-  };
+  useEffect(() => {
+    const initializeMounted = async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+      setMounted(true);
+    };
 
-  initializeMounted();
-}, []);
+    initializeMounted();
+  }, []);
 
   const navigation = [
     {
@@ -41,7 +41,7 @@ useEffect(() => {
       icon: LayoutDashboard,
       current: pathname === '/dashboard',
     },
-     {
+    {
       name: 'My Orders',
       href: '/dashboard/my-orders',
       icon: ShoppingBag,
@@ -90,7 +90,6 @@ useEffect(() => {
       current: pathname.startsWith('/dashboard/admin/manage-users'),
       adminOnly: true,
     },
-    // Start of new code to be added
     {
       name: 'Manage Orders',
       href: '/dashboard/admin/manage-orders',
@@ -98,7 +97,13 @@ useEffect(() => {
       current: pathname.startsWith('/dashboard/admin/manage-orders'),
       adminOnly: true,
     },
-    // End of new code to be added
+    {
+      name: 'Manage Categories',
+      href: '/dashboard/admin/manage-categories',
+      icon: LayoutDashboard, // Using LayoutDashboard temporarily or import a new icon if needed
+      current: pathname.startsWith('/dashboard/admin/manage-categories'),
+      adminOnly: true,
+    },
   ];
 
   const isAdmin = session?.user?.role === 'admin';
@@ -165,7 +170,7 @@ useEffect(() => {
           {navigation.map((item) => {
             // Skip admin-only items if user is not admin
             if (item.adminOnly && !isAdmin) return null;
-            
+
             const Icon = item.icon;
             return (
               <Link
@@ -174,10 +179,9 @@ useEffect(() => {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`
                   flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors
-                  ${
-                    item.current
-                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                  ${item.current
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
                   }
                 `}
               >
@@ -256,7 +260,7 @@ useEffect(() => {
 
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />

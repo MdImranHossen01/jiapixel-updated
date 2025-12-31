@@ -196,8 +196,12 @@ export interface SimpleEditorRef {
   getTextContent: () => string;
 }
 
+interface SimpleEditorProps {
+  initialContent?: string;
+}
+
 // Use forwardRef to expose methods
-export const SimpleEditor = forwardRef<SimpleEditorRef>((props, ref) => {
+export const SimpleEditor = forwardRef<SimpleEditorRef, SimpleEditorProps>(({ initialContent }, ref) => {
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -260,7 +264,7 @@ export const SimpleEditor = forwardRef<SimpleEditorRef>((props, ref) => {
         },
       }),
     ],
-    content,
+    content: initialContent || content,
   });
 
   // Expose editor methods via ref
@@ -337,8 +341,8 @@ export const SimpleEditor = forwardRef<SimpleEditorRef>((props, ref) => {
           style={{
             ...(isMobile
               ? {
-                  bottom: `calc(100% - ${height - rect.y}px)`,
-                }
+                bottom: `calc(100% - ${height - rect.y}px)`,
+              }
               : {}),
           }}
         >
