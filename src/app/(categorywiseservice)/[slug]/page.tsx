@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const title = category.seoTitle || category.title;
     const description = category.metaDescription || category.excerpt || `Explore our ${category.title} services.`;
-    const url = process.env.NEXT_PUBLIC_APP_URL || 'https://jiapixel.com'; // Replace with actual domain
+    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'; // Replace with actual domain
     const categoryUrl = `${url}/${category.slug}`;
     const imageUrl = category.banner || `${url}/og-image.jpg`; // Fallback image
 
@@ -107,7 +107,7 @@ const CategoryPage = async ({ params }: PageProps) => {
     // Serialize to ensure it's plain JSON for Client Components (fixes ObjectId serialization error)
     const services = JSON.parse(JSON.stringify(category.selectedServices || []));
 
-    const url = process.env.NEXT_PUBLIC_APP_URL || 'https://jiapixel.com';
+    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
 
     // Structured Data (JSON-LD)
     const jsonLd = {
