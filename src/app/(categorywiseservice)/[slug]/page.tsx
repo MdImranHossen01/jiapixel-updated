@@ -31,8 +31,12 @@ export async function generateStaticParams() {
     }));
 }
 
+import { Metadata } from 'next';
+
+// ... imports
+
 // Generate Metadata
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     await dbConnect();
     const resolvedParams = await params;
     const category = await Category.findOne({ slug: resolvedParams.slug });
@@ -43,9 +47,40 @@ export async function generateMetadata({ params }: PageProps) {
         };
     }
 
+    const title = category.seoTitle || category.title;
+    const description = category.metaDescription || category.excerpt || `Explore our ${category.title} services.`;
+    const url = process.env.NEXT_PUBLIC_APP_URL || 'https://jiapixel.com'; // Replace with actual domain
+    const categoryUrl = `${url}/${category.slug}`;
+    const imageUrl = category.banner || `${url}/og-image.jpg`; // Fallback image
+
     return {
-        title: category.seoTitle || category.title,
-        description: category.metaDescription || category.excerpt,
+        title: title,
+        description: description,
+        keywords: category.tags || [],
+        alternates: {
+            canonical: categoryUrl,
+        },
+        openGraph: {
+            title: title,
+            description: description,
+            url: categoryUrl,
+            images: [
+                {
+                    url: imageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: title,
+                },
+            ],
+            type: 'website',
+            siteName: 'Jiapixel', // Replace with site name
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: title,
+            description: description,
+            images: [imageUrl],
+        },
     };
 }
 
@@ -72,12 +107,33 @@ const CategoryPage = async ({ params }: PageProps) => {
     // Serialize to ensure it's plain JSON for Client Components (fixes ObjectId serialization error)
     const services = JSON.parse(JSON.stringify(category.selectedServices || []));
 
-    // User requested "single service in this page which is relevant to this category".
-    // Maybe they mean feature ONE specific service? Or just listing services?
-    // "show category wise service card from service page" -> sounds like listing service cards.
+    const url = process.env.NEXT_PUBLIC_APP_URL || 'https://jiapixel.com';
+
+    // Structured Data (JSON-LD)
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": category.title,
+        "description": category.metaDescription || category.description,
+        "url": `${url}/${category.slug}`,
+        "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": services.map((service: any, index: number) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "url": `${url}/${service.slug}`,
+                "name": service.title
+            }))
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+
             {/* Banner Section */}
             <div className="relative bg-gray-900 text-white py-20">
                 {category.banner && (
