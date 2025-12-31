@@ -11,6 +11,6 @@ export default function robots(): MetadataRoute.Robots {
       // Disallow access to the dashboard/admin areas
       disallow: ['/dashboard/', '/api/'],
     },
-    sitemap: 'https://jiapixel.com/sitemap.xml', // Replace with your domain
+    sitemap: 'https://www.jiapixel.com/sitemap.xml', // Replace with your domain
   };
 }
