@@ -83,7 +83,7 @@ export const HeroGrid: React.FC = () => {
       {/* Left Column Container (Spans 8) */}
       <div className="lg:col-span-9 flex flex-col gap-6">
         {/* Large Hero Image */}
-        <div className="relative w-full h-[400px] lg:h-[500px] rounded-4xl overflow-hidden group">
+        <div className="relative w-full h-[400px] lg:h-[500px] rounded-2xl md:rounded-3xl lg:rounded-4xl overflow-hidden group">
           <Image
             src="/Assets/banner/Jia_Pixel_Banner.webp"
             alt="Hero Model"
@@ -96,15 +96,15 @@ export const HeroGrid: React.FC = () => {
 
           <div className="absolute bottom-8 left-8 lg:bottom-12 lg:left-12 max-w-2xl">
             <motion.h2
-              className="text-4xl lg:text-6xl pb-4 font-serif text-white leading-tight"
+              className="text-3xl md:text-5xl lg:text-6xl pb-4 font-serif text-white leading-tight"
               variants={itemVariants}
             >
-              <span className="text-xl">Welcome to Jia Pixel</span>
+              <span className="text-lg md:text-xl">Welcome to Jia Pixel</span>
               <br />
               Your Partner in Digital <br />
               Transformation <br />
               <motion.span
-                className="text-3xl lg:text-4xl mt-4 text-white font-medium block min-h-[4rem] lg:min-h-[5rem]"
+                className="text-2xl md:text-3xl lg:text-4xl mt-4 text-white font-medium block min-h-[4rem] lg:min-h-[5rem]"
                 variants={itemVariants}
               >
                 <TypeAnimation
@@ -132,13 +132,13 @@ export const HeroGrid: React.FC = () => {
               transition={{ delay: 0.8 }}
             >
               <Link href="/services">
-                <button className="px-6 py-3 cursor-pointer bg-white text-black rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center gap-2">
+                <button className="px-4 py-2 md:px-6 md:py-3 text-sm md:text-base cursor-pointer bg-white text-black rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center gap-2">
                   <Code size={20} />
                   View Projects
                 </button>
               </Link>
               <Link href="/messages">
-                <button className="px-6 py-3 cursor-pointer border border-white/30 text-white rounded-full font-semibold hover:bg-white/10 transition-all duration-300">
+                <button className="px-4 py-2 md:px-6 md:py-3 text-sm md:text-base cursor-pointer border border-white/30 text-white rounded-full font-semibold hover:bg-white/10 transition-all duration-300">
                   Contact Me
                 </button>
               </Link>
@@ -147,7 +147,7 @@ export const HeroGrid: React.FC = () => {
         </div>
 
         {/* Bottom Left CTA Card */}
-        <div className="bg-linear-to-r from-gray-900 to-black rounded-4xl p-8 lg:p-9 flex flex-col md:flex-row items-center justify-between gap-6 min-h-[180px] border border-gray-800">
+        <div className="bg-linear-to-r from-gray-900 to-black rounded-2xl md:rounded-3xl lg:rounded-4xl p-6 md:p-8 lg:p-9 flex flex-col md:flex-row items-center justify-between gap-6 min-h-[180px] border border-gray-800">
           <div className="flex-1">
             <h3 className="text-white text-xl lg:text-2xl font-bold mb-3">
               Ready to Transform Your Digital Presence?
@@ -178,7 +178,7 @@ export const HeroGrid: React.FC = () => {
       <div className="lg:col-span-3 flex flex-col gap-6">
         {/* Card 1 - Free Website */}
         <div
-          className="relative h-[220px] rounded-4xl overflow-hidden group cursor-pointer"
+          className="relative h-[220px] rounded-2xl md:rounded-3xl lg:rounded-4xl overflow-hidden group cursor-pointer"
           onClick={() => handleFreeServiceClick("website")}
         >
           <Image
@@ -205,7 +205,7 @@ export const HeroGrid: React.FC = () => {
 
         {/* Card 2 - Free SEO Audit */}
         <div
-          className="relative h-[220px] rounded-4xl overflow-hidden group cursor-pointer"
+          className="relative h-[220px] rounded-2xl md:rounded-3xl lg:rounded-4xl overflow-hidden group cursor-pointer"
           onClick={() => handleFreeServiceClick("seo-audit")}
         >
           <Image
@@ -232,7 +232,7 @@ export const HeroGrid: React.FC = () => {
 
         {/* Card 3 - Free Analytics Setup */}
         <div
-          className="relative h-[220px] rounded-4xl overflow-hidden group cursor-pointer"
+          className="relative h-[220px] rounded-2xl md:rounded-3xl lg:rounded-4xl overflow-hidden group cursor-pointer"
           onClick={() => handleFreeServiceClick("analytics")}
         >
           <Image
