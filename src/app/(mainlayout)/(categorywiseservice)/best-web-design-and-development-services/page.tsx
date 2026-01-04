@@ -81,7 +81,7 @@ export default async function BestWebDesignPage() {
                             <strong>Mobile-First Architecture:</strong> With mobile traffic dominating the internet, we design for the smallest screen first. Your site will provide a flawless experience across smartphones, tablets, and desktops.
                         </li>
                         <li>
-                            <strong>SEO-Integrated Development:</strong> A beautiful site is useless if no one sees it. We build with clean code, proper schema markup, and optimized metadata to ensure a strong foundation for your <Link href="/services/seo" className="text-primary hover:underline font-medium">Local SEO campaigns</Link>.
+                            <strong>SEO-Integrated Development:</strong> A beautiful site is useless if no one sees it. We build with clean code, proper schema markup, and optimized metadata to ensure a strong foundation for your <Link href="/services" className="text-primary hover:underline font-medium">Local SEO campaigns</Link>.
                         </li>
                         <li>
                             <strong>E-Commerce Solutions:</strong> From secure payment gateway integration to inventory management, we build robust online stores that simplify the buying process for your customers.
