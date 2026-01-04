@@ -8,6 +8,9 @@ import ServiceCard from '@/components/ServiceCard'
 export const metadata: Metadata = {
     title: 'Best Web Design and Development Services | Jia Pixel',
     description: 'Elevate your brand with the best web design and development services by Jia Pixel. We offer custom, high-performance, and SEO-friendly web solutions.',
+    alternates: {
+        canonical: '/best-web-design-and-development-services',
+    }
 }
 
 export default async function BestWebDesignPage() {
