@@ -63,10 +63,11 @@ export default function ReadOnlyEditor({ content }: { content: string }) {
   }, [editor, isClient, content]);
 
   return (
-    <>
+    <div className="relative">
       {/* SEO HTML for crawlers - Only render on server/initial load */}
       {!isClient && (
         <div
+          key="seo-content"
           className="simple-editor-content tiptap"
           dangerouslySetInnerHTML={{ __html: content || '' }}
         />
@@ -74,8 +75,10 @@ export default function ReadOnlyEditor({ content }: { content: string }) {
 
       {/* TipTap editor for users - Only render on client */}
       {isClient && editor && (
-        <EditorContent editor={editor} className="simple-editor-content" />
+        <div key="client-editor">
+          <EditorContent editor={editor} className="simple-editor-content" />
+        </div>
       )}
-    </>
+    </div>
   );
 }

@@ -237,7 +237,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
             <FAQSection faqs={service.faqs} />
           </div>
           {/* Service Steps */}
-          {/* Service Steps */}         {" "}
+
           {service.projectSteps && service.projectSteps.length > 0 && (
             <ServiceSteps
               steps={service.projectSteps}
