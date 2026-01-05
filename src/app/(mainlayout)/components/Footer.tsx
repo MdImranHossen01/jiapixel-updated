@@ -88,6 +88,7 @@ const Footer = () => {
                 <Link
                   key={index}
                   href={social.href}
+                  prefetch={false}
                   aria-label={social.label}
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
@@ -106,6 +107,7 @@ const Footer = () => {
                   <li key={linkIndex}>
                     <Link
                       href={link.href}
+                      prefetch={false}
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
                       {link.name}

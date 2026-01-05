@@ -139,10 +139,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
 
             {/* Desktop Links */}
             <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-foreground">
-              <Link href="/services" className="hover:text-primary transition-colors">Services</Link>
-              {/* <Link href="/products" className="hover:text-primary transition-colors">Products</Link> */}
-              <Link href="/portfolios" className="hover:text-primary transition-colors">Portfolios</Link>
-              <Link href="/blogs" className="hover:text-primary transition-colors">Blogs</Link>
+              <Link href="/services" prefetch={false} className="hover:text-primary transition-colors">Services</Link>
+              {/* <Link href="/products" prefetch={false} className="hover:text-primary transition-colors">Products</Link> */}
+              <Link href="/portfolios" prefetch={false} className="hover:text-primary transition-colors">Portfolios</Link>
+              <Link href="/blogs" prefetch={false} className="hover:text-primary transition-colors">Blogs</Link>
             </div>
           </div>
 
@@ -167,6 +167,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                     href="https://wa.me/8801919011101"
                     target="_blank"
                     rel="noopener noreferrer"
+                    prefetch={false}
                     aria-label="Contact on WhatsApp"
                   >
                     <WhatsappIcon className="h-5 w-5 text-foreground" />
@@ -279,10 +280,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="fixed top-16 left-0 right-0 w-full bg-card border-t border-border p-6 flex flex-col gap-4 lg:hidden mobile-menu shadow-lg z-50">
-          <Link href="/services" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Services</Link>
-          {/* <Link href="/products" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link> */}
-          <Link href="/portfolios" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Portfolios</Link>
-          <Link href="/blogs" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Blogs</Link>
+          <Link href="/services" prefetch={false} className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Services</Link>
+          {/* <Link href="/products" prefetch={false} className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link> */}
+          <Link href="/portfolios" prefetch={false} className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Portfolios</Link>
+          <Link href="/blogs" prefetch={false} className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Blogs</Link>
           <div
             onClick={() => {
               onSearchClick();
