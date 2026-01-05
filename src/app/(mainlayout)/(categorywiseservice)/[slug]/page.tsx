@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     await dbConnect();
     const resolvedParams = await params;
     const category = await Category.findOne({ slug: resolvedParams.slug });
+    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
 
     if (!category) {
         return {
@@ -49,7 +50,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const title = category.seoTitle || category.title;
     const description = category.metaDescription || category.excerpt || `Explore our ${category.title} services.`;
-    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'; // Replace with actual domain
+    // Use relative path for canonical URL to avoid issues with incorrect NEXT_PUBLIC_API_URL
+    const canonicalUrl = `/${category.slug}`;
     const categoryUrl = `${url}/${category.slug}`;
     const imageUrl = category.banner || `${url}/og-image.jpg`; // Fallback image
 
@@ -58,7 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         description: description,
         keywords: category.tags || [],
         alternates: {
-            canonical: categoryUrl,
+            canonical: canonicalUrl,
         },
         openGraph: {
             title: title,

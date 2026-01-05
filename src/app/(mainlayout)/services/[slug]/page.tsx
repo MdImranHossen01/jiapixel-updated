@@ -56,8 +56,8 @@ export async function generateMetadata({ params }: PageProps) {
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://www.jiapixel.com";
-  const canonicalUrl = `${baseUrl}/services/${service.slug}`;
+  // Use relative path for canonical URL to avoid issues with incorrect NEXT_PUBLIC_API_URL
+  const canonicalUrl = `/services/${service.slug}`;
 
   // Use custom meta title and description if provided, otherwise generate from service data
   const metaTitle = service.metaTitle
