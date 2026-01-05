@@ -8,7 +8,7 @@ export default function ServiceCard({ service }: any) {
   const featuredImage = service.images?.[0];
 
   return (
-    <Link href={`/services/${service.slug}`} className="group">
+    <Link href={`/services/${service.slug}`} prefetch={false} className="group">
       <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/50 transition-all duration-300 h-full flex flex-col">
         {/* IMAGE */}
 

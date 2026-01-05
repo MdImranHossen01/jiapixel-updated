@@ -49,7 +49,7 @@ const HeroSection = ({
           <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
             {service.title}
           </h1>
-          <Link href="#pricing"><Button variant="default" size="lg">Get Started</Button></Link>
+          <Link href="#pricing" prefetch={false}><Button variant="default" size="lg">Get Started</Button></Link>
         </div>
 
         {/* Main Content - Service Images */}
