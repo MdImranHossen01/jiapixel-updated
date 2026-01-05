@@ -33,7 +33,7 @@ const Logo = ({
   className = ""
 }: LogoProps) => {
   return (
-    <Link href={href} prefetch={false} className={`md:flex-1 md:flex md:justify-start ${className}`}>
+    <Link href={href} className={`md:flex-1 md:flex md:justify-start ${className}`}>
       <div className="flex items-center space-x-1 justify-center md:justify-start">
         <Image
           src={src}
