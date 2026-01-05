@@ -131,13 +131,13 @@ export const HeroGrid: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
             >
-              <Link href="/services">
+              <Link href="/services" prefetch={false}>
                 <button className="px-3 py-1.5 md:px-6 md:py-3 text-[10px] md:text-base cursor-pointer bg-white text-black rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center gap-1.5 md:gap-2">
                   <Code className="w-3.5 h-3.5 md:w-5 md:h-5" />
                   View Projects
                 </button>
               </Link>
-              <Link href="/messages">
+              <Link href="/messages" prefetch={false}>
                 <button className="px-3 py-1.5 md:px-6 md:py-3 text-[10px] md:text-base cursor-pointer border border-white/30 text-white rounded-full font-semibold hover:bg-white/10 transition-all duration-300">
                   Contact Me
                 </button>
