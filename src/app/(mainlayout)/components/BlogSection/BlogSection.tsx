@@ -76,6 +76,7 @@ export default async function BlogSection() {
                 <div className="text-center mt-12">
                     <Link
                         href="/blogs"
+                        prefetch={false}
                         className="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-lg transition-colors duration-300 font-medium"
                     >
                         View All Posts
