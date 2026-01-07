@@ -104,6 +104,20 @@ const LeftSideNav = () => {
       current: pathname.startsWith('/dashboard/admin/manage-categories'),
       adminOnly: true,
     },
+    {
+      name: 'Manage Clients',
+      href: '/dashboard/admin/manage-client',
+      icon: User,
+      current: pathname.startsWith('/dashboard/admin/manage-client'),
+      adminOnly: true,
+    },
+    {
+      name: 'Manage Costs',
+      href: '/dashboard/admin/cost',
+      icon: ShoppingBag, // Using ShoppingBag for Cost as a placeholder or import a DollarSign icon
+      current: pathname.startsWith('/dashboard/admin/cost'),
+      adminOnly: true,
+    },
   ];
 
   const isAdmin = session?.user?.role === 'admin';
@@ -148,6 +162,7 @@ const LeftSideNav = () => {
         fixed md:static inset-y-0 left-0 z-40
         w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-full
         transform transition-transform duration-300 ease-in-out
+        flex flex-col
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Logo/Brand */}
@@ -166,7 +181,7 @@ const LeftSideNav = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2 flex-1">
+        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
           {navigation.map((item) => {
             // Skip admin-only items if user is not admin
             if (item.adminOnly && !isAdmin) return null;

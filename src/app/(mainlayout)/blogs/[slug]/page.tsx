@@ -6,13 +6,13 @@ import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-edito
 
 async function getBlog(slug: string) {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
+    const baseUrl = process.env.NODE_ENV === 'production'
       ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
       : 'http://localhost:3000';
-    
+
     const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
-      next: { revalidate: 300 },
-    });
+      cache: 'force-cache'
+    } as RequestInit);
 
     if (!response.ok) {
       if (response.status === 404) return null;
@@ -21,7 +21,7 @@ async function getBlog(slug: string) {
     }
 
     const data = await response.json();
-    return data.blog || null; 
+    return data.blog || null;
   } catch (error) {
     console.error('Error fetching blog:', error);
     return null;
@@ -48,11 +48,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalUrl = `${baseUrl}/blogs/${blog.slug}`;
 
   // Create plain text descriptions
-  const plainTextDescription = blog.excerpt || 
-    blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) || 
+  const plainTextDescription = blog.excerpt ||
+    blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) ||
     `Read ${blog.title} on Jiapixel blog.`;
 
-  const plainTextTitle = blog.title.length > 60 
+  const plainTextTitle = blog.title.length > 60
     ? `${blog.title.substring(0, 57)}`
     : `${blog.title}`;
 
@@ -60,12 +60,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: plainTextTitle,
     description: plainTextDescription,
     keywords: blog.tags?.join(', ') || `${blog.category}, web development, digital marketing`,
-    
+
     // Canonical URL
     alternates: {
       canonical: canonicalUrl,
     },
-    
+
     // Open Graph
     openGraph: {
       title: plainTextTitle,
@@ -87,7 +87,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       authors: [blog.authorName || 'Md Imran Hossen'],
       tags: blog.tags || [],
     },
-    
+
     // Twitter Card
     twitter: {
       card: 'summary_large_image',
@@ -101,8 +101,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const blog = await getBlog(slug); 
-  
+  const blog = await getBlog(slug);
+
   if (!blog) {
     notFound();
   }
@@ -144,11 +144,11 @@ export default async function BlogPostPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
       />
-      
+
       <div className="min-h-screen  py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <nav className="mb-8">
-            <Link 
+            <Link
               href="/blogs"
               className="text-primary hover:text-primary/80 font-medium transition-colors inline-flex items-center space-x-2"
             >
@@ -157,13 +157,13 @@ export default async function BlogPostPage({ params }: PageProps) {
             </Link>
           </nav>
 
-        <article className="border rounded-lg p-8">
-        <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
-        <p className="text-sm text-slate-500 mb-8">
-          {new Date(blog.createdAt).toLocaleDateString()}
-        </p>
-        <ReadOnlyEditor content={blog.content} />
-      </article>
+          <article className="border rounded-lg p-8">
+            <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
+            <p className="text-sm text-slate-500 mb-8">
+              {new Date(blog.createdAt).toLocaleDateString()}
+            </p>
+            <ReadOnlyEditor content={blog.content} />
+          </article>
         </div>
       </div>
     </>
@@ -173,18 +173,18 @@ export default async function BlogPostPage({ params }: PageProps) {
 // Generate static params for better performance
 export async function generateStaticParams() {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
+    const baseUrl = process.env.NODE_ENV === 'production'
       ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
       : 'http://localhost:3000';
-    
+
     const response = await fetch(`${baseUrl}/api/blogs`, {
       cache: 'force-cache'
-    });
-    
+    } as RequestInit);
+
     if (!response.ok) {
       return [];
     }
-    
+
     const data = await response.json();
     return data.blogs?.map((blog: any) => ({
       slug: blog.slug,
