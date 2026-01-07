@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
         });
 
         // Combine asset info with this year's record
-        const data = assets.map(asset => {
+        const data = assets.map((asset: any) => {
             const record = records.find(r => r.asset.toString() === asset._id.toString());
             return {
                 _id: asset._id,
