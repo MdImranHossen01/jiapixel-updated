@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
             const target = targets.find(t => t.source === category)?.amount || 0;
 
             // Filter incomes based on category rules
-            let categoryIncomes = [];
+            let categoryIncomes: any[] = [];
             if (category === 'Contract') {
                 categoryIncomes = incomes.filter(i => i.type === 'Contract');
             } else {
