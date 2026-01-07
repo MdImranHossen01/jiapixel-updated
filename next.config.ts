@@ -60,8 +60,7 @@ const nextConfig = {
     optimizeCss: true,
   },
 
-  // Enable SWC minification (faster than Terser)
-  swcMinify: true,
+
 
   // Only enable these optimizations in production
   compiler:
