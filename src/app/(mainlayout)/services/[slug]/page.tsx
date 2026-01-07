@@ -9,41 +9,60 @@ import HeroSection from "../components/HeroSection";
 import { FeaturedCard } from "../components/FeaturedCard";
 import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
 
-import connectDB from "@/lib/db";
-import Project from "@/models/Project";
-
 interface PageProps {
   params: Promise<{
     slug: string;
   }>;
 }
 
-// Fetch service directly from DB for better performance/SEO
+// Fetch service via API for better caching control
 async function getService(slug: string) {
   try {
-    await connectDB();
-    const service = await Project.findOne({ slug: slug }).lean();
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+      : 'http://localhost:3000';
 
-    if (!service) return null;
+    const response = await fetch(`${baseUrl}/api/services/${slug}`, {
+      cache: 'force-cache'
+    } as RequestInit);
 
-    // Serialize object to pass to components (Mongoose documents are not plain objects)
-    return JSON.parse(JSON.stringify(service));
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      console.error('Error fetching service:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.service || null;
   } catch (error) {
     console.error("Error fetching service:", error);
     return null;
   }
 }
 
-export const revalidate = 300; // Revalidate cache every 5 minutes
-
 // Generate static params for all services (SSG)
 export async function generateStaticParams() {
-  await connectDB();
-  const services = await Project.find({ status: { $ne: 'draft' } }).select('slug').lean();
+  try {
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+      : 'http://localhost:3000';
 
-  return services.map((service: any) => ({
-    slug: service.slug,
-  }));
+    const response = await fetch(`${baseUrl}/api/services?limit=1000`, {
+      cache: 'force-cache'
+    } as RequestInit);
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    return data.services?.map((service: any) => ({
+      slug: service.slug,
+    })) || [];
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps) {
