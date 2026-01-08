@@ -201,6 +201,49 @@ interface SimpleEditorProps {
   initialContent?: string;
 }
 
+// Define extensions outside for stability
+const extensions = [
+  StarterKit.configure({
+    horizontalRule: false,
+  }),
+  Link.configure({
+    openOnClick: false,
+    enableClickSelection: true,
+    HTMLAttributes: {
+      rel: 'noopener noreferrer',
+      class: "text-foreground italic no-underline cursor-pointer",
+      target: '_blank',
+    },
+  }),
+  HorizontalRule,
+  TextAlign.configure({ types: ["heading", "paragraph"] }),
+  TaskList,
+  TaskItem.configure({ nested: true }),
+  Highlight.configure({ multicolor: true }),
+  Image.configure({
+    HTMLAttributes: {
+      class: "uploaded-image",
+    },
+  }),
+  Typography,
+  Superscript,
+  Subscript,
+  Selection,
+  ImageUploadNode.configure({
+    accept: "image/*",
+    maxSize: MAX_FILE_SIZE,
+    limit: 10,
+    upload: handleImageUpload,
+    onError: (error) => {
+      console.error("Image upload failed:", error);
+      alert(`Upload failed: ${error.message}`);
+    },
+    onSuccess: (url) => {
+      console.log("Image uploaded successfully to ImgBB:", url);
+    },
+  }),
+];
+
 // Use forwardRef to expose methods
 export const SimpleEditor = forwardRef<SimpleEditorRef, SimpleEditorProps>(({ initialContent }, ref) => {
   const isMobile = useIsBreakpoint();
@@ -224,47 +267,7 @@ export const SimpleEditor = forwardRef<SimpleEditorRef, SimpleEditorProps>(({ in
         class: "simple-editor",
       },
     },
-    extensions: [
-      StarterKit.configure({
-        horizontalRule: false,
-      }),
-      Link.configure({
-        openOnClick: false,
-        enableClickSelection: true,
-        HTMLAttributes: {
-          rel: 'noopener noreferrer',
-          class: "text-foreground italic no-underline cursor-pointer",
-          target: '_blank',
-        },
-      }),
-      HorizontalRule,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TaskList,
-      TaskItem.configure({ nested: true }),
-      Highlight.configure({ multicolor: true }),
-      Image.configure({
-        HTMLAttributes: {
-          class: "uploaded-image",
-        },
-      }),
-      Typography,
-      Superscript,
-      Subscript,
-      Selection,
-      ImageUploadNode.configure({
-        accept: "image/*",
-        maxSize: MAX_FILE_SIZE,
-        limit: 10,
-        upload: handleImageUpload,
-        onError: (error) => {
-          console.error("Image upload failed:", error);
-          alert(`Upload failed: ${error.message}`);
-        },
-        onSuccess: (url) => {
-          console.log("Image uploaded successfully to ImgBB:", url);
-        },
-      }),
-    ],
+    extensions,
     content: initialContent || content,
   });
 

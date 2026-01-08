@@ -21,31 +21,37 @@ import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 
+const extensions = [
+  StarterKit.configure({
+    horizontalRule: false,
+    dropcursor: false,
+    gapcursor: false,
+  }),
+  Link.configure({
+    openOnClick: false,
+    HTMLAttributes: {
+      rel: 'noopener noreferrer', // Explicitly remove nofollow
+      class: "text-foreground italic no-underline cursor-pointer",
+      target: '_blank',
+    },
+  }),
+  TextAlign.configure({ types: ["heading", "paragraph"] }),
+  TaskList,
+  TaskItem.configure({ nested: true }),
+  Highlight.configure({ multicolor: true }),
+  Image,
+  Typography,
+  Superscript,
+  Subscript,
+];
+
 export default function ReadOnlyEditor({ content }: { content: string }) {
   const [isClient, setIsClient] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
     editable: false,
-    extensions: [
-      StarterKit,
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          rel: 'noopener noreferrer', // Explicitly remove nofollow
-          class: "text-foreground italic no-underline cursor-pointer",
-          target: '_blank',
-        },
-      }),
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TaskList,
-      TaskItem.configure({ nested: true }),
-      Highlight.configure({ multicolor: true }),
-      Image,
-      Typography,
-      Superscript,
-      Subscript,
-    ],
+    extensions,
     content: isClient ? content : "", // Only set content on client
   });
 
