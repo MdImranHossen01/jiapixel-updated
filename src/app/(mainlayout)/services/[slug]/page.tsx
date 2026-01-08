@@ -150,70 +150,70 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
   const subcategory = service.category?.split(" > ")[1] || "General Service";
 
   // Generate structured data for this specific service page
-  const serviceStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: service.title,
-    description:
-      service.projectSummary?.replace(/<[^>]*>/g, "").substring(0, 200) ||
-      service.tiers?.starter?.description,
-    provider: {
-      "@type": "Organization",
-      name: "Jiapixel",
-      url: "https://www.jiapixel.com",
-      logo: "https://www.jiapixel.com/icon.png",
-    },
-    areaServed: "Worldwide",
-    serviceType: service.category,
-    offers: Object.values(service.tiers || {}).map((tier: any) => ({
-      "@type": "Offer",
-      name: tier.title,
-      description: tier.description,
-      price: tier.price,
-      priceCurrency: "USD",
-    })),
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `https://www.jiapixel.com/services/${service.slug}`,
-    },
-  };
+  // const serviceStructuredData = {
+  //   "@context": "https://schema.org",
+  //   "@type": "Service",
+  //   name: service.title,
+  //   description:
+  //     service.projectSummary?.replace(/<[^>]*>/g, "").substring(0, 200) ||
+  //     service.tiers?.starter?.description,
+  //   provider: {
+  //     "@type": "Organization",
+  //     name: "Jiapixel",
+  //     url: "https://www.jiapixel.com",
+  //     logo: "https://www.jiapixel.com/icon.png",
+  //   },
+  //   areaServed: "Worldwide",
+  //   serviceType: service.category,
+  //   offers: Object.values(service.tiers || {}).map((tier: any) => ({
+  //     "@type": "Offer",
+  //     name: tier.title,
+  //     description: tier.description,
+  //     price: tier.price,
+  //     priceCurrency: "USD",
+  //   })),
+  //   mainEntityOfPage: {
+  //     "@type": "WebPage",
+  //     "@id": `https://www.jiapixel.com/services/${service.slug}`,
+  //   },
+  // };
 
   // Generate FAQ structured data if FAQs exist
-  const faqStructuredData =
-    service.faqs && service.faqs.length > 0
-      ? {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: service.faqs.map((faq: any) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: faq.answer,
-          },
-        })),
-      }
-      : null;
+  // const faqStructuredData =
+  //   service.faqs && service.faqs.length > 0
+  //     ? {
+  //       "@context": "https://schema.org",
+  //       "@type": "FAQPage",
+  //       mainEntity: service.faqs.map((faq: any) => ({
+  //         "@type": "Question",
+  //         name: faq.question,
+  //         acceptedAnswer: {
+  //           "@type": "Answer",
+  //           text: faq.answer,
+  //         },
+  //       })),
+  //     }
+  //     : null;
 
   return (
     <>
       {/* Service-specific Structured Data */}
-      <script
+      {/* <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(serviceStructuredData),
         }}
-      />
+      /> */}
 
       {/* FAQ Structured Data if available */}
-      {faqStructuredData && (
+      {/* {faqStructuredData && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(faqStructuredData),
           }}
         />
-      )}
+      )} */}
 
       <div className=" overflow-hidden py-8">
         <div className="container mx-auto px-4 w-full">
