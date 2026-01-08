@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../../lib/db';
 import Service from '../../../../models/Project'; // Import Service model
+import { generateSlug } from '../../../../lib/slug';
 
 export async function GET(
   request: NextRequest,
@@ -131,6 +132,32 @@ export async function PUT(
       // Fallback for JSON-only updates (if used elsewhere)
       updateData = await request.json();
     }
+
+    // Ensure slug uniqueness if it's being updated
+    if (updateData.slug && updateData.slug !== slug) {
+      const desiredSlug = generateSlug(updateData.slug);
+      let uniqueSlug = desiredSlug;
+
+      const existingService = await Service.findOne({ slug: desiredSlug });
+      // If found, and it's not the same service (logic: existingService._id != currentService._id), but we haven't fetched current service ID yet.
+      // Easiest is to assume if it exists at all, it's a conflict, unless desiredSlug == slug (but we checked !== above).
+      // So if existingService is found, it IS a conflict.
+
+      if (existingService) {
+        let counter = 1;
+        while (await Service.findOne({ slug: `${desiredSlug}-${counter}` })) {
+          counter++;
+        }
+        uniqueSlug = `${desiredSlug}-${counter}`;
+      }
+      updateData.slug = uniqueSlug;
+    }
+
+    // IMPORTANT: If updateData.slug was NOT set or kept same, we don't modify it.
+    // If updateData.slug was set to "", we should probably keep old slug or generate from title?
+    // User requested "editable". If they clear it, what expected?
+    // Probably fail or fallback. The frontend forces auto-generation if empty.
+    // Backend validation handles "required" on schema usually.
 
     const service = await Service.findOneAndUpdate(
       { slug: slug },

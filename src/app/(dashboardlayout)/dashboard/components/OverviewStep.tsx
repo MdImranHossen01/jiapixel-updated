@@ -113,13 +113,49 @@ export default function OverviewStep({ data, updateData }: Props) {
           <input
             type="text"
             value={data.title}
-            onChange={(e) => updateData("title", e.target.value)}
+            onChange={(e) => {
+              const newTitle = e.target.value;
+              updateData("title", newTitle);
+              // Auto-generate slug if it hasn't been manually edited and is empty or matches slugified title
+              if (!data.slug || data.slug === newTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")) {
+                const autoSlug = newTitle
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric chars with hyphens
+                  .replace(/(^-|-$)+/g, ""); // Remove leading/trailing hyphens
+                updateData("slug", autoSlug);
+              }
+            }}
             placeholder="Tell the client what you will deliver and how it benefits them."
             className="w-full pl-3 pr-3 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
           />
         </div>
         <div className="text-sm text-muted-foreground mt-1">
           {data.title.length}/75 characters (min. 7 words)
+        </div>
+      </div>
+
+      {/* Slug Field */}
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-2">
+          URL Slug
+        </label>
+        <div className="relative">
+          <input
+            type="text"
+            value={data.slug}
+            onChange={(e) => {
+              const newSlug = e.target.value
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)+/g, "");
+              updateData("slug", newSlug);
+            }}
+            placeholder="url-slug-example"
+            className="w-full pl-3 pr-3 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+          />
+        </div>
+        <div className="text-sm text-muted-foreground mt-1">
+          The URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.
         </div>
       </div>
 

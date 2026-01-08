@@ -24,6 +24,7 @@ export default function EditServicePage({ params }: { params: Promise<{ slug: st
 
                     const mappedData: ServiceData = {
                         title: data.title || "",
+                        slug: data.slug || "",
                         category: data.category || "",
                         searchTags: data.searchTags || [],
                         author: data.author || "Md Imran Hossen",

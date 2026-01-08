@@ -2,16 +2,16 @@
 // src/app/api/services/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../lib/db';
-import Service from '../../../models/Project'; 
-import {  uploadMultipleToImgBB } from '../../../lib/imgbb';
-import { generateSlug } from '../../../lib/slug'; 
+import Service from '../../../models/Project';
+import { uploadMultipleToImgBB } from '../../../lib/imgbb';
+import { generateSlug } from '../../../lib/slug';
 
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
 
     const formData = await request.formData();
-    
+
     const imageFiles = formData.getAll('images') as File[];
     const documentFiles = formData.getAll('documents') as File[];
 
@@ -34,10 +34,10 @@ export async function POST(request: NextRequest) {
     }
 
     const serviceData = JSON.parse(formData.get('projectData') as string);
-    
+
     console.log('projectSteps before processing:', serviceData.projectSteps);
     console.log('projectSteps type:', typeof serviceData.projectSteps);
-    
+
     if (serviceData.projectSteps) {
       if (typeof serviceData.projectSteps === 'string') {
         try {
@@ -67,10 +67,10 @@ export async function POST(request: NextRequest) {
     } else {
       serviceData.projectSteps = [];
     }
-    
+
     console.log('projectSteps after processing:', serviceData.projectSteps);
     console.log('projectSteps type after processing:', typeof serviceData.projectSteps);
-    
+
     const cleanedTiers: any = {
       starter: serviceData.tiers.starter
     };
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       cleanedTiers.advanced = undefined;
     }
 
-    const slug = generateSlug(serviceData.title);
+    const slug = serviceData.slug ? generateSlug(serviceData.slug) : generateSlug(serviceData.title);
 
     const existingService = await Service.findOne({ slug: slug });
     let uniqueSlug = slug;
@@ -97,11 +97,11 @@ export async function POST(request: NextRequest) {
 
     const service = new Service({
       title: serviceData.title,
-      slug: uniqueSlug, 
+      slug: uniqueSlug,
       category: serviceData.category,
       searchTags: serviceData.searchTags,
-      author: serviceData.author || 'Md Imran Hossen', 
-      authorQuote: serviceData.authorQuote || '', 
+      author: serviceData.author || 'Md Imran Hossen',
+      authorQuote: serviceData.authorQuote || '',
       pricingTiers: serviceData.pricingTiers,
       tiers: cleanedTiers,
       requirements: serviceData.requirements,
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       faqs: serviceData.faqs,
       maxProjects: serviceData.maxProjects,
       agreeToTerms: serviceData.agreeToTerms,
-      isFeatured: serviceData.isFeatured !== undefined ? serviceData.isFeatured : true, 
+      isFeatured: serviceData.isFeatured !== undefined ? serviceData.isFeatured : true,
       images: imageUrls,
       documents: documentUrls,
 
@@ -120,10 +120,10 @@ export async function POST(request: NextRequest) {
     await service.save();
 
     return NextResponse.json(
-      { 
-        success: true, 
+      {
+        success: true,
         message: 'Service created successfully',
-        service 
+        service
       },
       { status: 201 }
     );
@@ -135,8 +135,8 @@ export async function POST(request: NextRequest) {
       errors: error.errors
     });
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         message: error.message || 'Failed to create service',
         errors: error.errors || {}
       },
@@ -153,13 +153,13 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '100');
-    const isFeatured = searchParams.get('isFeatured'); 
+    const isFeatured = searchParams.get('isFeatured');
 
     const query: any = {};
     if (status) {
       query.status = status;
     }
-    
+
     if (isFeatured !== null) {
       query.isFeatured = isFeatured === 'true';
     }
@@ -184,9 +184,9 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('Services fetch error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        message: error.message || 'Failed to fetch services' 
+      {
+        success: false,
+        message: error.message || 'Failed to fetch services'
       },
       { status: 500 }
     );

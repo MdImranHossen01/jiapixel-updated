@@ -13,6 +13,7 @@ import ReviewStep from "./ReviewStep";
 export interface ServiceData {
   // Overview Step
   title: string;
+  slug: string;
   category: string;
   searchTags: string[];
   author: string;
@@ -97,6 +98,7 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serviceData, setServiceData] = useState<ServiceData>(initialData || {
     title: "",
+    slug: "",
     category: "",
     searchTags: [],
     author: "Md Imran Hossen",
@@ -260,14 +262,14 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
             <div key={step.id} className="flex items-center">
               <div
                 className={`flex flex-col items-center ${index <= currentStep
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  ? "text-primary"
+                  : "text-muted-foreground"
                   }`}
               >
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${index <= currentStep
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background border-muted-foreground"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background border-muted-foreground"
                     }`}
                 >
                   {index + 1}
@@ -275,8 +277,8 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
                 <span className="text-sm mt-2 font-medium">{step.title}</span>
                 <span
                   className={`text-xs mt-1 ${index === currentStep
-                      ? "text-primary"
-                      : "text-muted-foreground"
+                    ? "text-primary"
+                    : "text-muted-foreground"
                     }`}
                 >
                   {index === currentStep
