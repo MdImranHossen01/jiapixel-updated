@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { COST_CATEGORIES } from '@/models/Cost';
 import { INCOME_SOURCES } from '@/models/Income';
-import { Edit2, Trash2, Plus, X, Save, AlertCircle } from 'lucide-react';
+import { Edit2, Trash2, Plus, X, Save, AlertCircle, RefreshCw } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#8dd1e1', '#a4de6c', '#d0ed57', '#ffc0cb', '#40E0D0', '#FF6347', '#D2691E', '#6495ED'];
@@ -75,10 +75,10 @@ interface CashflowStats {
 
 const CATEGORIES_LIST = [
     'Bou DPS', 'Gold Savings', 'Tour Savings', '5% Freelancing Savings', 'Eidul Fitr', 'Shashuri',
-    'Ammu', 'Bou', 'Kobutor Cost', 'Freelancing Cost', 'Market place Cost', 'Rent',
+    'Ammu', 'Bou', 'Kobutor Cost', 'Freelancing Cost', 'Freelancing Setup', 'Market place Cost', 'Rent',
     'Gas', 'Electricity Bill', 'Water Supply', 'Mobile Bill', 'Internet', 'Education',
     'Treatment', 'Transport', 'Vegetable', 'Rice', 'Piaj', 'Rosun', 'Polau Rice',
-    'Dal', 'Salt', 'Alu', 'Fruits', 'Snacks', 'toiletries', 'Egg', 'Milk', 'Modhu', 'Spaces',
+    'Dal', 'Salt', 'Alu', 'Fruits', 'Snacks', 'toiletries', 'Egg', 'Milk', 'Modhu', 'Chola', 'Spaces',
     'Sugar', 'Tea', 'Meat', 'Fish', 'Oil', 'Ata', 'Personal Care', 'Home', 'Others',
     'Home tour', 'Charity/Mosque', 'Roja', 'Tour', 'Others Festival', 'Eidul Adha', 'Zakat',
     'Maintenance/Charge', 'Office Program', 'Tasmim', 'Ayman', 'Sajid', 'Costume',
@@ -182,8 +182,30 @@ export default function CostPage() {
     });
     const [submittingCashflow, setSubmittingCashflow] = useState(false);
     const cashflowAmountRef = useRef<HTMLInputElement>(null);
-    const cashflowCategoryRef = useRef<HTMLInputElement>(null);
+    const cashflowCategoryRef = useRef<HTMLSelectElement>(null);
     const cashflowDescriptionRef = useRef<HTMLInputElement>(null);
+    const [syncing, setSyncing] = useState(false);
+
+    const handleSyncCosts = async () => {
+        setSyncing(true);
+        try {
+            const res = await fetch('/api/sync-costs', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                // Refresh data
+                if (activeTab === 'daily') fetchCosts(dateRange.startDate, dateRange.endDate);
+                else if (activeTab === 'cashflow') fetchCashflow();
+            } else {
+                alert('Sync failed: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Sync failed', error);
+            alert('An error occurred during sync');
+        } finally {
+            setSyncing(false);
+        }
+    };
 
     useEffect(() => {
         if (activeTab === 'daily') {
@@ -1776,32 +1798,29 @@ export default function CostPage() {
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Category (Optional)</label>
-                                        <input
+                                        <select
                                             ref={cashflowCategoryRef}
-                                            type="text"
                                             value={cashflowForm.category}
                                             onChange={(e) => setCashflowForm({ ...cashflowForm, category: e.target.value, description: e.target.value })}
-                                            className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                            placeholder="e.g. Salary, Rent"
-                                            list="categoryList"
+                                            className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter') {
                                                     e.preventDefault();
                                                     cashflowDescriptionRef.current?.focus();
                                                 }
                                             }}
-                                        />
-                                        <datalist id="categoryList">
+                                        >
+                                            <option value="">Select Category</option>
                                             {cashflowForm.type === 'IN' ? (
                                                 INCOME_SOURCES.map((source, index) => (
-                                                    <option key={index} value={source} />
+                                                    <option key={index} value={source}>{source}</option>
                                                 ))
                                             ) : (
                                                 COST_CATEGORIES.map((category, index) => (
-                                                    <option key={index} value={category} />
+                                                    <option key={index} value={category}>{category}</option>
                                                 ))
                                             )}
-                                        </datalist>
+                                        </select>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -1831,6 +1850,15 @@ export default function CostPage() {
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-semibold text-gray-700">Transactions</h3>
                                         <span className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">{cashflowData?.transactions.length || 0}</span>
+                                        <button
+                                            onClick={handleSyncCosts}
+                                            disabled={syncing}
+                                            className="ml-2 text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                                            title="Sync missing costs from transactions"
+                                        >
+                                            <RefreshCw size={12} className={syncing ? "animate-spin" : ""} />
+                                            {syncing ? 'Syncing...' : 'Sync Missing Costs'}
+                                        </button>
                                     </div>
                                     <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border shadow-sm">
                                         <input
