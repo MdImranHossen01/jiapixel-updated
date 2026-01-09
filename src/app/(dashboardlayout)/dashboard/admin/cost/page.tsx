@@ -62,7 +62,7 @@ const CATEGORIES_LIST = [
     'Ammu', 'Bou', 'Kobutor Cost', 'Freelancing Cost', 'Market place Cost', 'Rent',
     'Gas', 'Electricity Bill', 'Water Supply', 'Mobile Bill', 'Internet', 'Education',
     'Treatment', 'Transport', 'Vegetable', 'Rice', 'Piaj', 'Rosun', 'Polau Rice',
-    'Dal', 'Salt', 'Alu', 'Fruits', 'Snacks', 'toiletries', 'Egg', 'Milk', 'Spaces',
+    'Dal', 'Salt', 'Alu', 'Fruits', 'Snacks', 'toiletries', 'Egg', 'Milk', 'Modhu', 'Spaces',
     'Sugar', 'Tea', 'Meat', 'Fish', 'Oil', 'Ata', 'Personal Care', 'Home', 'Others',
     'Home tour', 'Charity/Mosque', 'Roja', 'Tour', 'Others Festival', 'Eid', 'Zakat',
     'Maintenance/Charge', 'Office Program', 'Tasmim', 'Ayman', 'Sajid', 'Costume',
@@ -745,39 +745,7 @@ export default function CostPage() {
             {/* Yearly View */}
             {activeTab === 'yearly' && (
                 <div className="space-y-8">
-                    {/* ... (Pie Chart) ... */}
-                    {/* Chart Section */}
-                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 overflow-hidden">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4">Cost Distribution</h3>
-                        <div className="h-[400px] w-full">
-                            {loadingStats ? (
-                                <div className="h-full flex items-center justify-center text-gray-400">Loading chart...</div>
-                            ) : yearlyStats.filter(s => s.cost > 0).length === 0 ? (
-                                <div className="h-full flex items-center justify-center text-gray-400">No cost data to display</div>
-                            ) : (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={yearlyStats.filter(s => s.cost > 0)}
-                                            dataKey="cost"
-                                            nameKey="category"
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius="70%"
-                                            fill="#8884d8"
-                                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                        >
-                                            {yearlyStats.filter(s => s.cost > 0).map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <RechartsTooltip formatter={(value: number) => `Tk ${value.toLocaleString()}`} />
-                                        <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: '20px' }} />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            )}
-                        </div>
-                    </div>
+
 
                     <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                         {/* ... (existing Table Code) ... */}
