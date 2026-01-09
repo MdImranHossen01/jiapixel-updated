@@ -804,7 +804,7 @@ export default function CostPage() {
                                                             title="Click to edit budget"
                                                         >
                                                             <span className={stat.budget === 0 ? "text-gray-400 italic" : "font-medium"}>
-                                                                {stat.budget === 0 ? "Set Budget" : `$${stat.budget.toLocaleString()}`}
+                                                                {stat.budget === 0 ? "Budget" : `$${stat.budget.toLocaleString()}`}
                                                             </span>
                                                             <Edit2 size={14} className="text-gray-400 opacity-50 group-hover/budget:opacity-100 transition-opacity" />
                                                         </div>
