@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { COST_CATEGORIES } from '@/models/Cost';
 import { INCOME_SOURCES } from '@/models/Income';
 import { Edit2, Trash2, Plus, X, Save, AlertCircle } from 'lucide-react';
@@ -181,6 +181,9 @@ export default function CostPage() {
         category: ''
     });
     const [submittingCashflow, setSubmittingCashflow] = useState(false);
+    const cashflowAmountRef = useRef<HTMLInputElement>(null);
+    const cashflowCategoryRef = useRef<HTMLInputElement>(null);
+    const cashflowDescriptionRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (activeTab === 'daily') {
@@ -324,6 +327,10 @@ export default function CostPage() {
             if (data.success) {
                 fetchCashflow();
                 setCashflowForm(prev => ({ ...prev, amount: '', description: '', category: '' })); // Reset fields
+                // Focus amount field for next entry
+                setTimeout(() => {
+                    cashflowAmountRef.current?.focus();
+                }, 0);
             } else {
                 alert('Failed to add transaction: ' + data.error);
             }
@@ -1751,6 +1758,7 @@ export default function CostPage() {
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
                                         <input
+                                            ref={cashflowAmountRef}
                                             type="number"
                                             value={cashflowForm.amount}
                                             onChange={(e) => setCashflowForm({ ...cashflowForm, amount: e.target.value })}
@@ -1758,17 +1766,30 @@ export default function CostPage() {
                                             placeholder="0.00"
                                             required
                                             min="0"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    cashflowCategoryRef.current?.focus();
+                                                }
+                                            }}
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Category (Optional)</label>
                                         <input
+                                            ref={cashflowCategoryRef}
                                             type="text"
                                             value={cashflowForm.category}
                                             onChange={(e) => setCashflowForm({ ...cashflowForm, category: e.target.value, description: e.target.value })}
                                             className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                             placeholder="e.g. Salary, Rent"
                                             list="categoryList"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    cashflowDescriptionRef.current?.focus();
+                                                }
+                                            }}
                                         />
                                         <datalist id="categoryList">
                                             {cashflowForm.type === 'IN' ? (
@@ -1785,6 +1806,7 @@ export default function CostPage() {
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                         <input
+                                            ref={cashflowDescriptionRef}
                                             type="text"
                                             value={cashflowForm.description}
                                             onChange={(e) => setCashflowForm({ ...cashflowForm, description: e.target.value })}
