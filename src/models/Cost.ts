@@ -34,6 +34,7 @@ export const COST_CATEGORIES = [
     'toiletries',
     'Egg',
     'Milk',
+    'Modhu',
     'Spaces',
     'Sugar',
     'Tea',
@@ -115,6 +116,6 @@ const CostSchema: Schema = new Schema({
     timestamps: true,
 });
 
-const Cost: Model<ICost> = mongoose.models.Cost || mongoose.model<ICost>('Cost', CostSchema);
+const Cost: Model<ICost> = (mongoose.models && mongoose.models.Cost) || mongoose.model<ICost>('Cost', CostSchema);
 
 export default Cost;

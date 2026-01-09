@@ -51,8 +51,12 @@ export async function GET(req: NextRequest) {
         // Add sources found in income records
         incomeAggregation.forEach(i => sourceSet.add(i._id.source));
 
-        // Add sources found in targets
-        targets.forEach(t => sourceSet.add(t.source));
+        // Add sources found in targets ONLY if they are valid income sources
+        targets.forEach(t => {
+            if (INCOME_SOURCES.includes(t.source)) {
+                sourceSet.add(t.source);
+            }
+        });
 
         const finalData = Array.from(sourceSet).map(source => {
             const targetEntry = targets.find(t => t.source === source);
