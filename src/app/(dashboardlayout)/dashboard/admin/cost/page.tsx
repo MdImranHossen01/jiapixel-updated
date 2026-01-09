@@ -58,13 +58,13 @@ interface IncomeStat {
 }
 
 const CATEGORIES_LIST = [
-    'Bou DPS', 'Gold Savings', 'Tour Savings', '5% Savings', 'Eid and Zakat', 'Shashuri',
+    'Bou DPS', 'Gold Savings', 'Tour Savings', '5% Freelancing Savings', 'Eidul Fitr', 'Shashuri',
     'Ammu', 'Bou', 'Kobutor Cost', 'Freelancing Cost', 'Market place Cost', 'Rent',
     'Gas', 'Electricity Bill', 'Water Supply', 'Mobile Bill', 'Internet', 'Education',
     'Treatment', 'Transport', 'Vegetable', 'Rice', 'Piaj', 'Rosun', 'Polau Rice',
     'Dal', 'Salt', 'Alu', 'Fruits', 'Snacks', 'toiletries', 'Egg', 'Milk', 'Modhu', 'Spaces',
     'Sugar', 'Tea', 'Meat', 'Fish', 'Oil', 'Ata', 'Personal Care', 'Home', 'Others',
-    'Home tour', 'Charity/Mosque', 'Roja', 'Tour', 'Others Festival', 'Eid', 'Zakat',
+    'Home tour', 'Charity/Mosque', 'Roja', 'Tour', 'Others Festival', 'Eidul Adha', 'Zakat',
     'Maintenance/Charge', 'Office Program', 'Tasmim', 'Ayman', 'Sajid', 'Costume',
     'Tailor Machine', 'Backup UPS', 'Book Shelf 2', 'Passport', 'Table', 'Showcase',
     'Dressing Table', 'Rack', 'TV', 'Motor Cycle', 'Kitchen', 'Mobile Me', 'Mobile Bou',
