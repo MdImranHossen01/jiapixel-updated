@@ -1,156 +1,216 @@
 "use client";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { useState, useMemo } from 'react';
-import {  HelpCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
+import { ChevronRight, Plus, Minus } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { FAQ_DATA } from './constants';
-import { FAQCategory } from './types';
 
-import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronDownIcon } from "lucide-react"
+gsap.registerPlugin(ScrollTrigger);
 
-import { cn } from "@/lib/utils"
-
-// Radix UI Accordion Components
-const Accordion = AccordionPrimitive.Root;
-
-const AccordionItem = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
->(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item
-    ref={ref}
-    className={cn("border-b last:border-b-0", className)}
-    {...props}
-  />
-));
-AccordionItem.displayName = "AccordionItem"
-
-const AccordionTrigger = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Header className="flex">
-    <AccordionPrimitive.Trigger
-      ref={ref}
-      className={cn(
-        "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
-    </AccordionPrimitive.Trigger>
-  </AccordionPrimitive.Header>
-));
-AccordionTrigger.displayName = "AccordionTrigger"
-
-const AccordionContent = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Content
-    ref={ref}
-    className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
-    {...props}
-  >
-    <div className={cn("pt-0 pb-4", className)}>{children}</div>
-  </AccordionPrimitive.Content>
-));
-AccordionContent.displayName = "AccordionContent"
-
-// FAQ Section Component
 const FaqSection: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<FAQCategory>(FAQCategory.GENERAL);
+  const [openIndex, setOpenIndex] = useState<number | null>(0); // Open first by default
+  const containerRef = useRef<HTMLElement>(null);
+  const faqs = FAQ_DATA.slice(0, 5); // Use first 5 FAQs for display to match design layout
 
-  // Filter Logic
-  const filteredFAQs = useMemo(() => {
-    return FAQ_DATA.filter(item => {
-      const matchesSearch = item.question.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            item.answer.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = item.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: false,
+      mirror: true,
     });
-  }, [searchTerm, selectedCategory]);
+  }, []);
 
-  const categories = Object.values(FAQCategory);
+  useGSAP(() => {
+    const statsItems = gsap.utils.toArray<HTMLElement>('.stat-number');
+
+    statsItems.forEach((stat) => {
+      const targetValue = parseInt(stat.getAttribute('data-value') || '0', 10);
+      const suffix = stat.getAttribute('data-suffix') || '';
+
+      gsap.fromTo(stat,
+        { innerText: 0 },
+        {
+          innerText: targetValue,
+          duration: 2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: stat,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          },
+          snap: { innerText: 1 },
+          onUpdate: function () {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            stat.innerText = Math.ceil(this.targets()[0].innerText).toLocaleString() + suffix;
+          }
+        }
+      );
+    });
+  }, { scope: containerRef });
+
+  const toggleFAQ = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  const stats = [
+    { number: 1200, suffix: "+", label: "Projects Completed" },
+    { number: 50, suffix: "+", label: "Industry Awards" },
+    { number: 800, suffix: "+", label: "Global Clients" },
+  ];
 
   return (
-    <section className=" text-foreground max-w-3xl mx-auto py-12">
-      {/* Header Section - Fixed with proper spacing and contrast */}
-      <div className="container mx-auto px-4 text-center mb-6">
-       
-        
-        <h2 className="text-2xl md:text-4xl font-bold mb-4 text-foreground">
-          Frequenly Asked <span className='text-primary'>Question</span>
-        </h2>
-        <p className="text-muted-foreground  mx-auto leading-relaxed">
-          Find answers about our web development, SEO, and digital marketing services. 
-          Get expert insights on Next.js, React, and driving online success.
-        </p>
-      </div>
+    <section ref={containerRef} className="relative w-full bg-background overflow-hidden relative z-10">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 opacity-50"></div>
 
-      {/* Main Content Card */}
-      <div className="container max-w-3xl mx-auto px-4">
-        <div className="rounded-3xl  p-1 md:p-2  mx-auto backdrop-blur-sm">
-          
-          {/* Search and Filter Bar */}
-          <div className="rounded-2xl p-6 md:p-8">
-            <div className="flex flex-col lg:flex-row gap-6 items-center justify-between mb-8">
-              
-              
-              {/* Category Pills */}
-              <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0 w-full lg:w-auto scrollbar-thin">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-2 rounded-full text-sm font-small whitespace-nowrap transition-all duration-200 border ${
-                      selectedCategory === cat
-                        ? 'bg-primary text-white hover:bg-primary hover:text-primary-foreground border-primary shadow-lg shadow-primary/25'
-                        : 'text-secondary-foreground border-gray-400 hover:bg-accent hover:text-accent-foreground'
+      <div className="flex flex-col lg:flex-row min-h-[700px] relative">
+
+        {/* Left Content Area: FAQs */}
+        <div
+          className="w-full lg:w-[65%] px-6 py-16 md:py-24 lg:pl-20 xl:pl-32 lg:pr-48 z-10"
+          data-aos="fade-right"
+        >
+          <div className="max-w-3xl">
+            <header className="mb-12">
+              <h2 className="text-4xl md:text-5xl font-black text-foreground leading-[1.1]">
+                Common <span className="text-primary">Questions</span> & <br className="hidden md:block" />
+                Expert Answers
+              </h2>
+            </header>
+
+            <div className="space-y-4">
+              {faqs.map((faq, index) => (
+                <div
+                  key={faq.id}
+                  className={`group border rounded-2xl transition-all duration-300 ${openIndex === index
+                    ? 'border-primary/20 bg-card shadow-xl shadow-primary/5'
+                    : 'border-border bg-muted/50 hover:bg-card hover:border-border'
                     }`}
+                >
+                  <button
+                    onClick={() => toggleFAQ(index)}
+                    className="w-full px-6 py-5 md:py-2 flex items-center justify-between text-left"
                   >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* FAQ List */}
-            <div className="space-y-3">
-              {filteredFAQs.length > 0 ? (
-                <Accordion type="single" collapsible className="w-full">
-                  {filteredFAQs.map((faq) => (
-                    <AccordionItem key={faq.id} value={faq.id}>
-                      <AccordionTrigger className="text-left text-base font-semibold hover:no-underline py-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${openIndex === index ? 'bg-primary text-primary-foreground' : 'bg-card text-primary shadow-sm'
+                        }`}>
+                        {openIndex === index ? <Minus size={18} /> : <Plus size={18} />}
+                      </div>
+                      <span className={`text-lg font-bold tracking-tight transition-colors duration-300 ${openIndex === index ? 'text-primary' : 'text-foreground'
+                        }`}>
                         {faq.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-muted-foreground pb-6">
+                      </span>
+                    </div>
+                    <ChevronRight
+                      className={`hidden sm:block w-5 h-5 text-muted-foreground transition-transform duration-300 ${openIndex === index ? 'rotate-90 text-primary' : 'group-hover:translate-x-1'
+                        }`}
+                    />
+                  </button>
+
+                  <div
+                    className={`
+                        overflow-hidden transition-all duration-500 ease-in-out
+                        ${openIndex === index ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}
+                      `}
+                  >
+                    <div className="px-6 pb-6 pt-0 ml-14">
+                      <p className="text-muted-foreground leading-relaxed text-base md:text-lg">
                         {faq.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              ) : (
-                <div className="text-center py-16">
-                  <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <HelpCircle className="w-10 h-10 text-primary" />
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">No results found</h3>
-                  <p className="text-muted-foreground max-w-md mx-auto">
-                    We couldn&apos;t find any FAQs matching &quot;{searchTerm}&quot; in {selectedCategory}.
-                  </p>
                 </div>
-              )}
+              ))
+              }
             </div>
           </div>
         </div>
 
-       
+        {/* Right Side: Visual Section & Overlapping Images */}
+        <div className="hidden lg:flex relative w-full lg:w-[35%] min-h-[500px] lg:min-h-full flex-col">
+
+          {/* Main Blue Block with Stats */}
+          <div
+            className="w-full h-full bg-primary relative overflow-hidden flex flex-col justify-center p-10 md:p-16 lg:p-20 text-primary-foreground z-0"
+            data-aos="fade-left"
+          >
+            {/* Background Texture */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none">
+              <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary/80 to-transparent"></div>
+              <svg className="absolute bottom-0 right-0 w-full h-1/2 text-primary-foreground opacity-30" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="currentColor"></path>
+              </svg>
+            </div>
+
+            <div className="relative z-10 space-y-12 lg:ml-12 xl:ml-20">
+              {stats.map((stat, idx) => (
+                <div key={idx} className="group cursor-default">
+                  <div
+                    className="stat-number text-5xl md:text-6xl font-black tracking-tighter transition-transform group-hover:scale-105 origin-left duration-300"
+                    data-value={stat.number}
+                    data-suffix={stat.suffix}
+                  >
+                    0{stat.suffix}
+                  </div>
+                  <div className="text-primary-foreground/80 font-medium text-lg opacity-80 mt-1 uppercase tracking-widest text-xs">
+                    {stat.label}
+                  </div>
+                  <div className="w-12 h-1 bg-primary-foreground/20 mt-4 rounded-full transition-all group-hover:w-24 group-hover:bg-primary-foreground duration-300"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Overlapping Featured Image (Desktop Only) */}
+          <div
+            className="hidden lg:block absolute left-[-160px] top-1/2 -translate-y-1/2 z-30 group"
+            data-aos="fade-up"
+          >
+            <div className="relative w-[320px] h-[480px]">
+              {/* Image Frame with Shadow & Border */}
+              <div className="absolute inset-0 bg-card p-3 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-transform duration-500 group-hover:-translate-y-2 group-hover:rotate-1 overflow-hidden">
+                <div className="relative w-full h-full rounded-xl overflow-hidden">
+                  <Image
+                    src="/assets/banner/Jia_Pixel_Banner.webp"
+                    alt="Professional Environment"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 320px"
+                  />
+                </div>
+
+                {/* Floating Experience Badge */}
+                <div className="absolute -bottom-6 -right-6 bg-card p-4 rounded-2xl shadow-xl flex flex-col items-center justify-center w-28 h-28 border-4 border-primary animate-bounce-slow z-10">
+                  <span className="text-3xl font-black text-primary">5+</span>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase text-center leading-none">Years of Excellence</span>
+                </div>
+              </div>
+
+              {/* Decorative dotted pattern behind image */}
+              <div className="absolute -top-10 -left-10 w-32 h-32 bg-[radial-gradient(hsl(var(--primary))_2px,transparent_2px)] [background-size:16px_16px] opacity-20 -z-10"></div>
+            </div>
+          </div>
+
+
+        </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        .animate-bounce-slow {
+          animation: bounce-slow 4s infinite ease-in-out;
+        }
+      `}} />
     </section>
   );
 };
