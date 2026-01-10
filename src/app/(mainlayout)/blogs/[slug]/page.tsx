@@ -1,8 +1,34 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
+import { SocialShare } from '@/components/blog/SocialShare';
+import BlogCard from '@/app/(mainlayout)/components/BlogSection/BlogCard';
+
+async function getRelatedBlogs(category: string, currentSlug: string) {
+  try {
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+      : 'http://localhost:3000';
+
+    // Ideally this should be a specific API endpoint, but fetching all and filtering works for small scale
+    const response = await fetch(`${baseUrl}/api/blogs`, {
+      next: { revalidate: 3600 }
+    });
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    const allBlogs = data.blogs || [];
+
+    return allBlogs
+      .filter((b: any) => b.category === category && b.slug !== currentSlug)
+      .slice(0, 3);
+  } catch (error) {
+    console.error("Error fetching related blogs:", error);
+    return [];
+  }
+}
 
 async function getBlog(slug: string) {
   try {
@@ -107,6 +133,12 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
+  const relatedBlogs = await getRelatedBlogs(blog.category, slug);
+
+  if (!blog) {
+    notFound();
+  }
+
   // Generate structured data for individual blog post
   const blogStructuredData = {
     '@context': 'https://schema.org',
@@ -159,11 +191,35 @@ export default async function BlogPostPage({ params }: PageProps) {
 
           <article className="border rounded-lg p-8">
             <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
-            <p className="text-sm text-slate-500 mb-8">
-              {new Date(blog.createdAt).toLocaleDateString()}
-            </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-8 border-b">
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  {new Date(blog.createdAt).toLocaleDateString()} • {blog.readTime || 5} min read
+                </p>
+                <div className="mt-2 flex gap-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                    {blog.category}
+                  </span>
+                </div>
+              </div>
+              <SocialShare title={blog.title} url={`https://www.jiapixel.com/blogs/${blog.slug}`} />
+            </div>
+
             <ReadOnlyEditor content={blog.content} />
           </article>
+
+          {/* Related Blogs Section */}
+          {relatedBlogs.length > 0 && (
+            <div className="mt-16">
+              <h2 className="text-2xl font-bold mb-6">You might also like</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {relatedBlogs.map((related: any) => (
+                  <BlogCard key={related._id} blog={related} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>

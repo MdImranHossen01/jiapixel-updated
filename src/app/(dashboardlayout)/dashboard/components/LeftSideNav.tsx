@@ -13,7 +13,8 @@ import {
   User,
   Menu,
   X,
-  ShoppingBag // Ensure ShoppingBag is imported
+  ShoppingBag,
+  Folder
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 
@@ -47,6 +48,13 @@ const LeftSideNav = () => {
       icon: ShoppingBag,
       current: pathname.startsWith('/dashboard/my-orders'),
       adminOnly: false, // This makes it visible to all logged-in users
+    },
+    {
+      name: 'My Projects',
+      href: '/dashboard/client',
+      icon: Folder,
+      current: pathname.startsWith('/dashboard/client'),
+      adminOnly: false,
     },
     {
       name: 'Admin Dashboard',

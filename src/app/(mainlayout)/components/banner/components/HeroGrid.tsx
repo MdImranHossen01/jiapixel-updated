@@ -6,6 +6,7 @@ import { motion, type Variants } from "framer-motion";
 import { useFreeServiceModal } from "@/hooks/useFreeServiceModal";
 import FreeServiceModal from "./FreeServiceModal";
 import Link from "next/link";
+import { useBooking } from "@/components/booking-provider";
 
 const itemVariants: Variants = {
   hidden: { opacity: 0 },
@@ -15,6 +16,7 @@ const itemVariants: Variants = {
 export const HeroGrid: React.FC = () => {
   const { isOpen, serviceTitle, serviceType, openModal, closeModal } =
     useFreeServiceModal();
+  const { openBooking } = useBooking();
 
   const handleSendMessage = async (message: string) => {
     try {
@@ -136,11 +138,12 @@ export const HeroGrid: React.FC = () => {
                   View Projects
                 </button>
               </Link>
-              <Link href="/messages">
-                <button className="px-4 py-2 md:px-6 md:py-3 text-[12px] md:text-base cursor-pointer border border-white/30 text-white rounded-full font-semibold hover:bg-white/10 transition-all duration-300">
-                  Contact Me
-                </button>
-              </Link>
+              <button
+                onClick={openBooking}
+                className="px-4 py-2 md:px-6 md:py-3 text-[12px] md:text-base cursor-pointer border border-white/30 text-white rounded-full font-semibold hover:bg-white/10 transition-all duration-300"
+              >
+                Book a Call
+              </button>
             </motion.div>
           </div>
         </div>

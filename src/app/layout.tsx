@@ -7,6 +7,9 @@ import { Suspense } from "react";
 import StructuredData from "./components/StructuredData";
 import GoogleTagManager from "./components/GoogleTagManager";
 import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
+import { BookingProvider } from "@/components/booking-provider";
+import { ScrollToTop } from "@/components/ui/ScrollToTop";
+import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -139,18 +142,23 @@ export default function RootLayout({
           <GoogleTagManager />
         </Suspense>
         <SessionProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
-            {children}
-          </ThemeProvider>
+          <SmoothScrollProvider>
+            <BookingProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <div className="hidden md:block">
+                  <ThemeToggle />
+                </div>
+                {children}
+              </ThemeProvider>
+            </BookingProvider>
+          </SmoothScrollProvider>
         </SessionProvider>
+        <ScrollToTop />
       </body>
     </html>
   );

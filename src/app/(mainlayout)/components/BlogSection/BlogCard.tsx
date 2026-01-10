@@ -21,7 +21,7 @@ interface BlogCardProps {
 const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
     return (
         <article
-            className="bg-card rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-shadow duration-300 group h-full flex flex-col"
+            className="bg-card rounded-sm lg:rounded-md  shadow-lg overflow-hidden border border-border hover:shadow-xl transition-shadow duration-300 group h-full flex flex-col"
         >
             {blog.featuredImage && (
                 <div className="relative h-48 overflow-hidden shrink-0">
@@ -36,15 +36,13 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
             )}
             <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-center justify-between mb-3">
-                    <span className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
-                        {blog.category || 'Uncategorized'}
-                    </span>
+
                     <span className="text-sm text-muted-foreground">
                         {blog.readTime || 5} min read
                     </span>
                 </div>
 
-                <h2 className="text-xl font-bold text-card-foreground mb-3 line-clamp-2">
+                <h2 className="font-bold text-card-foreground mb- line-clamp-2">
                     <Link
                         href={`/blogs/${blog.slug}`}
                         className="hover:text-primary transition-colors"
@@ -52,11 +50,12 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
                         {blog.title || 'Untitled Blog Post'}
                     </Link>
                 </h2>
+                <div className="text-sm text-muted-foreground">
+                    {formatBlogDate(blog.publishedAt || blog.createdAt)}
+                </div>
 
-                <div className="mt-auto flex items-center justify-between pt-4 border-t border-border">
-                    <div className="text-sm text-muted-foreground">
-                        {formatBlogDate(blog.publishedAt || blog.createdAt)}
-                    </div>
+                <div className="mt-auto flex items-center justify-end pt-4 border-t border-border">
+
                     <Link
                         href={`/blogs/${blog.slug}`}
                         className="text-primary hover:text-primary/80 font-medium text-sm transition-colors"

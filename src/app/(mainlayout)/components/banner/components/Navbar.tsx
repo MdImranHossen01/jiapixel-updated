@@ -10,7 +10,8 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { QuickTransactionModal } from '@/components/dashboard/QuickTransactionModal';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Calendar } from 'lucide-react';
+import { useBooking } from "@/components/booking-provider";
 
 interface NavbarProps {
   onSearchClick: () => void;
@@ -20,6 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { openBooking } = useBooking();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
@@ -211,7 +213,25 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
               <span className="text-sm text-foreground/60 group-hover:text-primary transition-colors">Ask AI...</span>
             </div>
 
-            <div className="flex items-center space-x-2 md:flex-1 md:justify-end">
+            <div className="flex items-center space-x-2 md:flex-1 md:justify-end gap-2">
+              {/* Desktop Actions */}
+              <div className="hidden lg:flex items-center gap-2">
+                <Link href="/estimate">
+                  <Button variant="ghost" size="sm" className="hidden xl:flex">
+                    Get Estimate
+                  </Button>
+                </Link>
+                <Button
+                  onClick={openBooking}
+                  variant="default"
+                  size="sm"
+                  className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-4"
+                >
+                  <Calendar size={16} />
+                  <span>Book a Call</span>
+                </Button>
+              </div>
+
               {/* Social Icons */}
               <div className="hidden md:flex">
                 <Button variant="ghost" size="icon" asChild>
@@ -368,6 +388,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
       {
         isMobileMenuOpen && (
           <div className="fixed top-16 left-0 right-0 w-full bg-card border-t border-border p-6 flex flex-col gap-4 lg:hidden mobile-menu shadow-lg z-50">
+            <div
+              onClick={() => {
+                openBooking();
+                setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 text-primary font-semibold cursor-pointer"
+            >
+              <Calendar size={18} />
+              <span>Book a Call</span>
+            </div>
+            <Link href="/estimate" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Get Estimate</Link>
             <Link href="/services" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Services</Link>
             {/* <Link href="/products" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link> */}
             <Link href="/portfolios" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Portfolios</Link>

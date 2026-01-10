@@ -133,39 +133,21 @@ export default async function BlogsPage() {
 
   return (
     <>
-      {/* Structured Data for Blog Listing */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
       />
 
-      <div className="min-h-screen bg-background py-8">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-foreground mb-4">Our Blog</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Latest insights, tutorials, and updates from our team
-            </p>
+      {data.error ? (
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-destructive mb-2">Error Loading Blogs</h2>
+            <p className="text-muted-foreground">{data.error}</p>
           </div>
-
-          {data.error ? (
-            <div className="text-center py-12">
-              <div className="bg-destructive/10 border border-destructive rounded-lg p-6 max-w-md mx-auto">
-                <h2 className="text-xl font-semibold text-destructive mb-2">Error Loading Blogs</h2>
-                <p className="text-muted-foreground mb-4">{data.error}</p>
-                <p className="text-sm text-muted-foreground">Please try refreshing the page in your browser.</p>
-              </div>
-            </div>
-          ) : blogs.length === 0 ? (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-semibold text-foreground mb-4">No blog posts yet</h2>
-              <p className="text-muted-foreground">Check back later for new content!</p>
-            </div>
-          ) : (
-            <BlogsClient initialBlogs={blogs} />
-          )}
         </div>
-      </div>
+      ) : (
+        <BlogsClient initialBlogs={blogs} />
+      )}
     </>
   );
 }
