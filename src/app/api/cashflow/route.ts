@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Cashflow, { ICashflow } from '@/models/Cashflow';
-import Cost, { COST_CATEGORIES } from '@/models/Cost';
-import Income, { INCOME_SOURCES } from '@/models/Income';
+import Cost from '@/models/Cost';
+import Income from '@/models/Income';
+import { COST_CATEGORIES, INCOME_SOURCES } from '@/constants/financials';
 
 export const dynamic = 'force-dynamic';
 

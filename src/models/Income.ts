@@ -1,12 +1,8 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export const INCOME_SOURCES = [
-    'Jannat',
-    'Freelancing',
-    'farm',
-    'Loan',
-    'Others'
-];
+import { INCOME_SOURCES } from '@/constants/financials';
+
+export { INCOME_SOURCES };
 
 export const INCOME_TYPES = ['Regular', 'Contract'];
 

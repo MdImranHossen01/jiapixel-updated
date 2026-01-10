@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { COST_CATEGORIES } from '@/models/Cost';
-import { INCOME_SOURCES } from '@/models/Income';
+import { COST_CATEGORIES, INCOME_SOURCES } from '@/constants/financials';
 import { Edit2, Trash2, Plus, X, Save, AlertCircle, RefreshCw } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 
@@ -73,20 +72,7 @@ interface CashflowStats {
     transactions: CashflowTransaction[];
 }
 
-const CATEGORIES_LIST = [
-    'Bou DPS', 'Gold Savings', 'Tour Savings', '5% Freelancing Savings', 'Eidul Fitr', 'Shashuri',
-    'Ammu', 'Bou', 'Kobutor Cost', 'Freelancing Cost', 'Freelancing Setup', 'Market place Cost', 'Rent',
-    'Gas', 'Electricity Bill', 'Water Supply', 'Mobile Bill', 'Internet', 'Education',
-    'Treatment', 'Transport', 'Vegetable', 'Rice', 'Piaj', 'Rosun', 'Polau Rice',
-    'Dal', 'Salt', 'Alu', 'Fruits', 'Snacks', 'toiletries', 'Egg', 'Milk', 'Modhu', 'Chola', 'Muri', 'Spaces',
-    'Sugar', 'Tea', 'Meat', 'Fish', 'Oil', 'Ata', 'Personal Care', 'Home', 'Others',
-    'Home tour', 'Charity/Mosque', 'Roja', 'Tour', 'Others Festival', 'Eidul Adha', 'Zakat',
-    'Maintenance/Charge', 'Office Program', 'Tasmim', 'Ayman', 'Sajid', 'Costume',
-    'Tailor Machine', 'Backup UPS', 'Book Shelf 2', 'Passport', 'Table', 'Showcase',
-    'Dressing Table', 'Rack', 'TV', 'Motor Cycle', 'Kitchen', 'Mobile Me', 'Mobile Bou',
-    'Mobile Ammu', 'Oven', 'Loan Khala', 'Loan Himel', 'Loan M Ali', 'Loan Ammu',
-    'Loan Dolil', 'Current Loan Payment', 'Uncertinity'
-];
+// CATEGORIES_LIST Removed in favor of COST_CATEGORIES from constants
 
 const formatLocalDate = (date: Date) => {
     const year = date.getFullYear();

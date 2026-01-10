@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { QuickTransactionModal } from '@/components/dashboard/QuickTransactionModal';
+import { PlusCircle } from 'lucide-react';
 
 interface NavbarProps {
   onSearchClick: () => void;
@@ -20,6 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
   const router = useRouter();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
   const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -229,6 +232,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                         </p>
                       </div>
 
+
+
+                      <button
+                        onClick={() => {
+                          setIsTransactionModalOpen(true);
+                          setIsDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
+                        aria-label="Add Transaction"
+                      >
+                        <PlusCircle className="w-4 h-4" />
+                        <span>Add Transaction</span>
+                      </button>
+
                       <button
                         onClick={handleDashboard}
                         className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
@@ -277,27 +294,34 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
       </nav>
 
       {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed top-16 left-0 right-0 w-full bg-card border-t border-border p-6 flex flex-col gap-4 lg:hidden mobile-menu shadow-lg z-50">
-          <Link href="/services" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Services</Link>
-          {/* <Link href="/products" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link> */}
-          <Link href="/portfolios"className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Portfolios</Link>
-          <Link href="/blogs" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Blogs</Link>
-          <div
-            onClick={() => {
-              onSearchClick();
-              setIsMobileMenuOpen(false);
-            }}
-            className="flex items-center gap-2 text-foreground cursor-pointer hover:text-primary transition-colors"
-          >
-            <Search size={16} />
-            <span>Search / Ask AI</span>
+      {
+        isMobileMenuOpen && (
+          <div className="fixed top-16 left-0 right-0 w-full bg-card border-t border-border p-6 flex flex-col gap-4 lg:hidden mobile-menu shadow-lg z-50">
+            <Link href="/services" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Services</Link>
+            {/* <Link href="/products" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link> */}
+            <Link href="/portfolios" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Portfolios</Link>
+            <Link href="/blogs" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Blogs</Link>
+            <div
+              onClick={() => {
+                onSearchClick();
+                setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 text-foreground cursor-pointer hover:text-primary transition-colors"
+            >
+              <Search size={16} />
+              <span>Search / Ask AI</span>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Spacer to prevent content from going behind navbar */}
       <div className="h-16"></div>
+
+      <QuickTransactionModal
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+      />
     </>
   );
 };
