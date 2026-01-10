@@ -23,6 +23,40 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [balanceData, setBalanceData] = useState<{ monthly: number, closing: number } | null>(null);
+
+  const formatBDT = (amount: number) => {
+    return new Intl.NumberFormat('en-BD', {
+      style: 'currency',
+      currency: 'BDT',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  useEffect(() => {
+    if (isDropdownOpen && session) {
+      const fetchBalances = async () => {
+        try {
+          const now = new Date();
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+          const startDate = startOfMonth.toISOString();
+          const endDate = now.toISOString();
+
+          const res = await fetch(`/api/cashflow?startDate=${startDate}&endDate=${endDate}`);
+          const data = await res.json();
+          if (data.success) {
+            const monthly = (data.data.summary.totalIn || 0) - (data.data.summary.totalOut || 0);
+            const closing = data.data.closingBalance || 0;
+            setBalanceData({ monthly, closing });
+          }
+        } catch (error) {
+          console.error("Failed to fetch balances", error);
+        }
+      };
+      fetchBalances();
+    }
+  }, [isDropdownOpen, session]);
 
   const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -222,8 +256,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
 
                   {/* ✅ Dropdown Menu */}
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
-                      <div className="px-4 py-2 border-b border-border">
+                    <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
+                      <div className="px-4 py-2 border-b border-border mb-2">
                         <p className="text-sm font-medium text-card-foreground truncate">
                           {session.user?.name}
                         </p>
@@ -232,7 +266,23 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                         </p>
                       </div>
 
-
+                      {/* Balance Cards */}
+                      <div className="px-4 py-2 grid grid-cols-2 gap-2 mb-2">
+                        <div className="bg-purple-50 p-2 rounded-lg border border-purple-100">
+                          <p className="text-[10px] text-purple-600">Monthly Balance</p>
+                          <p className="text-lg font-bold text-purple-700">
+                            {balanceData ? formatBDT(balanceData.monthly) : '...'}
+                          </p>
+                          <p className="text-[10px] text-purple-400">Current Period Net</p>
+                        </div>
+                        <div className="bg-blue-50 p-2 rounded-lg border border-blue-100">
+                          <p className="text-[10px] text-blue-600">Closing Balance</p>
+                          <p className="text-lg font-bold text-blue-700">
+                            {balanceData ? formatBDT(balanceData.closing) : '...'}
+                          </p>
+                          <p className="text-[10px] text-blue-400">As of {new Date().toLocaleDateString()}</p>
+                        </div>
+                      </div>
 
                       <button
                         onClick={() => {

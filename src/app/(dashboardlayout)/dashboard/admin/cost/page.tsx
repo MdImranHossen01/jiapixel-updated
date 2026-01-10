@@ -99,6 +99,9 @@ export default function CostPage() {
         description: '',
         type: 'Regular' // Default type
     });
+
+    // Cost Search State
+    const [costSearchTerm, setCostSearchTerm] = useState('');
     const [submittingIncome, setSubmittingIncome] = useState(false);
     const [editingTarget, setEditingTarget] = useState<{ source: string, value: string } | null>(null);
     const [editingAchievement, setEditingAchievement] = useState<{ source: string, value: string } | null>(null);
@@ -755,111 +758,134 @@ export default function CostPage() {
                 activeTab === 'daily' && (
                     <div className="space-y-6">
                         {/* Filter & Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-white p-4 rounded-xl shadow border border-gray-100 flex flex-col justify-center">
-                                <p className="text-gray-500 text-sm mb-2">Date Range</p>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="date"
-                                        value={dateRange.startDate}
-                                        onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
-                                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
-                                    />
-                                    <span className="text-gray-400">-</span>
-                                    <input
-                                        type="date"
-                                        value={dateRange.endDate}
-                                        onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
-                                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
-                                    />
+                        {/* Filter & Stats */}
+                        <div className="space-y-4">
+                            {/* Cost Cards Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Total Cost (Range) */}
+                                <div className="bg-indigo-50 p-4 rounded-xl shadow border border-indigo-100">
+                                    <p className="text-indigo-600 text-xs font-medium">Total Cost ({new Date(dateRange.startDate).toLocaleDateString()} - {new Date(dateRange.endDate).toLocaleDateString()})</p>
+                                    <h3 className="text-2xl font-bold mt-1 text-indigo-700">{formatBDT(dailyStats?.total || 0)}</h3>
+                                </div>
+
+                                {/* Monthly Total */}
+                                <div className="bg-emerald-50 p-4 rounded-xl shadow border border-emerald-100">
+                                    <p className="text-emerald-600 text-xs font-medium">Total for {dailyStats?.monthLabel}</p>
+                                    <h3 className="text-2xl font-bold mt-1 text-emerald-700">{formatBDT(dailyStats?.monthlyTotal || 0)}</h3>
+                                </div>
+
+                                {/* Yearly Total */}
+                                <div className="bg-orange-50 p-4 rounded-xl shadow border border-orange-100">
+                                    <p className="text-orange-600 text-xs font-medium">Total for {dailyStats?.yearLabel}</p>
+                                    <h3 className="text-2xl font-bold mt-1 text-orange-700">{formatBDT(dailyStats?.yearlyTotal || 0)}</h3>
                                 </div>
                             </div>
-                            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 text-white shadow-lg flex flex-col justify-between">
-                                <div>
-                                    <p className="text-blue-100 text-xs">Total Cost ({new Date(dateRange.startDate).toLocaleDateString()} - {new Date(dateRange.endDate).toLocaleDateString()})</p>
-                                    <h3 className="text-2xl font-bold mt-1">{formatBDT(dailyStats?.total || 0)}</h3>
+
+                            {/* Date Range Picker - Centered Below */}
+                            <div className="flex justify-center">
+                                <div className="bg-white p-3 rounded-xl shadow border border-gray-100 flex items-center gap-4 w-fit">
+                                    <p className="text-gray-500 text-xs font-medium whitespace-nowrap">Date Range:</p>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="date"
+                                            value={dateRange.startDate}
+                                            onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
+                                            className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                                        />
+                                        <span className="text-gray-400">-</span>
+                                        <input
+                                            type="date"
+                                            value={dateRange.endDate}
+                                            onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
+                                            className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
-                                <p className="text-gray-500 text-xs">Total for {dailyStats?.monthLabel}</p>
-                                <h3 className="text-lg font-bold mt-1 text-gray-700">{formatBDT(dailyStats?.monthlyTotal || 0)}</h3>
-                            </div>
-                            <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
-                                <p className="text-gray-500 text-xs">Total for {dailyStats?.yearLabel}</p>
-                                <h3 className="text-lg font-bold mt-1 text-gray-700">{formatBDT(dailyStats?.yearlyTotal || 0)}</h3>
-                            </div>
-                        </div>
-
-                        {/* Category Breakdown */}
-                        <div className="bg-white rounded-xl shadow border border-gray-100 overflow-hidden">
-                            <div className="p-3 border-b bg-gray-50 flex justify-between items-center">
-                                <h3 className="font-semibold text-gray-700 text-sm">Category Breakdown</h3>
-                            </div>
-                            <div className="overflow-x-auto max-h-60">
-                                <table className="w-full text-left text-sm">
-                                    <thead className="bg-gray-50 text-gray-500 sticky top-0">
-                                        <tr>
-                                            <th className="px-4 py-2 font-medium">Category</th>
-                                            <th className="px-4 py-2 font-medium text-right">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {dailyStats?.categoryBreakdown.map((item, idx) => (
-                                            <tr key={idx} className="hover:bg-gray-50">
-                                                <td className="px-4 py-2 text-gray-800">{item.category}</td>
-                                                <td className="px-4 py-2 text-right font-medium text-gray-800">{formatBDT(item.amount)}</td>
+                        {/* Content Grid */}
+                        <div className="grid grid-cols-1 lg:grid-cols-[35%_65%] gap-6">
+                            {/* Category Breakdown */}
+                            <div className="bg-white rounded-xl shadow border border-gray-100 overflow-hidden h-fit">
+                                <div className="p-3 border-b bg-gray-50 flex justify-between items-center">
+                                    <h3 className="font-semibold text-gray-700 text-sm">Category Breakdown</h3>
+                                </div>
+                                <div className="overflow-x-auto max-h-[600px]">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-gray-50 text-gray-500 sticky top-0">
+                                            <tr>
+                                                <th className="px-4 py-2 font-medium">Category</th>
+                                                <th className="px-4 py-2 font-medium text-right">Total</th>
                                             </tr>
-                                        ))}
-                                        {!dailyStats?.categoryBreakdown.length && (
-                                            <tr><td colSpan={2} className="p-4 text-center text-gray-400">No data</td></tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                            <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
-                                <h3 className="font-semibold text-gray-700">Cost History</h3>
-                                <span className="text-sm text-gray-500">{costs.length} entries</span>
-                            </div>
-
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
-                                        <tr>
-                                            <th className="p-4 font-medium">Category</th>
-                                            <th className="p-4 font-medium">Description</th>
-                                            <th className="p-4 font-medium text-right">Amount</th>
-                                            <th className="p-4 font-medium text-center">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {loadingCosts ? (
-                                            <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading costs...</td></tr>
-                                        ) : costs.length === 0 ? (
-                                            <tr><td colSpan={4} className="p-8 text-center text-gray-500">No costs found for this date.</td></tr>
-                                        ) : (
-                                            costs.map((cost) => (
-                                                <tr key={cost._id} className="hover:bg-gray-50 transition group">
-                                                    <td className="p-4 font-medium text-gray-800">{cost.category}</td>
-                                                    <td className="p-4 text-gray-600 text-sm">{cost.description || '-'}</td>
-                                                    <td className="p-4 text-right font-bold text-gray-800">{formatBDT(cost.amount)}</td>
-                                                    <td className="p-4 text-center">
-                                                        <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <button onClick={() => handleDelete(cost._id)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition" title="Delete">
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {dailyStats?.categoryBreakdown.map((item, idx) => (
+                                                <tr key={idx} className="hover:bg-gray-50">
+                                                    <td className="px-4 py-2 text-gray-800">{item.category}</td>
+                                                    <td className="px-4 py-2 text-right font-medium text-gray-800">{formatBDT(item.amount)}</td>
                                                 </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
+                                            ))}
+                                            {!dailyStats?.categoryBreakdown.length && (
+                                                <tr><td colSpan={2} className="p-4 text-center text-gray-400">No data</td></tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Cost History */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden h-fit">
+                                <div className="p-4 border-b bg-gray-50 flex flex-col sm:flex-row gap-3 justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-semibold text-gray-700">Cost History</h3>
+                                        <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-600 rounded-full">{costs.length}</span>
+                                    </div>
+                                    <div className="relative w-full sm:w-auto">
+                                        <input
+                                            type="text"
+                                            placeholder="Search costs..."
+                                            value={costSearchTerm}
+                                            onChange={(e) => setCostSearchTerm(e.target.value)}
+                                            className="w-full sm:w-48 pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                        />
+                                        <svg className="w-4 h-4 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                    </div>
+                                </div>
+
+                                <div className="overflow-x-auto max-h-[600px]">
+                                    <table className="w-full text-left">
+                                        <thead className="bg-gray-50 text-gray-600 text-sm uppercase sticky top-0">
+                                            <tr>
+                                                <th className="p-4 font-medium">Date</th>
+                                                <th className="p-4 font-medium">Category</th>
+                                                <th className="p-4 font-medium">Description</th>
+                                                <th className="p-4 font-medium text-right">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {loadingCosts ? (
+                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading costs...</td></tr>
+                                            ) : costs.length === 0 ? (
+                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">No costs found for this date.</td></tr>
+                                            ) : (
+                                                costs
+                                                    .filter(cost =>
+                                                        cost.category.toLowerCase().includes(costSearchTerm.toLowerCase()) ||
+                                                        (cost.description && cost.description.toLowerCase().includes(costSearchTerm.toLowerCase()))
+                                                    )
+                                                    .map((cost) => (
+                                                        <tr key={cost._id} className="hover:bg-gray-50 transition group">
+                                                            <td className="p-4 text-gray-600 text-sm">{formatLocalDate(new Date(cost.date))}</td>
+                                                            <td className="p-4 font-medium text-gray-800">{cost.category}</td>
+                                                            <td className="p-4 text-gray-600 text-sm">{cost.description || '-'}</td>
+                                                            <td className="p-4 text-right font-bold text-gray-800">{formatBDT(cost.amount)}</td>
+                                                        </tr>
+                                                    ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
