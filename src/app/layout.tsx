@@ -66,7 +66,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "Jia Pixel - Reliable Web Development & Digital Marketing Agency",
-        type: "image/png", 
+        type: "image/png",
       },
     ],
   },
@@ -133,7 +133,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <ThemeToggle />
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
             {children}
           </ThemeProvider>
         </SessionProvider>

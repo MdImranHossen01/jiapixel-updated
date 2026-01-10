@@ -79,11 +79,10 @@ export const HeroGrid: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
-      {/* Left Column Container (Spans 8) */}
-      <div className="lg:col-span-9 flex flex-col gap-6">
-        {/* Large Hero Image */}
-        <div className="relative w-full h-[400px] lg:h-[500px] rounded-2xl md:rounded-3xl lg:rounded-4xl overflow-hidden group">
+    <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 h-full">
+      {/* 1. Large Hero Image (Banner) - Mobile Order 1, Desktop Col-span-9 */}
+      <div className="order-1 lg:order-none lg:col-span-9 flex flex-col gap-6">
+        <div className="relative w-full h-[250px] md:h-[400px] lg:h-[500px] rounded-2xl md:rounded-3xl lg:rounded-4xl overflow-hidden group">
           <Image
             src="/Assets/banner/Jia_Pixel_Banner.webp"
             alt="Hero Model"
@@ -94,17 +93,17 @@ export const HeroGrid: React.FC = () => {
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-80"></div>
 
-          <div className="absolute bottom-8 left-8 lg:bottom-12 lg:left-12 max-w-2xl">
+          <div className="absolute bottom-6 left-6 lg:bottom-12 lg:left-12 max-w-2xl">
             <motion.h2
-              className="text-3xl md:text-5xl lg:text-6xl pb-4 font-serif text-white leading-tight"
+              className="text-2xl md:text-5xl lg:text-6xl pb-3 lg:pb-4 font-serif text-white leading-tight"
               variants={itemVariants}
             >
-              <span className="text-lg md:text-xl">Welcome to Jia Pixel</span>
+              <span className="text-base md:text-xl">Welcome to Jia Pixel</span>
               <br />
               Your Partner in Digital <br />
               Transformation <br />
               <motion.span
-                className="text-2xl md:text-3xl lg:text-4xl mt-4 text-white font-medium block min-h-[4rem] lg:min-h-[5rem]"
+                className="text-base md:text-3xl lg:text-4xl mt-2 lg:mt-4 text-white font-medium block min-h-[2rem] md:min-h-[4rem] lg:min-h-[5rem]"
                 variants={itemVariants}
               >
                 <TypeAnimation
@@ -113,7 +112,7 @@ export const HeroGrid: React.FC = () => {
                     1500,
                     "SEO Optimization to Rank Higher",
                     1500,
-                    "Best Deigital Marketing Strategys",
+                    "Best Digital Marketing Strategies",
                     1500,
                   ]}
                   wrapper="span"
@@ -132,71 +131,46 @@ export const HeroGrid: React.FC = () => {
               transition={{ delay: 0.8 }}
             >
               <Link href="/services">
-                <button className="px-3 py-1.5 md:px-6 md:py-3 text-[10px] md:text-base cursor-pointer bg-white text-black rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center gap-1.5 md:gap-2">
+                <button className="px-4 py-2 md:px-6 md:py-3 text-[12px] md:text-base cursor-pointer bg-white text-black rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center gap-1.5 md:gap-2">
                   <Code className="w-3.5 h-3.5 md:w-5 md:h-5" />
                   View Projects
                 </button>
               </Link>
               <Link href="/messages">
-                <button className="px-3 py-1.5 md:px-6 md:py-3 text-[10px] md:text-base cursor-pointer border border-white/30 text-white rounded-full font-semibold hover:bg-white/10 transition-all duration-300">
+                <button className="px-4 py-2 md:px-6 md:py-3 text-[12px] md:text-base cursor-pointer border border-white/30 text-white rounded-full font-semibold hover:bg-white/10 transition-all duration-300">
                   Contact Me
                 </button>
               </Link>
             </motion.div>
           </div>
         </div>
-
-        {/* Bottom Left CTA Card */}
-        <div className="bg-linear-to-r from-gray-900 to-black rounded-2xl md:rounded-3xl lg:rounded-4xl p-6 md:p-8 lg:p-9 flex flex-col md:flex-row items-center justify-between gap-6 min-h-[180px] border border-gray-800">
-          <div className="flex-1">
-            <h3 className="text-white text-xl lg:text-2xl font-bold mb-3">
-              Ready to Transform Your Digital Presence?
-            </h3>
-            <p className="text-gray-300 text-sm font-light leading-relaxed">
-              <span className="italic ">
-                &quot;Let&apos;s build something amazing together. From concept
-                to deployment, Jia Pixel | Leading Digital Agency in Bangladesh,
-                deliver cutting-edge solutions that drive results.&quot;
-              </span>
-              <br />
-              -- Md. Imran Hossen, CEO, Jia Pixel
-            </p>
-          </div>
-          <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full  flex items-center justify-center group hover:scale-105 transition-all duration-300 shrink-0 shadow-lg overflow-hidden border-2 border-primary">
-            <Image
-              src="/Expert-Full-Stack-Web-Applications-Developer-in-Bangladesh-Md-Imran-Hossen-Jia-Pixel.png"
-              height={80}
-              width={80}
-              alt="Md. Imran Hossen, CEO, Jia Pixel"
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </div>
       </div>
 
-      {/* Right Column Container (Spans 4) */}
-      <div className="lg:col-span-3 flex flex-col gap-6">
+      {/* 2. Service Cards - Mobile Order 2, Desktop Col-span-3 (Spans 2 rows visually by being in right col) */}
+      <div className="order-2 lg:order-none lg:col-span-3 lg:row-span-2 grid grid-cols-3 lg:flex lg:flex-col gap-2 lg:gap-6">
         {/* Card 1 - Free Website */}
         <div
-          className="relative h-[220px] rounded-2xl md:rounded-3xl lg:rounded-4xl overflow-hidden group cursor-pointer"
+          className="relative flex flex-col lg:block h-auto lg:h-[220px] rounded-sm lg:rounded-4xl overflow-hidden group cursor-pointer gap-2"
           onClick={() => handleFreeServiceClick("website")}
         >
-          <Image
-            src="/Assets/portfolios/Loginbanner.webp"
-            alt="Free Website"
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105 filter sepia-[.25]"
-            sizes="(max-width: 1024px) 100vw, 25vw"
-          />
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="bg-white/95 backdrop-blur-sm py-3 px-4 rounded-full flex items-center justify-between shadow-lg group-hover:shadow-xl transition-all duration-300">
-              <span className="text-black font-bold text-sm tracking-wide">
+          <div className="relative w-full aspect-video lg:h-full rounded-sm lg:rounded-none overflow-hidden">
+            <Image
+              src="/Assets/portfolios/Loginbanner.webp"
+              alt="Free Website"
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105 filter sepia-[.25]"
+              sizes="(max-width: 1024px) 33vw, 25vw"
+            />
+          </div>
+          <div className="relative w-full lg:w-[85%] xl:w-[75%] lg:absolute lg:bottom-4 lg:left-1/2 lg:-translate-x-1/2">
+            <div className="bg-white lg:bg-white/95 backdrop-blur-sm py-2 px-3 lg:py-3 lg:px-5 rounded-lg lg:rounded-full flex items-center justify-between shadow-sm lg:shadow-lg group-hover:shadow-xl transition-all duration-300 border border-gray-100 lg:border-none">
+              <span className="text-black font-bold text-[10px] lg:text-sm tracking-wide text-center leading-tight">
                 Free Website
               </span>
-              <div className="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-black group-hover:border-black transition-all duration-300">
+              <div className="hidden lg:flex w-8 h-8 rounded-full bg-primary text-white items-center justify-center group-hover:scale-110 group-hover:ring-4 group-hover:ring-primary/20 transition-all duration-300">
                 <ArrowRight
-                  size={14}
-                  className="text-black group-hover:text-white transition-colors"
+                  size={16}
+                  className="text-white"
                 />
               </div>
             </div>
@@ -205,55 +179,88 @@ export const HeroGrid: React.FC = () => {
 
         {/* Card 2 - Free SEO Audit */}
         <div
-          className="relative h-[220px] rounded-2xl md:rounded-3xl lg:rounded-4xl overflow-hidden group cursor-pointer"
+          className="relative flex flex-col lg:block h-auto lg:h-[220px] rounded-sm lg:rounded-4xl overflow-hidden group cursor-pointer gap-2"
           onClick={() => handleFreeServiceClick("seo-audit")}
         >
-          <Image
-            src="/Assets/banner/Free-SEO-Audit-Jia-Pixel.webp"
-            alt="Free SEO Audit"
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105 filter grayscale-[0.3]"
-            sizes="(max-width: 1024px) 100vw, 25vw"
-          />
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="bg-white/95 backdrop-blur-sm py-3 px-4 rounded-full flex items-center justify-between shadow-lg group-hover:shadow-xl transition-all duration-300">
-              <span className="text-black font-bold text-sm tracking-wide">
+          <div className="relative w-full aspect-video lg:h-full rounded-sm lg:rounded-none overflow-hidden">
+            <Image
+              src="/Assets/banner/Free-SEO-Audit-Jia-Pixel.webp"
+              alt="Free SEO Audit"
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105 filter grayscale-[0.3]"
+              sizes="(max-width: 1024px) 33vw, 25vw"
+            />
+          </div>
+          <div className="relative w-full lg:w-[85%] xl:w-[75%] lg:absolute lg:bottom-4 lg:left-1/2 lg:-translate-x-1/2">
+            <div className="bg-white lg:bg-white/95 backdrop-blur-sm py-2 px-3 lg:py-3 lg:px-5 rounded-lg lg:rounded-full flex items-center justify-between shadow-sm lg:shadow-lg group-hover:shadow-xl transition-all duration-300 border border-gray-100 lg:border-none">
+              <span className="text-black font-bold text-[10px] lg:text-sm tracking-wide text-center leading-tight">
                 Free SEO Audit
               </span>
-              <div className="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-black group-hover:border-black transition-all duration-300">
+              <div className="hidden lg:flex w-8 h-8 rounded-full bg-primary text-white items-center justify-center group-hover:scale-110 group-hover:ring-4 group-hover:ring-primary/20 transition-all duration-300">
                 <ArrowRight
-                  size={14}
-                  className="text-black group-hover:text-white transition-colors"
+                  size={16}
+                  className="text-white"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Card 3 - Free Analytics Setup */}
+        {/* Card 3 - Free Analytics */}
         <div
-          className="relative h-[220px] rounded-2xl md:rounded-3xl lg:rounded-4xl overflow-hidden group cursor-pointer"
+          className="relative flex flex-col lg:block h-auto lg:h-[220px] rounded-sm lg:rounded-4xl overflow-hidden group cursor-pointer gap-2"
           onClick={() => handleFreeServiceClick("analytics")}
         >
-          <Image
-            src="/Assets/banner/Free-Web-Analytics-Setup-Jia-Pixel.webp"
-            alt="Free Analytics Setup"
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105 filter grayscale-[0.8] contrast-125"
-            sizes="(max-width: 1024px) 100vw, 25vw"
-          />
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="bg-white/95 backdrop-blur-sm py-3 px-4 rounded-full flex items-center justify-between shadow-lg group-hover:shadow-xl transition-all duration-300">
-              <span className="text-black font-bold text-sm tracking-wide">
-                Free Analytics Setup
+          <div className="relative w-full aspect-video lg:h-full rounded-sm lg:rounded-none overflow-hidden">
+            <Image
+              src="/Assets/banner/Free-Web-Analytics-Setup-Jia-Pixel.webp"
+              alt="Free Analytics"
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105 filter grayscale-[0.8] contrast-125"
+              sizes="(max-width: 1024px) 33vw, 25vw"
+            />
+          </div>
+          <div className="relative w-full lg:w-[85%] xl:w-[75%] lg:absolute lg:bottom-4 lg:left-1/2 lg:-translate-x-1/2">
+            <div className="bg-white lg:bg-white/95 backdrop-blur-sm py-2 px-3 lg:py-3 lg:px-5 rounded-lg lg:rounded-full flex items-center justify-between shadow-sm lg:shadow-lg group-hover:shadow-xl transition-all duration-300 border border-gray-100 lg:border-none">
+              <span className="text-black font-bold text-[10px] lg:text-sm tracking-wide text-center leading-tight">
+                Free Analytics
               </span>
-              <div className="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-black group-hover:border-black transition-all duration-300">
+              <div className="hidden lg:flex w-8 h-8 rounded-full bg-primary text-white items-center justify-center group-hover:scale-110 group-hover:ring-4 group-hover:ring-primary/20 transition-all duration-300">
                 <ArrowRight
-                  size={14}
-                  className="text-black group-hover:text-white transition-colors"
+                  size={16}
+                  className="text-white"
                 />
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. CEO Speech - Mobile Order 3, Desktop Col-span-9 */}
+      <div className="order-3 lg:order-none lg:col-span-9">
+        <div className="bg-linear-to-r from-gray-900 to-black rounded-2xl md:rounded-3xl lg:rounded-4xl p-4 md:p-8 lg:p-9 flex flex-row items-center justify-between gap-4 lg:gap-6 min-h-[100px] lg:min-h-[180px] border border-gray-800">
+          <div className="flex-1">
+            <h3 className="text-white text-sm lg:text-2xl font-bold mb-1 lg:mb-3">
+              Ready to Transform Your Digital Presence?
+            </h3>
+            <p className="text-gray-300 text-[10px] lg:text-sm font-light leading-relaxed">
+              <span className="italic line-clamp-2 lg:line-clamp-none">
+                &quot;Let&apos;s build something amazing together. From concept
+                to deployment, Jia Pixel...&quot;
+              </span>
+              <span className="block mt-1 text-[9px] lg:text-xs text-gray-400">
+                -- Md. Imran Hossen, CEO
+              </span>
+            </p>
+          </div>
+          <div className="w-12 h-12 lg:w-20 lg:h-20 rounded-full flex items-center justify-center group hover:scale-105 transition-all duration-300 shrink-0 shadow-lg overflow-hidden border-2 border-primary">
+            <Image
+              src="/Expert-Full-Stack-Web-Applications-Developer-in-Bangladesh-Md-Imran-Hossen-Jia-Pixel.png"
+              height={80}
+              width={80}
+              alt="Md. Imran Hossen, CEO, Jia Pixel"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </div>

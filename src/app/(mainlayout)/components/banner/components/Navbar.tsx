@@ -164,14 +164,29 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
   return (
     <>
       {/* Sticky Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 w-full py-4 px-4 flex items-center justify-between z-50 transition-all duration-300 ${isScrolled
+      <nav className={`fixed top-0 left-0 right-0 w-full py-2 md:py-4 px-4 flex items-center justify-between z-50 transition-all duration-300 ${isScrolled
         ? 'bg-background/95 backdrop-blur-md border-b border-border shadow-lg'
         : 'bg-background/90 backdrop-blur-sm'
         }`}>
-        <div className="container mx-auto flex items-center justify-between">
+        <div className="container mx-auto flex items-center justify-between relative">
           {/* Logo Section */}
-          <div className="flex items-center gap-8">
-            <Logo />
+          <div className="flex items-center gap-4 lg:gap-8">
+            {/* Mobile Menu Toggle (Moved to Left) */}
+            <button
+              className="lg:hidden text-foreground hamburger-btn"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle Mobile Menu"
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+
+            <Logo
+              className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0"
+              imageClassName="w-6 h-6 lg:w-[30px] lg:h-[30px]"
+              mainTextClassName="text-xl lg:text-3xl"
+              subTextClassName="text-xs lg:text-base"
+            />
             <div className="hidden lg:block w-px h-6 bg-border"></div>
 
             {/* Desktop Links */}
@@ -256,7 +271,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
 
                   {/* ✅ Dropdown Menu */}
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
+                    <div className="fixed top-20 left-4 right-4 w-auto md:absolute md:top-full md:right-0 md:left-auto md:w-80 md:mt-2 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
                       <div className="px-4 py-2 border-b border-border mb-2">
                         <p className="text-sm font-medium text-card-foreground truncate">
                           {session.user?.name}
@@ -330,15 +345,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
               )}
             </div>
 
-            {/* Mobile Menu Toggle */}
-            <button
-              className="lg:hidden text-foreground hamburger-btn"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle Mobile Menu"
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? <X /> : <Menu />}
-            </button>
+
           </div>
         </div>
       </nav>
