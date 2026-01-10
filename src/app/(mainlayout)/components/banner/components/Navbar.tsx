@@ -170,7 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
         ? 'bg-background/95 backdrop-blur-md border-b border-border shadow-lg'
         : 'bg-background/90 backdrop-blur-sm'
         }`}>
-        <div className="container mx-auto flex items-center justify-between relative">
+        <div className="container px-4 mx-auto flex items-center justify-between relative">
           {/* Logo Section */}
           <div className="flex items-center gap-4 lg:gap-8">
             {/* Mobile Menu Toggle (Moved to Left) */}
@@ -206,26 +206,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
             <div
               onClick={onSearchClick}
               role="button"
-              aria-label="Open AI Stylist Search"
+              aria-label="Open AI Search"
               className="hidden md:flex items-center gap-3 bg-accent border border-border rounded-full px-4 py-2.5 min-w-60 cursor-pointer group hover:border-primary transition-colors"
             >
               <Search size={18} className="text-foreground/60 group-hover:text-primary transition-colors" />
-              <span className="text-sm text-foreground/60 group-hover:text-primary transition-colors">Ask AI...</span>
+              <span className="text-sm text-foreground/60 group-hover:text-primary transition-colors">Ask AI ...</span>
             </div>
 
             <div className="flex items-center space-x-2 md:flex-1 md:justify-end gap-2">
               {/* Desktop Actions */}
               <div className="hidden lg:flex items-center gap-2">
                 <Link href="/estimate">
-                  <Button variant="ghost" size="sm" className="hidden xl:flex">
+                  <Button variant="ghost" size="lg" className="hidden xl:flex cursor-pointer border border-border rounded-full py-4 px-6">
                     Get Estimate
                   </Button>
                 </Link>
                 <Button
                   onClick={openBooking}
                   variant="default"
-                  size="sm"
-                  className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-4"
+                  size="lg"
+                  className="flex items-center gap-2 bg-primary cursor-pointer text-primary-foreground hover:bg-primary/90 rounded-full py-4 px-6"
                 >
                   <Calendar size={16} />
                   <span>Book a Call</span>
@@ -366,16 +366,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                   )}
                 </div>
               ) : (
-                <Button
-                  onClick={handleLogin}
-                  variant="outline"
-                  size="sm"
-                  className="hidden md:flex items-center space-x-2"
-                  aria-label="Login"
-                >
-                  <User className="w-4 h-4" />
-                  <span>Login</span>
-                </Button>
+                <>
+                  <Button
+                    onClick={handleLogin}
+                    variant="ghost"
+                    size="lg"
+                    className="text-foreground lg:border lg:border-border cursor-pointer"
+                    aria-label="Login"
+                  >
+                    <User className="w-20 h-20" />
+                  </Button>
+                </>
               )}
             </div>
 
@@ -418,7 +419,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
       }
 
       {/* Spacer to prevent content from going behind navbar */}
-      <div className="h-16"></div>
+      <div className="h-14 md:h-16"></div>
 
       <QuickTransactionModal
         isOpen={isTransactionModalOpen}
