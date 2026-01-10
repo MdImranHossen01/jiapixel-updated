@@ -18,6 +18,9 @@ export async function POST(req: NextRequest) {
         let createdCount = 0;
         let errors: string[] = [];
 
+        let skippedInvalid = 0;
+        let skippedExisting = 0;
+
         // 3. Iterate and check for missing Cost entries
         for (const transaction of cashflowOut) {
             // Check if transaction category is a valid Cost category
@@ -50,14 +53,27 @@ export async function POST(req: NextRequest) {
                     } catch (err: any) {
                         errors.push(`Failed to create cost for ${transaction.category}: ${err.message}`);
                     }
+                } else {
+                    skippedExisting++;
+                }
+            } else {
+                skippedInvalid++;
+                if (transaction.category && !COST_CATEGORIES.includes(transaction.category)) {
+                    // Start log for debugging if needed, but don't overflow
+                    if (errors.length < 5) errors.push(`Skipped invalid category: ${transaction.category}`);
                 }
             }
         }
 
+        let message = `Sync complete. Created ${createdCount} entries.`;
+        if (skippedExisting > 0) message += ` Skipped ${skippedExisting} existing.`;
+        if (skippedInvalid > 0) message += ` Skipped ${skippedInvalid} invalid categories.`;
+
         return NextResponse.json({
             success: true,
-            message: `Sync complete. Created ${createdCount} missing cost entries.`,
-            errors: errors.length > 0 ? errors : undefined
+            message,
+            errors: errors.length > 0 ? errors : undefined,
+            stats: { createdCount, skippedExisting, skippedInvalid }
         });
 
     } catch (error: any) {

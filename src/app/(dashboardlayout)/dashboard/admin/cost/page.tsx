@@ -78,7 +78,7 @@ const CATEGORIES_LIST = [
     'Ammu', 'Bou', 'Kobutor Cost', 'Freelancing Cost', 'Freelancing Setup', 'Market place Cost', 'Rent',
     'Gas', 'Electricity Bill', 'Water Supply', 'Mobile Bill', 'Internet', 'Education',
     'Treatment', 'Transport', 'Vegetable', 'Rice', 'Piaj', 'Rosun', 'Polau Rice',
-    'Dal', 'Salt', 'Alu', 'Fruits', 'Snacks', 'toiletries', 'Egg', 'Milk', 'Modhu', 'Chola', 'Spaces',
+    'Dal', 'Salt', 'Alu', 'Fruits', 'Snacks', 'toiletries', 'Egg', 'Milk', 'Modhu', 'Chola', 'Muri', 'Spaces',
     'Sugar', 'Tea', 'Meat', 'Fish', 'Oil', 'Ata', 'Personal Care', 'Home', 'Others',
     'Home tour', 'Charity/Mosque', 'Roja', 'Tour', 'Others Festival', 'Eidul Adha', 'Zakat',
     'Maintenance/Charge', 'Office Program', 'Tasmim', 'Ayman', 'Sajid', 'Costume',
@@ -192,7 +192,11 @@ export default function CostPage() {
             const res = await fetch('/api/sync-costs', { method: 'POST' });
             const data = await res.json();
             if (data.success) {
-                alert(data.message);
+                let msg = data.message;
+                if (data.errors && data.errors.length > 0) {
+                    msg += '\n\nErrors:\n' + data.errors.join('\n');
+                }
+                alert(msg);
                 // Refresh data
                 if (activeTab === 'daily') fetchCosts(dateRange.startDate, dateRange.endDate);
                 else if (activeTab === 'cashflow') fetchCashflow();
@@ -730,19 +734,19 @@ export default function CostPage() {
                         onClick={() => setActiveTab('daily')}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'daily' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        Daily Entry
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('yearly')}
-                        className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'yearly' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
-                    >
-                        Yearly Budget
+                        Cost
                     </button>
                     <button
                         onClick={() => setActiveTab('income')}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'income' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
                         Income
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('yearly')}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'yearly' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        Yearly Budget
                     </button>
                     <button
                         onClick={() => setActiveTab('performance')}
@@ -763,194 +767,113 @@ export default function CostPage() {
             {/* Daily View */}
             {
                 activeTab === 'daily' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Form */}
-                        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-fit">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-semibold text-gray-700">{editingCost ? 'Edit Cost' : 'Add New Cost'}</h2>
-                                {editingCost && (
-                                    <button onClick={() => { setEditingCost(null); setFormData(prev => ({ ...prev, category: '', amount: '', description: '' })); }} className="text-red-500 hover:bg-red-50 p-1 rounded">
-                                        <X size={20} />
-                                    </button>
-                                )}
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <div className="space-y-6">
+                        {/* Filter & Stats */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-white p-4 rounded-xl shadow border border-gray-100 flex flex-col justify-center">
+                                <p className="text-gray-500 text-sm mb-2">Date Range</p>
+                                <div className="flex items-center gap-2">
                                     <input
                                         type="date"
-                                        value={formData.date}
-                                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                        className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                        value={dateRange.startDate}
+                                        onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
+                                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
                                     />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                    <span className="text-gray-400">-</span>
                                     <input
-                                        list="categories"
-                                        value={formData.category}
-                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                        placeholder="Select or type category"
-                                        className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+                                        type="date"
+                                        value={dateRange.endDate}
+                                        onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
+                                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
                                     />
-                                    <datalist id="categories">
-                                        {CATEGORIES_LIST.map(cat => (
-                                            <option key={cat} value={cat} />
-                                        ))}
-                                    </datalist>
                                 </div>
-
+                            </div>
+                            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 text-white shadow-lg flex flex-col justify-between">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                                    <input
-                                        type="number"
-                                        value={formData.amount}
-                                        onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                        placeholder="0.00"
-                                        className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                                    />
+                                    <p className="text-blue-100 text-xs">Total Cost ({new Date(dateRange.startDate).toLocaleDateString()} - {new Date(dateRange.endDate).toLocaleDateString()})</p>
+                                    <h3 className="text-2xl font-bold mt-1">{formatBDT(dailyStats?.total || 0)}</h3>
                                 </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
-                                    <input
-                                        type="text"
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        placeholder="Details..."
-                                        className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className={`w-full py-3 px-4 rounded-lg text-white font-medium transition flex justify-center items-center gap-2
-                                    ${editingCost
-                                            ? 'bg-yellow-600 hover:bg-yellow-700'
-                                            : 'bg-blue-600 hover:bg-blue-700'
-                                        } disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg`}
-                                >
-                                    {submitting ? 'Saving...' : (editingCost ? 'Update Cost' : 'Add Cost')}
-                                    {!submitting && !editingCost && <Plus size={18} />}
-                                </button>
-                            </form>
+                            </div>
                         </div>
 
-                        {/* List & Stats */}
-                        <div className="lg:col-span-2 space-y-6">
-                            {/* Filter & Stats */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="bg-white p-4 rounded-xl shadow border border-gray-100 flex flex-col justify-center">
-                                    <p className="text-gray-500 text-sm mb-2">Date Range</p>
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="date"
-                                            value={dateRange.startDate}
-                                            onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
-                                            className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
-                                        />
-                                        <span className="text-gray-400">-</span>
-                                        <input
-                                            type="date"
-                                            value={dateRange.endDate}
-                                            onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
-                                            className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 text-white shadow-lg flex flex-col justify-between">
-                                    <div>
-                                        <p className="text-blue-100 text-xs">Total Cost ({new Date(dateRange.startDate).toLocaleDateString()} - {new Date(dateRange.endDate).toLocaleDateString()})</p>
-                                        <h3 className="text-2xl font-bold mt-1">{formatBDT(dailyStats?.total || 0)}</h3>
-                                    </div>
-                                </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
+                                <p className="text-gray-500 text-xs">Total for {dailyStats?.monthLabel}</p>
+                                <h3 className="text-lg font-bold mt-1 text-gray-700">{formatBDT(dailyStats?.monthlyTotal || 0)}</h3>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
-                                    <p className="text-gray-500 text-xs">Total for {dailyStats?.monthLabel}</p>
-                                    <h3 className="text-lg font-bold mt-1 text-gray-700">{formatBDT(dailyStats?.monthlyTotal || 0)}</h3>
-                                </div>
-                                <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
-                                    <p className="text-gray-500 text-xs">Total for {dailyStats?.yearLabel}</p>
-                                    <h3 className="text-lg font-bold mt-1 text-gray-700">{formatBDT(dailyStats?.yearlyTotal || 0)}</h3>
-                                </div>
+                            <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
+                                <p className="text-gray-500 text-xs">Total for {dailyStats?.yearLabel}</p>
+                                <h3 className="text-lg font-bold mt-1 text-gray-700">{formatBDT(dailyStats?.yearlyTotal || 0)}</h3>
                             </div>
+                        </div>
 
-                            {/* Category Breakdown */}
-                            <div className="bg-white rounded-xl shadow border border-gray-100 overflow-hidden">
-                                <div className="p-3 border-b bg-gray-50 flex justify-between items-center">
-                                    <h3 className="font-semibold text-gray-700 text-sm">Category Breakdown</h3>
-                                </div>
-                                <div className="overflow-x-auto max-h-60">
-                                    <table className="w-full text-left text-sm">
-                                        <thead className="bg-gray-50 text-gray-500 sticky top-0">
-                                            <tr>
-                                                <th className="px-4 py-2 font-medium">Category</th>
-                                                <th className="px-4 py-2 font-medium text-right">Total</th>
+                        {/* Category Breakdown */}
+                        <div className="bg-white rounded-xl shadow border border-gray-100 overflow-hidden">
+                            <div className="p-3 border-b bg-gray-50 flex justify-between items-center">
+                                <h3 className="font-semibold text-gray-700 text-sm">Category Breakdown</h3>
+                            </div>
+                            <div className="overflow-x-auto max-h-60">
+                                <table className="w-full text-left text-sm">
+                                    <thead className="bg-gray-50 text-gray-500 sticky top-0">
+                                        <tr>
+                                            <th className="px-4 py-2 font-medium">Category</th>
+                                            <th className="px-4 py-2 font-medium text-right">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {dailyStats?.categoryBreakdown.map((item, idx) => (
+                                            <tr key={idx} className="hover:bg-gray-50">
+                                                <td className="px-4 py-2 text-gray-800">{item.category}</td>
+                                                <td className="px-4 py-2 text-right font-medium text-gray-800">{formatBDT(item.amount)}</td>
                                             </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {dailyStats?.categoryBreakdown.map((item, idx) => (
-                                                <tr key={idx} className="hover:bg-gray-50">
-                                                    <td className="px-4 py-2 text-gray-800">{item.category}</td>
-                                                    <td className="px-4 py-2 text-right font-medium text-gray-800">{formatBDT(item.amount)}</td>
+                                        ))}
+                                        {!dailyStats?.categoryBreakdown.length && (
+                                            <tr><td colSpan={2} className="p-4 text-center text-gray-400">No data</td></tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                            <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
+                                <h3 className="font-semibold text-gray-700">Cost History</h3>
+                                <span className="text-sm text-gray-500">{costs.length} entries</span>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
+                                        <tr>
+                                            <th className="p-4 font-medium">Category</th>
+                                            <th className="p-4 font-medium">Description</th>
+                                            <th className="p-4 font-medium text-right">Amount</th>
+                                            <th className="p-4 font-medium text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {loadingCosts ? (
+                                            <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading costs...</td></tr>
+                                        ) : costs.length === 0 ? (
+                                            <tr><td colSpan={4} className="p-8 text-center text-gray-500">No costs found for this date.</td></tr>
+                                        ) : (
+                                            costs.map((cost) => (
+                                                <tr key={cost._id} className="hover:bg-gray-50 transition group">
+                                                    <td className="p-4 font-medium text-gray-800">{cost.category}</td>
+                                                    <td className="p-4 text-gray-600 text-sm">{cost.description || '-'}</td>
+                                                    <td className="p-4 text-right font-bold text-gray-800">{formatBDT(cost.amount)}</td>
+                                                    <td className="p-4 text-center">
+                                                        <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <button onClick={() => handleDelete(cost._id)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition" title="Delete">
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
                                                 </tr>
-                                            ))}
-                                            {!dailyStats?.categoryBreakdown.length && (
-                                                <tr><td colSpan={2} className="p-4 text-center text-gray-400">No data</td></tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                                <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
-                                    <h3 className="font-semibold text-gray-700">Cost History</h3>
-                                    <span className="text-sm text-gray-500">{costs.length} entries</span>
-                                </div>
-
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left">
-                                        <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
-                                            <tr>
-                                                <th className="p-4 font-medium">Category</th>
-                                                <th className="p-4 font-medium">Description</th>
-                                                <th className="p-4 font-medium text-right">Amount</th>
-                                                <th className="p-4 font-medium text-center">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {loadingCosts ? (
-                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading costs...</td></tr>
-                                            ) : costs.length === 0 ? (
-                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">No costs found for this date.</td></tr>
-                                            ) : (
-                                                costs.map((cost) => (
-                                                    <tr key={cost._id} className="hover:bg-gray-50 transition group">
-                                                        <td className="p-4 font-medium text-gray-800">{cost.category}</td>
-                                                        <td className="p-4 text-gray-600 text-sm">{cost.description || '-'}</td>
-                                                        <td className="p-4 text-right font-bold text-gray-800">{formatBDT(cost.amount)}</td>
-                                                        <td className="p-4 text-center">
-                                                            <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <button onClick={() => handleEdit(cost)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition" title="Edit">
-                                                                    <Edit2 size={16} />
-                                                                </button>
-                                                                <button onClick={() => handleDelete(cost._id)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition" title="Delete">
-                                                                    <Trash2 size={16} />
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -1057,79 +980,6 @@ export default function CostPage() {
             {
                 activeTab === 'income' && (
                     <div className="space-y-8">
-                        {/* Add Income Form */}
-                        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 w-full lg:w-1/2 mx-auto">
-                            <h2 className="text-xl font-semibold text-gray-700 mb-6">Add Income</h2>
-                            <form onSubmit={handleIncomeSubmit} className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                                        <input
-                                            type="date"
-                                            value={incomeFormData.date}
-                                            onChange={(e) => setIncomeFormData({ ...incomeFormData, date: e.target.value })}
-                                            className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
-                                        <input
-                                            list="incomeSources"
-                                            value={incomeFormData.source}
-                                            onChange={(e) => setIncomeFormData({ ...incomeFormData, source: e.target.value })}
-                                            placeholder="Select Source"
-                                            className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                        />
-                                        <datalist id="incomeSources">
-                                            {INCOME_SOURCES.map(src => <option key={src} value={src} />)}
-                                        </datalist>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                                    <input
-                                        type="number"
-                                        value={incomeFormData.amount}
-                                        onChange={(e) => setIncomeFormData({ ...incomeFormData, amount: e.target.value })}
-                                        className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                        placeholder="0.00"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                    <input
-                                        type="text"
-                                        value={incomeFormData.description}
-                                        onChange={(e) => setIncomeFormData({ ...incomeFormData, description: e.target.value })}
-                                        className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                        placeholder="Optional details..."
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={submittingIncome}
-                                    className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition shadow-md"
-                                >
-                                    {submittingIncome ? 'Adding...' : 'Add Income'}
-                                </button>
-
-                                <div className="mt-4 flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id="contractType"
-                                        checked={incomeFormData.type === 'Contract'}
-                                        onChange={(e) => setIncomeFormData({ ...incomeFormData, type: e.target.checked ? 'Contract' : 'Regular' })}
-                                        className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
-                                    />
-                                    <label htmlFor="contractType" className="ml-2 block text-sm text-gray-700">
-                                        Is this a Contract Income?
-                                    </label>
-                                </div>
-                            </form>
-                        </div>
 
                         {/* Income Overview Table */}
                         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">

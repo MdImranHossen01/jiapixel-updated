@@ -134,9 +134,52 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json({ success: false, error: 'ID is required' }, { status: 400 });
         }
 
+        const transaction = await Cashflow.findById(id);
+        if (!transaction) {
+            return NextResponse.json({ success: false, error: 'Transaction not found' }, { status: 404 });
+        }
+
+        // --- Sync Deletion: Remove corresponding Cost/Income ---
+        if (transaction.type === 'OUT' && transaction.category) {
+            try {
+                // Determine date range for safer matching (same day)
+                const txDateStart = new Date(transaction.date);
+                txDateStart.setHours(0, 0, 0, 0);
+                const txDateEnd = new Date(transaction.date);
+                txDateEnd.setHours(23, 59, 59, 999);
+
+                await Cost.findOneAndDelete({
+                    category: transaction.category,
+                    amount: transaction.amount,
+                    date: { $gte: txDateStart, $lte: txDateEnd },
+                    // description: transaction.description // Optional: strict matching
+                });
+                console.log(`Auto-deleted Cost entry for ${transaction.category}`);
+            } catch (err) {
+                console.error('Failed to auto-delete Cost entry:', err);
+            }
+        } else if (transaction.type === 'IN' && transaction.category) {
+            try {
+                const txDateStart = new Date(transaction.date);
+                txDateStart.setHours(0, 0, 0, 0);
+                const txDateEnd = new Date(transaction.date);
+                txDateEnd.setHours(23, 59, 59, 999);
+
+                await Income.findOneAndDelete({
+                    source: transaction.category,
+                    amount: transaction.amount,
+                    date: { $gte: txDateStart, $lte: txDateEnd }
+                });
+                console.log(`Auto-deleted Income entry for ${transaction.category}`);
+            } catch (err) {
+                console.error('Failed to auto-delete Income entry:', err);
+            }
+        }
+        // -------------------------------------------------------
+
         await Cashflow.findByIdAndDelete(id);
 
-        return NextResponse.json({ success: true, message: 'Transaction deleted' });
+        return NextResponse.json({ success: true, message: 'Transaction and linked records deleted' });
     } catch (error: any) {
         console.error('Error deleting cashflow:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

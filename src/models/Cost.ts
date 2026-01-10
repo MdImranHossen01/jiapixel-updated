@@ -37,6 +37,7 @@ export const COST_CATEGORIES = [
     'Milk',
     'Modhu',
     'Chola',
+    'Muri',
     'Spaces',
     'Sugar',
     'Tea',
@@ -118,6 +119,11 @@ const CostSchema: Schema = new Schema({
     timestamps: true,
 });
 
-const Cost: Model<ICost> = (mongoose.models && mongoose.models.Cost) || mongoose.model<ICost>('Cost', CostSchema);
+// Force model rebuild to pick up enum changes in development
+if (mongoose.models && mongoose.models.Cost) {
+    delete mongoose.models.Cost;
+}
+
+const Cost: Model<ICost> = mongoose.model<ICost>('Cost', CostSchema);
 
 export default Cost;
