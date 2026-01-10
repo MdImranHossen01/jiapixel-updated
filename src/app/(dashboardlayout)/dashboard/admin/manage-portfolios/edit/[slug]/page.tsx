@@ -5,16 +5,16 @@ import connectDB from '@/lib/db';
 import Portfolio from '@/models/Portfolios';
 
 interface EditPortfolioPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getPortfolio(slug: string) {
   try {
     await connectDB();
     const portfolio = await Portfolio.findOne({ slug });
-    
+
     if (!portfolio) {
       return null;
     }
@@ -28,14 +28,15 @@ async function getPortfolio(slug: string) {
 }
 
 async function EditPortfolioPage({ params }: EditPortfolioPageProps) {
+  const { slug } = await params;
   const user = await getCurrentUser();
-  
+
   // Server-side authentication check
   if (!user || user.role !== 'admin') {
     redirect('/login');
   }
 
-  const portfolio = await getPortfolio(params.slug);
+  const portfolio = await getPortfolio(slug);
 
   if (!portfolio) {
     return (
