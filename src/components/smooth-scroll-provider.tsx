@@ -13,6 +13,16 @@ export const SmoothScrollProvider = ({ children }: { children: ReactNode }) => {
             smoothWheel: true,
             wheelMultiplier: 1,
             touchMultiplier: 2,
+            prevent: (node) => {
+                return (
+                    node.nodeName === "PRE" ||
+                    node.nodeName === "CODE" ||
+                    !!node.closest("[data-lenis-prevent]") ||
+                    !!node.closest(".overflow-y-auto") ||
+                    !!node.closest(".overflow-x-auto") ||
+                    !!node.closest(".overflow-auto")
+                );
+            },
         });
 
         function raf(time: number) {

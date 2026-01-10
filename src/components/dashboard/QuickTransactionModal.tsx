@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { COST_CATEGORIES, INCOME_SOURCES } from '@/constants/financials';
 
@@ -24,6 +24,12 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
         description: ''
     });
 
+    // Refs for navigation
+    const amountRef = useRef<HTMLInputElement>(null);
+    const categoryRef = useRef<HTMLSelectElement>(null);
+    const descriptionRef = useRef<HTMLInputElement>(null);
+    const submitBtnRef = useRef<HTMLButtonElement>(null);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -48,7 +54,12 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
                     category: '',
                     description: ''
                 });
-                onClose();
+                // onClose(); // Keep modal open
+
+                // Focus amount for next entry
+                setTimeout(() => {
+                    amountRef.current?.focus();
+                }, 0);
             } else {
                 alert('Failed to add transaction: ' + data.error);
             }
@@ -57,6 +68,28 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
             alert('An error occurred.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleAmountKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            categoryRef.current?.focus();
+        }
+    };
+
+    const handleCategoryKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            descriptionRef.current?.focus();
+        }
+    };
+
+    const handleDescriptionKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // Trigger submit
+            submitBtnRef.current?.click();
         }
     };
 
@@ -116,14 +149,17 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
                         <input
+                            ref={amountRef}
                             type="number"
                             value={formData.amount}
                             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                            onKeyDown={handleAmountKeyDown}
                             placeholder="0.00"
                             className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
                             required
                             min="0"
                             step="0.01"
+                            autoFocus
                         />
                     </div>
 
@@ -131,8 +167,17 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
                         <label className="block text-sm font-medium text-gray-700 mb-1">Category (Optional)</label>
                         {formData.type === 'OUT' ? (
                             <select
+                                ref={categoryRef}
                                 value={formData.category}
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                onChange={(e) => {
+                                    const newCategory = e.target.value;
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        category: newCategory,
+                                        description: newCategory // Auto-fill description
+                                    }));
+                                }}
+                                onKeyDown={handleCategoryKeyDown}
                                 className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
                             >
                                 <option value="">Select Category</option>
@@ -142,8 +187,17 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
                             </select>
                         ) : (
                             <select
+                                ref={categoryRef}
                                 value={formData.category}
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                onChange={(e) => {
+                                    const newCategory = e.target.value;
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        category: newCategory,
+                                        description: newCategory // Auto-fill description
+                                    }));
+                                }}
+                                onKeyDown={handleCategoryKeyDown}
                                 className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
                             >
                                 <option value="">Select Source</option>
@@ -158,9 +212,11 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <input
+                            ref={descriptionRef}
                             type="text"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            onKeyDown={handleDescriptionKeyDown}
                             placeholder="For what?"
                             className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
                             required
@@ -169,6 +225,7 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
 
                     {/* Submit Button */}
                     <button
+                        ref={submitBtnRef}
                         type="submit"
                         disabled={loading}
                         className={`w-full py-2.5 px-4 text-white rounded-lg font-medium transition shadow-sm flex justify-center items-center gap-2
@@ -179,7 +236,7 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
                         {loading ? 'Saving...' : (formData.type === 'IN' ? 'Add Cash In' : 'Add Cash Out')}
                     </button>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
