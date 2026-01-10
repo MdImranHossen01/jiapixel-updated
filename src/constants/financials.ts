@@ -88,5 +88,6 @@ export const INCOME_SOURCES = [
     'Freelancing',
     'farm',
     'Loan',
+    'Opening Balance',
     'Others'
 ];

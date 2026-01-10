@@ -1550,7 +1550,7 @@ export default function CostPage() {
                 activeTab === 'cashflow' && (
                     <div className="space-y-6">
                         {/* Summary Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                             <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
                                 <p className="text-sm text-gray-500">Opening Balance</p>
                                 <p className="text-2xl font-bold text-gray-700">{formatBDT(cashflowData?.openingBalance || 0)}</p>
@@ -1563,6 +1563,13 @@ export default function CostPage() {
                             <div className="bg-rose-50 p-4 rounded-xl shadow border border-rose-100">
                                 <p className="text-sm text-rose-600">Total Cash Out</p>
                                 <p className="text-2xl font-bold text-rose-700">{formatBDT(cashflowData?.summary.totalOut || 0)}</p>
+                            </div>
+                            <div className="bg-purple-50 p-4 rounded-xl shadow border border-purple-100">
+                                <p className="text-sm text-purple-600">Monthly Balance</p>
+                                <p className="text-2xl font-bold text-purple-700">
+                                    {formatBDT((cashflowData?.summary.totalIn || 0) - (cashflowData?.summary.totalOut || 0))}
+                                </p>
+                                <p className="text-xs text-purple-400 mt-1">Current Period Net</p>
                             </div>
                             <div className="bg-blue-50 p-4 rounded-xl shadow border border-blue-100">
                                 <p className="text-sm text-blue-600">Closing Balance</p>

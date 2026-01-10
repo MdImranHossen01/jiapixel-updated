@@ -1,8 +1,6 @@
-"use client";
-
 import React, { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
-import { COST_CATEGORIES } from '@/constants/financials';
+import { COST_CATEGORIES, INCOME_SOURCES } from '@/constants/financials';
 
 interface QuickTransactionModalProps {
     isOpen: boolean;
@@ -129,7 +127,6 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
                         />
                     </div>
 
-                    {/* Category */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Category (Optional)</label>
                         {formData.type === 'OUT' ? (
@@ -144,13 +141,16 @@ export const QuickTransactionModal: React.FC<QuickTransactionModalProps> = ({ is
                                 ))}
                             </select>
                         ) : (
-                            <input
-                                type="text"
+                            <select
                                 value={formData.category}
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                placeholder="Source (e.g. Salary)"
-                                className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
-                            />
+                                className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                            >
+                                <option value="">Select Source</option>
+                                {INCOME_SOURCES.map(src => (
+                                    <option key={src} value={src}>{src}</option>
+                                ))}
+                            </select>
                         )}
                     </div>
 
