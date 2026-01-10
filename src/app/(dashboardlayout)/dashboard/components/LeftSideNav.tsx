@@ -17,6 +17,7 @@ import {
   Folder
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
+import Logo from '@/app/(mainlayout)/components/Logo';
 
 const LeftSideNav = () => {
   const pathname = usePathname();
@@ -175,17 +176,7 @@ const LeftSideNav = () => {
       `}>
         {/* Logo/Brand */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">JP</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                JiAPixel
-              </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Dashboard</p>
-            </div>
-          </Link>
+          <Logo />
         </div>
 
         {/* Navigation */}
