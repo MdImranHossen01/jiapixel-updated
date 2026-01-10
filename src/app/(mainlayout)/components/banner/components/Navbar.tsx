@@ -226,7 +226,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                 </Button>
               </div>
 
-              <div className="relative">
+              <div className="relative hidden md:block">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -318,6 +318,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                       >
                         <Settings className="w-4 h-4" />
                         <span>Dashboard</span>
+                      </button>
+
+                      <button
+                        onClick={handleMessages}
+                        className="w-full md:hidden flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
+                        aria-label="View Messages"
+                      >
+                        <Mail className="w-4 h-4" />
+                        <span>Messages</span>
+                        {unreadCount > 0 && (
+                          <span className="ml-auto bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </span>
+                        )}
                       </button>
 
                       <button
