@@ -48,13 +48,6 @@ interface AssetData {
     };
 }
 
-interface IncomeStat {
-    source: string;
-    target: number;
-    earned: number;
-    variance: number;
-    monthlyIncome: number[];
-}
 
 interface CashflowTransaction {
     _id: string;
@@ -90,19 +83,28 @@ export default function CostPage() {
     const [performanceMonth, setPerformanceMonth] = useState(new Date().getMonth() + 1);
 
     // Income State
-    const [incomeStats, setIncomeStats] = useState<IncomeStat[]>([]);
     const [loadingIncome, setLoadingIncome] = useState(false);
-    const [incomeFormData, setIncomeFormData] = useState({
-        date: formatLocalDate(new Date()),
-        source: '',
-        amount: '',
-        description: '',
-        type: 'Regular' // Default type
+
+    // New Income State Logic
+    const [incomeDateRange, setIncomeDateRange] = useState({
+        startDate: formatLocalDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)),
+        endDate: formatLocalDate(new Date())
     });
+    const [incomeSearchTerm, setIncomeSearchTerm] = useState('');
+    const [fetchedIncomeData, setFetchedIncomeData] = useState<{
+        data: any[];
+        stats: {
+            total: number;
+            categoryBreakdown: { category: string; amount: number }[];
+            monthlyTotal: number;
+            yearlyTotal: number;
+            monthLabel: string;
+            yearLabel: string;
+        } | null;
+    } | null>(null);
 
     // Cost Search State
     const [costSearchTerm, setCostSearchTerm] = useState('');
-    const [submittingIncome, setSubmittingIncome] = useState(false);
     const [editingTarget, setEditingTarget] = useState<{ source: string, value: string } | null>(null);
     const [editingAchievement, setEditingAchievement] = useState<{ source: string, value: string } | null>(null);
     const [editingMonthlyProjection, setEditingMonthlyProjection] = useState<{ source: string, value: string } | null>(null);
@@ -206,7 +208,7 @@ export default function CostPage() {
         } else if (activeTab === 'yearly') {
             fetchYearlyStats(selectedYear);
         } else if (activeTab === 'income') {
-            fetchIncomeStats(selectedYear);
+            fetchIncomes(incomeDateRange.startDate, incomeDateRange.endDate);
         } else if (activeTab === 'performance') {
             fetchPerformanceStats(selectedYear, performanceMonth);
         } else if (activeTab === 'cashflow') {
@@ -214,7 +216,7 @@ export default function CostPage() {
         } else {
             fetchAssets(selectedYear);
         }
-    }, [activeTab, dateRange.startDate, dateRange.endDate, selectedYear, performanceMonth, cashflowFilter.startDate, cashflowFilter.endDate]);
+    }, [activeTab, dateRange.startDate, dateRange.endDate, incomeDateRange.startDate, incomeDateRange.endDate, selectedYear, performanceMonth, cashflowFilter.startDate, cashflowFilter.endDate]);
 
     // --- Daily Functions ---
     const fetchCosts = async (startDate: string, endDate: string) => {
@@ -232,6 +234,26 @@ export default function CostPage() {
             setLoadingCosts(false);
         }
     };
+
+    // --- Income Functions ---
+    const fetchIncomes = async (startDate: string, endDate: string) => {
+        setLoadingIncome(true);
+        try {
+            const res = await fetch(`/api/incomes?startDate=${startDate}&endDate=${endDate}`);
+            const data = await res.json();
+            if (data.success) {
+                setFetchedIncomeData({
+                    data: data.data,
+                    stats: data.stats
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch incomes', error);
+        } finally {
+            setLoadingIncome(false);
+        }
+    };
+
 
     const handleEdit = (cost: Cost) => {
         setEditingCost(cost);
@@ -419,55 +441,7 @@ export default function CostPage() {
         }
     };
 
-    // --- Income Functions ---
-    const fetchIncomeStats = async (year: number) => {
-        setLoadingIncome(true);
-        try {
-            const res = await fetch(`/api/stats/income?year=${year}`);
-            const data = await res.json();
-            if (data.success) {
-                setIncomeStats(data.data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch income stats', error);
-        } finally {
-            setLoadingIncome(false);
-        }
-    };
 
-    const handleIncomeSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!incomeFormData.source || !incomeFormData.amount) {
-            alert('Please fill in Source and Amount');
-            return;
-        }
-
-        setSubmittingIncome(true);
-        try {
-            const res = await fetch('/api/incomes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...incomeFormData,
-                    amount: Number(incomeFormData.amount),
-                }),
-            });
-
-            const data = await res.json();
-            if (data.success) {
-                fetchIncomeStats(selectedYear);
-                setIncomeFormData({ ...incomeFormData, source: '', amount: '', description: '' });
-                alert('Income added successfully');
-            } else {
-                alert('Failed to save income: ' + data.error);
-            }
-        } catch (error) {
-            console.error('Error saving income', error);
-            alert('An error occurred');
-        } finally {
-            setSubmittingIncome(false);
-        }
-    };
 
     const handleTargetUpdate = async (source: string, amount: string) => {
         try {
@@ -482,21 +456,14 @@ export default function CostPage() {
             });
             const data = await res.json();
             if (data.success) {
-                setIncomeStats(prev => prev.map(item =>
-                    item.source === source
-                        ? { ...item, target: Number(amount), variance: item.earned - Number(amount) }
-                        : item
-                ));
                 setEditingTarget(null);
+                // If we are in performance tab, refresh stats
+                if (activeTab === 'performance') {
+                    fetchPerformanceStats(selectedYear, performanceMonth);
+                }
             }
         } catch (error) {
             console.error('Failed to update target', error);
-        }
-    };
-
-    const handleTargetKeyDown = (e: React.KeyboardEvent, source: string, amount: string) => {
-        if (e.key === 'Enter') {
-            handleTargetUpdate(source, amount);
         }
     };
 
@@ -562,7 +529,19 @@ export default function CostPage() {
 
     const handleMonthlyProjectionUpdate = async (source: string, monthlyValue: string) => {
         const yearlyValue = Number(monthlyValue) * 12;
-        await handleTargetUpdate(source, String(yearlyValue));
+        try {
+            await fetch('/api/incomes/targets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    source,
+                    year: selectedYear,
+                    amount: yearlyValue
+                })
+            });
+        } catch (e) {
+            console.error("Failed to update target via projection", e);
+        }
         setEditingMonthlyProjection(null);
         setTimeout(() => fetchPerformanceStats(selectedYear, performanceMonth), 500);
     };
@@ -800,6 +779,67 @@ export default function CostPage() {
                                             className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"
                                         />
                                     </div>
+
+                                    <div className="h-6 w-px bg-gray-200 mx-2"></div>
+
+                                    <div className="flex items-center gap-2">
+                                        <select
+                                            className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                                            onChange={(e) => {
+                                                const year = parseInt(e.target.value);
+                                                // Default to current selection or full year if we just changed year
+                                                const currentStartDate = new Date(dateRange.startDate);
+                                                const currentMonth = currentStartDate.getMonth();
+
+                                                // Keep month, change year
+                                                const newStart = new Date(year, currentMonth, 1);
+                                                const newEnd = new Date(year, currentMonth + 1, 0); // Last day of month
+
+                                                // Adjust for timezone offset issue simplified
+                                                const offset = newStart.getTimezoneOffset() * 60000;
+                                                const localStart = new Date(newStart.getTime() - offset).toISOString().split('T')[0];
+                                                const localEnd = new Date(newEnd.getTime() - offset).toISOString().split('T')[0];
+
+                                                setDateRange({ startDate: localStart, endDate: localEnd });
+                                            }}
+                                            defaultValue={new Date().getFullYear()}
+                                        >
+                                            {[2024, 2025, 2026, 2027].map(y => (
+                                                <option key={y} value={y}>{y}</option>
+                                            ))}
+                                        </select>
+
+                                        <select
+                                            className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                const currentYear = new Date(dateRange.startDate).getFullYear();
+
+                                                if (val === 'all') {
+                                                    const newStart = new Date(currentYear, 0, 1);
+                                                    const newEnd = new Date(currentYear, 11, 31);
+                                                    const offset = newStart.getTimezoneOffset() * 60000;
+                                                    const localStart = new Date(newStart.getTime() - offset).toISOString().split('T')[0];
+                                                    const localEnd = new Date(newEnd.getTime() - offset).toISOString().split('T')[0];
+                                                    setDateRange({ startDate: localStart, endDate: localEnd });
+                                                } else {
+                                                    const month = parseInt(val);
+                                                    const newStart = new Date(currentYear, month, 1);
+                                                    const newEnd = new Date(currentYear, month + 1, 0);
+                                                    const offset = newStart.getTimezoneOffset() * 60000;
+                                                    const localStart = new Date(newStart.getTime() - offset).toISOString().split('T')[0];
+                                                    const localEnd = new Date(newEnd.getTime() - offset).toISOString().split('T')[0];
+                                                    setDateRange({ startDate: localStart, endDate: localEnd });
+                                                }
+                                            }}
+                                            defaultValue={new Date().getMonth()}
+                                        >
+                                            <option value="all">Full Year</option>
+                                            {Array.from({ length: 12 }, (_, i) => (
+                                                <option key={i} value={i}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -991,89 +1031,190 @@ export default function CostPage() {
             {/* Income View */}
             {
                 activeTab === 'income' && (
-                    <div className="space-y-8">
-
-                        {/* Income Overview Table */}
-                        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                            <div className="p-6 border-b bg-gray-50 flex justify-between items-center">
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-800">Income Overview</h3>
-                                    <p className="text-sm text-gray-500">Target vs Earned for {selectedYear}</p>
+                    <div className="space-y-6">
+                        {/* Summary & Filter */}
+                        <div className="space-y-4">
+                            {/* Income Cards Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Total Income (Range) */}
+                                <div className="bg-emerald-50 p-4 rounded-xl shadow border border-emerald-100">
+                                    <p className="text-emerald-600 text-xs font-medium">Total Income ({new Date(incomeDateRange.startDate).toLocaleDateString()} - {new Date(incomeDateRange.endDate).toLocaleDateString()})</p>
+                                    <h3 className="text-2xl font-bold mt-1 text-emerald-700">{formatBDT(fetchedIncomeData?.stats?.total || 0)}</h3>
                                 </div>
-                                <input
-                                    type="number"
-                                    value={selectedYear}
-                                    onChange={(e) => setSelectedYear(Number(e.target.value))}
-                                    className="border p-2 rounded w-24 text-center font-bold"
-                                />
+
+                                {/* Monthly Total */}
+                                <div className="bg-indigo-50 p-4 rounded-xl shadow border border-indigo-100">
+                                    <p className="text-indigo-600 text-xs font-medium">Total for {fetchedIncomeData?.stats?.monthLabel}</p>
+                                    <h3 className="text-2xl font-bold mt-1 text-indigo-700">{formatBDT(fetchedIncomeData?.stats?.monthlyTotal || 0)}</h3>
+                                </div>
+
+                                {/* Yearly Total */}
+                                <div className="bg-orange-50 p-4 rounded-xl shadow border border-orange-100">
+                                    <p className="text-orange-600 text-xs font-medium">Total for {fetchedIncomeData?.stats?.yearLabel}</p>
+                                    <h3 className="text-2xl font-bold mt-1 text-orange-700">{formatBDT(fetchedIncomeData?.stats?.yearlyTotal || 0)}</h3>
+                                </div>
                             </div>
 
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead className="bg-yellow-600 text-white">
-                                        <tr>
-                                            <th className="px-2 py-3 font-medium min-w-[150px] sticky left-0 bg-yellow-600 z-10 shadow-md">Income Source</th>
-                                            <th className="px-2 py-3 font-medium text-right bg-yellow-600">Target</th>
-                                            <th className="px-2 py-3 font-medium text-right bg-yellow-600">Earned</th>
-                                            {MONTH_NAMES.map(month => (
-                                                <th key={month} className="px-2 py-3 font-medium text-right whitespace-nowrap bg-yellow-600 text-xs">{month}</th>
+                            {/* Date Range Picker */}
+                            <div className="flex justify-center">
+                                <div className="bg-white p-3 rounded-xl shadow border border-gray-100 flex items-center gap-4 w-fit">
+                                    <p className="text-gray-500 text-xs font-medium whitespace-nowrap">Date Range:</p>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="date"
+                                            value={incomeDateRange.startDate}
+                                            onChange={(e) => setIncomeDateRange({ ...incomeDateRange, startDate: e.target.value })}
+                                            className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                                        />
+                                        <span className="text-gray-400">-</span>
+                                        <input
+                                            type="date"
+                                            value={incomeDateRange.endDate}
+                                            onChange={(e) => setIncomeDateRange({ ...incomeDateRange, endDate: e.target.value })}
+                                            className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                    <div className="h-6 w-px bg-gray-200 mx-2"></div>
+
+                                    <div className="flex items-center gap-2">
+                                        <select
+                                            className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                                            onChange={(e) => {
+                                                const year = parseInt(e.target.value);
+                                                const currentStartDate = new Date(incomeDateRange.startDate);
+                                                const currentMonth = currentStartDate.getMonth();
+                                                const newStart = new Date(year, currentMonth, 1);
+                                                const newEnd = new Date(year, currentMonth + 1, 0);
+                                                const offset = newStart.getTimezoneOffset() * 60000;
+                                                const localStart = new Date(newStart.getTime() - offset).toISOString().split('T')[0];
+                                                const localEnd = new Date(newEnd.getTime() - offset).toISOString().split('T')[0];
+
+                                                setIncomeDateRange({ startDate: localStart, endDate: localEnd });
+                                            }}
+                                            defaultValue={new Date().getFullYear()}
+                                        >
+                                            {[2024, 2025, 2026, 2027].map(y => (
+                                                <option key={y} value={y}>{y}</option>
                                             ))}
-                                            <th className="px-2 py-3 font-medium text-right bg-yellow-600">Var</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {loadingIncome ? (
-                                            <tr><td colSpan={16} className="p-8 text-center text-gray-500">Loading income stats...</td></tr>
-                                        ) : incomeStats.length === 0 ? (
-                                            <tr><td colSpan={16} className="p-8 text-center text-gray-500">No income data found.</td></tr>
-                                        ) : (
-                                            incomeStats.map((stat) => (
-                                                <tr key={stat.source} className="hover:bg-gray-50 transition text-sm">
-                                                    <td className="px-2 py-3 font-medium text-gray-800 sticky left-0 bg-white shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] z-10">{stat.source}</td>
+                                        </select>
 
-                                                    {/* Target Column (Editable) */}
-                                                    <td className="px-2 py-3 text-right border-l border-gray-100">
-                                                        {editingTarget && editingTarget.source === stat.source ? (
-                                                            <input
-                                                                autoFocus
-                                                                type="number"
-                                                                value={editingTarget.value}
-                                                                onChange={(e) => setEditingTarget({ ...editingTarget, value: e.target.value })}
-                                                                onBlur={() => handleTargetUpdate(stat.source, editingTarget.value)}
-                                                                onKeyDown={(e) => handleTargetKeyDown(e, stat.source, editingTarget.value)}
-                                                                className="border p-1 w-32 text-right rounded"
-                                                            />
-                                                        ) : (
-                                                            <div
-                                                                onClick={() => setEditingTarget({ source: stat.source, value: String(stat.target) })}
-                                                                className="cursor-pointer hover:bg-gray-100 py-1 px-2 rounded inline-flex items-center gap-2 group/target"
-                                                                title="Click to edit target"
-                                                            >
-                                                                <span className={stat.target === 0 ? "text-gray-400 italic" : "font-medium"}>
-                                                                    {stat.target === 0 ? "Set Target" : formatBDT(stat.target)}
-                                                                </span>
-                                                                <Edit2 size={14} className="text-gray-400 opacity-50 group-hover/target:opacity-100 transition-opacity" />
-                                                            </div>
-                                                        )}
-                                                    </td>
+                                        <select
+                                            className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                const currentYear = new Date(incomeDateRange.startDate).getFullYear();
 
-                                                    <td className="px-2 py-3 text-right font-medium text-gray-700 border-l border-gray-100">{formatBDT(stat.earned)}</td>
+                                                if (val === 'all') {
+                                                    const newStart = new Date(currentYear, 0, 1);
+                                                    const newEnd = new Date(currentYear, 11, 31);
+                                                    const offset = newStart.getTimezoneOffset() * 60000;
+                                                    const localStart = new Date(newStart.getTime() - offset).toISOString().split('T')[0];
+                                                    const localEnd = new Date(newEnd.getTime() - offset).toISOString().split('T')[0];
+                                                    setIncomeDateRange({ startDate: localStart, endDate: localEnd });
+                                                } else {
+                                                    const month = parseInt(val);
+                                                    const newStart = new Date(currentYear, month, 1);
+                                                    const newEnd = new Date(currentYear, month + 1, 0);
+                                                    const offset = newStart.getTimezoneOffset() * 60000;
+                                                    const localStart = new Date(newStart.getTime() - offset).toISOString().split('T')[0];
+                                                    const localEnd = new Date(newEnd.getTime() - offset).toISOString().split('T')[0];
+                                                    setIncomeDateRange({ startDate: localStart, endDate: localEnd });
+                                                }
+                                            }}
+                                            defaultValue={new Date().getMonth()}
+                                        >
+                                            <option value="all">Full Year</option>
+                                            {Array.from({ length: 12 }, (_, i) => (
+                                                <option key={i} value={i}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                                    {/* Monthly Columns */}
-                                                    {stat.monthlyIncome && stat.monthlyIncome.map((amount, idx) => (
-                                                        <td key={idx} className="px-2 py-3 text-right text-gray-600 border-l border-gray-100/50 text-xs">
-                                                            {amount > 0 ? amount.toLocaleString('en-BD') : '-'}
-                                                        </td>
-                                                    ))}
-
-                                                    <td className={`px-2 py-3 text-right font-bold border-l border-gray-100 ${stat.earned >= stat.target ? 'text-green-600' : 'text-red-500'}`}>
-                                                        {formatBDT(stat.earned - stat.target)}
-                                                    </td>
+                        {/* Content Grid */}
+                        <div className="grid grid-cols-1 lg:grid-cols-[35%_65%] gap-6">
+                            {/* Income Breakdown */}
+                            <div className="bg-white rounded-xl shadow border border-gray-100 overflow-hidden h-fit">
+                                <div className="p-3 border-b bg-gray-50 flex justify-between items-center">
+                                    <h3 className="font-semibold text-gray-700 text-sm">Income Breakdown</h3>
+                                </div>
+                                <div className="overflow-x-auto max-h-[600px]">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-gray-50 text-gray-500 sticky top-0">
+                                            <tr>
+                                                <th className="px-4 py-2 font-medium">Source</th>
+                                                <th className="px-4 py-2 font-medium text-right">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {fetchedIncomeData?.stats?.categoryBreakdown.map((item, idx) => (
+                                                <tr key={idx} className="hover:bg-gray-50">
+                                                    <td className="px-4 py-2 text-gray-800">{item.category}</td>
+                                                    <td className="px-4 py-2 text-right font-medium text-gray-800">{formatBDT(item.amount)}</td>
                                                 </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
+                                            ))}
+                                            {!fetchedIncomeData?.stats?.categoryBreakdown?.length && (
+                                                <tr><td colSpan={2} className="p-4 text-center text-gray-400">No data</td></tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Income History */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden h-fit">
+                                <div className="p-4 border-b bg-gray-50 flex flex-col sm:flex-row gap-3 justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-semibold text-gray-700">Income History</h3>
+                                        <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-600 rounded-full">{fetchedIncomeData?.data?.length || 0}</span>
+                                    </div>
+                                    <div className="relative w-full sm:w-auto">
+                                        <input
+                                            type="text"
+                                            placeholder="Search income..."
+                                            value={incomeSearchTerm}
+                                            onChange={(e) => setIncomeSearchTerm(e.target.value)}
+                                            className="w-full sm:w-48 pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                        />
+                                        <svg className="w-4 h-4 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                    </div>
+                                </div>
+
+                                <div className="overflow-x-auto max-h-[600px]">
+                                    <table className="w-full text-left">
+                                        <thead className="bg-gray-50 text-gray-600 text-sm uppercase sticky top-0">
+                                            <tr>
+                                                <th className="p-4 font-medium">Date</th>
+                                                <th className="p-4 font-medium">Source</th>
+                                                <th className="p-4 font-medium">Description</th>
+                                                <th className="p-4 font-medium text-right">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {loadingIncome ? (
+                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading income...</td></tr>
+                                            ) : !fetchedIncomeData?.data?.length ? (
+                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">No income found for this date.</td></tr>
+                                            ) : (
+                                                fetchedIncomeData.data
+                                                    .filter((inc: any) =>
+                                                        inc.source.toLowerCase().includes(incomeSearchTerm.toLowerCase()) ||
+                                                        (inc.description && inc.description.toLowerCase().includes(incomeSearchTerm.toLowerCase()))
+                                                    )
+                                                    .map((inc: any) => (
+                                                        <tr key={inc._id} className="hover:bg-gray-50 transition group">
+                                                            <td className="p-4 text-gray-600 text-sm">{formatLocalDate(new Date(inc.date))}</td>
+                                                            <td className="p-4 font-medium text-gray-800">{inc.source}</td>
+                                                            <td className="p-4 text-gray-600 text-sm">{inc.description || '-'}</td>
+                                                            <td className="p-4 text-right font-bold text-gray-800">{formatBDT(inc.amount)}</td>
+                                                        </tr>
+                                                    ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1232,21 +1373,21 @@ export default function CostPage() {
                                                     ) : <span>{formatBDT(stat.thisMonth.achievement)}</span>}
                                                 </td>
                                                 <td className={`px-2 py-3 bg-[#a55282]/10 ${stat.category === 'Gross Income' ? 'bg-blue-500' : ''}`}>
-                                                    {stat.thisMonth.projection > 0 ? stat.thisMonth.percentage.toFixed(2) + '%' : (stat.thisMonth.achievement > 0 ? '#DIV/0!' : '0.00%')}
+                                                    {stat.thisMonth.projection > 0 ? stat.thisMonth.percentage.toFixed(2) + '%' : (stat.thisMonth.achievement > 0 ? 'N/A' : '0.00%')}
                                                 </td>
 
                                                 {/* YTD Data */}
                                                 <td className={`px-2 py-3 bg-[#f5d96e]/20 ${stat.category === 'Gross Income' ? 'bg-blue-600' : ''}`}>{formatBDT(Math.round(stat.asOfThisMonth.projection))}</td>
                                                 <td className={`px-2 py-3 bg-[#f5d96e]/20 ${stat.category === 'Gross Income' ? 'bg-blue-600' : ''}`}>{formatBDT(stat.asOfThisMonth.achievement)}</td>
                                                 <td className={`px-2 py-3 bg-[#f5d96e]/20 ${stat.category === 'Gross Income' ? 'bg-blue-600' : ''}`}>
-                                                    {stat.asOfThisMonth.projection > 0 ? stat.asOfThisMonth.percentage.toFixed(2) + '%' : (stat.asOfThisMonth.achievement > 0 ? '#DIV/0!' : '0.00%')}
+                                                    {stat.asOfThisMonth.projection > 0 ? stat.asOfThisMonth.percentage.toFixed(2) + '%' : (stat.asOfThisMonth.achievement > 0 ? 'N/A' : '0.00%')}
                                                 </td>
 
                                                 {/* Yearly Data */}
                                                 <td className={`px-2 py-3 bg-[#a55282]/10 ${stat.category === 'Gross Income' ? 'bg-blue-500' : ''}`}>{formatBDT(stat.yearly.projection)}</td>
                                                 <td className={`px-2 py-3 bg-[#a55282]/10 ${stat.category === 'Gross Income' ? 'bg-blue-500' : ''}`}>{formatBDT(stat.yearly.achievement)}</td>
                                                 <td className={`px-2 py-3 bg-[#a55282]/10 ${stat.category === 'Gross Income' ? 'bg-blue-500' : ''}`}>
-                                                    {stat.yearly.projection > 0 ? stat.yearly.percentage.toFixed(2) + '%' : (stat.yearly.achievement > 0 ? '#DIV/0!' : '0.00%')}
+                                                    {stat.yearly.projection > 0 ? stat.yearly.percentage.toFixed(2) + '%' : (stat.yearly.achievement > 0 ? 'N/A' : '0.00%')}
                                                 </td>
 
                                                 {/* Remarks */}
