@@ -9,6 +9,8 @@ import { useGSAP } from '@gsap/react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { FAQ_DATA } from './constants';
+import Lottie from 'lottie-react';
+import FAQLottieData from '../../../../../public/Assets/FAQ.json'
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -176,13 +178,7 @@ const FaqSection: React.FC = () => {
               {/* Image Frame with Shadow & Border */}
               <div className="absolute inset-0 bg-card p-3 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-transform duration-500 group-hover:-translate-y-2 group-hover:rotate-1 overflow-hidden">
                 <div className="relative w-full h-full rounded-xl overflow-hidden">
-                  <Image
-                    src="/assets/banner/Jia_Pixel_Banner.webp"
-                    alt="Professional Environment"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 320px"
-                  />
+                  <Lottie animationData={FAQLottieData} loop={true} />
                 </div>
 
                 {/* Floating Experience Badge */}
