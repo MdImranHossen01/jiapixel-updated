@@ -23,7 +23,7 @@ const getFeaturedServices = unstable_cache(
         }
     },
     ['featured-services'],
-    { revalidate: 300, tags: ['services'] }
+    { revalidate: 86400, tags: ['services'] }
 );
 
 export default async function FeaturedServiceSection() {

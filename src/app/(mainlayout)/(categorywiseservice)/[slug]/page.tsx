@@ -19,7 +19,7 @@ interface PageProps {
 }
 
 // Enable ISR
-export const revalidate = 300; // Revalidate every 5 minutes
+export const revalidate = 86400; // Revalidate every 5 minutes
 export const dynamicParams = true; // Allow dynamic params for categories not pre-rendered
 
 // Generate Static Params for Pre-rendering

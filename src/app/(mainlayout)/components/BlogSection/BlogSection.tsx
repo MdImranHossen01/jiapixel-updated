@@ -29,7 +29,7 @@ async function getRecentBlogs() {
     try {
         const baseUrl = getBaseUrl();
         const response = await fetch(`${baseUrl}/api/blogs?limit=4`, {
-            next: { revalidate: 300 }
+            next: { revalidate: 86400 }
         });
 
         if (!response.ok) {

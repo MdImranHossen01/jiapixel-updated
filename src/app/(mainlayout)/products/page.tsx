@@ -21,13 +21,13 @@ interface Product {
 
 async function getProducts(): Promise<Product[]> {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
+    const baseUrl = process.env.NODE_ENV === 'production'
       ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
       : 'http://localhost:3000';
-    
+
     const response = await fetch(`${baseUrl}/api/products`, {
       cache: 'force-cache',
-      next: { revalidate: 3600 } // Revalidate every hour
+      next: { revalidate: 86400 } // Revalidate every hour
     });
 
     if (!response.ok) {
@@ -66,7 +66,7 @@ export default async function ProductsPage() {
             Digital Products
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Discover our collection of premium digital products, SaaS solutions, and tools 
+            Discover our collection of premium digital products, SaaS solutions, and tools
             designed to boost your productivity and grow your business.
           </p>
         </div>
@@ -91,9 +91,9 @@ export default async function ProductsPage() {
                     {products
                       .filter(product => product.featured)
                       .map((product) => (
-                        <ProductCard 
-                          key={product._id} 
-                          product={product} 
+                        <ProductCard
+                          key={product._id}
+                          product={product}
                           calculateSavings={calculateSavings}
                         />
                       ))
@@ -109,9 +109,9 @@ export default async function ProductsPage() {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {products.map((product) => (
-                    <ProductCard 
-                      key={product._id} 
-                      product={product} 
+                    <ProductCard
+                      key={product._id}
+                      product={product}
                       calculateSavings={calculateSavings}
                     />
                   ))}
@@ -125,8 +125,8 @@ export default async function ProductsPage() {
   );
 }
 
-function ProductCard({ product, calculateSavings }: { 
-  product: Product; 
+function ProductCard({ product, calculateSavings }: {
+  product: Product;
   calculateSavings: (monthly: number, yearly: number) => number;
 }) {
   const savings = calculateSavings(product.price.monthly, product.price.yearly);

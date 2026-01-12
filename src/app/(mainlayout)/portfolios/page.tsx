@@ -38,17 +38,17 @@ interface PortfoliosResponse {
 
 async function getPortfolios(): Promise<PortfoliosResponse> {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
+    const baseUrl = process.env.NODE_ENV === 'production'
       ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
       : 'http://localhost:3000';
-    
+
     const response = await fetch(`${baseUrl}/api/portfolios?status=published&limit=50`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      next: { 
-        revalidate: 300
+      next: {
+        revalidate: 86400
       }
     });
 
@@ -83,12 +83,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: 'Our Portfolio - Web Development Projects & Case Studies | Jiapixel',
     description: 'Explore our portfolio of web development projects, mobile apps, and digital solutions. See how we help businesses succeed with custom technology solutions.',
     keywords: 'portfolio, web development projects, case studies, web design, mobile apps, Bangladesh',
-    
+
     // Canonical URL
     alternates: {
       canonical: canonicalUrl,
     },
-    
+
     // Open Graph
     openGraph: {
       title: 'Our Portfolio - Web Development Projects & Case Studies | Jiapixel',
@@ -106,7 +106,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'en_US',
       type: 'website',
     },
-    
+
     // Twitter Card
     twitter: {
       card: 'summary_large_image',
@@ -159,7 +159,7 @@ async function PortfoliosPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData) }}
       />
-      
+
       <div className="min-h-screen bg-background pt-20">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-primary/10 to-secondary/10 py-20">
@@ -209,7 +209,7 @@ async function PortfoliosPage() {
               <h2 className="text-3xl font-bold text-foreground mb-8 text-center">
                 {portfolios.length === 0 ? 'No Projects Yet' : 'All Projects'}
               </h2>
-              
+
               {portfolios.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground text-lg">
@@ -258,20 +258,20 @@ function PortfolioCard({ portfolio }: { portfolio: Portfolio }) {
             </div>
           )}
         </div>
-        
+
         <div className="p-6 flex-grow flex flex-col">
           <span className="text-sm text-primary font-medium mb-2 block">
             {portfolio.category}
           </span>
-          
+
           <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2">
             {portfolio.title}
           </h3>
-          
+
           <p className="text-muted-foreground mb-4 line-clamp-3 flex-grow">
             {portfolio.description}
           </p>
-          
+
           {portfolio.technologies && portfolio.technologies.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
               {portfolio.technologies.slice(0, 3).map((tech: string, index: number) => (
@@ -289,7 +289,7 @@ function PortfolioCard({ portfolio }: { portfolio: Portfolio }) {
               )}
             </div>
           )}
-          
+
           <div className="text-sm text-muted-foreground mt-auto">
             {new Date(portfolio.projectDate).toLocaleDateString('en-US', {
               year: 'numeric',
