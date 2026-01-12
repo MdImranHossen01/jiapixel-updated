@@ -938,7 +938,39 @@ export default function CostPage() {
             {
                 activeTab === 'yearly' && (
                     <div className="space-y-8">
+                        {/* Summary Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Total Budget */}
+                            <div className="bg-emerald-50 p-4 rounded-xl shadow border border-emerald-100">
+                                <p className="text-emerald-600 text-xs font-medium">Total Budget ({selectedYear})</p>
+                                <h3 className="text-2xl font-bold mt-1 text-emerald-700">
+                                    {formatBDT(yearlyStats.reduce((sum, item) => sum + (item.budget || 0), 0))}
+                                </h3>
+                            </div>
 
+                            {/* Total Cost */}
+                            <div className="bg-rose-50 p-4 rounded-xl shadow border border-rose-100">
+                                <p className="text-rose-600 text-xs font-medium">Total Cost ({selectedYear})</p>
+                                <h3 className="text-2xl font-bold mt-1 text-rose-700">
+                                    {formatBDT(yearlyStats.reduce((sum, item) => sum + (item.cost || 0), 0))}
+                                </h3>
+                            </div>
+
+                            {/* Variance */}
+                            {(() => {
+                                const totalBudget = yearlyStats.reduce((sum, item) => sum + (item.budget || 0), 0);
+                                const totalCost = yearlyStats.reduce((sum, item) => sum + (item.cost || 0), 0);
+                                const variance = totalBudget - totalCost;
+                                return (
+                                    <div className="bg-purple-50 p-4 rounded-xl shadow border border-purple-100">
+                                        <p className="text-purple-600 text-xs font-medium">Variance (Budget - Cost)</p>
+                                        <h3 className={`text-2xl font-bold mt-1 ${variance < 0 ? 'text-rose-700' : 'text-purple-700'}`}>
+                                            {formatBDT(variance)}
+                                        </h3>
+                                    </div>
+                                );
+                            })()}
+                        </div>
 
                         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                             {/* ... (existing Table Code) ... */}
