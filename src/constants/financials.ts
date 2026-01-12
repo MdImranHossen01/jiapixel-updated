@@ -1,7 +1,6 @@
 export const COST_CATEGORIES = [
     'Bou DPS',
     'Gold Savings',
-    'Tour Savings',
     '5% Freelancing Savings',
     'Eidul Fitr',
     'Shashuri',
@@ -65,22 +64,17 @@ export const COST_CATEGORIES = [
     'Passport',
     'Table',
     'Showcase',
-    'Dressing Table',
     'Rack',
     'TV',
     'Motor Cycle',
-    'Kitchen',
     'Mobile Me',
-    'Mobile Bou',
     'Mobile Ammu',
     'Oven',
     'Loan Khala',
-    'Loan Himel',
     'Loan M Ali',
     'Loan Ammu',
     'Loan Dolil',
-    'Current Loan Payment',
-    'Uncertinity'
+    'Current Loan Payment'
 ];
 
 export const INCOME_SOURCES = [
