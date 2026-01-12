@@ -4,10 +4,7 @@ import dbConnect from '@/lib/db';
 import Category from '@/models/Category';
 import Link from 'next/link';
 import Service from '@/models/Product'; // Assuming 'Product' is where services are? Or 'Project'? 
-// Wait, I saw models previously. 
-// "g:\jiapixel-updated\src\models\Product.ts" - This looks like "Product".
-// "g:\jiapixel-updated\src\models\Project.ts" - This looks like "Service" (it exports IService and mongoose.model('Service', ...)).
-// So I should use `Project.ts` which exports `Service`.
+
 import ServiceModel from '@/models/Project';
 import ServiceCard from '@/components/ServiceCard';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
@@ -19,8 +16,8 @@ interface PageProps {
 }
 
 // Enable ISR
-export const revalidate = 86400; // Revalidate every 5 minutes
-export const dynamicParams = true; // Allow dynamic params for categories not pre-rendered
+export const revalidate = 86400;
+export const dynamicParams = true;
 
 // Generate Static Params for Pre-rendering
 export async function generateStaticParams() {
