@@ -160,6 +160,11 @@ export async function GET(request: NextRequest) {
       query.status = status;
     }
 
+    const category = searchParams.get('category');
+    if (category) {
+      query.category = category;
+    }
+
     if (isFeatured !== null) {
       query.isFeatured = isFeatured === 'true';
     }

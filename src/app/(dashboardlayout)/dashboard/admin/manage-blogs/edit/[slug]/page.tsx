@@ -37,6 +37,7 @@ interface BlogData {
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;
+  relatedServices?: any[]; // Allow population or array of IDs
 }
 
 interface PageProps {
@@ -53,6 +54,7 @@ export default function EditBlogPage({ params }: PageProps) {
   const [blog, setBlog] = useState<BlogData | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
+  const [services, setServices] = useState<any[]>([]); // New state for services
 
   // Await params in useEffect
   const [resolvedParams, setResolvedParams] = useState<{ slug: string } | null>(null);
@@ -69,7 +71,20 @@ export default function EditBlogPage({ params }: PageProps) {
     if (resolvedParams?.slug) {
       fetchBlog(resolvedParams.slug);
     }
+    fetchServices();
   }, [resolvedParams]);
+
+  const fetchServices = async () => {
+    try {
+      const res = await fetch('/api/services?limit=100');
+      if (res.ok) {
+        const data = await res.json();
+        setServices(data.services || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch services", err);
+    }
+  };
 
   const fetchBlog = async (slug: string) => {
     try {
@@ -82,7 +97,12 @@ export default function EditBlogPage({ params }: PageProps) {
 
       const data = await response.json();
       if (data.success) {
-        setBlog(data.blog);
+        // Ensure relatedServices is an array of IDs for the select input
+        const blogData = data.blog;
+        if (blogData.relatedServices && blogData.relatedServices.length > 0 && typeof blogData.relatedServices[0] === 'object') {
+          blogData.relatedServices = blogData.relatedServices.map((s: any) => s._id);
+        }
+        setBlog(blogData);
         if (data.blog.featuredImage && isValidUrl(data.blog.featuredImage)) {
           setImagePreview(data.blog.featuredImage);
         }
@@ -118,7 +138,6 @@ export default function EditBlogPage({ params }: PageProps) {
   };
 
 
-
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!blog) return;
 
@@ -126,6 +145,15 @@ export default function EditBlogPage({ params }: PageProps) {
     setBlog(prev => prev ? {
       ...prev,
       tags: tagsString.split(',').map(tag => tag.trim()).filter(tag => tag)
+    } : null);
+  };
+
+  const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!blog) return;
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setBlog(prev => prev ? {
+      ...prev,
+      relatedServices: selectedOptions
     } : null);
   };
 
@@ -359,6 +387,35 @@ export default function EditBlogPage({ params }: PageProps) {
                     className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                     placeholder="Author name"
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Related Services Selection */}
+            <div className="bg-card rounded-lg shadow p-6 border border-border">
+              <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Services</h3>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="relatedServices" className="block text-sm font-medium text-card-foreground mb-2">
+                    Select Services (Hold Ctrl/Cmd to select multiple)
+                  </label>
+                  <select
+                    multiple
+                    id="relatedServices"
+                    name="relatedServices"
+                    value={blog.relatedServices || []}
+                    onChange={handleServiceChange}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground h-40"
+                  >
+                    {services.map((service) => (
+                      <option key={service._id} value={service._id}>
+                        {service.title}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Selected services will appear in the "Related Services" section of the blog post.
+                  </div>
                 </div>
               </div>
             </div>

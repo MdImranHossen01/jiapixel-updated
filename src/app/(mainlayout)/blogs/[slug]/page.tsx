@@ -4,6 +4,9 @@ import type { Metadata } from 'next';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
 import { SocialShare } from '@/components/blog/SocialShare';
 import BlogCard from '@/app/(mainlayout)/components/BlogSection/BlogCard';
+import ServiceCard from '@/components/ServiceCard';
+import CompactServiceCard from '@/components/CompactServiceCard';
+import CompactBlogCard from '@/components/CompactBlogCard';
 
 async function getRelatedBlogs(category: string, currentSlug: string) {
   try {
@@ -30,6 +33,26 @@ async function getRelatedBlogs(category: string, currentSlug: string) {
   }
 }
 
+async function getRelatedServices(category: string) {
+  try {
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+      : 'http://localhost:3000';
+
+    const response = await fetch(`${baseUrl}/api/services?category=${category}&limit=4`, {
+      next: { revalidate: 3600 }
+    });
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    return data.services || [];
+  } catch (error) {
+    console.error('Error fetching related services:', error);
+    return [];
+  }
+}
+
 async function getBlog(slug: string) {
   try {
     const baseUrl = process.env.NODE_ENV === 'production'
@@ -37,7 +60,8 @@ async function getBlog(slug: string) {
       : 'http://localhost:3000';
 
     const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
-      cache: 'force-cache'
+      cache: 'force-cache',
+      next: { tags: [`blog-${slug}`] }
     } as RequestInit);
 
     if (!response.ok) {
@@ -135,9 +159,14 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const relatedBlogs = await getRelatedBlogs(blog.category, slug);
 
-  if (!blog) {
-    notFound();
+  let services = [];
+  if (blog.relatedServices && blog.relatedServices.length > 0) {
+    services = blog.relatedServices;
+  } else {
+    services = await getRelatedServices(blog.category);
   }
+
+
 
   // Generate structured data for individual blog post
   const blogStructuredData = {
@@ -177,8 +206,8 @@ export default async function BlogPostPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
       />
 
-      <div className="min-h-screen  py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <div className="min-h-screen py-8">
+        <div className="container mx-auto px-4 max-w-7xl">
           <nav className="mb-8">
             <Link
               href="/blogs"
@@ -189,37 +218,76 @@ export default async function BlogPostPage({ params }: PageProps) {
             </Link>
           </nav>
 
-          <article className="border rounded-lg p-8">
-            <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-8 border-b">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(blog.createdAt).toLocaleDateString()} • {blog.readTime || 5} min read
-                </p>
-                <div className="mt-2 flex gap-2">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                    {blog.category}
-                  </span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column - Main Content */}
+            <div className="lg:col-span-8">
+              <article className="border rounded-lg p-8 h-full">
+                <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-8 border-b">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(blog.createdAt).toLocaleDateString()} • {blog.readTime || 5} min read
+                    </p>
+                    <div className="mt-2 flex gap-2">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                        {blog.category}
+                      </span>
+                    </div>
+                  </div>
+                  <SocialShare title={blog.title} url={`https://www.jiapixel.com/blogs/${blog.slug}`} />
                 </div>
-              </div>
-              <SocialShare title={blog.title} url={`https://www.jiapixel.com/blogs/${blog.slug}`} />
+
+                <ReadOnlyEditor content={blog.content} />
+              </article>
             </div>
 
-            <ReadOnlyEditor content={blog.content} />
-          </article>
+            {/* Right Column - Sidebar */}
+            <div className="lg:col-span-4 space-y-8">
+              {/* Related Services Widget */}
+              <div className="bg-card rounded-xl border border-border shadow-sm p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  {/* Simple SVG Icon for Services */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
+                  <h2 className="text-lg font-bold">Related Services</h2>
+                </div>
 
-          {/* Related Blogs Section */}
-          {relatedBlogs.length > 0 && (
-            <div className="mt-16">
-              <h2 className="text-2xl font-bold mb-6">You might also like</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {relatedBlogs.map((related: any) => (
-                  <BlogCard key={related._id} blog={related} />
-                ))}
+                {services.length > 0 ? (
+                  <div className="flex flex-col">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {services.map((service: any) => (
+                      <div key={service._id} className="border-b border-border last:border-0">
+                        <CompactServiceCard service={service} />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-sm text-muted-foreground bg-accent/30 rounded-lg">
+                    No services found.
+                  </div>
+                )}
               </div>
+
+              {/* Related Blogs Widget */}
+              {relatedBlogs.length > 0 && (
+                <div className="bg-card rounded-xl border border-border shadow-sm p-6">
+                  <div className="flex items-center gap-2 mb-6">
+                    {/* Simple SVG Icon for Blogs/Trending */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
+                    <h2 className="text-lg font-bold">You might also like</h2>
+                  </div>
+
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  <div className="flex flex-col">
+                    {relatedBlogs.map((related: any) => (
+                      <div key={related._id} className="border-b border-border last:border-0">
+                        <CompactBlogCard blog={related} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </>

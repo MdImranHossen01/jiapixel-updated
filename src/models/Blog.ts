@@ -18,6 +18,7 @@ export interface IBlog extends Document {
   views: number;
   createdAt: Date;
   updatedAt: Date;
+  relatedServices?: mongoose.Types.ObjectId[];
 }
 
 const BlogSchema: Schema = new Schema(
@@ -74,6 +75,10 @@ const BlogSchema: Schema = new Schema(
     publishedAt: {
       type: Date,
     },
+    relatedServices: [{
+      type: Schema.Types.ObjectId,
+      ref: "Service"
+    }],
     seoTitle: {
       type: String,
       maxlength: [60, "SEO Title cannot be more than 60 characters"],
@@ -132,6 +137,11 @@ BlogSchema.pre("save", function (this: IBlog, next) {
   }
   next();
 });
+
+// Prevent "OverwriteModelError" in dev but force schema update
+if (process.env.NODE_ENV !== 'production' && mongoose.models.Blog) {
+  delete mongoose.models.Blog;
+}
 
 const Blog = mongoose.models.Blog || mongoose.model<IBlog>("Blog", BlogSchema);
 export default Blog;

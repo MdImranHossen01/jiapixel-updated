@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { SimpleEditor, SimpleEditorRef } from '@/components/tiptap-templates/simple/simple-editor';
@@ -20,6 +20,7 @@ export default function CreateBlogPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [services, setServices] = useState<any[]>([]); // state for fetching services
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -29,13 +30,38 @@ export default function CreateBlogPage() {
     category: '',
     status: 'draft',
     seoTitle: '',
-    seoDescription: ''
+    seoDescription: '',
+    relatedServices: [] as string[] // new field for selected services
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
-  
+
   // Ref to access editor content
   const editorRef = useRef<SimpleEditorRef>(null);
+
+  // Fetch services on mount
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const res = await fetch('/api/services?limit=100'); // Assuming this endpoint returns a list of services
+        if (res.ok) {
+          const data = await res.json();
+          setServices(data.services || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch services", err);
+      }
+    }
+    fetchServices();
+  }, []);
+
+  const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setFormData(prev => ({
+      ...prev,
+      relatedServices: selectedOptions
+    }));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -112,13 +138,13 @@ export default function CreateBlogPage() {
 
     try {
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-      
+
       // Get the HTML content from the editor
       let editorContent = '';
       if (editorRef.current) {
         editorContent = editorRef.current.getContent();
       }
-      
+
       // Validate required fields
       if (!formData.title.trim() || !editorContent.trim() || !formData.category.trim()) {
         alert('Title, content, and category are required');
@@ -127,7 +153,7 @@ export default function CreateBlogPage() {
       }
 
       console.log('Submitting blog with content length:', editorContent.length);
-      
+
       const response = await fetch('/api/blogs', {
         method: 'POST',
         headers: {
@@ -142,7 +168,8 @@ export default function CreateBlogPage() {
           category: formData.category,
           status: formData.status,
           seoTitle: formData.seoTitle,
-          seoDescription: formData.seoDescription
+          seoDescription: formData.seoDescription,
+          relatedServices: formData.relatedServices
         }),
       });
 
@@ -250,7 +277,7 @@ export default function CreateBlogPage() {
             {/* Publishing Settings */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Publishing Settings</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="status" className="block text-sm font-medium text-card-foreground mb-2">
@@ -304,10 +331,39 @@ export default function CreateBlogPage() {
               </div>
             </div>
 
+            {/* Related Services Selection */}
+            <div className="bg-card rounded-lg shadow p-6 border">
+              <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Services</h3>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="relatedServices" className="block text-sm font-medium text-card-foreground mb-2">
+                    Select Services (Hold Ctrl/Cmd to select multiple)
+                  </label>
+                  <select
+                    multiple
+                    id="relatedServices"
+                    name="relatedServices"
+                    value={formData.relatedServices}
+                    onChange={handleServiceChange}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground h-40"
+                  >
+                    {services.map((service) => (
+                      <option key={service._id} value={service._id}>
+                        {service.title}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Selected services will appear in the "Related Services" section of the blog post.
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Featured Image */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Featured Image</h3>
-              
+
               {imagePreview && isValidUrl(formData.featuredImage) ? (
                 <div className="space-y-3">
                   <div className="relative aspect-video rounded-lg overflow-hidden border border-border">
@@ -398,7 +454,7 @@ export default function CreateBlogPage() {
             {/* SEO Settings */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">

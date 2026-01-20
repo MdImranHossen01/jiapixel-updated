@@ -7,20 +7,20 @@ import Blog from '@/models/Blog';
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
-    
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '100');
     const category = searchParams.get('category');
     const tag = searchParams.get('tag');
-    
+
     const skip = (page - 1) * limit;
-    
+
     let query: any = { status: 'published' };
-    
+
     if (category) query.category = category;
     if (tag) query.tags = tag;
-    
+
     // Remove populate for now since we don't have User model set up
     const blogs = await Blog.find(query)
       .select('-__v') // Exclude version key
@@ -28,9 +28,9 @@ export async function GET(request: NextRequest) {
       .skip(skip)
       .limit(limit)
       .lean();
-    
+
     const total = await Blog.countDocuments(query);
-    
+
     return NextResponse.json({
       success: true,
       blogs,
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching blogs:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: 'Failed to fetch blogs',
         details: error instanceof Error ? error.message : 'Unknown error'
@@ -57,40 +57,40 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    
+
     const body = await request.json();
     const { title, content, excerpt, featuredImage, tags, category, status, seoTitle, seoDescription } = body;
-    
+
     // Validate required fields
     if (!title || !content || !category) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: 'Title, content, and category are required' 
+          error: 'Title, content, and category are required'
         },
         { status: 400 }
       );
     }
-    
+
     // Generate slug from title
     const slug = title
       .toLowerCase()
       .replace(/[^a-z0-9 -]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-');
-    
+
     // Check if slug already exists
     const existingBlog = await Blog.findOne({ slug });
     if (existingBlog) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: 'A blog with this title already exists' 
+          error: 'A blog with this title already exists'
         },
         { status: 400 }
       );
     }
-    
+
     // Create blog without author reference for now
     const blog = new Blog({
       title,
@@ -103,15 +103,17 @@ export async function POST(request: NextRequest) {
       category,
       status: status || 'draft',
       seoTitle: seoTitle || title,
-      seoDescription: seoDescription || excerpt || `${content.substring(0, 150)}...`
+      seoDescription: seoDescription || excerpt || `${content.substring(0, 150)}...`,
+      relatedServices: body.relatedServices || []
     });
-    
+
+
     await blog.save();
-    
+
     return NextResponse.json(
-      { 
+      {
         success: true,
-        message: 'Blog created successfully', 
+        message: 'Blog created successfully',
         blog: {
           _id: blog._id,
           title: blog.title,
@@ -132,7 +134,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating blog:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: 'Failed to create blog',
         details: error instanceof Error ? error.message : 'Unknown error'

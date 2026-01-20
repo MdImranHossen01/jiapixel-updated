@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Blog from '@/models/Blog';
 
@@ -11,44 +12,50 @@ interface Params {
 export async function GET(request: NextRequest, { params }: Params) {
   try {
     await connectDB();
-    
+
     // Await the params Promise in Next.js 16
     const { slug } = await params;
-    
+
     if (!slug) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: 'Slug parameter is required' 
+          error: 'Slug parameter is required'
         },
         { status: 400 }
       );
     }
-    
+
     const blog = await Blog.findOne({ slug, status: 'published' })
-      .select('-__v');
-    
+      .select('-__v')
+      .populate({
+        path: 'relatedServices',
+        select: 'title slug featuredImage isFeatured',
+        strictPopulate: false
+      });
+
+
     if (!blog) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: 'Blog not found' 
+          error: 'Blog not found'
         },
         { status: 404 }
       );
     }
-    
+
     // Increment views
     await Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } });
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       success: true,
-      blog 
+      blog
     });
   } catch (error) {
     console.error('Error fetching blog:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: 'Failed to fetch blog',
         details: error instanceof Error ? error.message : 'Unknown error'
@@ -61,32 +68,44 @@ export async function GET(request: NextRequest, { params }: Params) {
 export async function PUT(request: NextRequest, { params }: Params) {
   try {
     await connectDB();
-    
+
     // Await the params Promise
     const { slug } = await params;
     const body = await request.json();
-    
+
     const blog = await Blog.findOne({ slug });
-    
+
     if (!blog) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: 'Blog not found' 
+          error: 'Blog not found'
         },
         { status: 404 }
       );
     }
-    
+
     // Update blog fields
     Object.keys(body).forEach(key => {
       if (body[key] !== undefined && key !== '_id' && key !== 'slug') {
         blog[key] = body[key];
       }
     });
-    
+
+    // Explicitly handle relatedServices to be sure
+    if (body.relatedServices) {
+      console.log('Updating relatedServices:', body.relatedServices);
+      blog.relatedServices = body.relatedServices;
+    } else {
+      console.log('No relatedServices in body');
+    }
+
     await blog.save();
-    
+
+    // Revalidate the blog details page to show updates instantly
+    revalidatePath(`/blogs/${slug}`);
+    revalidateTag(`blog-${slug}`, { expire: 0 });
+
     return NextResponse.json({
       success: true,
       message: 'Blog updated successfully',
@@ -108,7 +127,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   } catch (error) {
     console.error('Error updating blog:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: 'Failed to update blog',
         details: error instanceof Error ? error.message : 'Unknown error'
@@ -121,24 +140,24 @@ export async function PUT(request: NextRequest, { params }: Params) {
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
     await connectDB();
-    
+
     // Await the params Promise
     const { slug } = await params;
-    
+
     const blog = await Blog.findOne({ slug });
-    
+
     if (!blog) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: 'Blog not found' 
+          error: 'Blog not found'
         },
         { status: 404 }
       );
     }
-    
+
     await Blog.findByIdAndDelete(blog._id);
-    
+
     return NextResponse.json({
       success: true,
       message: 'Blog deleted successfully'
@@ -146,7 +165,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   } catch (error) {
     console.error('Error deleting blog:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: 'Failed to delete blog',
         details: error instanceof Error ? error.message : 'Unknown error'
