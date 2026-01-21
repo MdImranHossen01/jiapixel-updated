@@ -26,7 +26,8 @@ const extensions = [
     horizontalRule: false,
     dropcursor: false,
     gapcursor: false,
-  }),
+    link: false, // Disable link in StarterKit to avoid duplication with explicit Link extension
+  } as any),
   Link.configure({
     openOnClick: false,
     HTMLAttributes: {
