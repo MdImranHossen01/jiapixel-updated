@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Blog from '@/models/Blog';
+import '@/models/Project'; // Registers "Service" model for populate
 
 interface Params {
   params: Promise<{
