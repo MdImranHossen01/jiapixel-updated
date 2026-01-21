@@ -251,11 +251,11 @@ export default async function BlogPostPage({ params }: PageProps) {
                   <h2 className="text-lg font-bold">Related Services</h2>
                 </div>
 
-                {services.length > 0 ? (
+                {services.filter((s: any) => s).length > 0 ? (
                   <div className="flex flex-col">
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {services.map((service: any) => (
-                      <div key={service._id} className="border-b border-border last:border-0">
+                    {services.filter((s: any) => s).map((service: any) => (
+                      <div key={service?._id || Math.random()} className="border-b border-border last:border-0">
                         <CompactServiceCard service={service} />
                       </div>
                     ))}
@@ -268,7 +268,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               </div>
 
               {/* Related Blogs Widget */}
-              {relatedBlogs.length > 0 && (
+              {relatedBlogs.filter((b: any) => b).length > 0 && (
                 <div className="bg-card rounded-xl border border-border shadow-sm p-6">
                   <div className="flex items-center gap-2 mb-6">
                     {/* Simple SVG Icon for Blogs/Trending */}
@@ -278,8 +278,8 @@ export default async function BlogPostPage({ params }: PageProps) {
 
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   <div className="flex flex-col">
-                    {relatedBlogs.map((related: any) => (
-                      <div key={related._id} className="border-b border-border last:border-0">
+                    {relatedBlogs.filter((b: any) => b).map((related: any) => (
+                      <div key={related?._id || Math.random()} className="border-b border-border last:border-0">
                         <CompactBlogCard blog={related} />
                       </div>
                     ))}
