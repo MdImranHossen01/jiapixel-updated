@@ -6,7 +6,6 @@ import { FAQSection } from "../components/Faq";
 import ServiceSteps from "../components/ServiceSteps";
 import AuthorQuote from "../components/AuthorQuote";
 import HeroSection from "../components/HeroSection";
-import { FeaturedCard } from "../components/FeaturedCard";
 import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
 
 interface PageProps {
@@ -241,17 +240,16 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
               </div>
             </div>
           </section>
-          {/* featured card section  */}
-          <FeaturedCard />
+
+          {/* Pricing Component - Only show if service has tiers */}
+          {service.tiers && Object.keys(service.tiers).length > 0 && (
+            <PricingComponent service={service} />
+          )}
           {/* Author Quote Component */}
           <AuthorQuote
             author={service.author}
             authorQuote={service.authorQuote}
           />
-          {/* Pricing Component - Only show if service has tiers */}
-          {service.tiers && Object.keys(service.tiers).length > 0 && (
-            <PricingComponent service={service} />
-          )}
           <div>
             <FAQSection faqs={service.faqs} />
           </div>
