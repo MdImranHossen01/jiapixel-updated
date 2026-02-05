@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { cache } from 'react';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import ServiceCard from '@/components/ServiceCard';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
 import { Metadata } from 'next';
+import dbConnect from '@/lib/db';
+import Category from '@/models/Category';
+import ServiceModel from '@/models/Project';
 
 interface PageProps {
     params: Promise<{
@@ -12,48 +14,71 @@ interface PageProps {
 }
 
 // Enable ISR
-export const revalidate = 86400; // 24 hours (fallback)
+export const revalidate = 86400; // 24 hours
 export const dynamicParams = true;
 
-// Helper to fetch category data
-async function getCategory(slug: string) {
-    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
+// Cached DB Fetch to ensure reliable data access without API overhead
+// Using React cache() to dedup requests during rendering
+const getCategoryFromDB = cache(async (slug: string) => {
     try {
-        const res = await fetch(`${url}/api/categories/${slug}?populate=true`, {
-            cache: 'force-cache',
-            next: { tags: [`category-${slug}`] } // Optional: for finer-grained revalidation if needed
-        });
+        await dbConnect();
 
-        if (!res.ok) {
-            console.error(`Fetch failed for ${slug}: ${res.status}`);
-            if (res.status === 404) return null;
-            throw new Error(`Failed to fetch category: ${res.status}`);
+        let category;
+
+        // 1. Try finding by slug (exact match)
+        category = await Category.findOne({ slug }).lean();
+
+        // 2. Fallback: Check for encoded slug or ID
+        if (!category) {
+            // Try explicit ID match if it looks like an ObjectId
+            if (slug.match(/^[0-9a-fA-F]{24}$/)) {
+                category = await Category.findById(slug).lean();
+            }
         }
 
-        const data = await res.json();
-        console.log(`Fetched category: ${data?.title}, Services: ${data?.selectedServices?.length}`);
-        if (data?.selectedServices?.length > 0) {
-            console.log('First service sample:', JSON.stringify(data.selectedServices[0], null, 2));
+        if (!category) return null;
+
+        // 3. Populate selectedServices manually
+        // We use manual population to ensure we get lean objects and handle missing references gracefully
+        let selectedServices: any[] = [];
+        if (category.selectedServices && category.selectedServices.length > 0) {
+            // Filter out any potential invalid IDs first
+            const validIds = category.selectedServices.filter((id: any) => id);
+
+            if (validIds.length > 0) {
+                const services = await ServiceModel.find({
+                    '_id': { $in: validIds }
+                })
+                    .select('title slug images') // Select minimum fields needed for the card
+                    .lean();
+
+                // Preserve order if needed, or just use the results
+                selectedServices = services;
+            }
         }
-        return data;
+
+        // 4. Return serialized data (to avoid "Cannot pass function to client" warnings if any)
+        return {
+            ...category,
+            _id: category._id.toString(),
+            createdAt: category.createdAt ? new Date(category.createdAt).toISOString() : null,
+            updatedAt: category.updatedAt ? new Date(category.updatedAt).toISOString() : null,
+            selectedServices: JSON.parse(JSON.stringify(selectedServices))
+        };
+
     } catch (error) {
-        console.error("Error fetching category:", error);
+        console.error("Error fetching category from DB:", error);
         return null;
     }
-}
+});
 
-// Generate Static Params for Pre-rendering
+// Generate Static Params (Direct DB)
 export async function generateStaticParams() {
-    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
     try {
-        // We only need slugs here, so no populate needed
-        const res = await fetch(`${url}/api/categories`, {
-            cache: 'force-cache'
-        });
+        await dbConnect();
+        // Select only slug to be lightweight
+        const categories = await Category.find({}, { slug: 1 }).lean();
 
-        if (!res.ok) return [];
-
-        const categories = await res.json();
         return categories.map((category: any) => ({
             slug: category.slug,
         }));
@@ -66,7 +91,7 @@ export async function generateStaticParams() {
 // Generate Metadata
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const resolvedParams = await params;
-    const category = await getCategory(resolvedParams.slug);
+    const category = await getCategoryFromDB(resolvedParams.slug);
     const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
 
     if (!category) {
@@ -76,11 +101,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const title = category.seoTitle || category.title;
-    const description = category.metaDescription || category.excerpt || `Explore our ${category.title} services.`;
-    // Use relative path for canonical URL to avoid issues with incorrect NEXT_PUBLIC_API_URL
-    const canonicalUrl = `/${category.slug}`;
-    const categoryUrl = `${url}/${category.slug}`;
-    const imageUrl = category.banner || `${url}/og-image.jpg`; // Fallback image
+    const description = category.metaDescription || category.description?.replace(/<[^>]*>/g, '').substring(0, 160) || `Explore our ${category.title} services.`;
+    const canonicalUrl = `${url}/${category.slug}`;
+    const imageUrl = category.banner || `${url}/og-image.jpg`;
 
     return {
         title: title,
@@ -92,7 +115,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
             title: title,
             description: description,
-            url: categoryUrl,
+            url: canonicalUrl,
             images: [
                 {
                     url: imageUrl,
@@ -115,14 +138,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 const CategoryPage = async ({ params }: PageProps) => {
     const resolvedParams = await params;
-    const category = await getCategory(resolvedParams.slug);
+    const category = await getCategoryFromDB(resolvedParams.slug);
 
     if (!category) {
         notFound();
     }
 
-    // Use manually selected services
-    // The API should have populated this.
     const services = category.selectedServices || [];
     const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
 
@@ -131,7 +152,7 @@ const CategoryPage = async ({ params }: PageProps) => {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
         "name": category.title,
-        "description": category.metaDescription || category.description,
+        "description": category.metaDescription || category.description?.replace(/<[^>]*>/g, '').substring(0, 160),
         "url": `${url}/${category.slug}`,
         "mainEntity": {
             "@type": "ItemList",
@@ -165,8 +186,11 @@ const CategoryPage = async ({ params }: PageProps) => {
 
             <div className="container mx-auto px-4 py-12">
 
+
+
                 {/* Services Section */}
                 <div className="mb-16">
+                    <h2 className="text-2xl font-bold mb-6">Available Services</h2>
                     {services.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             {services.map((service: any) => (
@@ -175,15 +199,18 @@ const CategoryPage = async ({ params }: PageProps) => {
                         </div>
                     ) : (
                         <div className="text-center py-12 bg-background rounded-xl border border-dashed">
-                            <p className="text-gray-500">No services found for this category.</p>
+                            <p className="text-gray-500">
+                                Browse our other available services or contact us for {category.title} related inquiries.
+                            </p>
                         </div>
                     )}
                 </div>
-
-                {/* Description Section */}
+                {/* Description - Prioritized for SEO (moved above services) */}
                 {category.description && (
                     <div className="bg-background rounded-xl shadow-sm p-8 mb-12">
-                        <ReadOnlyEditor content={category.description} />
+                        <article className="prose max-w-none">
+                            <ReadOnlyEditor content={category.description} />
+                        </article>
                     </div>
                 )}
 
