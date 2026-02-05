@@ -1,13 +1,9 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-import dbConnect from '@/lib/db';
-import Category from '@/models/Category';
 import Link from 'next/link';
-import Service from '@/models/Product'; // Assuming 'Product' is where services are? Or 'Project'? 
-
-import ServiceModel from '@/models/Project';
 import ServiceCard from '@/components/ServiceCard';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
+import { Metadata } from 'next';
 
 interface PageProps {
     params: Promise<{
@@ -16,27 +12,55 @@ interface PageProps {
 }
 
 // Enable ISR
-export const revalidate = 86400;
+export const revalidate = 86400; // 24 hours (fallback)
 export const dynamicParams = true;
+
+// Helper to fetch category data
+async function getCategory(slug: string) {
+    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
+    try {
+        const res = await fetch(`${url}/api/categories/${slug}?populate=true`, {
+            cache: 'force-cache',
+            next: { tags: [`category-${slug}`] } // Optional: for finer-grained revalidation if needed
+        });
+
+        if (!res.ok) {
+            if (res.status === 404) return null;
+            throw new Error(`Failed to fetch category: ${res.status}`);
+        }
+
+        return res.json();
+    } catch (error) {
+        console.error("Error fetching category:", error);
+        return null;
+    }
+}
 
 // Generate Static Params for Pre-rendering
 export async function generateStaticParams() {
-    await dbConnect();
-    const categories = await Category.find({}, { slug: 1 }).lean();
-    return categories.map((category: any) => ({
-        slug: category.slug,
-    }));
+    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
+    try {
+        // We only need slugs here, so no populate needed
+        const res = await fetch(`${url}/api/categories`, {
+            cache: 'force-cache'
+        });
+
+        if (!res.ok) return [];
+
+        const categories = await res.json();
+        return categories.map((category: any) => ({
+            slug: category.slug,
+        }));
+    } catch (error) {
+        console.error("Error generating static params:", error);
+        return [];
+    }
 }
-
-import { Metadata } from 'next';
-
-// ... imports
 
 // Generate Metadata
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    await dbConnect();
     const resolvedParams = await params;
-    const category = await Category.findOne({ slug: resolvedParams.slug });
+    const category = await getCategory(resolvedParams.slug);
     const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
 
     if (!category) {
@@ -72,7 +96,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 },
             ],
             type: 'website',
-            siteName: 'Jiapixel', // Replace with site name
+            siteName: 'Jiapixel',
         },
         twitter: {
             card: 'summary_large_image',
@@ -84,28 +108,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 const CategoryPage = async ({ params }: PageProps) => {
-    await dbConnect();
-
     const resolvedParams = await params;
-
-    // Fetch Category with populated services
-    // User requested manual selection.
-    const category = await Category.findOne({ slug: resolvedParams.slug }).populate({
-        path: 'selectedServices',
-        model: ServiceModel,
-        strictPopulate: false
-    }).lean();
+    const category = await getCategory(resolvedParams.slug);
 
     if (!category) {
         notFound();
     }
 
     // Use manually selected services
-    // If populating fails or is empty, it will be an empty array.
-    // We need to ensure we handle the type safely.
-    // Serialize to ensure it's plain JSON for Client Components (fixes ObjectId serialization error)
-    const services = JSON.parse(JSON.stringify(category.selectedServices || []));
-
+    // The API should have populated this.
+    const services = category.selectedServices || [];
     const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
 
     // Structured Data (JSON-LD)
@@ -142,13 +154,10 @@ const CategoryPage = async ({ params }: PageProps) => {
                 )}
                 <div className="relative z-10 container mx-auto px-4 text-center">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">{category.title}</h1>
-
                 </div>
             </div>
 
             <div className="container mx-auto px-4 py-12">
-
-
 
                 {/* Services Section */}
                 <div className="mb-16">
