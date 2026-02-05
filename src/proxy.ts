@@ -57,7 +57,17 @@ const getDefaultDashboardRoute = (role: UserRole): string => {
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // Check if route requires authentication
+  const routeOwner = getRouteOwner(pathname);
+
+  // If route is not protected, proceed immediately WITHOUT calling getToken
+  // This saves significant CPU for all public page visits (home, blogs, etc.)
+  if (routeOwner === "null") {
+    return NextResponse.next();
+  }
+
   // Get the session token using NextAuth (this contains your JWT tokens)
+  // Only fetched for protected routes
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET
@@ -67,18 +77,8 @@ export async function proxy(request: NextRequest) {
   const userRole = token?.role as UserRole || null;
   const hasAccessToken = !!token?.accessToken;
 
-
-
-  // If user is on auth route but already logged in, redirect to dashboard
-  // if (isAuthRoute(pathname) && isAuthenticated && userRole) {
-  //   return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole), request.url));
-  // }
-
-  // Check if route requires authentication
-  const routeOwner = getRouteOwner(pathname);
-
   // If route is protected and user is not authenticated, redirect to login
-  if (routeOwner !== "null" && !isAuthenticated) {
+  if (!isAuthenticated) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
@@ -90,7 +90,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Check if tokens are present for protected routes
-  if (routeOwner !== "null" && isAuthenticated && !hasAccessToken) {
+  if (isAuthenticated && !hasAccessToken) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);

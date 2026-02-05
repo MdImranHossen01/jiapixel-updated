@@ -10,11 +10,6 @@ const nextConfig = {
         protocol: "https",
         hostname: "i.ibb.co",
       },
-      // Remove this duplicate - it's incorrect
-      {
-        protocol: "https",
-        hostname: "i.ibb.co.com",
-      },
       {
         protocol: "https",
         hostname: "picsum.photos",
