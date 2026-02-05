@@ -145,7 +145,7 @@ const CategoryPage = async ({ params }: PageProps) => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -174,7 +174,7 @@ const CategoryPage = async ({ params }: PageProps) => {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-12 bg-white rounded-xl border border-dashed">
+                        <div className="text-center py-12 bg-background rounded-xl border border-dashed">
                             <p className="text-gray-500">No services found for this category.</p>
                         </div>
                     )}
@@ -182,7 +182,7 @@ const CategoryPage = async ({ params }: PageProps) => {
 
                 {/* Description Section */}
                 {category.description && (
-                    <div className="bg-white rounded-xl shadow-sm p-8 mb-12">
+                    <div className="bg-background rounded-xl shadow-sm p-8 mb-12">
                         <ReadOnlyEditor content={category.description} />
                     </div>
                 )}
@@ -193,7 +193,7 @@ const CategoryPage = async ({ params }: PageProps) => {
                         <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
                         <div className="space-y-4">
                             {category.faqs.map((faq: any, index: number) => (
-                                <div key={index} className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                                <div key={index} className="bg-background rounded-lg p-6 shadow-sm border border-gray-100">
                                     <h3 className="text-lg font-semibold mb-2">{faq.question}</h3>
                                     <p className="text-gray-600">{faq.answer}</p>
                                 </div>
