@@ -112,29 +112,10 @@ const ServicesPage = async () => {
       <ServicesStructuredData data={servicesStructuredData} />
 
       <div className="min-h-screen">
-        {/* Hero Section */}
-        <section className=" py-4">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold py-4 text-foreground">
-                Our Professional Services
-              </h1>
-              <p className="text-xl text-muted-foreground  leading-relaxed">
-                Discover our comprehensive range of digital services designed to
-                elevate your business. From web development to digital
-                marketing, we&apos;ve got you covered.
-              </p>
 
-            </div>
-          </div>
-        </section>
 
         {/* Services Client Component (Search, Filter, Grid) */}
-        <section className="py-8">
-          <div className="container mx-auto px-4">
-            <ServicesClient initialServices={services} />
-          </div>
-        </section>
+        <ServicesClient initialServices={services} />
 
         {/* SEO Content Section */}
         <section className="py-12 bg-muted/30">

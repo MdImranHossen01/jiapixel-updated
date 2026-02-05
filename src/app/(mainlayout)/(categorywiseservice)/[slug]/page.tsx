@@ -1,6 +1,7 @@
 import React, { cache } from 'react';
 import { notFound } from 'next/navigation';
 import ServiceCard from '@/components/ServiceCard';
+import CategoryHero from './components/CategoryHero';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
 import { Metadata } from 'next';
 import dbConnect from '@/lib/db';
@@ -173,16 +174,9 @@ const CategoryPage = async ({ params }: PageProps) => {
             />
 
             {/* Banner Section */}
-            <div className="relative bg-gray-900 text-white py-20">
-                {category.banner && (
-                    <div className="absolute inset-0 z-0">
-                        <img src={category.banner} alt={category.title} className="w-full h-full object-cover opacity-50" />
-                    </div>
-                )}
-                <div className="relative z-10 container mx-auto px-4 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4">{category.title}</h1>
-                </div>
-            </div>
+            <CategoryHero
+                title={category.title}
+            />
 
             <div className="container mx-auto px-4 py-12">
 
