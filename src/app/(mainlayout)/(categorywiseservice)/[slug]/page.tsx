@@ -14,6 +14,7 @@ interface PageProps {
     }>;
 }
 
+
 // Enable ISR
 export const revalidate = 86400; // 24 hours (fallback)
 export const dynamicParams = true;
