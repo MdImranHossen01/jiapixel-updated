@@ -24,11 +24,8 @@ export async function GET(
         }
 
         if (populate === 'true') {
-            query = query.populate({
-                path: 'selectedServices',
-                model: ServiceModel,
-                strictPopulate: false
-            });
+            console.log('Populating selectedServices...');
+            query = query.populate('selectedServices');
         }
 
         const category = await query.exec();

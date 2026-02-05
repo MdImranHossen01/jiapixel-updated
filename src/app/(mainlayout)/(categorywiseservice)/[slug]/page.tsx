@@ -25,11 +25,17 @@ async function getCategory(slug: string) {
         });
 
         if (!res.ok) {
+            console.error(`Fetch failed for ${slug}: ${res.status}`);
             if (res.status === 404) return null;
             throw new Error(`Failed to fetch category: ${res.status}`);
         }
 
-        return res.json();
+        const data = await res.json();
+        console.log(`Fetched category: ${data?.title}, Services: ${data?.selectedServices?.length}`);
+        if (data?.selectedServices?.length > 0) {
+            console.log('First service sample:', JSON.stringify(data.selectedServices[0], null, 2));
+        }
+        return data;
     } catch (error) {
         console.error("Error fetching category:", error);
         return null;
