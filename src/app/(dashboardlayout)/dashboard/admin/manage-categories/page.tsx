@@ -78,7 +78,7 @@ const ManageCategories = () => {
                 </Link>
             </div>
 
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-background rounded-lg shadow overflow-hidden">
                 <Table>
                     <TableHeader className="bg-gray-50">
                         <TableRow>
@@ -91,13 +91,13 @@ const ManageCategories = () => {
                     <TableBody>
                         {categories.map((category) => (
                             <TableRow key={category._id} className="hover:bg-gray-50">
-                                <TableCell className="px-6 py-4 font-medium">
+                                <TableCell className="px-6 py-4 text-foreground font-medium">
                                     <Link href={`/${category.slug}`} target="_blank" className="hover:underline hover:text-primary">
                                         {category.title}
                                     </Link>
                                 </TableCell>
-                                <TableCell className="px-6 py-4 text-gray-500">{category.slug}</TableCell>
-                                <TableCell className="px-6 py-4 text-gray-500">
+                                <TableCell className="px-6 py-4 text-foreground">{category.slug}</TableCell>
+                                <TableCell className="px-6 py-4 text-foreground">
                                     {new Date(category.createdAt).toLocaleDateString()}
                                 </TableCell>
                                 <TableCell className="px-6 py-4 text-right">
