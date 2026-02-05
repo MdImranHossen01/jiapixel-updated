@@ -4,6 +4,9 @@ import Link from 'next/link';
 import ServiceCard from '@/components/ServiceCard';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
 import { Metadata } from 'next';
+import dbConnect from '@/lib/db';
+import Category from '@/models/Category';
+import ServiceModel from '@/models/Project';
 
 interface PageProps {
     params: Promise<{
@@ -21,20 +24,16 @@ async function getCategory(slug: string) {
     try {
         const res = await fetch(`${url}/api/categories/${slug}?populate=true`, {
             cache: 'force-cache',
-            next: { tags: [`category-${slug}`] } // Optional: for finer-grained revalidation if needed
+            next: { tags: [`category-${slug}`] }
         });
 
         if (!res.ok) {
             console.error(`Fetch failed for ${slug}: ${res.status}`);
             if (res.status === 404) return null;
-            throw new Error(`Failed to fetch category: ${res.status}`);
+            return null;
         }
 
         const data = await res.json();
-        console.log(`Fetched category: ${data?.title}, Services: ${data?.selectedServices?.length}`);
-        if (data?.selectedServices?.length > 0) {
-            console.log('First service sample:', JSON.stringify(data.selectedServices[0], null, 2));
-        }
         return data;
     } catch (error) {
         console.error("Error fetching category:", error);
@@ -42,18 +41,11 @@ async function getCategory(slug: string) {
     }
 }
 
-// Generate Static Params for Pre-rendering
+// Generate Static Params for Pre-rendering (Direct DB for reliability)
 export async function generateStaticParams() {
-    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
     try {
-        // We only need slugs here, so no populate needed
-        const res = await fetch(`${url}/api/categories`, {
-            cache: 'force-cache'
-        });
-
-        if (!res.ok) return [];
-
-        const categories = await res.json();
+        await dbConnect();
+        const categories = await Category.find({}, { slug: 1 }).lean();
         return categories.map((category: any) => ({
             slug: category.slug,
         }));
@@ -122,8 +114,25 @@ const CategoryPage = async ({ params }: PageProps) => {
     }
 
     // Use manually selected services
-    // The API should have populated this.
-    const services = category.selectedServices || [];
+    let services = category.selectedServices || [];
+
+    // Debug/Fallback: If services are strings (IDs), it means population failed.
+    if (services.length > 0 && typeof services[0] === 'string') {
+        console.log("Population failed in API. Fetching services manually via Direct DB.");
+        try {
+            await dbConnect();
+            // Manually fetch services using the IDs
+            const fetchedServices = await ServiceModel.find({
+                _id: { $in: services }
+            }).lean();
+
+            // Serialize for client component safety
+            services = JSON.parse(JSON.stringify(fetchedServices));
+        } catch (dbError) {
+            console.error("Fallback DB fetch failed:", dbError);
+        }
+    }
+
     const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
 
     // Structured Data (JSON-LD)
@@ -135,12 +144,15 @@ const CategoryPage = async ({ params }: PageProps) => {
         "url": `${url}/${category.slug}`,
         "mainEntity": {
             "@type": "ItemList",
-            "itemListElement": services.map((service: any, index: number) => ({
-                "@type": "ListItem",
-                "position": index + 1,
-                "url": `${url}/${service.slug}`,
-                "name": service.title
-            }))
+            "itemListElement": services.map((service: any, index: number) => {
+                if (!service || typeof service === 'string') return null;
+                return {
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "url": `${url}/${service.slug}`,
+                    "name": service.title
+                }
+            }).filter(Boolean)
         }
     };
 
@@ -169,9 +181,10 @@ const CategoryPage = async ({ params }: PageProps) => {
                 <div className="mb-16">
                     {services.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            {services.map((service: any) => (
-                                <ServiceCard key={service._id} service={service} />
-                            ))}
+                            {services.map((service: any) => {
+                                if (typeof service === 'string') return null;
+                                return <ServiceCard key={service._id} service={service} />
+                            })}
                         </div>
                     ) : (
                         <div className="text-center py-12 bg-background rounded-xl border border-dashed">
