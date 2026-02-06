@@ -31,6 +31,7 @@ interface Conversation {
 const MessagesPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const messagesContainerRef = React.useRef<HTMLDivElement>(null);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] =
@@ -47,6 +48,17 @@ const MessagesPage = () => {
   const [messageContent, setMessageContent] = useState("");
 
   const isAdmin = session?.user?.role === "admin";
+
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      const { scrollHeight, clientHeight } = messagesContainerRef.current;
+      messagesContainerRef.current.scrollTop = scrollHeight - clientHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -328,11 +340,10 @@ const MessagesPage = () => {
                 return (
                   <div
                     key={conversation._id}
-                    className={`p-4 border-b border-border cursor-pointer hover:bg-accent transition-colors ${
-                      selectedConversation?._id === conversation._id
-                        ? "bg-accent"
-                        : ""
-                    }`}
+                    className={`p-4 border-b border-border cursor-pointer hover:bg-accent transition-colors ${selectedConversation?._id === conversation._id
+                      ? "bg-accent"
+                      : ""
+                      }`}
                     onClick={() => {
                       setSelectedConversation(conversation);
                       fetchMessages(conversation._id);
@@ -465,7 +476,10 @@ const MessagesPage = () => {
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div
+                  ref={messagesContainerRef}
+                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                >
                   {messages.length === 0 ? (
                     <div className="text-center text-muted-foreground py-8">
                       <svg
@@ -484,55 +498,54 @@ const MessagesPage = () => {
                       <p>No messages yet. Start the conversation!</p>
                     </div>
                   ) : (
-                    messages.map((message) => (
-                      <div
-                        key={message._id}
-                        className={`flex ${
-                          message.sender._id === session?.user?.id
+                    <>
+                      {messages.map((message) => (
+                        <div
+                          key={message._id}
+                          className={`flex ${message.sender._id === session?.user?.id
                             ? "justify-end"
                             : "justify-start"
-                        }`}
-                      >
-                        <div
-                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                            message.sender._id === session?.user?.id
+                            }`}
+                        >
+                          <div
+                            className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message.sender._id === session?.user?.id
                               ? "bg-primary text-primary-foreground"
                               : "bg-muted text-foreground"
-                          }`}
-                        >
-                          <div className="text-sm whitespace-pre-wrap break-words">
-                            {message.content
-                              .split(/(https?:\/\/[^\s]+)/g)
-                              .map((part, index) => {
-                                if (part.match(/^https?:\/\/[^\s]+$/)) {
-                                  return (
-                                    <a
-                                      key={index}
-                                      href={part}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-500 hover:text-blue-600 underline break-all"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      {part}
-                                    </a>
-                                  );
-                                }
-                                return part;
-                              })}
-                          </div>
-                          <p
-                            className={`text-xs mt-1 ${
-                              message.sender._id === session?.user?.id
+                              }`}
+                          >
+                            <div className="text-sm whitespace-pre-wrap break-words">
+                              {message.content
+                                .split(/(https?:\/\/[^\s]+)/g)
+                                .map((part, index) => {
+                                  if (part.match(/^https?:\/\/[^\s]+$/)) {
+                                    return (
+                                      <a
+                                        key={index}
+                                        href={part}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 hover:text-blue-600 underline break-all"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {part}
+                                      </a>
+                                    );
+                                  }
+                                  return part;
+                                })}
+                            </div>
+                            <p
+                              className={`text-xs mt-1 ${message.sender._id === session?.user?.id
                                 ? "text-primary-foreground/70"
                                 : "text-muted-foreground"
-                            }`}
-                          >
-                            {formatTime(message.createdAt)}
-                          </p>
+                                }`}
+                            >
+                              {formatTime(message.createdAt)}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      ))}
+                    </>
                   )}
                 </div>
 
