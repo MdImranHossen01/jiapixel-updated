@@ -7,6 +7,7 @@ import ServiceSteps from "../components/ServiceSteps";
 import AuthorQuote from "../components/AuthorQuote";
 import HeroSection from "../components/HeroSection";
 import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
+import ServiceAdminActions from "@/components/ServiceAdminActions";
 
 interface PageProps {
   params: Promise<{
@@ -216,6 +217,14 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
 
       <div className=" overflow-hidden py-8">
         <div className="container mx-auto px-4 w-full">
+          {/* Admin Actions */}
+          <div className="flex justify-end mb-4">
+            <ServiceAdminActions
+              serviceSlug={service.slug}
+              serviceTitle={service.title}
+            />
+          </div>
+
           <section>
             <HeroSection
               service={service}

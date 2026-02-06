@@ -7,6 +7,7 @@ import BlogCard from '@/app/(mainlayout)/components/BlogSection/BlogCard';
 import ServiceCard from '@/components/ServiceCard';
 import CompactServiceCard from '@/components/CompactServiceCard';
 import CompactBlogCard from '@/components/CompactBlogCard';
+import BlogAdminActions from '@/components/BlogAdminActions';
 
 async function getRelatedBlogs(category: string, currentSlug: string) {
   try {
@@ -208,15 +209,22 @@ export default async function BlogPostPage({ params }: PageProps) {
 
       <div className="min-h-screen py-8">
         <div className="container mx-auto px-4 max-w-7xl">
-          <nav className="mb-8">
-            <Link
-              href="/blogs"
-              className="text-primary hover:text-primary/80 font-medium transition-colors inline-flex items-center space-x-2"
-            >
-              <span>←</span>
-              <span>Back to Blogs</span>
-            </Link>
-          </nav>
+          <div className="flex items-center justify-between mb-8">
+            <nav>
+              <Link
+                href="/blogs"
+                className="text-primary hover:text-primary/80 font-medium transition-colors inline-flex items-center space-x-2"
+              >
+                <span>←</span>
+                <span>Back to Blogs</span>
+              </Link>
+            </nav>
+            {/* Admin Actions */}
+            <BlogAdminActions
+              blogSlug={blog.slug}
+              blogTitle={blog.title}
+            />
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column - Main Content */}
