@@ -92,11 +92,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
   }, []);
 
   // Fetch unread message count
+  // Fetch unread message count - optimized to run only once per session change
   useEffect(() => {
     if (session?.user?.id) {
       const updateUnreadCount = async () => {
         try {
-          const response = await fetch('/api/messages/unread-count');
+          // Add simple cache busting or check if we already have data to avoid spamming
+          const response = await fetch('/api/messages/unread-count', {
+            next: { revalidate: 60 } // Cache for 60 seconds client-side if supported, else relies on browser cache
+          });
+
           if (response.ok) {
             const data = await response.json();
             setUnreadCount(data.count);
@@ -108,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
 
       updateUnreadCount();
     }
-  }, [session]);
+  }, [session?.user?.id]); // Only re-run if the specific user ID changes, not the entire session object
 
   // ✅ Close dropdown and mobile menu when clicking outside
   useEffect(() => {
