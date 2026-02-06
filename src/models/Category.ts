@@ -71,9 +71,5 @@ const CategorySchema: Schema = new Schema({
 // Index for faster lookups
 // CategorySchema.index({ slug: 1 }); // unique: true already creates an index
 
-// Force model recompilation if it exists (Fix for Schema changes during Dev HMR)
-if (mongoose.models.Category) {
-    delete mongoose.models.Category;
-}
-
-export default mongoose.model<ICategory>('Category', CategorySchema);
+// Prevent OverwriteModelError in development and serverless
+export default mongoose.models.Category || mongoose.model<ICategory>('Category', CategorySchema);
