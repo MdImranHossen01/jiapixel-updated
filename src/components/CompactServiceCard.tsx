@@ -10,7 +10,7 @@ export default function CompactServiceCard({ service }: { service: any }) {
 
     if (!service) return null;
 
-    const featuredImage = service?.images?.[0] || service?.featuredImage || service?.image || '/placeholder-service.jpg';
+    const featuredImage = service.images?.[0];
     const title = service?.title || 'Untitled Service';
     const slug = service?.slug || '#';
 
@@ -19,7 +19,7 @@ export default function CompactServiceCard({ service }: { service: any }) {
             <div className="flex items-center gap-4 py-3 hover:bg-accent/50 rounded-lg transition-colors">
                 {/* IMAGE */}
                 <div className="relative w-20 h-20 shrink-0 overflow-hidden rounded-md border border-border bg-muted">
-                    {!imageError && featuredImage && featuredImage !== '/placeholder-service.jpg' ? (
+                    {!imageError && featuredImage ? (
                         <Image
                             src={featuredImage}
                             alt={title}
