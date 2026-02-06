@@ -156,7 +156,7 @@ const CategoryPage = async ({ params }: PageProps) => {
                 title={category.title}
             />
 
-            <div className="container mx-auto px-4 py-12">
+            <div className="container mx-auto px-4">
                 {/* Admin Actions */}
                 <div className="flex justify-end mb-4">
                     <CategoryAdminActions
@@ -168,7 +168,7 @@ const CategoryPage = async ({ params }: PageProps) => {
 
 
                 {/* Services Section */}
-                <div className="mb-16">
+                <div className="mb-12">
                     <h2 className="text-2xl font-bold mb-6">Available Services</h2>
                     {services.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
