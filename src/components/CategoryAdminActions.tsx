@@ -1,8 +1,9 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { MoreVertical, Edit, Plus, LayoutGrid } from "lucide-react";
+import { MoreVertical, Edit, Plus, LayoutGrid, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,16 +15,44 @@ import { Button } from "@/components/ui/button";
 
 interface CategoryAdminActionsProps {
     categorySlug: string;
+    categoryTitle?: string;
 }
 
 export default function CategoryAdminActions({
     categorySlug,
+    categoryTitle,
 }: CategoryAdminActionsProps) {
     const { data: session } = useSession();
     const router = useRouter();
+    const [isDeleting, setIsDeleting] = useState(false);
     const isAdmin = session?.user?.role === "admin";
 
     if (!isAdmin) return null;
+
+    const handleDelete = async () => {
+        if (!confirm(`Are you sure you want to delete "${categoryTitle || 'this category'}"?`)) {
+            return;
+        }
+
+        setIsDeleting(true);
+        try {
+            const response = await fetch(`/api/categories/${categorySlug}`, {
+                method: "DELETE",
+            });
+
+            if (response.ok) {
+                router.push("/");
+                router.refresh();
+            } else {
+                alert("Failed to delete category");
+            }
+        } catch (error) {
+            console.error("Error deleting category:", error);
+            alert("Error deleting category");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return (
         <DropdownMenu>
@@ -57,6 +86,15 @@ export default function CategoryAdminActions({
                 >
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="text-destructive focus:text-destructive"
+                >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {isDeleting ? "Deleting..." : "Delete"}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

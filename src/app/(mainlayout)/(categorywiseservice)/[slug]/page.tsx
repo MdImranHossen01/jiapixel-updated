@@ -182,7 +182,10 @@ const CategoryPage = async ({ params }: PageProps) => {
             <div className="container mx-auto px-4 py-12">
                 {/* Admin Actions */}
                 <div className="flex justify-end mb-4">
-                    <CategoryAdminActions categorySlug={category.slug} />
+                    <CategoryAdminActions
+                        categorySlug={category.slug}
+                        categoryTitle={category.title}
+                    />
                 </div>
 
 
