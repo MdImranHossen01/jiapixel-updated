@@ -19,8 +19,12 @@ export const dynamicParams = true;
 
 const getCategory = async (slug: string) => {
     try {
-        // Use relative URL for server-side fetches to avoid external requests
-        const apiUrl = `/api/categories/${slug}?populate=true`;
+        // Use absolute URL - required for Node.js fetch during build/SSR
+        const baseUrl = process.env.NODE_ENV === 'production'
+            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+            : 'http://127.0.0.1:3000';
+
+        const apiUrl = `${baseUrl}/api/categories/${slug}?populate=true`;
 
         console.log(`[CategoryPage] Requesting: ${apiUrl}`);
 
@@ -49,7 +53,12 @@ const getCategory = async (slug: string) => {
 
 export async function generateStaticParams() {
     try {
-        const response = await fetch(`/api/categories`, {
+        // Use absolute URL - required for Node.js fetch during build
+        const baseUrl = process.env.NODE_ENV === 'production'
+            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+            : 'http://localhost:3000';
+
+        const response = await fetch(`${baseUrl}/api/categories`, {
             cache: 'force-cache'
         });
 

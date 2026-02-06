@@ -14,6 +14,8 @@ export async function GET(
     const populate = url.searchParams.get('populate');
 
     console.log(`[CategoryAPI] Fetching category with ID/Slug: ${id}, Populate: ${populate}`);
+    // Ensure ServiceModel is initialized to prevent MissingSchemaError
+    console.log(`[CategoryAPI] Service Model Status: ${!!ServiceModel}`);
 
     try {
         // Try finding by ID first, if invalid ID format, try finding by slug
