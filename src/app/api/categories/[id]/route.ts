@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Category from '@/models/Category';
-import ServiceModel from '@/models/Project';
-import { revalidatePath } from 'next/cache';
+import ServiceModel from '@/models/Project'; // Ensure this model is registered
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function GET(
     req: NextRequest,
@@ -23,18 +23,30 @@ export async function GET(
             query = Category.findOne({ slug: id });
         }
 
+        // Always populate for the detail page if requested OR if it's a slug based fetch (convention)
+        // Or just simpler: let's rely on the query param but default to true if we are fetching a specific slug for a page?
+        // Actually adhering to the query param is safer API design, but for this specific page component we need it.
+        // Let's stick to the query param but update the page.tsx to send it. Make sure manual population happens if needed.
+
+        // Actually, let's just populate if populate=true OR implicitly we generally want it for details.
+        // But to be safe, I'll update page.tsx to send ?populate=true. 
+        // Here I will ensure the response structure matches.
+
         if (populate === 'true') {
-            console.log('Populating selectedServices...');
-            query = query.populate('selectedServices');
+            query = query.populate({
+                path: 'selectedServices',
+                select: 'title slug images featuredImage', // Select fields needed for card
+                model: ServiceModel
+            });
         }
 
-        const category = await query.exec();
+        const category = await query.lean().exec();
 
         if (!category) {
             return NextResponse.json({ error: 'Category not found' }, { status: 404 });
         }
 
-        return NextResponse.json(category);
+        return NextResponse.json({ category });
     } catch (error) {
         console.error("Error fetching category:", error);
         return NextResponse.json({ error: 'Failed to fetch category' }, { status: 500 });
@@ -51,13 +63,16 @@ export async function PUT(
     try {
         const body = await req.json();
 
-        let category = await Category.findByIdAndUpdate(id, body, {
-            new: true,
-            runValidators: true,
-        });
+        // Handle update similar to GET logic for finding
+        const isObjectId = id.match(/^[0-9a-fA-F]{24}$/);
 
-        // If not found by ID, try slug (though usually edit uses ID)
-        if (!category) {
+        let category;
+        if (isObjectId) {
+            category = await Category.findByIdAndUpdate(id, body, {
+                new: true,
+                runValidators: true,
+            });
+        } else {
             category = await Category.findOneAndUpdate({ slug: id }, body, {
                 new: true,
                 runValidators: true,
@@ -68,15 +83,15 @@ export async function PUT(
             return NextResponse.json({ error: 'Category not found' }, { status: 404 });
         }
 
-        // Revalidate the category page
-        // We need to revalidate based on the category's slug. 
-        // If the slug changed, we might technically want to revalidate the OLD one too, 
-        // but for now revalidating the current (potentially new) slug is key.
+        // Revalidate cache
         if (category.slug) {
-            revalidatePath(`/${category.slug}`);
+            revalidatePath(`/${category.slug}`); // Update the page
+            revalidateTag(`category-${category.slug}`, 'default'); // Update the data cache
         }
 
-        return NextResponse.json(category);
+        // Also revalidate the tag with the ID if possible, but slug is the main key used in the page
+
+        return NextResponse.json({ category });
     } catch (error) {
         console.error("Error updating category:", error);
         return NextResponse.json({ error: 'Failed to update category' }, { status: 400 });

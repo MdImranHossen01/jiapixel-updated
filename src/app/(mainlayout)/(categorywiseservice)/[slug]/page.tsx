@@ -1,12 +1,9 @@
-import React, { cache } from 'react';
+import React from 'react';
 import { notFound } from 'next/navigation';
 import ServiceCard from '@/components/ServiceCard';
 import CategoryHero from './components/CategoryHero';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
 import { Metadata } from 'next';
-import dbConnect from '@/lib/db';
-import Category from '@/models/Category';
-import ServiceModel from '@/models/Project';
 import CategoryAdminActions from '@/components/CategoryAdminActions';
 
 interface PageProps {
@@ -21,69 +18,49 @@ export const dynamicParams = true;
 
 // Cached DB Fetch to ensure reliable data access without API overhead
 // Using React cache() to dedup requests during rendering
-const getCategoryFromDB = cache(async (slug: string) => {
+// Cached API Fetch with force-cache and tags
+const getCategory = async (slug: string) => {
     try {
-        await dbConnect();
+        const baseUrl = process.env.NODE_ENV === 'production'
+            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+            : 'http://localhost:3000';
 
-        let category;
-
-        // 1. Try finding by slug (exact match)
-        category = await Category.findOne({ slug }).lean();
-
-        // 2. Fallback: Check for encoded slug or ID
-        if (!category) {
-            // Try explicit ID match if it looks like an ObjectId
-            if (slug.match(/^[0-9a-fA-F]{24}$/)) {
-                category = await Category.findById(slug).lean();
+        const response = await fetch(`${baseUrl}/api/categories/${slug}?populate=true`, {
+            cache: 'force-cache',
+            next: {
+                tags: [`category-${slug}`]
             }
-        }
+        });
 
-        if (!category) return null;
+        if (!response.ok) return null;
 
-        // 3. Populate selectedServices manually
-        // We use manual population to ensure we get lean objects and handle missing references gracefully
-        let selectedServices: any[] = [];
-        if (category.selectedServices && category.selectedServices.length > 0) {
-            // Filter out any potential invalid IDs first
-            const validIds = category.selectedServices.filter((id: any) => id);
-
-            if (validIds.length > 0) {
-                const services = await ServiceModel.find({
-                    '_id': { $in: validIds }
-                })
-                    .select('title slug images') // Select minimum fields needed for the card
-                    .lean();
-
-                // Preserve order if needed, or just use the results
-                selectedServices = services;
-            }
-        }
-
-        // 4. Return serialized data (to avoid "Cannot pass function to client" warnings if any)
-        return {
-            ...category,
-            _id: category._id.toString(),
-            createdAt: category.createdAt ? new Date(category.createdAt).toISOString() : null,
-            updatedAt: category.updatedAt ? new Date(category.updatedAt).toISOString() : null,
-            selectedServices: JSON.parse(JSON.stringify(selectedServices))
-        };
+        const data = await response.json();
+        return data.category || null;
 
     } catch (error) {
-        console.error("Error fetching category from DB:", error);
+        console.error("Error fetching category:", error);
         return null;
     }
-});
+};
 
 // Generate Static Params (Direct DB)
+// Generate Static Params (Cached API)
 export async function generateStaticParams() {
     try {
-        await dbConnect();
-        // Select only slug to be lightweight
-        const categories = await Category.find({}, { slug: 1 }).lean();
+        const baseUrl = process.env.NODE_ENV === 'production'
+            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
+            : 'http://localhost:3000';
 
-        return categories.map((category: any) => ({
+        const response = await fetch(`${baseUrl}/api/categories`, {
+            cache: 'force-cache'
+        });
+
+        if (!response.ok) return [];
+
+        const data = await response.json();
+        return data.categories?.map((category: any) => ({
             slug: category.slug,
-        }));
+        })) || [];
     } catch (error) {
         console.error("Error generating static params:", error);
         return [];
@@ -93,7 +70,7 @@ export async function generateStaticParams() {
 // Generate Metadata
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const resolvedParams = await params;
-    const category = await getCategoryFromDB(resolvedParams.slug);
+    const category = await getCategory(resolvedParams.slug);
     const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
 
     if (!category) {
@@ -140,7 +117,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 const CategoryPage = async ({ params }: PageProps) => {
     const resolvedParams = await params;
-    const category = await getCategoryFromDB(resolvedParams.slug);
+    const category = await getCategory(resolvedParams.slug);
 
     if (!category) {
         notFound();
