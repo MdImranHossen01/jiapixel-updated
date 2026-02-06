@@ -105,7 +105,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
     // Revalidate the blog details page to show updates instantly
     revalidatePath(`/blogs/${slug}`);
-    revalidateTag(`blog-${slug}`, { expire: 0 });
+    revalidateTag(`blog-${slug}`, 'default');
 
     return NextResponse.json({
       success: true,
