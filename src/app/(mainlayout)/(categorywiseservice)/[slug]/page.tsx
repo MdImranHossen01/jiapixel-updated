@@ -19,11 +19,9 @@ export const dynamicParams = true;
 
 const getCategory = async (slug: string) => {
     try {
-        const baseUrl = process.env.NODE_ENV === 'production'
-            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-            : 'http://127.0.0.1:3000'; // Force IPv4 to avoid localhost resolution issues
+        // Use relative URL for server-side fetches to avoid external requests
+        const apiUrl = `/api/categories/${slug}?populate=true`;
 
-        const apiUrl = `${baseUrl}/api/categories/${slug}?populate=true`;
         console.log(`[CategoryPage] Requesting: ${apiUrl}`);
 
         const response = await fetch(apiUrl, {
@@ -52,11 +50,7 @@ const getCategory = async (slug: string) => {
 
 export async function generateStaticParams() {
     try {
-        const baseUrl = process.env.NODE_ENV === 'production'
-            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-            : 'http://localhost:3000';
-
-        const response = await fetch(`${baseUrl}/api/categories`, {
+        const response = await fetch(`/api/categories`, {
             cache: 'force-cache'
         });
 
