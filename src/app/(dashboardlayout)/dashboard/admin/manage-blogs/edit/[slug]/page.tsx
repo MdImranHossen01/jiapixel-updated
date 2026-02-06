@@ -263,9 +263,9 @@ export default function EditBlogPage({ params }: PageProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Main Content Column */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             {/* Blog Title */}
             <div className="bg-card rounded-lg shadow p-6 border border-border">
               <label htmlFor="title" className="block text-lg font-semibold text-card-foreground mb-3">
@@ -316,7 +316,6 @@ export default function EditBlogPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Sidebar Column */}
           <div className="space-y-6">
             {/* Publishing Settings */}
             <div className="bg-card rounded-lg shadow p-6 border border-border">
