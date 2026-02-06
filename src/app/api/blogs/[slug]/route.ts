@@ -31,7 +31,7 @@ export async function GET(request: NextRequest, { params }: Params) {
       .select('-__v')
       .populate({
         path: 'relatedServices',
-        select: 'title slug featuredImage isFeatured',
+        select: 'title slug images featuredImage isFeatured',
         strictPopulate: false
       });
 
