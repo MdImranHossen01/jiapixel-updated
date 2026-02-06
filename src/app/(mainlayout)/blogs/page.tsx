@@ -16,7 +16,7 @@ async function getBlogs() {
   try {
     const baseUrl = getBaseUrl();
 
-    const response = await fetch(`${baseUrl}/api/blogs`, {
+    const response = await fetch(`${baseUrl}/api/blogs?limit=1000`, {
       next: { revalidate: 86400 }
     });
 

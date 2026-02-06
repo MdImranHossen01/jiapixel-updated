@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
     Card,
     CardContent,
@@ -10,13 +8,14 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import Pagination from "@/components/ui/Pagination";
 import BlogCardClient from "./BlogCardClient";
 
 interface ManageBlogsClientProps {
     blogs: any[];
 }
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 10;
 
 export default function ManageBlogsClient({ blogs }: ManageBlogsClientProps) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -59,39 +58,11 @@ export default function ManageBlogsClient({ blogs }: ManageBlogsClientProps) {
             </div>
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-8">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <Button
-                            key={page}
-                            variant={currentPage === page ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handlePageChange(page)}
-                            className="w-8 h-8 p-0"
-                        >
-                            {page}
-                        </Button>
-                    ))}
-
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div>
-            )}
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </div>
     );
 }
