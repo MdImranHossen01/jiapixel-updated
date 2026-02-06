@@ -35,8 +35,7 @@ export async function GET(
         if (populate === 'true') {
             query = query.populate({
                 path: 'selectedServices',
-                select: 'title slug images featuredImage', // Select fields needed for card
-                model: ServiceModel
+                select: 'title slug images', // Select fields needed for card
             });
         }
 
