@@ -12,7 +12,7 @@ interface PageProps {
     }>;
 }
 
-// Enable ISR
+
 export const revalidate = 86400; // 24 hours
 export const dynamicParams = true;
 
