@@ -61,7 +61,7 @@ async function getBlog(slug: string) {
       : 'http://localhost:3000';
 
     const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
-      cache: 'force-cache',
+      cache: 'no-store',
       next: { tags: [`blog-${slug}`] }
     } as RequestInit);
 
