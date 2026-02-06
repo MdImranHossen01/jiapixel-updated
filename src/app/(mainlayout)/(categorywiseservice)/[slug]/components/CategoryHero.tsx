@@ -9,7 +9,7 @@ interface CategoryHeroProps {
 
 const CategoryHero: React.FC<CategoryHeroProps> = ({ title }) => {
     return (
-        <div className="relative bg-slate-900 overflow-hidden py-40 mb-12">
+        <div className="relative bg-slate-900 overflow-hidden lg:py-40 py-20 lg:mb-12 mb-6">
             {/* Background Image */}
             <div className="absolute inset-0">
                 <Image
@@ -24,7 +24,7 @@ const CategoryHero: React.FC<CategoryHeroProps> = ({ title }) => {
             </div>
 
             <div className="container relative mx-auto px-4 text-center flex flex-col justify-center h-full">
-                <h1 className="text-3xl lg:text-5xl  font-bold text-white tracking-tight">
+                <h1 className="text-2xl lg:text-5xl  font-bold text-white tracking-tight">
                     {title}
                 </h1>
             </div>
