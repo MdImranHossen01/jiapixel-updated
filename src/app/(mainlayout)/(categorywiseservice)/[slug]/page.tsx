@@ -25,8 +25,7 @@ const getCategory = async (slug: string) => {
         console.log(`[CategoryPage] Requesting: ${apiUrl}`);
 
         const response = await fetch(apiUrl, {
-            cache: 'no-store',
-            headers: { 'Cache-Control': 'no-cache' }
+            next: { revalidate: 86400 } // Match page-level revalidation
         });
 
         console.log(`[CategoryPage] Response Status: ${response.status}`);
