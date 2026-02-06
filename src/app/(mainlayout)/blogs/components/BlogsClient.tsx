@@ -14,7 +14,7 @@ interface BlogsClientProps {
     initialBlogs: any[];
 }
 
-const ITEMS_PER_PAGE = 24;
+const ITEMS_PER_PAGE = 12;
 
 const BlogsClient: React.FC<BlogsClientProps> = ({ initialBlogs }) => {
     const [searchQuery, setSearchQuery] = useState("");
