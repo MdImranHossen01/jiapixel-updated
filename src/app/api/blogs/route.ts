@@ -4,13 +4,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Blog from '@/models/Blog';
 
+// Enable route caching - revalidate every 60 seconds
+export const revalidate = 60;
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '100');
+    const limit = parseInt(searchParams.get('limit') || '12');
     const category = searchParams.get('category');
     const tag = searchParams.get('tag');
 

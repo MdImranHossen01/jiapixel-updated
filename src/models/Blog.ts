@@ -101,12 +101,12 @@ const BlogSchema: Schema = new Schema(
   }
 );
 
-// ✅ Remove duplicate indexing (if existed before)
-if (BlogSchema.indexes().some((idx) => idx[0].slug)) {
-  // do nothing, already exists
-} else {
-  BlogSchema.index({ slug: 1 }); // optional, but keep only if necessary
-}
+// Performance indexes for common query patterns
+BlogSchema.index({ status: 1, publishedAt: -1 }); // For published blogs sorted by date
+BlogSchema.index({ status: 1, createdAt: -1 }); // For all blogs sorted by creation
+BlogSchema.index({ category: 1, status: 1 }); // For category filtering
+BlogSchema.index({ tags: 1 }); // For tag-based queries
+BlogSchema.index({ slug: 1 }); // For slug lookups (already unique, but explicit)
 
 //  Calculate read time before saving
 BlogSchema.pre("save", function (this: IBlog, next) {

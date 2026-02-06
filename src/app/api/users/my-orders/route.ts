@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
   try {
     // Use string ID directly for querying
     const orders = await Order.find({ user: token.sub })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     return NextResponse.json(orders);
   } catch (error) {

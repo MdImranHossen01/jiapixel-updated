@@ -5,37 +5,40 @@ import Portfolio from '@/models/Portfolios';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth'; // Fixed import path
 
+// Enable route caching - revalidate every 60 seconds
+export const revalidate = 60;
+
 // GET all portfolios (public)
 
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
-    
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
     const category = searchParams.get('category');
     const featured = searchParams.get('featured');
     // Removed status and showAll parameters
-    
+
     const skip = (page - 1) * limit;
-    
+
     // Build filter - NO status filtering
     const filter: any = {};
     if (category) filter.category = category;
     if (featured) filter.featured = featured === 'true';
     // No status filter applied - shows all portfolios
-    
+
     const portfolios = await Portfolio.find(filter)
       .sort({ featured: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .select('-content')
       .lean();
-    
+
     const total = await Portfolio.countDocuments(filter);
     const totalPages = Math.ceil(total / limit);
-    
+
     return NextResponse.json({
       portfolios,
       pagination: {
@@ -60,18 +63,18 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
-    
+
     await connectDB();
-    
+
     const body = await request.json();
-    
+
     const {
       title,
       slug,
@@ -89,7 +92,7 @@ export async function POST(request: NextRequest) {
       metaTitle,
       metaDescription
     } = body;
-    
+
     // Validate required fields
     if (!title || !slug || !description || !content || !featuredImage || !category || !client || !projectDate) {
       return NextResponse.json(
@@ -97,7 +100,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Check if slug already exists
     const existingPortfolio = await Portfolio.findOne({ slug });
     if (existingPortfolio) {
@@ -106,7 +109,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     const portfolio = new Portfolio({
       title,
       slug,
@@ -124,9 +127,9 @@ export async function POST(request: NextRequest) {
       metaTitle: metaTitle || title,
       metaDescription: metaDescription || description.substring(0, 160)
     });
-    
+
     await portfolio.save();
-    
+
     return NextResponse.json(
       { message: 'Portfolio created successfully', portfolio },
       { status: 201 }

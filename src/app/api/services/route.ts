@@ -6,6 +6,9 @@ import Service from '../../../models/Project';
 import { uploadMultipleToImgBB } from '../../../lib/imgbb';
 import { generateSlug } from '../../../lib/slug';
 
+// Enable route caching - revalidate every 60 seconds
+export const revalidate = 60;
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
@@ -152,7 +155,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '100');
+    const limit = parseInt(searchParams.get('limit') || '12');
     const isFeatured = searchParams.get('isFeatured');
 
     const query: any = {};
@@ -172,7 +175,8 @@ export async function GET(request: NextRequest) {
     const services = await Service.find(query)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     const total = await Service.countDocuments(query);
 

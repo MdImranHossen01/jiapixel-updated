@@ -17,7 +17,7 @@ const createSlug = (text: string) => {
 export async function GET(req: NextRequest) {
     await dbConnect();
     try {
-        const categories = await Category.find({}).sort({ createdAt: -1 });
+        const categories = await Category.find({}).sort({ createdAt: -1 }).lean();
         return NextResponse.json(categories);
     } catch (error) {
         return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });

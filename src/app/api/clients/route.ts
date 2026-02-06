@@ -5,7 +5,7 @@ import Client from '@/models/Client';
 export async function GET(req: NextRequest) {
     try {
         await connectDB();
-        const clients = await Client.find().sort({ createdAt: -1 });
+        const clients = await Client.find().sort({ createdAt: -1 }).lean();
         return NextResponse.json({ success: true, data: clients });
     } catch (error: any) {
         return NextResponse.json(

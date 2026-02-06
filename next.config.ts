@@ -42,9 +42,9 @@ const nextConfig = {
     ],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400,
-    // Add these for better image optimization
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Optimized device sizes to reduce CPU-intensive transformations
+    deviceSizes: [640, 750, 1080, 1920],
+    imageSizes: [16, 32, 64, 128, 256],
   },
   compress: true,
   poweredByHeader: false,

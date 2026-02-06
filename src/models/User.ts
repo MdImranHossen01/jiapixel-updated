@@ -45,8 +45,13 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
+// Performance indexes for user queries
+UserSchema.index({ email: 1 }); // Email is already unique, but explicit index
+UserSchema.index({ role: 1 }); // For role-based filtering
+UserSchema.index({ name: 'text', email: 'text' }); // For text search
+
 // Clean up expired refresh tokens
-UserSchema.methods.cleanExpiredTokens = function() {
+UserSchema.methods.cleanExpiredTokens = function () {
   this.refreshTokens = this.refreshTokens.filter(
     (token: any) => token.expiresAt > new Date()
   );

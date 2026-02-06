@@ -9,22 +9,42 @@ import User from '@/models/User';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
 
+    // Add pagination support
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const skip = (page - 1) * limit;
+
     const conversations = await Conversation.find({
       participants: session.user.id
     })
-    .populate('participants', 'name email image')
-    .populate('lastMessage')
-    .sort({ updatedAt: -1 })
-    .lean();
+      .populate('participants', 'name email image')
+      .populate('lastMessage')
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
-    return NextResponse.json({ conversations });
+    const total = await Conversation.countDocuments({
+      participants: session.user.id
+    });
+
+    return NextResponse.json({
+      conversations,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     console.error('Error fetching conversations:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -35,7 +55,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -49,7 +69,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     let conversation;
-    
+
     if (conversationId) {
       conversation = await Conversation.findById(conversationId);
     } else {
@@ -92,9 +112,9 @@ export async function POST(request: NextRequest) {
       .populate('sender', 'name email image')
       .lean();
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: populatedMessage,
-      conversation: conversation 
+      conversation: conversation
     });
   } catch (error) {
     console.error('Error sending message:', error);

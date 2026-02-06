@@ -15,8 +15,9 @@ export async function GET(req: NextRequest) {
   try {
     const orders = await Order.find({})
       .select("user service tier status total orderNumber createdAt") // Explicitly select fields
-      .sort({ createdAt: -1 });
-    
+      .sort({ createdAt: -1 })
+      .lean();
+
     return NextResponse.json(orders);
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { service, tier, requirements } = body;
-    
+
     console.log("Creating order with data:", {
       user: token.sub,
       service,
@@ -63,9 +64,9 @@ export async function POST(req: NextRequest) {
       orderNumber: generateOrderNumber(), // Generate order number manually
       requirements: requirements || `Service order for ${tier.title} package`,
     });
-    
+
     await newOrder.save();
-    
+
     console.log("Order created successfully:", newOrder);
 
     // Return the order without population for now (we'll fix population later)
