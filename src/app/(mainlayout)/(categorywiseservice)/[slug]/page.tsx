@@ -1,10 +1,10 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import ServiceCard from '@/components/ServiceCard';
 import CategoryHero from './components/CategoryHero';
-import NovelEditor from '@/app/components/editor/NovelEditor';
-import { Metadata } from 'next';
 import CategoryAdminActions from '@/components/CategoryAdminActions';
+import { ViewContent } from '@/app/components/editor/ViewContent';
 
 interface PageProps {
     params: Promise<{
@@ -16,25 +16,29 @@ interface PageProps {
 export const revalidate = 86400; // 24 hours
 export const dynamicParams = true;
 
-// Cached DB Fetch to ensure reliable data access without API overhead
-// Using React cache() to dedup requests during rendering
-// Cached API Fetch with force-cache and tags
+
 const getCategory = async (slug: string) => {
     try {
         const baseUrl = process.env.NODE_ENV === 'production'
             ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
             : 'http://localhost:3000';
 
+        console.log(`Fetching category: ${baseUrl}/api/categories/${slug}?populate=true`);
+
         const response = await fetch(`${baseUrl}/api/categories/${slug}?populate=true`, {
-            cache: 'force-cache',
-            next: {
-                tags: [`category-${slug}`]
-            }
+            cache: 'no-store', // Temporarily disable cache for debugging
+            // next: {
+            //     tags: [`category-${slug}`]
+            // }
         });
 
-        if (!response.ok) return null;
+        if (!response.ok) {
+            console.error(`Failed to fetch category. Status: ${response.status} ${response.statusText}`);
+            return null;
+        }
 
         const data = await response.json();
+        console.log(`Fetched category data found: ${!!data.category}`);
         return data.category || null;
 
     } catch (error) {
@@ -43,8 +47,7 @@ const getCategory = async (slug: string) => {
     }
 };
 
-// Generate Static Params (Direct DB)
-// Generate Static Params (Cached API)
+
 export async function generateStaticParams() {
     try {
         const baseUrl = process.env.NODE_ENV === 'production'
@@ -144,15 +147,7 @@ const CategoryPage = async ({ params }: PageProps) => {
         }
     };
 
-    // Helper to safely parse description
-    const getParsedDescription = (desc: string) => {
-        if (!desc) return undefined;
-        try {
-            return JSON.parse(desc);
-        } catch {
-            return desc; // Fallback to HTML string
-        }
-    };
+
 
     return (
         <div className="min-h-screen bg-background">
@@ -198,11 +193,7 @@ const CategoryPage = async ({ params }: PageProps) => {
                 {category.description && (
                     <div className="bg-background rounded-xl shadow-sm p-8 mb-12">
                         <article className="prose max-w-none">
-                            <NovelEditor
-                                readOnly={true}
-                                initialValue={getParsedDescription(category.description) as any}
-                                onChange={() => { }}
-                            />
+                            <ViewContent content={category.description} />
                         </article>
                     </div>
                 )}

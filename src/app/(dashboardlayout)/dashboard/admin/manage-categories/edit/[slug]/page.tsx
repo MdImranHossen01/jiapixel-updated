@@ -34,7 +34,7 @@ const EditCategoryPage = ({ params }: PageProps) => {
                 const res = await fetch(`/api/categories/${slug}`);
                 const result = await res.json();
                 if (res.ok) {
-                    setData(result);
+                    setData(result.category);
                 } else {
                     toast.error("Failed to fetch category");
                 }

@@ -343,7 +343,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                 {/* Use NovelEditor with parsed initial value */}
                 <NovelEditor
                     initialValue={getInitialDescription(initialData?.description || "") as any}
-                    onChange={(val) => setFormData(prev => ({ ...prev, description: val }))}
+                    onChange={(val) => setFormData(prev => ({ ...prev, description: JSON.stringify(val) }))}
                 />
             </div>
 

@@ -12,7 +12,7 @@ import {
     handleImagePaste,
     handleImageDrop,
 } from "novel";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { defaultExtensions } from "./extensions";
 import { slashCommand, suggestionItems } from "./slash-command";
@@ -29,7 +29,7 @@ import { ColorSelector } from "./selectors/color-selector";
 
 interface NovelEditorProps {
     initialValue?: JSONContent;
-    onChange: (value: string) => void;
+    onChange?: (content: JSONContent) => void;
     readOnly?: boolean;
 }
 
@@ -40,11 +40,20 @@ export default function NovelEditor({ initialValue, onChange, readOnly = false }
     const [openColor, setOpenColor] = useState(false);
     const [openLink, setOpenLink] = useState(false);
     const [openAI, setOpenAI] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const debouncedUpdates = useDebouncedCallback(async (editor) => {
         const json = editor.getJSON();
-        onChange(JSON.stringify(json));
+        onChange?.(JSON.stringify(json) as any);
     }, 500);
+
+    if (!isMounted) {
+        return null; // Prevent SSR issues
+    }
 
     if (readOnly) {
         return (
