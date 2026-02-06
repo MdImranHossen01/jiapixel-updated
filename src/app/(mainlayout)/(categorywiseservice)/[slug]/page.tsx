@@ -21,28 +21,30 @@ const getCategory = async (slug: string) => {
     try {
         const baseUrl = process.env.NODE_ENV === 'production'
             ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-            : 'http://localhost:3000';
+            : 'http://127.0.0.1:3000'; // Force IPv4 to avoid localhost resolution issues
 
-        console.log(`Fetching category: ${baseUrl}/api/categories/${slug}?populate=true`);
+        const apiUrl = `${baseUrl}/api/categories/${slug}?populate=true`;
+        console.log(`[CategoryPage] Requesting: ${apiUrl}`);
 
-        const response = await fetch(`${baseUrl}/api/categories/${slug}?populate=true`, {
-            cache: 'no-store', // Temporarily disable cache for debugging
-            // next: {
-            //     tags: [`category-${slug}`]
-            // }
+        const response = await fetch(apiUrl, {
+            cache: 'no-store',
+            headers: { 'Cache-Control': 'no-cache' }
         });
 
+        console.log(`[CategoryPage] Response Status: ${response.status}`);
+
         if (!response.ok) {
-            console.error(`Failed to fetch category. Status: ${response.status} ${response.statusText}`);
+            const errorText = await response.text();
+            console.error(`[CategoryPage] Failed. Status: ${response.status} ${response.statusText}. Body: ${errorText}`);
             return null;
         }
 
         const data = await response.json();
-        console.log(`Fetched category data found: ${!!data.category}`);
+        console.log(`[CategoryPage] Success. Category found: ${!!data.category}`);
         return data.category || null;
 
     } catch (error) {
-        console.error("Error fetching category:", error);
+        console.error("[CategoryPage] Network/Fetch Error:", error);
         return null;
     }
 };

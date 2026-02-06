@@ -15,14 +15,14 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       try {
         console.log('🔐 SIGNIN CALLBACK - Starting...');
-        
+
         // Only handle Google OAuth
         if (account?.provider === 'google') {
           await connectDB();
-          
+
           // Check if user exists
           const existingUser = await User.findOne({ email: user.email });
-          
+
           if (!existingUser) {
             // Create new user
             await User.create({
@@ -50,21 +50,21 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
-    
+
     async jwt({ token, user, account, trigger, session }) {
       console.log('🔐 JWT CALLBACK - Trigger:', trigger);
       console.log('🔐 JWT CALLBACK - User present:', !!user);
       console.log('🔐 JWT CALLBACK - Account provider:', account?.provider);
-      
+
       // Initial sign in
       if (user && account) {
         console.log('🔐 JWT CALLBACK - Generating tokens for user:', user.email);
-        
+
         try {
           await connectDB();
           const dbUser = await User.findOne({ email: user.email });
           console.log('🔐 JWT CALLBACK - Database user found:', !!dbUser);
-          
+
           if (dbUser) {
             // Generate custom JWT tokens using the simple function
             console.log('🔐 JWT CALLBACK - Generating JWT tokens...');
@@ -73,12 +73,12 @@ export const authOptions: NextAuthOptions = {
               accessToken: tokens.accessToken ? `Present (${tokens.accessToken.length} chars)` : 'Missing',
               refreshToken: tokens.refreshToken ? `Present (${tokens.refreshToken.length} chars)` : 'Missing'
             });
-            
+
             token.id = dbUser._id.toString();
             token.role = dbUser.role;
             token.accessToken = tokens.accessToken;
             token.refreshToken = tokens.refreshToken;
-            
+
             console.log('🔐 JWT CALLBACK - Final token with JWT:', {
               id: token.id,
               accessToken: token.accessToken ? 'Present' : 'Missing',
@@ -92,12 +92,12 @@ export const authOptions: NextAuthOptions = {
 
       return token;
     },
-    
+
     async session({ session, token }) {
       console.log('🔐 SESSION CALLBACK - Token keys:', Object.keys(token));
       console.log('🔐 SESSION CALLBACK - Access token in token:', !!token.accessToken);
       console.log('🔐 SESSION CALLBACK - Refresh token in token:', !!token.refreshToken);
-      
+
       try {
         if (token.error) {
           session.error = token.error as string;
@@ -113,16 +113,16 @@ export const authOptions: NextAuthOptions = {
 
         await connectDB();
         const dbUser = await User.findOne({ email: session.user?.email });
-        
+
         if (dbUser) {
           session.user.id = dbUser._id.toString();
           session.user.role = dbUser.role;
           session.user.name = dbUser.name;
           session.user.image = dbUser.image;
         }
-        
+
         console.log('🔐 SESSION CALLBACK - Final session keys:', Object.keys(session));
-        
+
         return session;
       } catch (error) {
         console.error('❌ Session callback error:', error);
@@ -146,4 +146,3 @@ export const authOptions: NextAuthOptions = {
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
-export const { auth, signIn, signOut } = handler;

@@ -13,12 +13,16 @@ export async function GET(
     const url = new URL(req.url);
     const populate = url.searchParams.get('populate');
 
+    console.log(`[CategoryAPI] Fetching category with ID/Slug: ${id}, Populate: ${populate}`);
+
     try {
         // Try finding by ID first, if invalid ID format, try finding by slug
         let query;
         if (id.match(/^[0-9a-fA-F]{24}$/)) {
+            console.log('[CategoryAPI] Searching by ID');
             query = Category.findById(id);
         } else {
+            console.log('[CategoryAPI] Searching by Slug');
             // Fallback to slug search
             query = Category.findOne({ slug: id });
         }
@@ -42,12 +46,14 @@ export async function GET(
         const category = await query.lean().exec();
 
         if (!category) {
+            console.log('[CategoryAPI] Category not found');
             return NextResponse.json({ error: 'Category not found' }, { status: 404 });
         }
 
+        console.log(`[CategoryAPI] Category found: ${category.title}`);
         return NextResponse.json({ category });
     } catch (error) {
-        console.error("Error fetching category:", error);
+        console.error("[CategoryAPI] Error fetching category:", error);
         return NextResponse.json({ error: 'Failed to fetch category' }, { status: 500 });
     }
 }
