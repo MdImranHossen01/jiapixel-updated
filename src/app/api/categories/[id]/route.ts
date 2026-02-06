@@ -50,7 +50,8 @@ export async function GET(
             return NextResponse.json({ error: 'Category not found' }, { status: 404 });
         }
 
-        console.log(`[CategoryAPI] Category found: ${category.title}`);
+
+        console.log(`[CategoryAPI] Category found: ${(category as any).title}`);
         return NextResponse.json({ category });
     } catch (error) {
         console.error("[CategoryAPI] Error fetching category:", error);
