@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./prosemirror.css";
+@plugin "@tailwindcss/typography";
+@source "../../node_modules/novel";
 @import '../styles/_variables.scss';
 @import '../styles/_keyframe-animations.scss';
 

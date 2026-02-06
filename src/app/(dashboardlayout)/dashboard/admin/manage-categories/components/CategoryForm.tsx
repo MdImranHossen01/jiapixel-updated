@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
 import Image from "next/image";
-import { SimpleEditor, SimpleEditorRef } from "@/components/tiptap-templates/simple/simple-editor";
+import NovelEditor from "@/app/components/editor/NovelEditor";
 
 // Helper function to validate URL
 const isValidUrl = (url: string): boolean => {
@@ -41,11 +41,27 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
     });
 
     const [currentTag, setCurrentTag] = useState("");
-    const editorRef = useRef<SimpleEditorRef>(null);
+
+    // Helper to parse description safely
+    const getInitialDescription = (desc: string) => {
+        if (!desc) return undefined;
+        try {
+            return JSON.parse(desc);
+        } catch (e) {
+            // If parsing fails, assume it's legacy HTML string or plain text
+            // NovelEditor/Tiptap handles string content as HTML
+            return desc;
+        }
+    };
 
     useEffect(() => {
         if (initialData) {
-            setFormData(initialData);
+            setFormData({
+                ...initialData,
+                tags: initialData.tags || [],
+                selectedServices: initialData.selectedServices || [],
+                faqs: initialData.faqs || [],
+            });
         }
     }, [initialData]);
 
@@ -94,14 +110,10 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
         setLoading(true);
 
         try {
-            let descriptionContent = "";
-            if (editorRef.current) {
-                descriptionContent = editorRef.current.getContent();
-            }
+            // formData.description is already updated by NovelEditor's onChange
 
             const submissionData = {
                 ...formData,
-                description: descriptionContent
             };
 
             const url = isEdit
@@ -149,12 +161,12 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
         setUploading(true);
 
         try {
-            const formData = new FormData();
-            formData.append('image', file);
+            const formDataUpload = new FormData();
+            formDataUpload.append('image', file);
 
             const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
                 method: 'POST',
-                body: formData,
+                body: formDataUpload,
             });
 
             const result = await response.json();
@@ -328,7 +340,11 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
 
             <div>
                 <label className="block text-sm font-medium text-foreground mb-3">Description</label>
-                <SimpleEditor ref={editorRef} initialContent={initialData?.description || ""} />
+                {/* Use NovelEditor with parsed initial value */}
+                <NovelEditor
+                    initialValue={getInitialDescription(initialData?.description || "") as any}
+                    onChange={(val) => setFormData(prev => ({ ...prev, description: val }))}
+                />
             </div>
 
             {/* ... (rest of the form) ... */}
@@ -369,7 +385,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
             <div>
                 <label className="block text-sm font-medium text-foreground mb-1">Tags (Press Enter to add)</label>
                 <div className="flex flex-wrap gap-2 mb-2">
-                    {formData.tags.map((tag) => (
+                    {(formData.tags || []).map((tag) => (
                         <span key={tag} className="bg-secondary px-3 py-1 rounded-full text-sm flex items-center gap-1 text-secondary-foreground">
                             {tag}
                             <button type="button" onClick={() => removeTag(tag)} className="text-muted-foreground hover:text-destructive">
@@ -400,7 +416,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                     </button>
                 </div>
                 <div className="space-y-4">
-                    {formData.faqs.map((faq, index) => (
+                    {(formData.faqs || []).map((faq, index) => (
                         <div key={index} className="border border-border p-4 rounded-md relative group bg-muted/30">
                             <button
                                 type="button"

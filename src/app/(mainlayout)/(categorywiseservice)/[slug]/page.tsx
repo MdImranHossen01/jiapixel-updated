@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import ServiceCard from '@/components/ServiceCard';
 import CategoryHero from './components/CategoryHero';
-import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
+import NovelEditor from '@/app/components/editor/NovelEditor';
 import { Metadata } from 'next';
 import CategoryAdminActions from '@/components/CategoryAdminActions';
 
@@ -144,6 +144,16 @@ const CategoryPage = async ({ params }: PageProps) => {
         }
     };
 
+    // Helper to safely parse description
+    const getParsedDescription = (desc: string) => {
+        if (!desc) return undefined;
+        try {
+            return JSON.parse(desc);
+        } catch {
+            return desc; // Fallback to HTML string
+        }
+    };
+
     return (
         <div className="min-h-screen bg-background">
             <script
@@ -188,7 +198,11 @@ const CategoryPage = async ({ params }: PageProps) => {
                 {category.description && (
                     <div className="bg-background rounded-xl shadow-sm p-8 mb-12">
                         <article className="prose max-w-none">
-                            <ReadOnlyEditor content={category.description} />
+                            <NovelEditor
+                                readOnly={true}
+                                initialValue={getParsedDescription(category.description) as any}
+                                onChange={() => { }}
+                            />
                         </article>
                     </div>
                 )}

@@ -14,14 +14,6 @@ const EditCategoryPage = ({ params }: PageProps) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // We need to unwrap params since it's a promise in Next.js 15+
-    // But this is a client component. 
-    // In client components, params passed as props are Promises? 
-    // "Page props are optional and can be asynchronous."
-    // Let's use React.use() or just UseEffect to unwrap it if needed, 
-    // or since this is a "use client" component attached to a page, we receive it.
-    // Actually, simply awaiting it inside the component isn't possible directly if it's not an async component.
-    // However, the error message from the user earlier "params is a Promise" suggests we treat it as such.
 
     const [slug, setSlug] = useState<string | null>(null);
 
