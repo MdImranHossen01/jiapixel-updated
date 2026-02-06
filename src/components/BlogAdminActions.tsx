@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { MoreVertical, Edit, Trash2 } from "lucide-react";
+import { MoreVertical, Edit, Trash2, Plus, LayoutGrid } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -66,6 +66,19 @@ export default function BlogAdminActions({
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="border-0 shadow-lg">
+                <DropdownMenuItem
+                    onClick={() => router.push("/dashboard/admin/manage-blogs/create")}
+                >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create New
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => router.push("/dashboard/admin/manage-blogs")}
+                >
+                    <LayoutGrid className="mr-2 h-4 w-4" />
+                    Manage
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                     onClick={() =>
                         router.push(`/dashboard/admin/manage-blogs/edit/${blogSlug}`)
