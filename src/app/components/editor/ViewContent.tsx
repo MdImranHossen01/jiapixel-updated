@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 
 import { EditorContent, EditorRoot, JSONContent } from 'novel';
 import { defaultExtensions } from './extensions';
@@ -50,6 +51,16 @@ export const ViewContent = ({ content }: ViewContentProps) => {
                 },
             ],
         };
+    }
+
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) {
+        return null;
     }
 
     return (
