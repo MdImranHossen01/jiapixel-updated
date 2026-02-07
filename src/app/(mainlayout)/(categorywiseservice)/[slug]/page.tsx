@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 
-export const revalidate = 86400; // 24 hours
+
 export const dynamicParams = true;
 
 
@@ -29,7 +29,10 @@ const getCategory = async (slug: string) => {
         console.log(`[CategoryPage] Requesting: ${apiUrl}`);
 
         const response = await fetch(apiUrl, {
-            next: { revalidate: 86400 } // Match page-level revalidation
+            cache: 'force-cache',
+            next: {
+                tags: ['categories', `category-${slug}`]
+            }
         });
 
         console.log(`[CategoryPage] Response Status: ${response.status}`);
@@ -197,6 +200,43 @@ const CategoryPage = async ({ params }: PageProps) => {
                 {category.description && (
                     <div className="bg-background rounded-xl shadow-sm p-8 mb-12">
                         <article className="prose max-w-none">
+                            {/* Server-side rendered content for SEO/Crawlers */}
+                            <div className="sr-only">
+                                {(() => {
+                                    try {
+                                        let content = category.description;
+                                        if (typeof content === 'string') {
+                                            try {
+                                                let parsed = JSON.parse(content);
+                                                if (typeof parsed === 'string') {
+                                                    parsed = JSON.parse(parsed);
+                                                }
+                                                content = parsed;
+                                            } catch (e) {
+                                                // content is string
+                                            }
+                                        }
+
+                                        if (content?.content && Array.isArray(content.content)) {
+                                            return content.content.map((node: any, i: number) => {
+                                                if (node.type === 'heading') {
+                                                    const Level = `h${node.attrs?.level || 2}` as React.ElementType;
+                                                    return <Level key={i}>{node.content?.map((c: any) => c.text).join('')}</Level>;
+                                                }
+                                                if (node.type === 'paragraph') {
+                                                    return <p key={i}>{node.content?.map((c: any) => c.text).join('')}</p>;
+                                                }
+                                                return null;
+                                            });
+                                        }
+                                        return typeof content === 'string' ? <p>{content}</p> : null;
+                                    } catch (e) {
+                                        return null;
+                                    }
+                                })()}
+                            </div>
+
+                            {/* Client-side rich editor view */}
                             <ViewContent content={category.description} />
                         </article>
                     </div>
