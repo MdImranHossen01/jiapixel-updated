@@ -206,6 +206,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
 
     // Fetch all services
     const [availableServices, setAvailableServices] = useState<any[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         const fetchServices = async () => {
@@ -230,6 +231,10 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
 
         setFormData({ ...formData, selectedServices: newSelected });
     };
+
+    const filteredServices = availableServices.filter(service =>
+        service.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <form onSubmit={handleSubmit} className="bg-card p-6 rounded-lg shadow space-y-6 text-card-foreground">
@@ -261,10 +266,22 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
             {/* Manual Service Selection */}
             <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Select Services to Display on Page</label>
+
+                {/* Search Input */}
+                <div className="mb-2">
+                    <input
+                        type="text"
+                        placeholder="Search services..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-sm text-foreground focus:ring-ring focus:border-ring"
+                    />
+                </div>
+
                 <div className="border border-border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
-                    {availableServices.length > 0 ? (
+                    {filteredServices.length > 0 ? (
                         <div className="space-y-2">
-                            {availableServices.map((service) => (
+                            {filteredServices.map((service) => (
                                 <label key={service._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded text-foreground">
                                     <input
                                         type="checkbox"
