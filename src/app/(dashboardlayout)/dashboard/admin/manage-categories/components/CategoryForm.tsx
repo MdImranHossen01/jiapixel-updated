@@ -41,6 +41,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
     });
 
     const [currentTag, setCurrentTag] = useState("");
+    const [slugTouched, setSlugTouched] = useState(false);
 
     // Helper to parse description safely
     const getInitialDescription = (desc: any) => {
@@ -75,8 +76,36 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
         }
     }, [initialData]);
 
+    const slugify = (text: string) => {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')        // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+            .replace(/\-\-+/g, '-');     // Replace multiple - with single -
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+
+        setFormData(prev => {
+            const updates = { ...prev, [name]: value };
+
+            // Auto-generate slug from title if:
+            // 1. We are changing the title
+            // 2. We are NOT in edit mode (to prevent breaking existing URLs)
+            // 3. The user hasn't manually touched the slug field
+            if (name === 'title' && !isEdit && !slugTouched) {
+                updates.slug = slugify(value);
+            }
+
+            return updates;
+        });
+
+        if (name === 'slug') {
+            setSlugTouched(true);
+        }
     };
 
     const handleAddTag = (e: React.KeyboardEvent) => {
