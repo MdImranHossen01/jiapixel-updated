@@ -1,41 +1,32 @@
 import { createImageUpload } from "novel";
 import { toast } from "sonner";
 
-// Use IMGBB if possible (simple client-side upload or server-side proxy).
-// Since we have an IMGBB_API_KEY in .env.local, we should use a server action or API route.
-// For now, let's use a simple placeholder upload function that mocks it if we don't have the API route ready.
-// Or even better, try to use IMGBB client-side upload if the key is exposed, but better not expose it.
-// We will assume /api/upload exists or just return a placeholder.
-
-// Actually, I'll create a minimal /api/upload route in the next step to support this properly using ImgBB.
 
 const onUpload = (file: File) => {
-    const promise = fetch("/api/upload", {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const promise = fetch("https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1", {
         method: "POST",
-        headers: {
-            "content-type": file?.type || "application/octet-stream",
-            "x-vercel-filename": file?.name || "image.png",
-        },
-        body: file,
+        body: formData,
     });
 
     return new Promise((resolve, reject) => {
         toast.promise(
             promise.then(async (res) => {
-                // Successfully uploaded image
                 if (res.status === 200) {
-                    const { url } = (await res.json()) as { url: string };
-                    // preload the image
-                    const image = new Image();
-                    image.src = url;
-                    image.onload = () => {
-                        resolve(url);
-                    };
-                    // No blob store configured
-                } else if (res.status === 401) {
-                    resolve(file);
-                    throw new Error("`BLOB_READ_WRITE_TOKEN` environment variable not found, reading image locally instead.");
-                    // Unknown error
+                    const data = await res.json();
+                    if (data.success) {
+                        const url = data.data.url;
+                        // preload the image
+                        const image = new Image();
+                        image.src = url;
+                        image.onload = () => {
+                            resolve(url);
+                        };
+                    } else {
+                        throw new Error(data.error?.message || "Error uploading image to ImgBB");
+                    }
                 } else {
                     throw new Error("Error uploading image. Please try again.");
                 }
