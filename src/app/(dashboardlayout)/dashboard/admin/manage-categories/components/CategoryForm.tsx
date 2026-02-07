@@ -43,13 +43,23 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
     const [currentTag, setCurrentTag] = useState("");
 
     // Helper to parse description safely
-    const getInitialDescription = (desc: string) => {
+    const getInitialDescription = (desc: any) => {
         if (!desc) return undefined;
+        if (typeof desc === 'object') return desc;
+
         try {
-            return JSON.parse(desc);
+            let parsed = JSON.parse(desc);
+            // Handle double-stringified JSON
+            if (typeof parsed === 'string') {
+                try {
+                    parsed = JSON.parse(parsed);
+                } catch (e) {
+                    // content is a string but not double stringified JSON
+                }
+            }
+            return parsed;
         } catch (e) {
             // If parsing fails, assume it's legacy HTML string or plain text
-            // NovelEditor/Tiptap handles string content as HTML
             return desc;
         }
     };

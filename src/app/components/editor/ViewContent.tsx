@@ -14,7 +14,27 @@ export const ViewContent = ({ content }: ViewContentProps) => {
     let initialContent: JSONContent | undefined;
 
     try {
-        initialContent = JSON.parse(content);
+        // If content is already an object, use it
+        if (typeof content === 'object') {
+            initialContent = content;
+        } else if (typeof content === 'string') {
+            // Try to parse string content
+            try {
+                let parsed = JSON.parse(content);
+                // Handle double-stringified JSON/objects
+                if (typeof parsed === 'string') {
+                    try {
+                        parsed = JSON.parse(parsed);
+                    } catch (e) {
+                        // If second parse fails, use the first parsed string as text
+                    }
+                }
+                initialContent = parsed;
+            } catch (e) {
+                // Not JSON, use as plain text
+                throw new Error('Not JSON');
+            }
+        }
     } catch (e) {
         // Fallback for plain text content
         initialContent = {
@@ -25,7 +45,7 @@ export const ViewContent = ({ content }: ViewContentProps) => {
                     content: [
                         {
                             type: 'text',
-                            text: content,
+                            text: typeof content === 'string' ? content : JSON.stringify(content),
                         },
                     ],
                 },
