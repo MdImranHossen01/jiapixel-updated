@@ -225,11 +225,16 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
 
     const toggleService = (serviceId: string) => {
         const currentSelected = formData.selectedServices || [];
-        const newSelected = currentSelected.includes(serviceId)
-            ? currentSelected.filter((id: string) => id !== serviceId)
-            : [...currentSelected, serviceId];
 
-        setFormData({ ...formData, selectedServices: newSelected });
+        if (currentSelected.includes(serviceId)) {
+            setFormData({ ...formData, selectedServices: currentSelected.filter((id: string) => id !== serviceId) });
+        } else {
+            if (currentSelected.length >= 4) {
+                toast.error("You can select up to 4 services only");
+                return;
+            }
+            setFormData({ ...formData, selectedServices: [...currentSelected, serviceId] });
+        }
     };
 
     const filteredServices = availableServices.filter(service =>
