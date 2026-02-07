@@ -180,22 +180,17 @@ const CategoryPage = async ({ params }: PageProps) => {
 
 
                 {/* Services Section */}
-                <div className="mb-12">
-                    <h2 className="text-2xl font-bold mb-6">Available Services</h2>
-                    {services.length > 0 ? (
+                {/* Services Section */}
+                {services.length > 0 && (
+                    <div className="mb-12">
+                        <h2 className="text-2xl font-bold mb-6">Available Services</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             {services.map((service: any) => (
                                 <ServiceCard key={service._id} service={service} />
                             ))}
                         </div>
-                    ) : (
-                        <div className="text-center py-12 bg-background rounded-xl border border-dashed">
-                            <p className="text-gray-500">
-                                Browse our other available services or contact us for {category.title} related inquiries.
-                            </p>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
                 {/* Description - Prioritized for SEO (moved above services) */}
                 {category.description && (
                     <div className="bg-background rounded-xl shadow-sm p-8 mb-12">
