@@ -10,6 +10,7 @@ import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 import { BookingProvider } from "@/components/booking-provider";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -155,6 +156,7 @@ export default function RootLayout({
                   <ThemeToggle />
                 </div>
                 {children}
+                <Toaster richColors position="top-center" closeButton />
               </ThemeProvider>
             </BookingProvider>
           </SmoothScrollProvider>
