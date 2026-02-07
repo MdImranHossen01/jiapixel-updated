@@ -160,7 +160,7 @@ const characterCount = CharacterCount.configure();
 
 const markdownExtension = Markdown.configure({
     html: false,
-    transformCopiedText: true,
+    transformCopiedText: false,
 });
 
 
