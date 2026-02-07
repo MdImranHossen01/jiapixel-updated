@@ -164,18 +164,14 @@ const CategoryPage = async ({ params }: PageProps) => {
             />
 
             {/* Banner Section */}
-            <CategoryHero
-                title={category.title}
-            />
+            <CategoryHero title={category.title}>
+                <CategoryAdminActions
+                    categorySlug={category.slug}
+                    categoryTitle={category.title}
+                />
+            </CategoryHero>
 
-            <div className="container mx-auto px-4">
-                {/* Admin Actions */}
-                <div className="flex justify-end mb-4">
-                    <CategoryAdminActions
-                        categorySlug={category.slug}
-                        categoryTitle={category.title}
-                    />
-                </div>
+            <div className="container mx-auto px-4 mt-8">
 
 
 

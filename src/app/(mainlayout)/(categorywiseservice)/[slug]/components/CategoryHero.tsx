@@ -5,11 +5,12 @@ import Image from "next/image";
 
 interface CategoryHeroProps {
     title: string;
+    children?: React.ReactNode;
 }
 
-const CategoryHero: React.FC<CategoryHeroProps> = ({ title }) => {
+const CategoryHero: React.FC<CategoryHeroProps> = ({ title, children }) => {
     return (
-        <div className="relative bg-slate-900 overflow-hidden lg:py-40 py-20 lg:mb-12 mb-6">
+        <div className="relative bg-slate-900 overflow-hidden lg:py-40 py-20">
             {/* Background Image */}
             <div className="absolute inset-0">
                 <Image
@@ -24,10 +25,17 @@ const CategoryHero: React.FC<CategoryHeroProps> = ({ title }) => {
             </div>
 
             <div className="container relative mx-auto px-4 text-center flex flex-col justify-center h-full">
-                <h1 className="text-2xl lg:text-5xl  font-bold text-white tracking-tight">
+                <h1 className="text-2xl lg:text-5xl font-bold text-white tracking-tight">
                     {title}
                 </h1>
             </div>
+
+            {/* Admin Actions / Children */}
+            {children && (
+                <div className="absolute bottom-4 right-4 z-10">
+                    {children}
+                </div>
+            )}
         </div>
     );
 };
