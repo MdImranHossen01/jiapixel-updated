@@ -6,23 +6,23 @@ const onUpload = (file: File) => {
     const formData = new FormData();
     formData.append("image", file);
 
-    const promise = fetch("https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1", {
-        method: "POST",
-        body: formData,
-    });
-
     return new Promise((resolve, reject) => {
-        toast.promise(
-            promise.then(async (res) => {
+        const toastId = toast.loading("Uploading image...");
+
+        fetch("https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1", {
+            method: "POST",
+            body: formData,
+        })
+            .then(async (res) => {
                 if (res.status === 200) {
                     const data = await res.json();
                     if (data.success) {
                         const url = data.data.url;
-                        // preload the image
                         const image = new Image();
                         image.src = url;
                         image.onload = () => {
                             resolve(url);
+                            toast.success("Image uploaded successfully", { id: toastId });
                         };
                     } else {
                         throw new Error(data.error?.message || "Error uploading image to ImgBB");
@@ -30,16 +30,11 @@ const onUpload = (file: File) => {
                 } else {
                     throw new Error("Error uploading image. Please try again.");
                 }
-            }),
-            {
-                loading: "Uploading image...",
-                success: "Image uploaded successfully.",
-                error: (e) => {
-                    reject(e);
-                    return e.message;
-                },
-            },
-        );
+            })
+            .catch((e) => {
+                reject(e);
+                toast.error(e.message || "Something went wrong", { id: toastId });
+            });
     });
 };
 
