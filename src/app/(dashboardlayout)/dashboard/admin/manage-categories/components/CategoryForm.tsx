@@ -281,7 +281,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                         value={formData.title}
                         onChange={handleChange}
                         required
-                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                        className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
                     />
                 </div>
                 <div>
@@ -292,7 +292,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                         value={formData.slug}
                         onChange={handleChange}
                         placeholder="Auto-generated if empty"
-                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                        className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
                     />
                 </div>
             </div>
@@ -308,7 +308,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                         placeholder="Search services..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-sm text-foreground focus:ring-ring focus:border-ring"
+                        className="w-full border bg-background rounded-lg px-3 py-2 text-sm text-foreground focus:ring-ring focus:border-ring"
                     />
                 </div>
 
@@ -321,7 +321,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                                         type="checkbox"
                                         checked={(formData.selectedServices || []).includes(service._id)}
                                         onChange={() => toggleService(service._id)}
-                                        className="h-4 w-4 text-primary border-input bg-background rounded focus:ring-primary"
+                                        className="h-4 w-4 text-primary border bg-background rounded focus:ring-primary"
                                     />
                                     <span className="text-sm">{service.title}</span>
                                 </label>
@@ -416,7 +416,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                     value={formData.excerpt}
                     onChange={handleChange}
                     rows={3}
-                    className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                    className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
                 />
             </div>
 
@@ -428,7 +428,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                         name="seoTitle"
                         value={formData.seoTitle}
                         onChange={handleChange}
-                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                        className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
                     />
                 </div>
                 <div className="col-span-1 md:col-span-2">
@@ -438,7 +438,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                         value={formData.metaDescription}
                         onChange={handleChange}
                         rows={3}
-                        className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                        className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
                     />
                 </div>
             </div>
@@ -460,7 +460,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                     value={currentTag}
                     onChange={(e) => setCurrentTag(e.target.value)}
                     onKeyDown={handleAddTag}
-                    className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                    className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
                     placeholder="Add tags..."
                 />
             </div>
@@ -492,14 +492,14 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                                     placeholder="Question"
                                     value={faq.question}
                                     onChange={(e) => handleFaqChange(index, "question", e.target.value)}
-                                    className="w-full border border-input bg-background rounded-md px-3 py-2 mb-2 text-foreground focus:ring-ring focus:border-ring"
+                                    className="w-full border bg-background rounded-lg px-3 py-2 mb-2 text-foreground focus:ring-ring focus:border-ring"
                                 />
                                 <textarea
                                     placeholder="Answer"
                                     rows={2}
                                     value={faq.answer}
                                     onChange={(e) => handleFaqChange(index, "answer", e.target.value)}
-                                    className="w-full border border-input bg-background rounded-md px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
+                                    className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
                                 />
                             </div>
                         </div>
