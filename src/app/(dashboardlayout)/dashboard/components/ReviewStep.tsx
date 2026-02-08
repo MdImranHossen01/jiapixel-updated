@@ -185,22 +185,7 @@ export default function ReviewStep({ data, updateData }: Props) {
         </div>
       </div>
 
-      {/* Requirements Summary */}
-      <div className="border border-border rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Client Requirements</h3>
-        <div className="space-y-2">
-          {data?.requirements && data.requirements.length > 0 ? (
-            data.requirements.map((requirement, index) => (
-              <div key={index} className="flex items-start gap-2">
-                <span className="text-muted-foreground">{index + 1}.</span>
-                <span className="text-foreground">{requirement}</span>
-              </div>
-            ))
-          ) : (
-            <p className="text-muted-foreground">No requirements added</p>
-          )}
-        </div>
-      </div>
+
 
       {/* Description Summary */}
       <div className="border border-border rounded-lg p-6">

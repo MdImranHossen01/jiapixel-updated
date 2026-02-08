@@ -7,7 +7,6 @@ import { useState } from "react";
 import OverviewStep from "./OverviewStep";
 import PricingStep from "./PricingStep";
 import GalleryStep from "./GalleryStep";
-import RequirementsStep from "./RequirementsStep";
 import DescriptionStep from "./DescriptionStep";
 import ReviewStep from "./ReviewStep";
 
@@ -68,12 +67,6 @@ const steps = [
   { id: "overview", title: "Overview", completed: false, active: true },
   { id: "pricing", title: "Pricing", completed: false, active: false },
   { id: "gallery", title: "Gallery", completed: false, active: false },
-  {
-    id: "requirements",
-    title: "Requirements",
-    completed: false,
-    active: false,
-  },
   { id: "description", title: "Description", completed: false, active: false },
   { id: "review", title: "Review", completed: false, active: false },
 ];
@@ -231,13 +224,9 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
         );
       case 3:
         return (
-          <RequirementsStep data={serviceData} updateData={updateServiceData} />
-        );
-      case 4:
-        return (
           <DescriptionStep data={serviceData} updateData={updateServiceData} />
         );
-      case 5:
+      case 4:
         return (
           <ReviewStep data={serviceData} updateData={updateServiceData} />
         );
