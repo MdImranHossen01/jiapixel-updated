@@ -264,7 +264,9 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                         if (content?.content && Array.isArray(content.content)) {
                           return content.content.map((node: any, i: number) => {
                             if (node.type === 'heading') {
-                              const Level = `h${node.attrs?.level || 2}` as React.ElementType;
+                              const rawLevel = Number(node.attrs?.level);
+                              const level = isNaN(rawLevel) ? 2 : Math.min(Math.max(rawLevel, 1), 6);
+                              const Level = `h${level}` as React.ElementType;
                               return <Level key={i}>{node.content?.map((c: any) => c.text).join('')}</Level>;
                             }
                             if (node.type === 'paragraph') {

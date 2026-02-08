@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag, revalidatePath } from 'next/cache';
 import connectDB from '../../../../lib/db';
 import Service from '../../../../models/Project'; // Import Service model
 import { generateSlug } from '../../../../lib/slug';
@@ -174,6 +175,10 @@ export async function PUT(
         { status: 404 }
       );
     }
+
+    // Revalidate the service page and cache tag
+    revalidateTag(`service-${slug}`, 'default');
+    revalidatePath(`/services/${slug}`);
 
     return NextResponse.json({
       success: true,

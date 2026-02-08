@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { toast } from "sonner";
+
 import { useState } from "react";
 import OverviewStep from "./OverviewStep";
 import PricingStep from "./PricingStep";
@@ -211,14 +213,14 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
 
       if (response.ok) { // Check response.ok instead of relying on result.success for 404/500
         console.log(`Service ${isEdit ? 'updated' : 'created'} successfully:`, result.service);
-        alert(`Service ${isEdit ? 'updated' : 'created'} successfully!`);
+        toast.success(`Service ${isEdit ? 'updated' : 'created'} successfully!`);
         // You can redirect here: router.push('/dashboard/services')
       } else {
         throw new Error(result.message || "Operation failed");
       }
     } catch (error: any) {
       console.error("Service submission error:", error);
-      alert(`Failed to ${isEdit ? 'update' : 'create'} service: ${error.message}`);
+      toast.error(`Failed to ${isEdit ? 'update' : 'create'} service: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -327,7 +329,7 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
             disabled={isSubmitting || !serviceData.agreeToTerms}
             className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Creating..." : "Create Service"}
+            {isSubmitting ? (isEdit ? "Updating..." : "Creating...") : (isEdit ? "Update Service" : "Create Service")}
           </button>
         )}
       </div>

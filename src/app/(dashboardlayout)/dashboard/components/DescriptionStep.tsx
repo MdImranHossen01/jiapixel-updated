@@ -32,10 +32,7 @@ const getInitialDescription = (desc: any) => {
   }
 };
 
-interface Props {
-  data: ServiceData;
-  updateData: (field: keyof ServiceData, value: any) => void;
-}
+
 
 export default function DescriptionStep({ data, updateData }: Props) {
   const [newFAQ, setNewFAQ] = useState<FAQ>({ question: '', answer: '' });
