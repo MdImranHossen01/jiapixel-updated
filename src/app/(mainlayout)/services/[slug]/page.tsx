@@ -237,12 +237,12 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
           <section className="py-8">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
-                <div className="mb-10">
 
-                  <p className="text-4xl font-bold text-foreground">
-                    Service Details
-                  </p>
-                </div>
+
+                <p className="text-4xl font-bold text-foreground">
+                  Service Details
+                </p>
+
                 <div className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
                   {/* Server-side rendered content for SEO/Crawlers */}
                   <div className="sr-only">
