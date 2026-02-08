@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ServiceData } from "./ServiceWizard";
+import { extractTextFromProjectDescription } from "@/lib/utils";
 
 interface Props {
   data: ServiceData;
@@ -57,6 +58,20 @@ export default function OverviewStep({ data, updateData }: Props) {
   const [selectedCategory, setSelectedCategory] = useState(
     data.category.split(" > ")[0] || ""
   );
+
+  // Clean up meta description if it contains JSON code on mount
+  useEffect(() => {
+    if (data.metaDescription) {
+      // Check if it looks like the specific JSON bug (starts with { or " and contains type:doc or similar)
+      const trimmed = data.metaDescription.trim();
+      if ((trimmed.startsWith('{') || trimmed.startsWith('"')) && (trimmed.includes('type') || trimmed.includes('content'))) {
+        const cleanText = extractTextFromProjectDescription(data.metaDescription);
+        if (cleanText !== data.metaDescription) {
+          updateData("metaDescription", cleanText);
+        }
+      }
+    }
+  }, []);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);

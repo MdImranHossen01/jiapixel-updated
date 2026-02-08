@@ -2,6 +2,7 @@
 // src/models/Project.ts
 import mongoose, { Document, Schema } from "mongoose";
 import { generateSlug } from "../lib/slug";
+import { extractTextFromProjectDescription } from "../lib/utils";
 
 // New interface for service steps with title and description
 export interface IServiceStep {
@@ -121,15 +122,15 @@ const ServiceSchema = new Schema<IService>(
     authorQuote: { type: String, required: false },
 
     // NEW: Meta fields
-    metaTitle: { 
-      type: String, 
+    metaTitle: {
+      type: String,
       required: false,
-      default: "" 
+      default: ""
     },
-    metaDescription: { 
-      type: String, 
+    metaDescription: {
+      type: String,
       required: false,
-      default: "" 
+      default: ""
     },
 
     // Pricing Step
@@ -220,22 +221,21 @@ ServiceSchema.pre("save", function (next) {
   if (!this.metaTitle && this.title) {
     this.metaTitle = this.title;
   }
-  
+
   if (!this.metaDescription && this.projectSummary) {
     // Create a plain text version of project summary for meta description
-    const plainTextDescription = this.projectSummary
-      .replace(/<[^>]*>/g, "")
+    const plainTextDescription = extractTextFromProjectDescription(this.projectSummary)
       .substring(0, 160);
     this.metaDescription = plainTextDescription;
   }
-  
+
   next();
 });
 
 ServiceSchema.index({ createdBy: 1, status: 1 });
 ServiceSchema.index({ status: 1, createdAt: -1 });
 ServiceSchema.index({ isFeatured: 1 });
-ServiceSchema.index({ isIndexedInGoogle: 1 }); 
+ServiceSchema.index({ isIndexedInGoogle: 1 });
 
 export default mongoose.models.Service ||
   mongoose.model<IService>("Service", ServiceSchema);

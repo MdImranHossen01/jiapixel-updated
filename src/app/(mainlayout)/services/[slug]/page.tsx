@@ -6,6 +6,7 @@ import HeroSection from "../components/HeroSection";
 // import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
 import { ViewContent } from '@/app/components/editor/ViewContent';
 import ServiceAdminActions from "@/components/ServiceAdminActions";
+import { extractTextFromProjectDescription } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{
@@ -88,7 +89,7 @@ export async function generateMetadata({ params }: PageProps) {
   const metaDescription = service.metaDescription
     ? service.metaDescription.substring(0, 300)
     : service.projectSummary
-      ? service.projectSummary.replace(/<[^>]*>/g, "").substring(0, 300)
+      ? extractTextFromProjectDescription(service.projectSummary).substring(0, 300)
       : `Professional ${service.title} service by Jiapixel. ${service.tiers?.starter?.description || "Get started today!"
       }`;
 
