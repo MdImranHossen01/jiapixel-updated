@@ -8,8 +8,8 @@ interface ServiceTier {
   title: string;
   description: string;
   price: number;
-  deliveryDays: number;
-  revisions: number;
+  deliveryDays?: number;
+  revisions?: number;
 }
 
 interface AuthModalProps {

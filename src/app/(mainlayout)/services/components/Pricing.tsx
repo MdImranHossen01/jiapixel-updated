@@ -11,11 +11,12 @@ interface Tier {
   title: string;
   description: string;
   price: number;
-  deliveryDays: number;
-  revisions: number;
+  deliveryDays?: number;
+  revisions?: number;
   features: {
     [key: string]: boolean;
   };
+  billingPeriod?: "once" | "monthly" | "yearly";
 }
 
 interface Service {
@@ -256,45 +257,12 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
                   <strong className="text-3xl font-bold text-foreground sm:text-4xl">
                     {" "}
                     ${tier.price}{" "}
+                    {tier.billingPeriod === 'monthly' && <span className="text-xl font-medium">/monthly</span>}
+                    {tier.billingPeriod === 'yearly' && <span className="text-xl font-medium">/yearly</span>}
                   </strong>
                 </p>
 
-                <div className="mt-4 flex flex-col gap-2 sm:mt-6">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 mr-2 text-primary"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    {tier.deliveryDays} days delivery
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 mr-2 text-primary"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                      />
-                    </svg>
-                    {tier.revisions} revisions
-                  </div>
-                </div>
+
 
                 <button
                   onClick={() => handleGetStarted(tier)}

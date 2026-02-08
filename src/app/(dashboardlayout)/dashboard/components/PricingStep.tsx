@@ -49,14 +49,10 @@ export default function PricingStep({ data, updateData }: Props) {
     updateTier(tier, 'price', price);
   };
 
-  const updateDeliveryDays = (tier: keyof typeof data.tiers, value: string) => {
-    const days = value === '' ? 0 : parseInt(value) || 0;
-    updateTier(tier, 'deliveryDays', days);
-  };
 
-  const updateRevisions = (tier: keyof typeof data.tiers, value: string) => {
-    const revisions = value === '' ? 0 : parseInt(value) || 0;
-    updateTier(tier, 'revisions', revisions);
+
+  const updateBillingPeriod = (tier: keyof typeof data.tiers, value: "once" | "monthly" | "yearly") => {
+    updateTier(tier, 'billingPeriod', value);
   };
 
   const addCustomFeature = (tier: keyof typeof data.tiers) => {
@@ -139,32 +135,7 @@ export default function PricingStep({ data, updateData }: Props) {
 
 
 
-          {/* Delivery & Revisions */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-muted-foreground mb-1">Delivery Days</label>
-              <input
-                type="number"
-                min="0"
-                value={displayValue(data.tiers[tier]?.deliveryDays)}
-                onChange={(e) => updateDeliveryDays(tier, e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
-                placeholder="Enter days"
-              />
-            </div>
 
-            <div>
-              <label className="block text-sm text-muted-foreground mb-1">Revisions</label>
-              <input
-                type="number"
-                min="0"
-                value={displayValue(data.tiers[tier]?.revisions)}
-                onChange={(e) => updateRevisions(tier, e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
-                placeholder="Enter revisions"
-              />
-            </div>
-          </div>
 
           {/* Price Input */}
           <div>
@@ -186,12 +157,36 @@ export default function PricingStep({ data, updateData }: Props) {
             </div>
           </div>
 
+
+
+          {/* Billing Period */}
+          <div>
+            <label className="block text-sm text-muted-foreground mb-1">Billing Period</label>
+            <div className="flex gap-4 p-2 border border-border rounded-md bg-background">
+              {["once", "monthly", "yearly"].map((period) => (
+                <label key={period} className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`billingPeriod-${tier}`}
+                    value={period}
+                    checked={(data.tiers[tier]?.billingPeriod || "once") === period}
+                    onChange={(e) => updateBillingPeriod(tier, e.target.value as any)}
+                    className="text-primary focus:ring-primary"
+                  />
+                  <span className="text-foreground capitalize">{period}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Price Display */}
           <div className="bg-muted p-3 rounded-lg">
             <label className="block text-sm text-muted-foreground mb-1">Price Display</label>
             <div className="flex items-center justify-between">
               <span className="text-2xl font-bold text-foreground">
                 ${(data.tiers[tier]?.price ?? 0).toFixed(2)}
+                {data.tiers[tier]?.billingPeriod === 'monthly' && <span className="text-lg font-normal">/monthly</span>}
+                {data.tiers[tier]?.billingPeriod === 'yearly' && <span className="text-lg font-normal">/yearly</span>}
               </span>
               <span className="text-sm text-muted-foreground">{tierName} Package</span>
             </div>

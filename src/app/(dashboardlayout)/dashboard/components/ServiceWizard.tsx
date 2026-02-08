@@ -58,6 +58,7 @@ export interface TierData {
   deliveryDays: number;
   revisions: number;
   price: number;
+  billingPeriod: "once" | "monthly" | "yearly";
   features: {
     [key: string]: boolean; // Dynamic features
   };
@@ -99,6 +100,7 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
         deliveryDays: 0,
         revisions: 0,
         price: 0,
+        billingPeriod: "once",
         features: {},
       },
       standard: {
@@ -107,6 +109,7 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
         deliveryDays: 0,
         revisions: 0,
         price: 0,
+        billingPeriod: "once",
         features: {},
       },
       advanced: {
@@ -115,6 +118,7 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
         deliveryDays: 0,
         revisions: 0,
         price: 0,
+        billingPeriod: "once",
         features: {},
       },
     },

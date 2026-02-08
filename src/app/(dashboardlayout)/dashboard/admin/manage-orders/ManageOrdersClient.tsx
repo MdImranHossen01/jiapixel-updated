@@ -33,7 +33,7 @@ interface Order {
   tier?: { // Make tier optional
     title: string;
     price: number;
-    deliveryDays: number;
+    deliveryDays?: number;
   };
   status: "pending" | "confirmed" | "processing" | "under reviews" | "cancelled" | "completed";
   total: number;
@@ -211,7 +211,7 @@ const ManageOrdersClient = () => {
                   <TableCell>
                     <div className="text-sm">
                       <div className="font-medium">{tierInfo.title}</div>
-                      <div className="text-muted-foreground">{tierInfo.deliveryDays} days delivery</div>
+
                     </div>
                   </TableCell>
                   <TableCell className="font-bold">${order.total}</TableCell>

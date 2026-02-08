@@ -14,8 +14,8 @@ interface Order {
   tier: {
     title: string;
     price: number;
-    deliveryDays: number;
-    revisions: number;
+    deliveryDays?: number;
+    revisions?: number;
   };
   status: string;
   total: number;
@@ -115,10 +115,7 @@ const MyOrdersClient = () => {
                   {order.status}
                 </Badge>
               </div>
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Delivery: {order.tier.deliveryDays} days</span>
-                <span>Revisions: {order.tier.revisions}</span>
-              </div>
+
             </div>
           </CardContent>
         </Card>

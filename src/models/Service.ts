@@ -17,10 +17,11 @@ export interface ITierFeature {
 export interface ITierData {
   title: string;
   description: string;
-  deliveryDays: number;
-  revisions: number;
+  deliveryDays?: number;
+  revisions?: number;
   price: number;
   features: ITierFeature;
+  billingPeriod: "once" | "monthly" | "yearly";
 }
 
 export interface IFAQ {
@@ -88,10 +89,16 @@ const TierFeatureSchema = new Schema<ITierFeature>(
 const TierDataSchema = new Schema<ITierData>({
   title: { type: String, required: true },
   description: { type: String, required: false }, // Made optional
-  deliveryDays: { type: Number, required: true, default: 0 },
-  revisions: { type: Number, required: true, default: 0 },
+  deliveryDays: { type: Number, required: false, default: 0 },
+  revisions: { type: Number, required: false, default: 0 },
   price: { type: Number, required: true, default: 0 },
   features: { type: TierFeatureSchema, required: true, default: {} },
+  billingPeriod: {
+    type: String,
+    enum: ["once", "monthly", "yearly"],
+    default: "once",
+    required: true
+  },
 });
 
 const FAQSchema = new Schema<IFAQ>({

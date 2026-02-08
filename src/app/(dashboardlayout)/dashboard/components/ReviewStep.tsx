@@ -103,18 +103,7 @@ export default function ReviewStep({ data, updateData }: Props) {
                         <span className="text-muted-foreground">Price:</span>
                         <span className="text-foreground font-medium">${tierData.price || 0}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Delivery:</span>
-                        <span className="text-foreground font-medium">
-                          {tierData.deliveryDays || 0} days
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Revisions:</span>
-                        <span className="text-foreground font-medium">
-                          {tierData.revisions || 0}
-                        </span>
-                      </div>
+
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Features:</span>
                         <span className="text-foreground font-medium">
@@ -142,18 +131,7 @@ export default function ReviewStep({ data, updateData }: Props) {
                     ${getTierData('starter').price || 0}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Delivery:</span>
-                  <span className="text-foreground font-medium">
-                    {getTierData('starter').deliveryDays || 0} days
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Revisions:</span>
-                  <span className="text-foreground font-medium">
-                    {getTierData('starter').revisions || 0}
-                  </span>
-                </div>
+
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Features:</span>
                   <span className="text-foreground font-medium">
