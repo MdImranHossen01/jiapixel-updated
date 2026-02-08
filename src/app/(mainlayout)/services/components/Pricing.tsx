@@ -250,9 +250,7 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
                   {tier.title}
                 </h2>
 
-                <p className="mt-2 text-pretty text-muted-foreground">
-                  {tier.description}
-                </p>
+
 
                 <p className="mt-2 sm:mt-4">
                   <strong className="text-3xl font-bold text-foreground sm:text-4xl">
@@ -321,9 +319,8 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
                           viewBox="0 0 24 24"
                           strokeWidth="1.5"
                           stroke="currentColor"
-                          className={`size-5 ${
-                            isIncluded ? "text-primary" : "text-destructive"
-                          }`}
+                          className={`size-5 ${isIncluded ? "text-primary" : "text-destructive"
+                            }`}
                         >
                           {isIncluded ? (
                             <path

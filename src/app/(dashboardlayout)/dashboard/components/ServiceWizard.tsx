@@ -4,11 +4,11 @@
 import { toast } from "sonner";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import OverviewStep from "./OverviewStep";
 import PricingStep from "./PricingStep";
 import GalleryStep from "./GalleryStep";
 import DescriptionStep from "./DescriptionStep";
-import ReviewStep from "./ReviewStep";
 
 // Updated ServiceData interface with new meta fields
 export interface ServiceData {
@@ -68,7 +68,6 @@ const steps = [
   { id: "pricing", title: "Pricing", completed: false, active: false },
   { id: "gallery", title: "Gallery", completed: false, active: false },
   { id: "description", title: "Description", completed: false, active: false },
-  { id: "review", title: "Review", completed: false, active: false },
 ];
 
 interface ServiceWizardProps {
@@ -78,6 +77,7 @@ interface ServiceWizardProps {
 }
 
 export default function ServiceWizard({ initialData, isEdit, serviceSlug }: ServiceWizardProps) {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serviceData, setServiceData] = useState<ServiceData>(initialData || {
@@ -126,7 +126,7 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
     faqs: [],
     authorQuote: "",
     maxProjects: 20,
-    agreeToTerms: false,
+    agreeToTerms: true,
     isFeatured: true,
   });
 
@@ -196,7 +196,7 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
       if (response.ok) { // Check response.ok instead of relying on result.success for 404/500
         console.log(`Service ${isEdit ? 'updated' : 'created'} successfully:`, result.service);
         toast.success(`Service ${isEdit ? 'updated' : 'created'} successfully!`);
-        // You can redirect here: router.push('/dashboard/services')
+        router.push('/dashboard/admin/manage-services');
       } else {
         throw new Error(result.message || "Operation failed");
       }
@@ -226,9 +226,9 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
         return (
           <DescriptionStep data={serviceData} updateData={updateServiceData} />
         );
-      case 4:
+      case 3:
         return (
-          <ReviewStep data={serviceData} updateData={updateServiceData} />
+          <DescriptionStep data={serviceData} updateData={updateServiceData} />
         );
       default:
         return null;

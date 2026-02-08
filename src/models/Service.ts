@@ -87,7 +87,7 @@ const TierFeatureSchema = new Schema<ITierFeature>(
 
 const TierDataSchema = new Schema<ITierData>({
   title: { type: String, required: true },
-  description: { type: String, required: true },
+  description: { type: String, required: false }, // Made optional
   deliveryDays: { type: Number, required: true, default: 0 },
   revisions: { type: Number, required: true, default: 0 },
   price: { type: Number, required: true, default: 0 },
@@ -188,8 +188,8 @@ const ServiceSchema = new Schema<IService>(
 
 // Pre-save middleware to generate slug from title
 ServiceSchema.pre("save", async function (next) {
-  // Only generate slug if it's not already set or if title has changed
-  if (!this.slug || this.isModified("title")) {
+  // Only generate slug if it's not set. If it is set (manually or previously), respect it.
+  if (!this.slug) {
     const baseSlug = generateSlug(this.title);
     let slug = baseSlug;
     let counter = 1;

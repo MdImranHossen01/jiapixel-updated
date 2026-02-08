@@ -77,7 +77,7 @@ export default function PricingStep({ data, updateData }: Props) {
     const currentFeatures = data.tiers[tier]?.features ?? {};
     const updatedFeatures = { ...currentFeatures };
     delete updatedFeatures[feature];
-    
+
     updateData('tiers', {
       ...data.tiers,
       [tier]: {
@@ -137,20 +137,7 @@ export default function PricingStep({ data, updateData }: Props) {
             </div>
           </div>
 
-          {/* Custom Description */}
-          <div>
-            <label className="block text-sm text-muted-foreground mb-1">Package Description</label>
-            <textarea
-              value={data.tiers[tier]?.description ?? ''}
-              onChange={(e) => updateTier(tier, 'description', e.target.value)}
-              rows={2}
-              className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
-              placeholder={`Describe what clients get with ${tierName.toLowerCase()} package`}
-            />
-            <div className="text-xs text-muted-foreground mt-1">
-              {(data.tiers[tier]?.description ?? '').length}/80 characters
-            </div>
-          </div>
+
 
           {/* Delivery & Revisions */}
           <div className="grid grid-cols-2 gap-4">
