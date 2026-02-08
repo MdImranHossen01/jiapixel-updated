@@ -1,9 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import type { ServiceData, FAQ, IServiceStep } from './ServiceWizard';
-import { SimpleEditor, SimpleEditorRef } from '@/components/tiptap-templates/simple/simple-editor';
+import NovelEditor from "@/app/components/editor/NovelEditor";
+
+interface Props {
+  data: ServiceData;
+  updateData: (field: keyof ServiceData, value: any) => void;
+}
+
+// Helper to parse description safely
+const getInitialDescription = (desc: any) => {
+  if (!desc) return undefined;
+  if (typeof desc === 'object') return desc;
+
+  try {
+    let parsed = JSON.parse(desc);
+    // Handle double-stringified JSON
+    if (typeof parsed === 'string') {
+      try {
+        parsed = JSON.parse(parsed);
+      } catch (e) {
+        // content is a string but not double stringified JSON
+      }
+    }
+    return parsed;
+  } catch (e) {
+    // If parsing fails, assume it's legacy HTML string or plain text
+    return desc;
+  }
+};
 
 interface Props {
   data: ServiceData;
@@ -13,29 +40,6 @@ interface Props {
 export default function DescriptionStep({ data, updateData }: Props) {
   const [newFAQ, setNewFAQ] = useState<FAQ>({ question: '', answer: '' });
   const [newStep, setNewStep] = useState<IServiceStep>({ title: '', description: '' });
-  const editorRef = useRef<SimpleEditorRef>(null);
-
-  // Initialize editor with existing projectSummary content
-  useEffect(() => {
-    // If we have existing projectSummary content, we need to set it in the editor
-    // This would require the SimpleEditor to support setting initial content via ref
-    // For now, we'll rely on the editor's internal state
-  }, []);
-
-  // Function to get content from editor and update projectSummary
-  const updateProjectSummary = () => {
-    if (editorRef.current) {
-      const content = editorRef.current.getContent();
-      updateData('projectSummary', content);
-    }
-  };
-
-  // Update projectSummary when component unmounts or when moving to next step
-  useEffect(() => {
-    return () => {
-      updateProjectSummary();
-    };
-  }, []);
 
   const addFAQ = () => {
     if (newFAQ.question.trim() && newFAQ.answer.trim()) {
@@ -70,16 +74,13 @@ export default function DescriptionStep({ data, updateData }: Props) {
     }
   };
 
-  // Handle manual save of editor content
-  const handleEditorBlur = () => {
-    updateProjectSummary();
-  };
+
 
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold text-foreground">Service description</h2>
 
-      {/* Service Summary with TipTap Editor */}
+      {/* Service Summary with NovelEditor */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
           Service summary *
@@ -88,35 +89,20 @@ export default function DescriptionStep({ data, updateData }: Props) {
           Describe what you will deliver and how it benefits the client. This appears at the top of your service page.
           You can use the toolbar to format your text.
         </p>
-        
-        <div 
-          className="border border-border rounded-lg overflow-hidden"
-          onBlur={handleEditorBlur}
-        >
-          <SimpleEditor ref={editorRef} />
+
+        <div className="border border-border rounded-lg overflow-hidden bg-background">
+          <NovelEditor
+            initialValue={getInitialDescription(data.projectSummary)}
+            onChange={(val) => updateData('projectSummary', JSON.stringify(val))}
+          />
         </div>
-        
-        {/* Hidden textarea to store the HTML content */}
-        <textarea
-          value={data.projectSummary}
-          onChange={(e) => updateData('projectSummary', e.target.value)}
-          className="hidden"
-          aria-hidden="true"
-        />
-        
+
         <div className="flex items-center justify-between mt-2">
           <p className="text-sm text-muted-foreground">
             {data.projectSummary ? 'Content saved' : 'Content will be automatically saved'}
           </p>
-          <button
-            type="button"
-            onClick={updateProjectSummary}
-            className="text-sm text-primary hover:text-primary/80"
-          >
-            Save Content
-          </button>
         </div>
-        
+
         {!data.projectSummary && (
           <p className="text-destructive text-sm mt-2">
             Service summary is required. Please add content above.
@@ -132,7 +118,7 @@ export default function DescriptionStep({ data, updateData }: Props) {
         <p className="text-muted-foreground mb-4">
           Add a quote, speech, or personal message from the service author. This will be displayed prominently on the service page.
         </p>
-        
+
         <textarea
           value={data.authorQuote}
           onChange={(e) => updateData('authorQuote', e.target.value)}
@@ -150,7 +136,7 @@ export default function DescriptionStep({ data, updateData }: Props) {
         <p className="text-muted-foreground mb-4">
           Break down your service into clear, actionable steps with titles and descriptions.
         </p>
-        
+
         <div className="space-y-3 mb-4">
           {data.projectSteps.length === 0 ? (
             <div className="text-center py-4 border-2 border-dashed border-border rounded-lg">
@@ -231,7 +217,7 @@ export default function DescriptionStep({ data, updateData }: Props) {
             Add Step
           </button>
         </div>
-        
+
         {data.projectSteps.length === 0 && (
           <p className="text-destructive text-sm mt-2">
             At least one service step is required.

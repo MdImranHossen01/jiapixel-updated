@@ -6,7 +6,8 @@ import { FAQSection } from "../components/Faq";
 import ServiceSteps from "../components/ServiceSteps";
 import AuthorQuote from "../components/AuthorQuote";
 import HeroSection from "../components/HeroSection";
-import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
+// import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
+import { ViewContent } from '@/app/components/editor/ViewContent';
 import ServiceAdminActions from "@/components/ServiceAdminActions";
 
 interface PageProps {
@@ -243,8 +244,44 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                   </p>
                 </div>
                 <div className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
-                  {/* <RichTextRenderer content={service.projectSummary} /> */}
-                  <ReadOnlyEditor content={service.projectSummary} />
+                  {/* Server-side rendered content for SEO/Crawlers */}
+                  <div className="sr-only">
+                    {(() => {
+                      try {
+                        let content = service.projectSummary;
+                        if (typeof content === 'string') {
+                          try {
+                            let parsed = JSON.parse(content);
+                            if (typeof parsed === 'string') {
+                              parsed = JSON.parse(parsed);
+                            }
+                            content = parsed;
+                          } catch (e) {
+                            // content is string
+                          }
+                        }
+
+                        if (content?.content && Array.isArray(content.content)) {
+                          return content.content.map((node: any, i: number) => {
+                            if (node.type === 'heading') {
+                              const Level = `h${node.attrs?.level || 2}` as React.ElementType;
+                              return <Level key={i}>{node.content?.map((c: any) => c.text).join('')}</Level>;
+                            }
+                            if (node.type === 'paragraph') {
+                              return <p key={i}>{node.content?.map((c: any) => c.text).join('')}</p>;
+                            }
+                            return null;
+                          });
+                        }
+                        return typeof content === 'string' ? <p>{content}</p> : null;
+                      } catch (e) {
+                        return null;
+                      }
+                    })()}
+                  </div>
+
+                  {/* Client-side rich editor view */}
+                  <ViewContent content={service.projectSummary} />
                 </div>
               </div>
             </div>
