@@ -6,7 +6,7 @@ import connectDB from "@/lib/db";
 import Category from "@/models/Category";
 
 import Blog from "@/models/Blog";
-import Project from "@/models/Project";
+import Service from "@/models/Service";
 import Portfolio from "@/models/Portfolios";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
         .lean()
         .exec(),
 
-      Project.find(
+      Service.find(
         { status: { $in: ["published", "draft"] } },
         "slug updatedAt"
       )

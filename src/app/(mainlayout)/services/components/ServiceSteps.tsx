@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 
-// --- 1. INTERFACES (Ensure these match your models/Project.ts) ---
+// --- 1. INTERFACES (Ensure these match your models/Service.ts) ---
 
 interface ProcessStep {
     title: string;
