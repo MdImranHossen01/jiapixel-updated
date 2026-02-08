@@ -1,4 +1,5 @@
 "use client";
+// Force regeneration
 
 import React, { useState, useEffect, useRef } from 'react';
 import { COST_CATEGORIES, INCOME_SOURCES } from '@/constants/financials';

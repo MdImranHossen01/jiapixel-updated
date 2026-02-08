@@ -9,6 +9,7 @@ import PricingStep from "./PricingStep";
 import GalleryStep from "./GalleryStep";
 import RequirementsStep from "./RequirementsStep";
 import DescriptionStep from "./DescriptionStep";
+import ReviewStep from "./ReviewStep";
 
 // Updated ServiceData interface with new meta fields
 export interface ServiceData {
@@ -40,6 +41,13 @@ export interface ServiceData {
 
   // Description Step
   projectSummary: string;
+  projectSteps?: { title: string; description: string }[];
+  faqs?: { question: string; answer: string }[];
+  authorQuote?: string;
+
+  // Review Step
+  maxProjects?: number;
+  agreeToTerms?: boolean;
 
   // Featured Service
   isFeatured: boolean;
@@ -67,6 +75,7 @@ const steps = [
     active: false,
   },
   { id: "description", title: "Description", completed: false, active: false },
+  { id: "review", title: "Review", completed: false, active: false },
 ];
 
 interface ServiceWizardProps {
@@ -120,6 +129,11 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
     documents: [],
     requirements: [],
     projectSummary: "",
+    projectSteps: [],
+    faqs: [],
+    authorQuote: "",
+    maxProjects: 20,
+    agreeToTerms: false,
     isFeatured: true,
   });
 
@@ -222,6 +236,10 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
       case 4:
         return (
           <DescriptionStep data={serviceData} updateData={updateServiceData} />
+        );
+      case 5:
+        return (
+          <ReviewStep data={serviceData} updateData={updateServiceData} />
         );
       default:
         return null;
