@@ -57,7 +57,7 @@ export default function DescriptionStep({ data, updateData }: Props) {
 
         <div className="flex items-center justify-between mt-2">
           <p className="text-sm text-muted-foreground">
-            {data.projectSummary ? 'Content saved' : 'Content will be automatically saved'}
+            {data.projectSummary ? 'Content updated' : 'Content will be automatically updated'}
           </p>
         </div>
 

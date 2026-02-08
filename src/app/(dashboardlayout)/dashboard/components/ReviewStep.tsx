@@ -2,6 +2,7 @@
 'use client';
 
 import type { ServiceData } from './ServiceWizard';
+import NovelEditor from "@/app/components/editor/NovelEditor";
 
 interface Props {
   data: ServiceData;
@@ -65,11 +66,10 @@ export default function ReviewStep({ data, updateData }: Props) {
           {/* ADD FEATURED STATUS DISPLAY HERE */}
           <div className="flex justify-between">
             <span className="text-muted-foreground">Featured Service:</span>
-            <span className={`px-2 py-1 rounded text-xs font-medium ${
-              data?.isFeatured 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-gray-100 text-gray-800'
-            }`}>
+            <span className={`px-2 py-1 rounded text-xs font-medium ${data?.isFeatured
+              ? 'bg-green-100 text-green-800'
+              : 'bg-gray-100 text-gray-800'
+              }`}>
               {data?.isFeatured ? 'Yes' : 'No'}
             </span>
           </div>
@@ -84,7 +84,7 @@ export default function ReviewStep({ data, updateData }: Props) {
             <span className="text-muted-foreground">Pricing Tiers:</span>
             <span className="text-foreground font-medium">{data?.pricingTiers || '3'} tier(s)</span>
           </div>
-          
+
           {data?.pricingTiers === '3' ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               {(['starter', 'standard', 'advanced'] as const).map((tier) => {
@@ -208,11 +208,26 @@ export default function ReviewStep({ data, updateData }: Props) {
         <div className="space-y-4">
           <div>
             <h4 className="font-medium text-foreground mb-2">Summary</h4>
-            <p className="text-muted-foreground text-sm whitespace-pre-line">
-              {data?.projectSummary || 'No summary provided'}
-            </p>
+            <div className="border border-border rounded-lg overflow-hidden bg-background">
+              <NovelEditor
+                initialValue={(() => {
+                  try {
+                    // Try to parse if it's a string
+                    if (typeof data?.projectSummary === 'string') {
+                      // Handle double-stringified JSON if necessary
+                      const parsed = JSON.parse(data.projectSummary);
+                      return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+                    }
+                    return data?.projectSummary; // Return as is if already object or undefined
+                  } catch (e) {
+                    return undefined; // Fallback
+                  }
+                })()}
+                readOnly={true}
+              />
+            </div>
           </div>
-          
+
           {/* Author Quote Section */}
           {data?.authorQuote && (
             <div>
@@ -227,7 +242,7 @@ export default function ReviewStep({ data, updateData }: Props) {
               </div>
             </div>
           )}
-          
+
           <div>
             <h4 className="font-medium text-foreground mb-2">
               Service Steps ({data?.projectSteps?.length || 0})
@@ -268,7 +283,7 @@ export default function ReviewStep({ data, updateData }: Props) {
       {/* Service Limits and Terms */}
       <div className="border border-border rounded-lg p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Service Settings</h3>
-        
+
         {/* Maximum Active Services */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-foreground mb-2">
