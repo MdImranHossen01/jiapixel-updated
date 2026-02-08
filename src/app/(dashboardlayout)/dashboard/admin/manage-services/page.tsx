@@ -41,7 +41,7 @@ const ManageServicesPage = () => {
     try {
       const response = await fetch('/api/services?limit=50');
       const data = await response.json();
-      
+
       if (response.ok) {
         setServices(data.services || []);
       } else {
@@ -60,7 +60,7 @@ const ManageServicesPage = () => {
     }
 
     setDeleteLoading(serviceId);
-    
+
     try {
       const response = await fetch(`/api/services/${serviceSlug}`, {
         method: 'DELETE'
@@ -82,7 +82,7 @@ const ManageServicesPage = () => {
 
   const handleStatusChange = async (serviceId: string, serviceSlug: string, newStatus: string) => {
     setUpdateLoading(serviceId);
-    
+
     try {
       const response = await fetch(`/api/services/${serviceSlug}`, {
         method: 'PUT',
@@ -93,7 +93,7 @@ const ManageServicesPage = () => {
       });
 
       if (response.ok) {
-        setServices(services.map(s => 
+        setServices(services.map(s =>
           s._id === serviceId ? { ...s, status: newStatus as any } : s
         ));
       } else {
@@ -110,7 +110,7 @@ const ManageServicesPage = () => {
 
   const handleFeaturedToggle = async (serviceId: string, serviceSlug: string, isFeatured: boolean) => {
     setUpdateLoading(serviceId);
-    
+
     try {
       const response = await fetch(`/api/services/${serviceSlug}`, {
         method: 'PUT',
@@ -121,7 +121,7 @@ const ManageServicesPage = () => {
       });
 
       if (response.ok) {
-        setServices(services.map(s => 
+        setServices(services.map(s =>
           s._id === serviceId ? { ...s, isFeatured: !isFeatured } : s
         ));
       } else {
@@ -139,7 +139,7 @@ const ManageServicesPage = () => {
   // ADD THIS NEW FUNCTION
   const handleGoogleIndexToggle = async (serviceId: string, serviceSlug: string, isIndexedInGoogle: boolean) => {
     setUpdateLoading(serviceId);
-    
+
     try {
       const response = await fetch(`/api/services/${serviceSlug}`, {
         method: 'PUT',
@@ -150,7 +150,7 @@ const ManageServicesPage = () => {
       });
 
       if (response.ok) {
-        setServices(services.map(s => 
+        setServices(services.map(s =>
           s._id === serviceId ? { ...s, isIndexedInGoogle: !isIndexedInGoogle } : s
         ));
       } else {
@@ -168,12 +168,12 @@ const ManageServicesPage = () => {
   const getTierPrices = (service: Service) => {
     const tiers = service.tiers || {};
     const prices = Object.values(tiers).map((tier: any) => tier.price || 0).filter(price => price > 0);
-    
+
     if (prices.length === 0) return 'Free';
-    
+
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
-    
+
     if (minPrice === maxPrice) {
       return `$${minPrice}`;
     }
@@ -250,7 +250,7 @@ const ManageServicesPage = () => {
           <div className="text-muted-foreground">Google Indexed</div>
         </div>
       </div>
-      
+
       {/* Services List */}
       {services.length === 0 ? (
         <div className="bg-card rounded-lg shadow p-8 border text-center">
@@ -275,11 +275,11 @@ const ManageServicesPage = () => {
               Your Services ({services.length})
             </h2>
           </div>
-          
+
           <div className="grid gap-6">
             {services.map((service) => (
-              <ServiceCard 
-                key={service._id} 
+              <ServiceCard
+                key={service._id}
                 service={service}
                 onStatusChange={handleStatusChange}
                 onFeaturedToggle={handleFeaturedToggle}
@@ -297,15 +297,15 @@ const ManageServicesPage = () => {
 };
 
 // Service Card Component - UPDATED WITH GOOGLE INDEXING TOGGLE
-function ServiceCard({ 
-  service, 
-  onStatusChange, 
-  onFeaturedToggle, 
+function ServiceCard({
+  service,
+  onStatusChange,
+  onFeaturedToggle,
   onGoogleIndexToggle, // ← ADD THIS PROP
   onDelete,
   updateLoading,
-  deleteLoading 
-}: { 
+  deleteLoading
+}: {
   service: Service;
   onStatusChange: (id: string, slug: string, status: string) => void;
   onFeaturedToggle: (id: string, slug: string, isFeatured: boolean) => void;
@@ -325,12 +325,12 @@ function ServiceCard({
   const getTierPrices = (service: Service) => {
     const tiers = service.tiers || {};
     const prices = Object.values(tiers).map((tier: any) => tier.price || 0).filter(price => price > 0);
-    
+
     if (prices.length === 0) return 'Free';
-    
+
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
-    
+
     if (minPrice === maxPrice) {
       return `$${minPrice}`;
     }
@@ -343,9 +343,9 @@ function ServiceCard({
       published: { color: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100', label: 'Published' },
       archived: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100', label: 'Archived' },
     };
-    
+
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
-    
+
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
         {config.label}
@@ -381,7 +381,7 @@ function ServiceCard({
           {getStatusBadge(service.status)}
         </div>
       </div>
-      
+
       {/* Service Details */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div className="space-y-1">
@@ -391,7 +391,7 @@ function ServiceCard({
             {Object.keys(service.tiers || {}).length} tier(s)
           </p>
         </div>
-        
+
         <div className="space-y-1">
           <p className="text-sm font-medium text-card-foreground">Delivery</p>
           <p className="text-sm text-card-foreground">
@@ -399,7 +399,7 @@ function ServiceCard({
           </p>
           <p className="text-xs text-muted-foreground">Starter package</p>
         </div>
-        
+
         <div className="space-y-1">
           <p className="text-sm font-medium text-card-foreground">Author</p>
           <p className="text-sm text-card-foreground">{service.author}</p>
@@ -409,7 +409,7 @@ function ServiceCard({
           </p>
         </div>
       </div>
-      
+
       {/* Status and Featured Controls - UPDATED WITH GOOGLE INDEXING */}
       <div className="flex flex-wrap items-center gap-4 mb-4 p-4 bg-muted/50 rounded-lg">
         <div className="flex items-center gap-2">
@@ -425,20 +425,18 @@ function ServiceCard({
             <option value="archived">Archived</option>
           </select>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-card-foreground">Featured:</span>
           <button
             onClick={() => onFeaturedToggle(service._id, service.slug, service.isFeatured)}
             disabled={updateLoading === service._id}
-            className={`w-12 h-6 rounded-full transition-colors relative disabled:opacity-50 ${
-              service.isFeatured ? 'bg-primary' : 'bg-muted'
-            }`}
+            className={`w-12 h-6 rounded-full transition-colors relative disabled:opacity-50 ${service.isFeatured ? 'bg-primary' : 'bg-muted'
+              }`}
           >
             <div
-              className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${
-                service.isFeatured ? 'left-7' : 'left-1'
-              }`}
+              className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${service.isFeatured ? 'left-7' : 'left-1'
+                }`}
             />
           </button>
         </div>
@@ -449,19 +447,17 @@ function ServiceCard({
           <button
             onClick={() => onGoogleIndexToggle(service._id, service.slug, service.isIndexedInGoogle)}
             disabled={updateLoading === service._id}
-            className={`w-12 h-6 rounded-full transition-colors relative disabled:opacity-50 ${
-              service.isIndexedInGoogle ? 'bg-green-600' : 'bg-muted'
-            }`}
+            className={`w-12 h-6 rounded-full transition-colors relative disabled:opacity-50 ${service.isIndexedInGoogle ? 'bg-green-600' : 'bg-muted'
+              }`}
           >
             <div
-              className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${
-                service.isIndexedInGoogle ? 'left-7' : 'left-1'
-              }`}
+              className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${service.isIndexedInGoogle ? 'left-7' : 'left-1'
+                }`}
             />
           </button>
         </div>
       </div>
-      
+
       {/* Requirements Preview */}
       {service.requirements && service.requirements.length > 0 && (
         <div className="mb-4">
@@ -483,7 +479,7 @@ function ServiceCard({
           </div>
         </div>
       )}
-      
+
       {/* Search Tags */}
       {service.searchTags && service.searchTags.length > 0 && (
         <div className="mb-4">
@@ -500,16 +496,14 @@ function ServiceCard({
           </div>
         </div>
       )}
-      
+
       <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border">
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           <span>Slug: {service.slug}</span>
           <span>•</span>
           <span>Created: {formatDate(service.createdAt)}</span>
-          <span>•</span>
-          <span>Max Projects: {service.maxProjects}</span>
         </div>
-        
+
         <div className="flex items-center space-x-3">
           <Link
             href={`/services/${service.slug}`}
@@ -526,7 +520,7 @@ function ServiceCard({
             Edit
           </Link>
           <span className="text-border">|</span>
-          <button 
+          <button
             onClick={() => onDelete(service._id, service.slug)}
             disabled={deleteLoading === service._id}
             className="text-sm text-destructive hover:text-destructive/80 font-medium disabled:opacity-50"

@@ -2,7 +2,7 @@
 // src/app/api/services/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../lib/db';
-import Service from '../../../models/Project';
+import Service from '../../../models/Service';
 import { uploadMultipleToImgBB } from '../../../lib/imgbb';
 import { generateSlug } from '../../../lib/slug';
 

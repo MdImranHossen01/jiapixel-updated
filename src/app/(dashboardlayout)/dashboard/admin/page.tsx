@@ -1,7 +1,7 @@
 import { SectionCards } from "@/components/section-cards"
 import dbConnect from "@/lib/db";
 import Category from "@/models/Category";
-import Project from "@/models/Project";
+import Project from "@/models/Service";
 import Blog from "@/models/Blog";
 import Portfolio from "@/models/Portfolios";
 

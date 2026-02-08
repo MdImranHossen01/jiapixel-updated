@@ -9,7 +9,6 @@ import PricingStep from "./PricingStep";
 import GalleryStep from "./GalleryStep";
 import RequirementsStep from "./RequirementsStep";
 import DescriptionStep from "./DescriptionStep";
-import ReviewStep from "./ReviewStep";
 
 // Updated ServiceData interface with new meta fields
 export interface ServiceData {
@@ -19,7 +18,6 @@ export interface ServiceData {
   category: string;
   searchTags: string[];
   author: string;
-  authorQuote: string;
 
   // NEW: Meta fields
   metaTitle: string;
@@ -34,29 +32,17 @@ export interface ServiceData {
   };
 
   // Gallery Step
-  images: (File | string)[]; // Changed from File[] to (File | string)[]
-  documents: (File | string)[]; // Changed from File[] to (File | string)[]
+  images: (File | string)[];
+  documents: (File | string)[];
 
   // Requirements Step
   requirements: string[];
 
   // Description Step
   projectSummary: string;
-  projectSteps: IServiceStep[];
-  faqs: FAQ[];
-
-  // Review Step
-  maxProjects: number;
-  agreeToTerms: boolean;
 
   // Featured Service
   isFeatured: boolean;
-}
-
-// New interface for service steps
-export interface IServiceStep {
-  title: string;
-  description: string;
 }
 
 export interface TierData {
@@ -70,11 +56,6 @@ export interface TierData {
   };
 }
 
-export interface FAQ {
-  question: string;
-  answer: string;
-}
-
 const steps = [
   { id: "overview", title: "Overview", completed: false, active: true },
   { id: "pricing", title: "Pricing", completed: false, active: false },
@@ -86,7 +67,6 @@ const steps = [
     active: false,
   },
   { id: "description", title: "Description", completed: false, active: false },
-  { id: "review", title: "Review", completed: false, active: false },
 ];
 
 interface ServiceWizardProps {
@@ -104,7 +84,6 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
     category: "",
     searchTags: [],
     author: "Md Imran Hossen",
-    authorQuote: "",
 
     // NEW: Meta fields with initial values
     metaTitle: "",
@@ -141,10 +120,6 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
     documents: [],
     requirements: [],
     projectSummary: "",
-    projectSteps: [],
-    faqs: [],
-    maxProjects: 20,
-    agreeToTerms: false,
     isFeatured: true,
   });
 
@@ -248,8 +223,6 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
         return (
           <DescriptionStep data={serviceData} updateData={updateServiceData} />
         );
-      case 5:
-        return <ReviewStep data={serviceData} updateData={updateServiceData} />;
       default:
         return null;
     }
@@ -326,7 +299,7 @@ export default function ServiceWizard({ initialData, isEdit, serviceSlug }: Serv
         ) : (
           <button
             type="submit"
-            disabled={isSubmitting || !serviceData.agreeToTerms}
+            disabled={isSubmitting}
             className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (isEdit ? "Updating..." : "Creating...") : (isEdit ? "Update Service" : "Create Service")}

@@ -1,7 +1,7 @@
 import ServiceCard from "@/components/ServiceCard";
 import React from "react";
 import connectDB from "@/lib/db";
-import Project from "@/models/Project";
+import Project from "@/models/Service";
 
 import { unstable_cache } from 'next/cache';
 

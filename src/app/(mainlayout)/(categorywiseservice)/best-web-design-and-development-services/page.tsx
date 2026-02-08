@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import connectDB from '@/lib/db'
-import Service from '@/models/Project'
+import Service from '@/models/Service'
 import ServiceCard from '@/components/ServiceCard'
 
 export const metadata: Metadata = {

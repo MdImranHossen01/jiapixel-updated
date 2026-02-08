@@ -2,9 +2,6 @@
 import { notFound } from "next/navigation";
 // import RichTextRenderer from "@/components/RichTextRenderer";
 import PricingComponent from "../components/Pricing";
-import { FAQSection } from "../components/Faq";
-import ServiceSteps from "../components/ServiceSteps";
-import AuthorQuote from "../components/AuthorQuote";
 import HeroSection from "../components/HeroSection";
 // import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
 import { ViewContent } from '@/app/components/editor/ViewContent';
@@ -179,23 +176,6 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
     },
   };
 
-  // Generate FAQ structured data if FAQs exist
-  const faqStructuredData =
-    service.faqs && service.faqs.length > 0
-      ? {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: service.faqs.map((faq: any) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: faq.answer,
-          },
-        })),
-      }
-      : null;
-
   return (
     <>
       {/* Service-specific Structured Data */}
@@ -205,16 +185,6 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
           __html: JSON.stringify(serviceStructuredData),
         }}
       />
-
-      {/* FAQ Structured Data if available */}
-      {faqStructuredData && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(faqStructuredData),
-          }}
-        />
-      )}
 
       <div className=" overflow-hidden py-8">
         <div className="container mx-auto px-4 w-full">
@@ -292,22 +262,6 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
           {/* Pricing Component - Only show if service has tiers */}
           {service.tiers && Object.keys(service.tiers).length > 0 && (
             <PricingComponent service={service} />
-          )}
-          {/* Author Quote Component */}
-          <AuthorQuote
-            author={service.author}
-            authorQuote={service.authorQuote}
-          />
-          <div>
-            <FAQSection faqs={service.faqs} />
-          </div>
-          {/* Service Steps */}
-
-          {service.projectSteps && service.projectSteps.length > 0 && (
-            <ServiceSteps
-              steps={service.projectSteps}
-              requirements={service.requirements}
-            />
           )}
         </div>
       </div>

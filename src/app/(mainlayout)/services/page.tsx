@@ -3,7 +3,7 @@ import React from 'react';
 import type { Metadata } from "next";
 import ServicesStructuredData from "@/components/ServicesStructuredData";
 import connectDB from "@/lib/db";
-import Project from "@/models/Project";
+import Project from "@/models/Service";
 import ServicesClient from "./components/ServicesClient";
 import Link from 'next/link';
 

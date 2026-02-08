@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Category from '@/models/Category';
-import ServiceModel from '@/models/Project'; // Ensure this model is registered
+import ServiceModel from '@/models/Service'; // Ensure this model is registered
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function GET(

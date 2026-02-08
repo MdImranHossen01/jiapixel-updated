@@ -28,7 +28,6 @@ export default function EditServicePage({ params }: { params: Promise<{ slug: st
                         category: data.category || "",
                         searchTags: data.searchTags || [],
                         author: data.author || "Md Imran Hossen",
-                        authorQuote: data.authorQuote || "",
 
                         metaTitle: data.metaTitle || "",
                         metaDescription: data.metaDescription || "",
@@ -44,10 +43,6 @@ export default function EditServicePage({ params }: { params: Promise<{ slug: st
 
                         requirements: data.requirements || [],
                         projectSummary: data.projectSummary || "",
-                        projectSteps: data.projectSteps || [],
-                        faqs: data.faqs || [],
-                        maxProjects: data.maxProjects || 20,
-                        agreeToTerms: true, // Assuming true since it exists
                         isFeatured: data.isFeatured !== undefined ? data.isFeatured : true,
                     };
 
