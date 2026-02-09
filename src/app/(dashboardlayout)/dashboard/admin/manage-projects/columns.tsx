@@ -14,6 +14,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { toast } from "sonner"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useRouter } from "next/navigation"
 import Swal from "sweetalert2"
 import Image from "next/image"
@@ -159,6 +165,26 @@ export const columns: ColumnDef<Project>[] = [
                 </Button>
             )
         },
+        cell: ({ row }) => {
+            const title: string = row.getValue("title");
+            const truncated = title.length > 30 ? title.substring(0, 30) + "..." : title;
+            const slug: string = row.original.slug;
+
+            return (
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Link href={`/projects/${slug}`} className="font-medium hover:underline text-primary">
+                                {truncated}
+                            </Link>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{title}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            )
+        },
     },
     {
         accessorKey: "createdAt",
@@ -166,6 +192,28 @@ export const columns: ColumnDef<Project>[] = [
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"));
             return <div>{date.toLocaleDateString()}</div>
+        },
+    },
+    {
+        id: "daysAgo",
+        header: "Days Ago",
+        cell: ({ row }) => {
+            const date = new Date(row.getValue("createdAt"));
+            const now = new Date();
+            const diffMs = now.getTime() - date.getTime();
+            const msPerDay = 1000 * 60 * 60 * 24;
+
+            if (diffMs > 0) {
+                const diffDays = Math.floor(diffMs / msPerDay);
+                if (diffDays === 0) return "Today";
+                if (diffDays === 1) return "1 day ago";
+                return `${diffDays} days ago`;
+            } else {
+                const futureDays = Math.ceil(Math.abs(diffMs) / msPerDay);
+                if (futureDays === 0) return "Today";
+                if (futureDays === 1) return "In 1 day";
+                return `In ${futureDays} days`;
+            }
         },
     },
     {
