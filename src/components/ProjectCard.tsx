@@ -15,6 +15,7 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import Swal from "sweetalert2";
 
 export default function ProjectCard({ project }: any) {
     const { data: session } = useSession();
@@ -27,26 +28,47 @@ export default function ProjectCard({ project }: any) {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!confirm(`Are you sure you want to delete "${project.title}"?`)) {
-            return;
-        }
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: `You are about to delete "${project.title}". This action cannot be undone!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
 
-        setIsDeleting(true);
-        try {
-            const response = await fetch(`/api/projects/${project.slug}`, {
-                method: "DELETE",
-            });
+        if (result.isConfirmed) {
+            setIsDeleting(true);
+            try {
+                const response = await fetch(`/api/projects/${project.slug}`, {
+                    method: "DELETE",
+                });
 
-            if (response.ok) {
-                router.refresh();
-            } else {
-                alert("Failed to delete project");
+                if (response.ok) {
+                    Swal.fire(
+                        'Deleted!',
+                        'The project has been deleted.',
+                        'success'
+                    );
+                    router.refresh();
+                } else {
+                    Swal.fire(
+                        'Failed!',
+                        'Failed to delete project.',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error("Error deleting project:", error);
+                Swal.fire(
+                    'Error!',
+                    'An error occurred while deleting the project.',
+                    'error'
+                );
+            } finally {
+                setIsDeleting(false);
             }
-        } catch (error) {
-            console.error("Error deleting project:", error);
-            alert("Error deleting project");
-        } finally {
-            setIsDeleting(false);
         }
     };
 

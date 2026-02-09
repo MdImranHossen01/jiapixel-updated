@@ -158,7 +158,6 @@ export async function PUT(
         project.metaTitle = projectData.metaTitle;
         project.metaDescription = projectData.metaDescription;
         project.description = projectData.description;
-        project.status = projectData.status || project.status;
 
         // Combine existing images (that were kept) with new uploads
         // Combine existing images (that were kept) with new uploads

@@ -4,9 +4,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 
 export default function ManageProjectsPage() {
+    const router = useRouter();
     const [projects, setProjects] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -29,22 +32,33 @@ export default function ManageProjectsPage() {
     };
 
     const handleDelete = async (slug: string) => {
-        if (!confirm("Are you sure you want to delete this project?")) return;
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
 
-        try {
-            const response = await fetch(`/api/projects/${slug}`, {
-                method: "DELETE",
-            });
-            const data = await response.json();
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/api/projects/${slug}`, {
+                    method: "DELETE",
+                });
+                const data = await response.json();
 
-            if (data.success) {
-                toast.success("Project deleted successfully");
-                fetchProjects(); // Refresh list
-            } else {
-                toast.error(data.message || "Failed to delete project");
+                if (data.success) {
+                    toast.success("Project deleted successfully");
+                    fetchProjects();
+                    router.refresh();
+                } else {
+                    toast.error(data.message || "Failed to delete project");
+                }
+            } catch (error) {
+                toast.error("An error occurred");
             }
-        } catch (error) {
-            toast.error("An error occurred");
         }
     };
 
@@ -69,7 +83,6 @@ export default function ManageProjectsPage() {
                     <thead className="bg-muted text-muted-foreground border-b">
                         <tr>
                             <th className="p-4 font-medium">Title</th>
-                            <th className="p-4 font-medium">Status</th>
                             <th className="p-4 font-medium">Date</th>
                             <th className="p-4 font-medium text-right">Actions</th>
                         </tr>
@@ -77,25 +90,13 @@ export default function ManageProjectsPage() {
                     <tbody className="divide-y">
                         {projects.length === 0 ? (
                             <tr>
-                                <td colSpan={4} className="p-8 text-center text-muted-foreground">No projects found. Create one to get started.</td>
+                                <td colSpan={3} className="p-8 text-center text-muted-foreground">No projects found. Create one to get started.</td>
                             </tr>
                         ) : projects.map((project) => (
                             <tr key={project._id} className="hover:bg-accent/50">
                                 <td className="p-4">
                                     <div className="font-medium">{project.title}</div>
                                     <div className="text-xs text-muted-foreground">/{project.slug}</div>
-                                </td>
-                                <td className="p-4">
-                                    <span
-                                        className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${project.status === "published"
-                                            ? "bg-green-100 text-green-700"
-                                            : project.status === "draft"
-                                                ? "bg-yellow-100 text-yellow-700"
-                                                : "bg-gray-100 text-gray-700"
-                                            }`}
-                                    >
-                                        {project.status}
-                                    </span>
                                 </td>
                                 <td className="p-4 text-muted-foreground">
                                     {new Date(project.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}

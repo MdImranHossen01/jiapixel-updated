@@ -18,9 +18,6 @@ export interface IProject extends Document {
     // Content
     description: string;
 
-    // Status
-    status: "draft" | "published" | "archived";
-
     // Metadata
     createdBy: string;
     createdAt: Date;
@@ -68,13 +65,6 @@ const ProjectSchema = new Schema<IProject>(
         description: {
             type: String,
             required: true
-        },
-
-        // Status
-        status: {
-            type: String,
-            enum: ["draft", "published", "archived"],
-            default: "published",
         },
 
         createdBy: {
@@ -134,7 +124,7 @@ ProjectSchema.pre("save", function (next) {
     next();
 });
 
-ProjectSchema.index({ status: 1, createdAt: -1 });
+ProjectSchema.index({ createdAt: -1 });
 
 export default mongoose.models.Project ||
     mongoose.model<IProject>("Project", ProjectSchema);

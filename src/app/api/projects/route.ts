@@ -100,7 +100,6 @@ export async function POST(request: NextRequest) {
                     metaDescription: projectData.metaDescription,
                     images: imageUrls,
                     description: projectData.description,
-                    status: ['published', 'draft', 'archived'].includes(projectData.status) ? projectData.status : 'published',
                     createdBy: session.user.email || session.user.name || 'jiapixel-admin',
                 });
 
@@ -152,9 +151,6 @@ export async function GET(request: NextRequest) {
         if (limit > 100) limit = 100; // Limit max items
 
         const query: any = {};
-        if (status) {
-            query.status = status;
-        }
 
         const projects = await Project.find(query)
             .sort({ createdAt: -1 })

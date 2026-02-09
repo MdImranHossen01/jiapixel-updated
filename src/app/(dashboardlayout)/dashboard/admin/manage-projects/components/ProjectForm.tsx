@@ -14,7 +14,6 @@ interface ProjectData {
     metaDescription: string;
     images: (File | string)[];
     description: string;
-    status: "draft" | "published" | "archived";
 }
 
 interface ProjectFormProps {
@@ -34,15 +33,32 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
         metaDescription: "",
         images: [],
         description: "",
-        status: "published",
     });
 
-    // Clean up description if it contains JSON code on mount
+    const [slugTouched, setSlugTouched] = useState(false);
+    const [metaTitleTouched, setMetaTitleTouched] = useState(false);
+
+    const slugify = (text: string) => {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')        // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+            .replace(/\-\-+/g, '-');     // Replace multiple - with single -
+    };
+
+    // Auto-generate slug and meta title from title
     useEffect(() => {
-        if (initialData?.description) {
-            // This is to handle cases where the data might be weirdly formatted coming back
+        if (!isEdit) {
+            if (!slugTouched && data.title) {
+                updateData("slug", slugify(data.title));
+            }
+            if (!metaTitleTouched && data.title) {
+                updateData("metaTitle", data.title);
+            }
         }
-    }, [initialData]);
+    }, [data.title, slugTouched, metaTitleTouched, isEdit]);
 
     const updateData = (field: keyof ProjectData, value: any) => {
         setData((prev) => ({ ...prev, [field]: value }));
@@ -54,8 +70,6 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
             toast.error("Maximum 5 images allowed");
             return;
         }
-
-        // Validate file types and sizes if needed
 
         updateData("images", [...data.images, ...fileArray]);
     };
@@ -152,12 +166,6 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
     const handleDescriptionChange = (val: any) => {
         const jsonString = JSON.stringify(val);
         updateData('description', jsonString);
-
-        if (!data.metaDescription) {
-            // Extract text logic could be complex here since we have JSON.
-            // For now we trust the backend to handle it on save if it's empty, 
-            // or we can try to extract basic text.
-        }
     };
 
 
@@ -178,13 +186,6 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
                             const newTitle = e.target.value;
                             if (newTitle.length <= 60) {
                                 updateData("title", newTitle);
-                                if (!isEdit && (!data.slug || data.slug === newTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, ""))) {
-                                    const autoSlug = newTitle
-                                        .toLowerCase()
-                                        .replace(/[^a-z0-9]+/g, "-")
-                                        .replace(/(^-|-$)+/g, "");
-                                    updateData("slug", autoSlug);
-                                }
                             }
                         }}
                         className="w-full px-3 py-2 border rounded-md bg-background"
@@ -199,24 +200,16 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
                     <input
                         type="text"
                         value={data.slug}
-                        onChange={(e) => updateData("slug", e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}
+                        onChange={(e) => {
+                            updateData("slug", e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+                            if (!slugTouched) {
+                                setSlugTouched(true);
+                            }
+                        }}
                         className="w-full px-3 py-2 border rounded-md bg-background"
                         placeholder="url-slug"
                     />
-                </div>
-
-                {/* Status */}
-                <div>
-                    <label className="block text-sm font-medium mb-2">Status</label>
-                    <select
-                        value={data.status}
-                        onChange={(e) => updateData("status", e.target.value)}
-                        className="w-full px-3 py-2 border rounded-md bg-background"
-                    >
-                        <option value="published">Published</option>
-                        <option value="draft">Draft</option>
-                        <option value="archived">Archived</option>
-                    </select>
+                    <div className="text-xs text-muted-foreground mt-1 text-right">Auto-generated from title (editable)</div>
                 </div>
             </div>
 
@@ -230,10 +223,16 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
                     <input
                         type="text"
                         value={data.metaTitle}
-                        onChange={(e) => updateData("metaTitle", e.target.value)}
+                        onChange={(e) => {
+                            updateData("metaTitle", e.target.value);
+                            if (!metaTitleTouched) {
+                                setMetaTitleTouched(true);
+                            }
+                        }}
                         className="w-full px-3 py-2 border rounded-md bg-background"
                         placeholder="Meta Title (auto-generated if empty)"
                     />
+                    <div className="text-xs text-muted-foreground mt-1 text-right">Auto-generated from title (editable)</div>
                 </div>
 
                 {/* Meta Description */}
