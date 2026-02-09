@@ -250,10 +250,10 @@ export default function CreatePostPage() {
                                         required
                                         className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                                         placeholder="Enter title..."
-                                        maxLength={200}
+                                        maxLength={60}
                                     />
                                     <div className="text-xs text-muted-foreground mt-1">
-                                        {title.length}/200 characters
+                                        {title.length}/60 characters
                                     </div>
                                 </div>
                                 <div>

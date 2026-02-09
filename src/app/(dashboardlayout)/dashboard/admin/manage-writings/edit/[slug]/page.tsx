@@ -20,7 +20,16 @@ const isValidUrl = (url: string): boolean => {
 const parseInitialContent = (content: string) => {
     if (!content) return undefined;
     try {
-        return JSON.parse(content);
+        const parsed = JSON.parse(content);
+        // Handle double-stringified JSON (legacy data fix)
+        if (typeof parsed === 'string') {
+            try {
+                return JSON.parse(parsed);
+            } catch {
+                return parsed;
+            }
+        }
+        return parsed;
     } catch {
         return content; // Return as string (HTML) for legacy content
     }
@@ -374,10 +383,10 @@ export default function EditWritingPage({ params }: PageProps) {
                                         required
                                         className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                                         placeholder="Enter title..."
-                                        maxLength={200}
+                                        maxLength={60}
                                     />
                                     <div className="text-xs text-muted-foreground mt-1">
-                                        {writing.title.length}/200 characters
+                                        {writing.title.length}/60 characters
                                     </div>
                                 </div>
                                 <div>
