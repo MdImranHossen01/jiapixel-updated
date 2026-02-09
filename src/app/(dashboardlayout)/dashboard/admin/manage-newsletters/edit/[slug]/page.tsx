@@ -40,7 +40,6 @@ interface NewsletterData {
     title: string;
     slug: string;
     content: string;
-    excerpt?: string;
     featuredImage?: string;
     authorName?: string;
     seoTitle?: string;
@@ -69,6 +68,8 @@ export default function EditNewsletterPage({ params }: PageProps) {
     const [originalSlug, setOriginalSlug] = useState<string>('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const [slugError, setSlugError] = useState<string | null>(null);
 
     const [projects, setProjects] = useState<any[]>([]);
     const [projectSearchQuery, setProjectSearchQuery] = useState("");
@@ -158,10 +159,24 @@ export default function EditNewsletterPage({ params }: PageProps) {
         }
     };
 
+    const validateSlug = (slug: string): boolean => {
+        const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+        return slugRegex.test(slug);
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         if (!newsletter) return;
 
         const { name, value } = e.target;
+
+        if (name === 'slug') {
+            if (!validateSlug(value)) {
+                setSlugError('Invalid slug. Use lowercase letters, numbers, and hyphens only (e.g., my-newsletter-1).');
+            } else {
+                setSlugError(null);
+            }
+        }
+
         setNewsletter(prev => prev ? {
             ...prev,
             [name]: value
@@ -243,7 +258,7 @@ export default function EditNewsletterPage({ params }: PageProps) {
             const formData = new FormData();
             formData.append('image', file);
 
-            const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
+            const response = await fetch('/api/upload-image', {
                 method: 'POST',
                 body: formData,
             });
@@ -314,6 +329,74 @@ export default function EditNewsletterPage({ params }: PageProps) {
 
     const handleImageError = () => {
         setImageError(true);
+    };
+
+    const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const file = e.dataTransfer.files?.[0];
+        if (!file) return;
+
+        // Reuse validation logic
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please select a valid image file');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('Image size should be less than 10MB');
+            return;
+        }
+
+        // Reuse upload logic
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('/api/upload-image', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const imageUrl = result.data.url;
+                setNewsletter(prev => prev ? {
+                    ...prev,
+                    featuredImage: imageUrl
+                } : null);
+                setImagePreview(imageUrl);
+                setImageError(false);
+                toast.success('Image uploaded successfully');
+            } else {
+                throw new Error(result.error || 'Upload failed');
+            }
+        } catch (error) {
+            console.error('Image upload error:', error);
+            toast.error('Failed to upload image. Please try again.');
+        } finally {
+            setUploading(false);
+        }
     };
 
     if (loading) {
@@ -397,9 +480,14 @@ export default function EditNewsletterPage({ params }: PageProps) {
                                         value={newsletter.slug}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground ${slugError ? 'border-destructive' : 'border-border'}`}
                                         placeholder="newsletter-slug"
                                     />
+                                    {slugError && (
+                                        <div className="text-xs text-destructive mt-1">
+                                            {slugError}
+                                        </div>
+                                    )}
                                     <div className="text-xs text-muted-foreground mt-1">
                                         URL-friendly identifier (editable)
                                     </div>
@@ -418,25 +506,7 @@ export default function EditNewsletterPage({ params }: PageProps) {
                             />
                         </div>
 
-                        {/* Excerpt */}
-                        <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <label htmlFor="excerpt" className="block text-lg font-semibold text-card-foreground mb-3">
-                                Excerpt
-                            </label>
-                            <textarea
-                                id="excerpt"
-                                name="excerpt"
-                                value={newsletter.excerpt || ''}
-                                onChange={handleChange}
-                                rows={4}
-                                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                placeholder="Brief summary of the newsletter..."
-                                maxLength={300}
-                            />
-                            <div className="text-sm text-muted-foreground mt-2">
-                                {(newsletter.excerpt || '').length}/300 characters
-                            </div>
-                        </div>
+
                     </div>
 
                     <div className="space-y-6">
@@ -596,7 +666,16 @@ export default function EditNewsletterPage({ params }: PageProps) {
                             ) : (
                                 <div className="space-y-3">
                                     {/* Upload Button */}
-                                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                                    <div
+                                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${isDragging
+                                            ? 'border-primary bg-primary/10'
+                                            : 'border-border hover:border-primary/50'
+                                            }`}
+                                        onDragEnter={handleDragEnter}
+                                        onDragLeave={handleDragLeave}
+                                        onDragOver={handleDragOver}
+                                        onDrop={handleDrop}
+                                    >
                                         <input
                                             type="file"
                                             id="image-upload"
@@ -648,7 +727,7 @@ export default function EditNewsletterPage({ params }: PageProps) {
                     </button>
                     <button
                         type="submit"
-                        disabled={saving || uploading || !newsletter.title || !newsletter.slug || !newsletter.content}
+                        disabled={saving || uploading || !newsletter.title || !newsletter.slug || !newsletter.content || !!slugError}
                         className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {saving ? 'Saving...' : 'Update Newsletter'}

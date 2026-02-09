@@ -4,6 +4,8 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
 import '@/models/Project'; // Registers "Project" model for populate
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 interface Params {
     params: Promise<{
@@ -28,7 +30,18 @@ export async function GET(request: NextRequest, { params }: Params) {
             );
         }
 
-        const post = await Post.findOne({ slug })
+        // Check for admin session
+        const session = await getServerSession(authOptions);
+        const isAdmin = session?.user?.role === 'admin';
+
+        const query: any = { slug };
+
+        // If not admin, only show published posts
+        if (!isAdmin) {
+            query.status = 'published';
+        }
+
+        const post = await Post.findOne(query)
             .select('-__v')
             .populate({
                 path: 'relatedProjects',
@@ -37,7 +50,7 @@ export async function GET(request: NextRequest, { params }: Params) {
             })
             .populate({
                 path: 'relatedPosts',
-                select: 'title slug featuredImage excerpt createdAt',
+                select: 'title slug featuredImage createdAt',
                 strictPopulate: false
             });
 
@@ -117,7 +130,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
                 _id: post._id,
                 title: post.title,
                 slug: post.slug,
-                excerpt: post.excerpt,
                 featuredImage: post.featuredImage,
                 authorName: post.authorName,
                 readTime: post.readTime,

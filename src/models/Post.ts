@@ -5,7 +5,6 @@ export interface IPost extends Document {
     title: string;
     slug: string;
     content: string;
-    excerpt?: string;
     featuredImage?: string;
     author?: mongoose.Types.ObjectId;
     authorName?: string;
@@ -18,6 +17,7 @@ export interface IPost extends Document {
     relatedProjects?: mongoose.Types.ObjectId[];
     relatedPosts?: mongoose.Types.ObjectId[];
     isIndexedInGoogle?: boolean;
+    status: 'draft' | 'published' | 'archived';
 }
 
 const PostSchema: Schema = new Schema(
@@ -38,10 +38,6 @@ const PostSchema: Schema = new Schema(
         content: {
             type: String,
             required: [true, "Content is required"],
-        },
-        excerpt: {
-            type: String,
-            maxlength: [300, "Excerpt cannot be more than 300 characters"],
         },
         featuredImage: {
             type: String,
@@ -83,6 +79,11 @@ const PostSchema: Schema = new Schema(
             type: Boolean,
             default: false,
         },
+        status: {
+            type: String,
+            enum: ['draft', 'published', 'archived'],
+            default: 'published',
+        },
     },
     {
         timestamps: true,
@@ -91,9 +92,14 @@ const PostSchema: Schema = new Schema(
 
 PostSchema.pre("save", function (this: IPost, next) {
     if (this.isModified("content")) {
-        const wordsPerMinute = 200;
-        const wordCount = this.content.split(/\s+/).length;
-        this.readTime = Math.ceil(wordCount / wordsPerMinute);
+        const trimmed = this.content?.trim();
+        if (!trimmed) {
+            this.readTime = 0;
+        } else {
+            const wordsPerMinute = 200;
+            const wordCount = trimmed.split(/\s+/).length;
+            this.readTime = Math.ceil(wordCount / wordsPerMinute);
+        }
     }
     next();
 });

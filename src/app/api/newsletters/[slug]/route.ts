@@ -113,7 +113,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
                 _id: newsletter._id,
                 title: newsletter.title,
                 slug: newsletter.slug,
-                excerpt: newsletter.excerpt,
                 featuredImage: newsletter.featuredImage,
                 authorName: newsletter.authorName,
                 readTime: newsletter.readTime,

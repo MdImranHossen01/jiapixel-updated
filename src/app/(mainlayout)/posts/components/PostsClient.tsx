@@ -12,6 +12,7 @@ import PostSidebar from "./PostSidebar";
 import { Breadcrumb } from "@/components/ui/breadcrumb-custom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { extractTextFromProjectDescription } from "@/lib/utils";
 
 interface PostsClientProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,7 +107,7 @@ const PostsClient: React.FC<PostsClientProps> = ({ initialPosts }) => {
                                                     </Link>
                                                 </h3>
                                                 <p className="text-muted-foreground text-sm line-clamp-3 mb-6 flex-1">
-                                                    {post.excerpt || "Read more about this post..."}
+                                                    {post.seoDescription || (post.content ? extractTextFromProjectDescription(post.content).substring(0, 150) : "") + "..."}
                                                 </p>
                                                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
                                                     <span className="text-xs text-muted-foreground">

@@ -20,8 +20,9 @@ export async function GET(request: NextRequest) {
 
         // Validate and clamp
         if (isNaN(page) || page < 1) page = 1;
+        if (isNaN(limit) || limit < 1) limit = 12;
+        if (limit > 100) limit = 100; // Prevent excessive data fetching
         const skip = (page - 1) * limit;
-
         const query: any = {}; // No status filter anymore
 
         const newsletters = await Newsletter.find(query)
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-        const { title, content, excerpt, featuredImage, seoTitle, seoDescription, relatedProjects, relatedNewsletters } = body;
+        const { title, content, featuredImage, seoTitle, seoDescription, relatedProjects, relatedNewsletters } = body;
 
         // Validate required fields
         if (!title || !content) {
@@ -113,11 +114,10 @@ export async function POST(request: NextRequest) {
             title,
             slug,
             content,
-            excerpt: excerpt || `${String(content).substring(0, 150)}...`,
             featuredImage,
             authorName: 'Admin', // Default author name
             seoTitle: seoTitle || title,
-            seoDescription: seoDescription || excerpt || `${String(content).substring(0, 150)}...`,
+            seoDescription: seoDescription || `${String(content).substring(0, 150)}...`,
             relatedProjects: relatedProjects || [],
             relatedNewsletters: relatedNewsletters || []
         });
@@ -147,7 +147,6 @@ export async function POST(request: NextRequest) {
                     _id: newsletter._id,
                     title: newsletter.title,
                     slug: newsletter.slug,
-                    excerpt: newsletter.excerpt,
                     featuredImage: newsletter.featuredImage,
                     authorName: newsletter.authorName,
                     readTime: newsletter.readTime,

@@ -5,7 +5,6 @@ export interface IWriting extends Document {
     title: string;
     slug: string;
     content: string;
-    excerpt?: string;
     featuredImage?: string;
     author?: mongoose.Types.ObjectId;
     authorName?: string;
@@ -38,10 +37,6 @@ const WritingSchema: Schema = new Schema(
         content: {
             type: String,
             required: [true, "Content is required"],
-        },
-        excerpt: {
-            type: String,
-            maxlength: [300, "Excerpt cannot be more than 300 characters"],
         },
         featuredImage: {
             type: String,
@@ -91,9 +86,14 @@ const WritingSchema: Schema = new Schema(
 
 WritingSchema.pre("save", function (this: IWriting, next) {
     if (this.isModified("content")) {
-        const wordsPerMinute = 200;
-        const wordCount = this.content.split(/\s+/).length;
-        this.readTime = Math.ceil(wordCount / wordsPerMinute);
+        const trimmed = this.content?.trim();
+        if (!trimmed) {
+            this.readTime = 0;
+        } else {
+            const wordsPerMinute = 200;
+            const wordCount = trimmed.split(/\s+/).length;
+            this.readTime = Math.ceil(wordCount / wordsPerMinute);
+        }
     }
     next();
 });

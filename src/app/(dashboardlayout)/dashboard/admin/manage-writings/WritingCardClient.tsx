@@ -51,11 +51,7 @@ export default function WritingCardClient({ writing }: WritingCardClientProps) {
                                 <h3 className="text-lg font-semibold text-card-foreground mb-2 line-clamp-2">
                                     {writing.title}
                                 </h3>
-                                {writing.excerpt && (
-                                    <p className="text-sm text-muted-foreground line-clamp-2">
-                                        {writing.excerpt}
-                                    </p>
-                                )}
+
                             </div>
                         </div>
                     </div>

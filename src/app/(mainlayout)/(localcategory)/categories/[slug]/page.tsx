@@ -174,9 +174,7 @@ const LocalCategoryPage = async ({ params }: PageProps) => {
 
                 <div className="relative z-10 text-center text-white px-4 max-w-4xl">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">{category.title}</h1>
-                    {category.excerpt && (
-                        <p className="text-lg md:text-xl text-gray-200">{category.excerpt}</p>
-                    )}
+
                 </div>
 
                 {/* Admin Actions - Floating or Absolute */}

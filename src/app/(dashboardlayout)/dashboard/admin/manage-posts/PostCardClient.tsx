@@ -51,11 +51,7 @@ export default function PostCardClient({ post }: PostCardClientProps) {
                                 <h3 className="text-lg font-semibold text-card-foreground mb-2 line-clamp-2">
                                     {post.title}
                                 </h3>
-                                {post.excerpt && (
-                                    <p className="text-sm text-muted-foreground line-clamp-2">
-                                        {post.excerpt}
-                                    </p>
-                                )}
+
                             </div>
                         </div>
                     </div>

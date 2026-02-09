@@ -32,11 +32,7 @@ export async function GET(request: NextRequest, { params }: Params) {
 
         // Atomic increment views and fetch the updated document
 
-        const updatedWriting = await Writing.findOneAndUpdate(
-            { slug },
-            { $inc: { views: 1 } },
-            { new: true }
-        )
+        const updatedWriting = await Writing.findOne({ slug })
             .select('-__v')
             .populate({
                 path: 'relatedProjects',
@@ -45,7 +41,7 @@ export async function GET(request: NextRequest, { params }: Params) {
             })
             .populate({
                 path: 'relatedWritings',
-                select: 'title slug featuredImage excerpt createdAt',
+                select: 'title slug featuredImage createdAt',
                 strictPopulate: false
             });
 
@@ -102,19 +98,36 @@ export async function PUT(request: NextRequest, { params }: Params) {
         }
 
         // Update writing fields
-        Object.keys(body).forEach(key => {
-            if (body[key] !== undefined && key !== '_id') {
+        // Explicit allowlist for updatable fields
+        const allowedFields = [
+            'title',
+            'slug',
+            'content',
+            'featuredImage',
+            'seoTitle',
+            'seoDescription',
+            'status',
+            'authorName',
+            'readTime',
+            'relatedProjects',
+            'relatedWritings',
+            'tags',
+            'excerpt' // Keeping just in case, though we removed it from UI
+        ];
+
+        // Update writing fields only if they are in the allowlist and present in body
+        allowedFields.forEach(key => {
+            if (body[key] !== undefined) {
                 writing[key] = body[key];
             }
         });
 
         await writing.save();
 
+
         // Revalidate the writing details page to show updates instantly
         revalidatePath(`/writings/${slug}`);
-        // Revalidate the writing details page to show updates instantly
-        revalidatePath(`/writings/${slug}`);
-        revalidateTag(`writing-${slug}`, "default");
+        revalidateTag(`writing-${slug}`, 'default');
 
         return NextResponse.json({
             success: true,
@@ -123,7 +136,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
                 _id: writing._id,
                 title: writing.title,
                 slug: writing.slug,
-                excerpt: writing.excerpt,
                 featuredImage: writing.featuredImage,
                 authorName: writing.authorName,
                 readTime: writing.readTime,

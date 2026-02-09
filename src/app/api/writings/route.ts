@@ -6,6 +6,7 @@ import connectDB from '@/lib/db';
 import Writing from '@/models/Writing';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { extractTextFromProjectDescription } from '@/lib/utils';
 
 // Enable route caching - revalidate every 60 seconds
 export const revalidate = 60;
@@ -28,6 +29,10 @@ export async function GET(request: NextRequest) {
         const skip = (page - 1) * limit;
 
         let query: any = {};
+
+        if (tag) {
+            query.tags = { $in: [tag] };
+        }
 
         const writings = await Writing.find(query)
             .select('-__v') // Exclude version key
@@ -88,7 +93,7 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-        const { title, content, excerpt, featuredImage, seoTitle, seoDescription, relatedProjects, relatedWritings } = body;
+        const { title, content, featuredImage, seoTitle, seoDescription, relatedProjects, relatedWritings } = body;
 
         // Validate required fields
         if (!title || !content) {
@@ -118,12 +123,13 @@ export async function POST(request: NextRequest) {
             title,
             slug,
             content,
-            excerpt: excerpt || `${String(content).substring(0, 150)}...`,
             featuredImage,
             authorName: 'Admin', // Default author name
             seoTitle: seoTitle || title,
-            seoDescription: seoDescription || excerpt || `${String(content).substring(0, 150)}...`,
-            relatedProjects: relatedProjects || [],
+            seoDescription: seoDescription || (() => {
+                const text = extractTextFromProjectDescription(content) || '';
+                return text.length > 150 ? `${text.substring(0, 150)}...` : text;
+            })(), relatedProjects: relatedProjects || [],
             relatedWritings: relatedWritings || []
         });
 
@@ -152,7 +158,6 @@ export async function POST(request: NextRequest) {
                     _id: writing._id,
                     title: writing.title,
                     slug: writing.slug,
-                    excerpt: writing.excerpt,
                     featuredImage: writing.featuredImage,
                     authorName: writing.authorName,
                     readTime: writing.readTime,

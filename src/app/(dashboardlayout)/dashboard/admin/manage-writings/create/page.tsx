@@ -12,7 +12,6 @@ export default function CreateWritingPage() {
     const [slug, setSlug] = useState('');
     const [slugTouched, setSlugTouched] = useState(false);
     const [content, setContent] = useState(''); // Stores JSON string
-    const [excerpt, setExcerpt] = useState('');
     const [featuredImage, setFeaturedImage] = useState('');
     const [seoTitle, setSeoTitle] = useState('');
     const [seoTitleTouched, setSeoTitleTouched] = useState(false);
@@ -87,8 +86,16 @@ export default function CreateWritingPage() {
         }
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent) => {
+        let file: File | undefined;
+
+        if ('dataTransfer' in e) {
+            e.preventDefault();
+            file = e.dataTransfer.files?.[0];
+        } else {
+            file = e.target.files?.[0];
+        }
+
         if (!file) return;
 
         if (!file.type.startsWith('image/')) {
@@ -102,12 +109,13 @@ export default function CreateWritingPage() {
         }
 
         setUploading(true);
+        setImageError(false);
 
         try {
             const formData = new FormData();
             formData.append('image', file);
 
-            const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
+            const response = await fetch('/api/upload-image', {
                 method: 'POST',
                 body: formData,
             });
@@ -118,18 +126,30 @@ export default function CreateWritingPage() {
                 const imageUrl = result.data.url;
                 setFeaturedImage(imageUrl);
                 setImagePreview(imageUrl);
-                setImageError(false);
                 toast.success('Image uploaded successfully');
             } else {
-                throw new Error(result.error?.message || 'Upload failed');
+                throw new Error(result.error || 'Upload failed');
             }
         } catch (error) {
             console.error('Image upload error:', error);
             toast.error('Failed to upload image. Please try again.');
         } finally {
             setUploading(false);
-            e.target.value = '';
+            if (!('dataTransfer' in e) && e.target) {
+                e.target.value = '';
+            }
         }
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleImageUpload(e);
     };
 
     const clearFeaturedImage = () => {
@@ -183,10 +203,9 @@ export default function CreateWritingPage() {
                 title,
                 slug,
                 content,
-                excerpt,
                 featuredImage,
                 seoTitle: seoTitle || title,
-                seoDescription: seoDescription || excerpt,
+                seoDescription: seoDescription,
                 relatedProjects: selectedProjects,
                 relatedWritings: selectedWritings
             };
@@ -289,24 +308,7 @@ export default function CreateWritingPage() {
                             />
                         </div>
 
-                        {/* Excerpt */}
-                        <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <label htmlFor="excerpt" className="block text-lg font-semibold text-card-foreground mb-3">
-                                Excerpt
-                            </label>
-                            <textarea
-                                id="excerpt"
-                                value={excerpt}
-                                onChange={(e) => setExcerpt(e.target.value)}
-                                rows={4}
-                                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                placeholder="Brief summary of the writing..."
-                                maxLength={300}
-                            />
-                            <div className="text-sm text-muted-foreground mt-2">
-                                {excerpt.length}/300 characters
-                            </div>
-                        </div>
+
                     </div>
 
                     <div className="space-y-6">
@@ -373,7 +375,9 @@ export default function CreateWritingPage() {
 
                                 {/* Project Checkboxes */}
                                 <div className="border border-border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
-                                    {filteredProjects.length > 0 ? (
+                                    {loadingProjects ? (
+                                        <div className="text-sm text-muted-foreground">Loading projects...</div>
+                                    ) : filteredProjects.length > 0 ? (
                                         <div className="space-y-2">
                                             {filteredProjects.map((project) => (
                                                 <label key={project._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded text-foreground">
@@ -485,6 +489,27 @@ export default function CreateWritingPage() {
                                         <label
                                             htmlFor="image-upload"
                                             className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            onDragOver={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (uploading) return;
+                                            }}
+                                            onDrop={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (uploading) return;
+                                                handleImageUpload(e);
+                                            }}
+                                            onDragEnter={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (uploading) return;
+                                            }}
+                                            onDragLeave={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (uploading) return;
+                                            }}
                                         >
                                             {uploading ? (
                                                 <div className="flex flex-col items-center space-y-2">

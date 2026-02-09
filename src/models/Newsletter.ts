@@ -5,7 +5,6 @@ export interface INewsletter extends Document {
     title: string;
     slug: string;
     content: string;
-    excerpt?: string;
     featuredImage?: string;
     author?: mongoose.Types.ObjectId;
     authorName?: string;
@@ -39,10 +38,6 @@ const NewsletterSchema: Schema = new Schema(
         content: {
             type: String,
             required: [true, "Content is required"],
-        },
-        excerpt: {
-            type: String,
-            maxlength: [300, "Excerpt cannot be more than 300 characters"],
         },
         featuredImage: {
             type: String,

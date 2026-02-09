@@ -7,7 +7,7 @@ export interface ILocalCategory extends Document {
     seoTitle: string;
     metaDescription: string;
     description: string;
-    excerpt: string;
+
     faqs: {
         question: string;
         answer: string;
@@ -49,10 +49,7 @@ const LocalCategorySchema: Schema = new Schema({
         type: String,
         trim: true,
     },
-    excerpt: {
-        type: String,
-        trim: true,
-    },
+
     faqs: [{
         question: { type: String, required: true },
         answer: { type: String, required: true },

@@ -7,6 +7,8 @@ import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import PostAdminActions from '@/components/PostAdminActions';
 import { ViewContent } from "@/app/components/editor/ViewContent";
+import connectDB from '@/lib/db';
+import Post from '@/models/Post';
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -39,20 +41,10 @@ const extractText = (content: any): string => {
 
 async function getPost(slug: string) {
     try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/posts/${slug}`, {
-            cache: 'force-cache',
-            next: { tags: [`post-${slug}`] }
-        });
-
-        if (!response.ok) {
-            if (response.status === 404) return null;
-            console.error('Error fetching post:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        return data.post || null;
+        await connectDB();
+        const post = await Post.findOne({ slug }).lean();
+        if (!post) return null;
+        return JSON.parse(JSON.stringify(post));
     } catch (error) {
         console.error('Error fetching post:', error);
         return null;
@@ -92,19 +84,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const baseUrl = 'https://www.jiapixel.com';
     const canonicalUrl = `${baseUrl}/posts/${post.slug}`;
 
-    let plainTextDescription = post.excerpt;
-    if (!plainTextDescription) {
-        if (isJsonString(post.content)) {
-            const jsonContent = JSON.parse(post.content);
-            plainTextDescription = extractText(jsonContent).substring(0, 160);
-        } else {
-            plainTextDescription = post.content?.replace(/<[^>]*>/g, "").substring(0, 160) || `Read ${post.title} on Jiapixel.`;
-        }
-    }
-
-    const plainTextTitle = post.title.length > 60
-        ? `${post.title.substring(0, 57)}`
-        : `${post.title}`;
+    const plainTextTitle = post.seoTitle || post.title;
+    const plainTextDescription = post.seoDescription ||
+        (post.excerpt ? post.excerpt :
+            (post.content ?
+                (isJsonString(post.content)
+                    ? extractText(JSON.parse(post.content)).substring(0, 160)
+                    : post.content.replace(/<[^>]*>/g, '').substring(0, 160)
+                ) + '...'
+                : ''));
 
     return {
         title: plainTextTitle,
@@ -298,11 +286,9 @@ export default async function PostPage({ params }: PageProps) {
 // Generate static params
 export async function generateStaticParams() {
     try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/posts`, { cache: 'force-cache' });
-        if (!response.ok) return [];
-        const data = await response.json();
-        return data.posts?.map((n: any) => ({ slug: n.slug })) || [];
+        await connectDB();
+        const posts = await Post.find({}).select('slug').lean();
+        return posts.map((n: any) => ({ slug: n.slug }));
     } catch (error) {
         return [];
     }

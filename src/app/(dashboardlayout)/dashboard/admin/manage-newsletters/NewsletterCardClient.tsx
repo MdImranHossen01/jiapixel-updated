@@ -53,11 +53,7 @@ export default function NewsletterCardClient({ newsletter }: NewsletterCardClien
                                 <h3 className="text-lg font-semibold text-card-foreground mb-2 line-clamp-2">
                                     {newsletter.title}
                                 </h3>
-                                {newsletter.excerpt && (
-                                    <p className="text-sm text-muted-foreground line-clamp-2">
-                                        {newsletter.excerpt}
-                                    </p>
-                                )}
+
                             </div>
                         </div>
                     </div>

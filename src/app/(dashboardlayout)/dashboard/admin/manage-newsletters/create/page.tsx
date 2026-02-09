@@ -23,7 +23,6 @@ export default function CreateNewsletterPage() {
     const [slug, setSlug] = useState('');
     const [slugTouched, setSlugTouched] = useState(false);
     const [content, setContent] = useState(''); // Stores JSON string
-    const [excerpt, setExcerpt] = useState('');
     const [featuredImage, setFeaturedImage] = useState('');
     const [seoTitle, setSeoTitle] = useState('');
     const [seoTitleTouched, setSeoTitleTouched] = useState(false);
@@ -133,8 +132,18 @@ export default function CreateNewsletterPage() {
         newsletter.title.toLowerCase().includes(newsletterSearchQuery.toLowerCase())
     );
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent) => {
+        if (uploading) return;
+
+        let file: File | undefined;
+
+        if ('dataTransfer' in e) {
+            e.preventDefault();
+            file = e.dataTransfer.files?.[0];
+        } else {
+            file = e.target.files?.[0];
+        }
+
         if (!file) return;
 
         // Validate file type
@@ -150,12 +159,13 @@ export default function CreateNewsletterPage() {
         }
 
         setUploading(true);
+        setImageError(false);
 
         try {
             const formData = new FormData();
             formData.append('image', file);
 
-            const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
+            const response = await fetch('/api/upload-image', {
                 method: 'POST',
                 body: formData,
             });
@@ -166,18 +176,30 @@ export default function CreateNewsletterPage() {
                 const imageUrl = result.data.url;
                 setFeaturedImage(imageUrl);
                 setImagePreview(imageUrl);
-                setImageError(false);
                 toast.success('Image uploaded successfully');
             } else {
-                throw new Error(result.error?.message || 'Upload failed');
+                throw new Error(result.error || 'Upload failed');
             }
         } catch (error) {
             console.error('Image upload error:', error);
             toast.error('Failed to upload image. Please try again.');
         } finally {
             setUploading(false);
-            e.target.value = '';
+            if (!('dataTransfer' in e) && e.target) {
+                e.target.value = '';
+            }
         }
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleImageUpload(e);
     };
 
     const clearFeaturedImage = () => {
@@ -199,10 +221,9 @@ export default function CreateNewsletterPage() {
                 title,
                 slug,
                 content,
-                excerpt,
                 featuredImage,
                 seoTitle: seoTitle || title,
-                seoDescription: seoDescription || excerpt,
+                seoDescription: seoDescription,
                 relatedProjects: selectedProjects,
                 relatedNewsletters: selectedNewsletters
             };
@@ -309,24 +330,7 @@ export default function CreateNewsletterPage() {
                             />
                         </div>
 
-                        {/* Excerpt */}
-                        <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <label htmlFor="excerpt" className="block text-lg font-semibold text-card-foreground mb-3">
-                                Excerpt
-                            </label>
-                            <textarea
-                                id="excerpt"
-                                value={excerpt}
-                                onChange={(e) => setExcerpt(e.target.value)}
-                                rows={4}
-                                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                placeholder="Brief summary of the newsletter..."
-                                maxLength={300}
-                            />
-                            <div className="text-sm text-muted-foreground mt-2">
-                                {excerpt.length}/300 characters
-                            </div>
-                        </div>
+
                     </div>
 
                     <div className="space-y-6">
@@ -514,6 +518,10 @@ export default function CreateNewsletterPage() {
                                         <label
                                             htmlFor="image-upload"
                                             className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            onDragOver={handleDragOver}
+                                            onDrop={handleDrop}
+                                            onDragEnter={handleDragOver}
+                                            onDragLeave={handleDragOver}
                                         >
                                             {uploading ? (
                                                 <div className="flex flex-col items-center space-y-2">

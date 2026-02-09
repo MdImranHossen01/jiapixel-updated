@@ -1,4 +1,3 @@
-
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -7,6 +6,10 @@ import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import WritingAdminActions from '@/components/WritingAdminActions';
 import { ViewContent } from "@/app/components/editor/ViewContent";
+import ViewTracker from '@/components/ViewTracker';
+
+import connectDB from '@/lib/db';
+import Writing from '@/models/Writing';
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -39,20 +42,11 @@ const extractText = (content: any): string => {
 
 async function getWriting(slug: string) {
     try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/writings/${slug}`, {
-            cache: 'force-cache',
-            next: { tags: [`writing-${slug}`] }
-        });
+        await connectDB();
+        const writing = await Writing.findOne({ slug }).lean();
+        if (!writing) return null;
 
-        if (!response.ok) {
-            if (response.status === 404) return null;
-            console.error('Error fetching writing:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        return data.writing || null;
+        return JSON.parse(JSON.stringify(writing));
     } catch (error) {
         console.error('Error fetching writing:', error);
         return null;
@@ -61,13 +55,14 @@ async function getWriting(slug: string) {
 
 async function getRelatedWritings(writingSlug: string) {
     try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/writings?limit=3`, {
-            next: { revalidate: 3600 }
-        });
-        if (!response.ok) return [];
-        const data = await response.json();
-        return data.writings.filter((n: any) => n.slug !== writingSlug).slice(0, 3) || [];
+        await connectDB();
+        const writings = await Writing.find({ slug: { $ne: writingSlug } })
+            .select('title slug featuredImage createdAt tags')
+            .sort({ createdAt: -1 })
+            .limit(3)
+            .lean();
+
+        return JSON.parse(JSON.stringify(writings));
     } catch (error) {
         return [];
     }
@@ -92,19 +87,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const baseUrl = 'https://www.jiapixel.com';
     const canonicalUrl = `${baseUrl}/writings/${writing.slug}`;
 
-    let plainTextDescription = writing.excerpt;
-    if (!plainTextDescription) {
-        if (isJsonString(writing.content)) {
-            const jsonContent = JSON.parse(writing.content);
-            plainTextDescription = extractText(jsonContent).substring(0, 160);
-        } else {
-            plainTextDescription = writing.content?.replace(/<[^>]*>/g, "").substring(0, 160) || `Read ${writing.title} on Jiapixel.`;
-        }
-    }
-
-    const plainTextTitle = writing.title.length > 60
-        ? `${writing.title.substring(0, 57)}`
-        : `${writing.title}`;
+    const plainTextTitle = writing.seoTitle || writing.title;
+    const plainTextDescription = writing.seoDescription || '';
 
     return {
         title: plainTextTitle,
@@ -155,11 +139,12 @@ export default async function WritingPage({ params }: PageProps) {
 
     return (
         <div className="min-h-screen py-8">
+            <ViewTracker slug={slug} />
             <div className="container mx-auto px-4 max-w-7xl">
                 {/* SEO: Hidden div with plain text content for crawlers */}
                 {isJson && (
                     <div className="sr-only">
-                        <h1>{writing.title}</h1>
+                        <h2>{writing.title}</h2>
                         <article>{seoContent}</article>
                     </div>
                 )}
@@ -298,11 +283,9 @@ export default async function WritingPage({ params }: PageProps) {
 // Generate static params
 export async function generateStaticParams() {
     try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/writings`, { cache: 'force-cache' });
-        if (!response.ok) return [];
-        const data = await response.json();
-        return data.writings?.map((n: any) => ({ slug: n.slug })) || [];
+        await connectDB();
+        const writings = await Writing.find({}).select('slug').lean();
+        return writings.map((n: any) => ({ slug: n.slug }));
     } catch (error) {
         return [];
     }

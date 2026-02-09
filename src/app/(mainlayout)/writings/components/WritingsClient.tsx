@@ -107,8 +107,7 @@ const WritingsClient: React.FC<WritingsClientProps> = ({ initialWritings }) => {
                                                 </h3>
                                                 <p className="text-muted-foreground text-sm line-clamp-3 mb-6 flex-1">
                                                     {writing.excerpt || "Read more about this writing..."}
-                                                </p>
-                                                <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
+                                                </p>                                                <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
                                                     <span className="text-xs text-muted-foreground">
                                                         {new Date(writing.createdAt).toLocaleDateString()}
                                                     </span>

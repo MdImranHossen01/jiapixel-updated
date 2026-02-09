@@ -8,6 +8,8 @@ import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import NewsletterAdminActions from '@/components/NewsletterAdminActions';
 import CompactBlogCard from '@/components/CompactBlogCard';
+import connectDB from '@/lib/db';
+import Newsletter from '@/models/Newsletter';
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -19,20 +21,10 @@ function getBaseUrl() {
 
 async function getNewsletter(slug: string) {
     try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/newsletters/${slug}`, {
-            cache: 'force-cache',
-            next: { tags: [`newsletter-${slug}`] }
-        });
-
-        if (!response.ok) {
-            if (response.status === 404) return null;
-            console.error('Error fetching newsletter:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        return data.newsletter || null;
+        await connectDB();
+        const newsletter = await Newsletter.findOne({ slug }).lean();
+        if (!newsletter) return null;
+        return JSON.parse(JSON.stringify(newsletter));
     } catch (error) {
         console.error('Error fetching newsletter:', error);
         return null;
@@ -42,13 +34,14 @@ async function getNewsletter(slug: string) {
 async function getRelatedNewsletters(newsletterSlug: string) {
     // Basic implementation: fetch latest 3 distinct
     try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/newsletters?limit=3`, {
-            next: { revalidate: 3600 }
-        });
-        if (!response.ok) return [];
-        const data = await response.json();
-        return data.newsletters.filter((n: any) => n.slug !== newsletterSlug).slice(0, 3) || [];
+        await connectDB();
+        const newsletters = await Newsletter.find({ slug: { $ne: newsletterSlug } })
+            .select('title slug featuredImage startDate createdAt')
+            .sort({ createdAt: -1 })
+            .limit(3)
+            .lean();
+
+        return JSON.parse(JSON.stringify(newsletters));
     } catch (error) {
         return [];
     }
@@ -107,13 +100,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const baseUrl = 'https://www.jiapixel.com';
     const canonicalUrl = `${baseUrl}/newsletters/${newsletter.slug}`;
 
-    const plainTextDescription = newsletter.excerpt ||
-        extractText(newsletter.content).substring(0, 160) ||
-        `Read ${newsletter.title} on Jiapixel newsletters.`;
-
-    const plainTextTitle = newsletter.title.length > 60
-        ? `${newsletter.title.substring(0, 57)}`
-        : `${newsletter.title}`;
+    const plainTextTitle = newsletter.seoTitle || newsletter.title;
+    const plainTextDescription = newsletter.seoDescription || '';
 
     return {
         title: plainTextTitle,
@@ -224,7 +212,9 @@ export default async function NewsletterPage({ params }: PageProps) {
                                         if (content?.content && Array.isArray(content.content)) {
                                             return content.content.map((node: any, i: number) => {
                                                 if (node.type === 'heading') {
-                                                    const Level = `h${node.attrs?.level || 2}` as React.ElementType;
+                                                    const rawLevel = node.attrs?.level || 2;
+                                                    const level = Math.max(1, Math.min(6, Math.floor(rawLevel)));
+                                                    const Level = `h${level}` as React.ElementType;
                                                     return <Level key={i}>{node.content?.map((c: any) => c.text).join('')}</Level>;
                                                 }
                                                 if (node.type === 'paragraph') {
@@ -300,11 +290,9 @@ export default async function NewsletterPage({ params }: PageProps) {
 // Generate static params
 export async function generateStaticParams() {
     try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/newsletters`, { cache: 'force-cache' });
-        if (!response.ok) return [];
-        const data = await response.json();
-        return data.newsletters?.map((n: any) => ({ slug: n.slug })) || [];
+        await connectDB();
+        const newsletters = await Newsletter.find({}).select('slug').lean();
+        return newsletters.map((n: any) => ({ slug: n.slug }));
     } catch (error) {
         return [];
     }

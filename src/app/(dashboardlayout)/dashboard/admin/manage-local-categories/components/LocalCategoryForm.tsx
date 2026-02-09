@@ -34,7 +34,7 @@ const LocalCategoryForm = ({ initialData, isEdit }: LocalCategoryFormProps) => {
         seoTitle: "",
         metaDescription: "",
         description: "",
-        excerpt: "",
+
         tags: [] as string[],
         selectedProjects: [] as string[],
         faqs: [] as { question: string; answer: string }[],
@@ -408,16 +408,7 @@ const LocalCategoryForm = ({ initialData, isEdit }: LocalCategoryFormProps) => {
             </div>
 
             {/* ... (rest of the form) ... */}
-            <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Excerpt</label>
-                <textarea
-                    name="excerpt"
-                    value={formData.excerpt}
-                    onChange={handleChange}
-                    rows={3}
-                    className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
-                />
-            </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

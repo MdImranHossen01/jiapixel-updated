@@ -12,6 +12,7 @@ import NewsletterSidebar from "./NewsletterSidebar";
 import { Breadcrumb } from "@/components/ui/breadcrumb-custom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { extractTextFromProjectDescription } from "@/lib/utils";
 
 interface NewslettersClientProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,7 +107,7 @@ const NewslettersClient: React.FC<NewslettersClientProps> = ({ initialNewsletter
                                                     </Link>
                                                 </h3>
                                                 <p className="text-muted-foreground text-sm line-clamp-3 mb-6 flex-1">
-                                                    {newsletter.excerpt || "Read more about this newsletter..."}
+                                                    {newsletter.seoDescription || (newsletter.content ? extractTextFromProjectDescription(newsletter.content).substring(0, 150) : "") + "..."}
                                                 </p>
                                                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
                                                     <span className="text-xs text-muted-foreground">
