@@ -142,7 +142,7 @@ export const columns: ColumnDef<Blog>[] = [
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Link href={`/dashboard/admin/manage-blogs/edit/${slug}`} className="font-medium hover:underline text-primary">
+                            <Link href={`/blogs/${slug}`} className="font-medium hover:underline text-primary">
                                 {truncated}
                             </Link>
                         </TooltipTrigger>

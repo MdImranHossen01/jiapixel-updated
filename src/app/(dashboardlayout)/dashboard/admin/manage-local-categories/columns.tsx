@@ -142,7 +142,7 @@ export const columns: ColumnDef<LocalCategory>[] = [
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Link href={`/dashboard/admin/manage-local-categories/edit/${slug}`} className="font-medium hover:underline text-primary">
+                            <Link href={`/categories/${slug}`} className="font-medium hover:underline text-primary">
                                 {truncated}
                             </Link>
                         </TooltipTrigger>

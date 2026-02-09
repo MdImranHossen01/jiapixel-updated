@@ -103,7 +103,7 @@ const ActionsCell = ({ category }: { category: Category }) => {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href={`/categories/${category.slug}`} target="_blank">View Public</Link>
+                    <Link href={`/${category.slug}`} target="_blank">View Public</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                     <Link href={`/dashboard/admin/manage-categories/edit/${category.slug}`}>Edit</Link>
@@ -142,7 +142,7 @@ export const columns: ColumnDef<Category>[] = [
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Link href={`/dashboard/admin/manage-categories/edit/${slug}`} className="font-medium hover:underline text-primary">
+                            <Link href={`/${slug}`} className="font-medium hover:underline text-primary">
                                 {truncated}
                             </Link>
                         </TooltipTrigger>

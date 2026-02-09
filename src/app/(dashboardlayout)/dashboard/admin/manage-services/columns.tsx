@@ -53,7 +53,7 @@ export const columns: ColumnDef<Service>[] = [
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Link href={`/dashboard/admin/manage-services/edit/${slug}`} className="font-medium hover:underline text-primary">
+                            <Link href={`/services/${slug}`} className="font-medium hover:underline text-primary">
                                 {truncated}
                             </Link>
                         </TooltipTrigger>
