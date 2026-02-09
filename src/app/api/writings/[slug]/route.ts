@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         // Atomic increment views and fetch the updated document
 
         const updatedWriting = await Writing.findOneAndUpdate(
-            { slug, status: 'published' },
+            { slug },
             { $inc: { views: 1 } },
             { new: true }
         )
@@ -41,6 +41,11 @@ export async function GET(request: NextRequest, { params }: Params) {
             .populate({
                 path: 'relatedProjects',
                 select: 'title slug images description status createdAt',
+                strictPopulate: false
+            })
+            .populate({
+                path: 'relatedWritings',
+                select: 'title slug featuredImage excerpt createdAt',
                 strictPopulate: false
             });
 
@@ -96,11 +101,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
             );
         }
 
-        // Update writing fields with allowlist
-        const allowedUpdates = ['title', 'content', 'excerpt', 'featuredImage', 'tags', 'status', 'seoTitle', 'seoDescription', 'relatedProjects'];
-
-        allowedUpdates.forEach(key => {
-            if (body[key] !== undefined) {
+        // Update writing fields
+        Object.keys(body).forEach(key => {
+            if (body[key] !== undefined && key !== '_id') {
                 writing[key] = body[key];
             }
         });
@@ -123,10 +126,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
                 excerpt: writing.excerpt,
                 featuredImage: writing.featuredImage,
                 authorName: writing.authorName,
-                tags: writing.tags,
-                status: writing.status,
                 readTime: writing.readTime,
-                publishedAt: writing.publishedAt,
                 createdAt: writing.createdAt
             }
         });

@@ -1,186 +1,139 @@
-
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import NovelEditor from '@/app/components/editor/NovelEditor';
-
-// Helper function to validate URL
-const isValidUrl = (url: string): boolean => {
-    if (!url) return false;
-    try {
-        new URL(url);
-        return true;
-    } catch {
-        return false;
-    }
-};
+import { toast } from 'sonner';
 
 export default function CreatePostPage() {
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
+    const [title, setTitle] = useState('');
+    const [slug, setSlug] = useState('');
+    const [slugTouched, setSlugTouched] = useState(false);
+    const [content, setContent] = useState(''); // Stores JSON string
+    const [excerpt, setExcerpt] = useState('');
+    const [featuredImage, setFeaturedImage] = useState('');
+    const [seoTitle, setSeoTitle] = useState('');
+    const [seoTitleTouched, setSeoTitleTouched] = useState(false);
+    const [seoDescription, setSeoDescription] = useState('');
+    const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [projects, setProjects] = useState<any[]>([]);
-    const [formData, setFormData] = useState({
-        title: '',
-        content: '',
-        excerpt: '',
-        featuredImage: '',
-        tags: '',
-        status: 'draft',
-        seoTitle: '',
-        seoDescription: '',
-        relatedProjects: [] as string[]
-    });
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
 
-    // Initial value for new post is undefined
-    const initialValue = undefined;
+    // Projects handling
+    const [projects, setProjects] = useState<any[]>([]);
+    const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+    const [loadingProjects, setLoadingProjects] = useState(true);
+    const [projectSearchQuery, setProjectSearchQuery] = useState("");
 
-    // Fetch projects on mount
+    // Posts handling
+    const [posts, setPosts] = useState<any[]>([]);
+    const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
+    const [loadingPosts, setLoadingPosts] = useState(true);
+    const [postSearchQuery, setPostSearchQuery] = useState("");
+
     useEffect(() => {
-        async function fetchProjects() {
-            try {
-                const res = await fetch('/api/projects?limit=100');
-                if (res.ok) {
-                    const data = await res.json();
-                    setProjects(data.projects || []);
-                }
-            } catch (err) {
-                console.error("Failed to fetch projects", err);
-            }
-        }
         fetchProjects();
+        fetchPosts();
     }, []);
 
-    const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-        setFormData(prev => ({
-            ...prev,
-            relatedProjects: selectedOptions
-        }));
+    // Auto-generate slug and SEO title from title
+    useEffect(() => {
+        if (!slugTouched && title) {
+            setSlug(slugify(title));
+        }
+        if (!seoTitleTouched && title) {
+            setSeoTitle(title);
+        }
+    }, [title, slugTouched, seoTitleTouched]);
+
+    const slugify = (text: string) => {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')        // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+            .replace(/\-\-+/g, '-');     // Replace multiple - with single -
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-
-        // Handle image preview for featured image
-        if (name === 'featuredImage') {
-            setImageError(false);
-            if (isValidUrl(value)) {
-                setImagePreview(value);
-            } else {
-                setImagePreview(null);
+    const fetchProjects = async () => {
+        try {
+            const res = await fetch('/api/projects?limit=100');
+            if (res.ok) {
+                const data = await res.json();
+                setProjects(data.projects || []);
             }
+        } catch (err) {
+            console.error("Failed to fetch projects", err);
+        } finally {
+            setLoadingProjects(false);
         }
     };
 
-    // Handle image upload to ImgBB
+    const fetchPosts = async () => {
+        try {
+            const res = await fetch('/api/posts?limit=100');
+            if (res.ok) {
+                const data = await res.json();
+                setPosts(data.posts || []);
+            }
+        } catch (err) {
+            console.error("Failed to fetch posts", err);
+        } finally {
+            setLoadingPosts(false);
+        }
+    };
+
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Validate file type
         if (!file.type.startsWith('image/')) {
-            alert('Please select a valid image file');
+            toast.error('Please select a valid image file');
             return;
         }
 
-        // Validate file size (max 10MB)
         if (file.size > 10 * 1024 * 1024) {
-            alert('Image size should be less than 10MB');
+            toast.error('Image size should be less than 10MB');
             return;
         }
 
         setUploading(true);
 
         try {
-            const formDataUpload = new FormData();
-            formDataUpload.append('image', file);
+            const formData = new FormData();
+            formData.append('image', file);
 
             const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
                 method: 'POST',
-                body: formDataUpload,
+                body: formData,
             });
 
             const result = await response.json();
 
             if (result.success) {
                 const imageUrl = result.data.url;
-                setFormData(prev => ({
-                    ...prev,
-                    featuredImage: imageUrl
-                }));
+                setFeaturedImage(imageUrl);
                 setImagePreview(imageUrl);
                 setImageError(false);
+                toast.success('Image uploaded successfully');
             } else {
                 throw new Error(result.error?.message || 'Upload failed');
             }
         } catch (error) {
             console.error('Image upload error:', error);
-            alert('Failed to upload image. Please try again.');
+            toast.error('Failed to upload image. Please try again.');
         } finally {
             setUploading(false);
-            // Reset the file input
             e.target.value = '';
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-
-        try {
-            const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-
-            // Validate required fields
-            if (!formData.title.trim() || !formData.content) {
-                alert('Title and content are required');
-                setLoading(false);
-                return;
-            }
-
-            const response = await fetch('/api/posts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: formData.title,
-                    content: formData.content, // Content is already JSON string from NovelEditor
-                    excerpt: formData.excerpt,
-                    featuredImage: formData.featuredImage,
-                    tags: tagsArray,
-                    status: formData.status,
-                    seoTitle: formData.seoTitle,
-                    seoDescription: formData.seoDescription,
-                    relatedProjects: formData.relatedProjects
-                }),
-            });
-
-            if (response.ok) {
-                alert('Post created successfully!');
-                router.push('/dashboard/admin/manage-posts');
-            } else {
-                const error = await response.json();
-                alert(error.error || 'Failed to create post');
-            }
-        } catch (error) {
-            console.error('Error creating post:', error);
-            alert('Failed to create post');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const clearFeaturedImage = () => {
-        setFormData(prev => ({ ...prev, featuredImage: '' }));
+        setFeaturedImage('');
         setImagePreview(null);
         setImageError(false);
     };
@@ -189,17 +142,89 @@ export default function CreatePostPage() {
         setImageError(true);
     };
 
+    const toggleProject = (projectId: string) => {
+        if (selectedProjects.includes(projectId)) {
+            setSelectedProjects(selectedProjects.filter(id => id !== projectId));
+        } else {
+            if (selectedProjects.length >= 4) {
+                toast.error("You can select up to 4 projects only");
+                return;
+            }
+            setSelectedProjects([...selectedProjects, projectId]);
+        }
+    };
+
+    const togglePost = (postId: string) => {
+        if (selectedPosts.includes(postId)) {
+            setSelectedPosts(selectedPosts.filter(id => id !== postId));
+        } else {
+            if (selectedPosts.length >= 4) {
+                toast.error("You can select up to 4 posts only");
+                return;
+            }
+            setSelectedPosts([...selectedPosts, postId]);
+        }
+    };
+
+    const filteredProjects = projects.filter(project =>
+        project.title.toLowerCase().includes(projectSearchQuery.toLowerCase())
+    );
+
+    const filteredPosts = posts.filter(post =>
+        post.title.toLowerCase().includes(postSearchQuery.toLowerCase())
+    );
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmitting(true);
+
+        try {
+            const postData = {
+                title,
+                slug,
+                content,
+                excerpt,
+                featuredImage,
+                seoTitle: seoTitle || title,
+                seoDescription: seoDescription || excerpt,
+                relatedProjects: selectedProjects,
+                relatedPosts: selectedPosts
+            };
+
+            const response = await fetch('/api/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(postData),
+            });
+
+            if (response.ok) {
+                toast.success('Post created successfully!');
+                router.push('/dashboard/admin/manage-posts');
+            } else {
+                const error = await response.json();
+                toast.error(error.error || 'Failed to create post');
+            }
+        } catch (error) {
+            console.error('Error creating post:', error);
+            toast.error('Failed to create post');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     return (
         <div className="max-w-6xl mx-auto space-y-6">
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-bold text-foreground">Create New Post</h1>
                     <p className="text-muted-foreground mt-2">
-                        Create and publish engaging post content
+                        Add a new post to your collection
                     </p>
                 </div>
                 <button
-                    onClick={() => router.back()}
+                    onClick={() => router.push('/dashboard/admin/manage-posts')}
                     className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-secondary/80 transition-colors"
                 >
                     Back to Posts
@@ -210,24 +235,47 @@ export default function CreatePostPage() {
                 <div className="grid grid-cols-1 gap-6">
                     {/* Main Content Column */}
                     <div className="space-y-6">
-                        {/* Title */}
+                        {/* Title and Slug */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <label htmlFor="title" className="block text-lg font-semibold text-card-foreground mb-3">
-                                Post Title *
-                            </label>
-                            <input
-                                type="text"
-                                id="title"
-                                name="title"
-                                value={formData.title}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-4 py-3 text-lg border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                placeholder="Enter post title..."
-                                maxLength={200}
-                            />
-                            <div className="text-sm text-muted-foreground mt-2">
-                                {formData.title.length}/200 characters
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Post Title *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="title"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                        required
+                                        className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        placeholder="Enter title..."
+                                        maxLength={200}
+                                    />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        {title.length}/200 characters
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="slug" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Slug *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="slug"
+                                        value={slug}
+                                        onChange={(e) => {
+                                            setSlug(e.target.value);
+                                            setSlugTouched(true);
+                                        }}
+                                        required
+                                        className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        placeholder="post-slug"
+                                    />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        URL-friendly identifier
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -237,8 +285,7 @@ export default function CreatePostPage() {
                                 Content *
                             </label>
                             <NovelEditor
-                                initialValue={initialValue}
-                                onChange={(val) => setFormData(prev => ({ ...prev, content: JSON.stringify(val) }))}
+                                onChange={(val) => setContent(JSON.stringify(val))}
                             />
                         </div>
 
@@ -249,55 +296,62 @@ export default function CreatePostPage() {
                             </label>
                             <textarea
                                 id="excerpt"
-                                name="excerpt"
-                                value={formData.excerpt}
-                                onChange={handleChange}
+                                value={excerpt}
+                                onChange={(e) => setExcerpt(e.target.value)}
                                 rows={4}
                                 className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                placeholder="Brief description..."
+                                placeholder="Brief summary of the post..."
                                 maxLength={300}
                             />
                             <div className="text-sm text-muted-foreground mt-2">
-                                {formData.excerpt.length}/300 characters
+                                {excerpt.length}/300 characters
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-6">
-                        {/* Publishing Settings */}
+                        {/* SEO Settings */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <h3 className="text-lg font-semibold text-card-foreground mb-4">Publishing Settings</h3>
+                            <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label htmlFor="status" className="block text-sm font-medium text-card-foreground mb-2">
-                                        Status
-                                    </label>
-                                    <select
-                                        id="status"
-                                        name="status"
-                                        value={formData.status}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                    >
-                                        <option value="draft">Draft</option>
-                                        <option value="published">Published</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="tags" className="block text-sm font-medium text-card-foreground mb-2">
-                                        Tags
+                                    <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Meta Title
                                     </label>
                                     <input
                                         type="text"
-                                        id="tags"
-                                        name="tags"
-                                        value={formData.tags}
-                                        onChange={handleChange}
+                                        id="seoTitle"
+                                        value={seoTitle}
+                                        onChange={(e) => {
+                                            setSeoTitle(e.target.value);
+                                            setSeoTitleTouched(true);
+                                        }}
                                         className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                        placeholder="Separate tags with commas"
+                                        placeholder="SEO optimized title (max 60 characters)"
+                                        maxLength={60}
                                     />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        {seoTitle.length}/60 characters
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="seoDescription" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Meta Description
+                                    </label>
+                                    <textarea
+                                        id="seoDescription"
+                                        value={seoDescription}
+                                        onChange={(e) => setSeoDescription(e.target.value)}
+                                        rows={3}
+                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        placeholder="SEO optimized description (max 160 characters)"
+                                        maxLength={160}
+                                    />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        {seoDescription.length}/160 characters
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -306,25 +360,83 @@ export default function CreatePostPage() {
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
                             <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Projects</h3>
                             <div className="space-y-4">
+                                {/* Search Input */}
                                 <div>
-                                    <label htmlFor="relatedProjects" className="block text-sm font-medium text-card-foreground mb-2">
-                                        Select Projects (Hold Ctrl/Cmd to select multiple)
-                                    </label>
-                                    <select
-                                        multiple
-                                        id="relatedProjects"
-                                        name="relatedProjects"
-                                        value={formData.relatedProjects}
-                                        onChange={handleProjectChange}
-                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground h-40"
-                                    >
-                                        {projects.map((project) => (
-                                            <option key={project._id} value={project._id}>
-                                                {project.title}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <input
+                                        type="text"
+                                        placeholder="Search projects..."
+                                        value={projectSearchQuery}
+                                        onChange={(e) => setProjectSearchQuery(e.target.value)}
+                                        className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm text-foreground focus:ring-primary focus:border-primary"
+                                    />
                                 </div>
+
+                                {/* Project Checkboxes */}
+                                <div className="border border-border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
+                                    {filteredProjects.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {filteredProjects.map((project) => (
+                                                <label key={project._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded text-foreground">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedProjects.includes(project._id)}
+                                                        onChange={() => toggleProject(project._id)}
+                                                        className="h-4 w-4 text-primary border bg-background rounded focus:ring-primary"
+                                                    />
+                                                    <span className="text-sm">{project.title}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-muted-foreground text-sm">No projects found</p>
+                                    )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">Check the projects you want to display (max 4)</p>
+                            </div>
+                        </div>
+
+                        {/* Related Posts Selection */}
+                        <div className="bg-card rounded-lg shadow p-6 border border-border">
+                            <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Posts</h3>
+                            <div className="space-y-4">
+                                {loadingPosts ? (
+                                    <div className="text-sm text-muted-foreground">Loading posts...</div>
+                                ) : (
+                                    <>
+                                        {/* Search Input */}
+                                        <div>
+                                            <input
+                                                type="text"
+                                                placeholder="Search posts..."
+                                                value={postSearchQuery}
+                                                onChange={(e) => setPostSearchQuery(e.target.value)}
+                                                className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm text-foreground focus:ring-primary focus:border-primary"
+                                            />
+                                        </div>
+
+                                        {/* Post Checkboxes */}
+                                        <div className="border border-border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
+                                            {filteredPosts.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {filteredPosts.map((post) => (
+                                                        <label key={post._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded text-foreground">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedPosts.includes(post._id)}
+                                                                onChange={() => togglePost(post._id)}
+                                                                className="h-4 w-4 text-primary border bg-background rounded focus:ring-primary"
+                                                            />
+                                                            <span className="text-sm">{post.title}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-muted-foreground text-sm">No posts found</p>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Check the posts you want to display (max 4)</p>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -332,12 +444,12 @@ export default function CreatePostPage() {
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
                             <h3 className="text-lg font-semibold text-card-foreground mb-4">Featured Image</h3>
 
-                            {imagePreview && isValidUrl(formData.featuredImage) ? (
+                            {imagePreview ? (
                                 <div className="space-y-3">
                                     <div className="relative aspect-video rounded-lg overflow-hidden border border-border">
                                         {!imageError ? (
                                             <Image
-                                                src={formData.featuredImage}
+                                                src={imagePreview}
                                                 alt="Featured image preview"
                                                 fill
                                                 className="object-cover"
@@ -385,72 +497,18 @@ export default function CreatePostPage() {
                                                     <div className="text-sm font-medium text-foreground mb-1">
                                                         Upload Featured Image
                                                     </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Click to upload or drag and drop
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground mt-1">
+                                                        PNG, JPG, GIF up to 10MB
+                                                    </div>
                                                 </>
                                             )}
                                         </label>
                                     </div>
-
-                                    {/* Or use URL */}
-                                    <div className="text-center text-xs text-muted-foreground">OR</div>
-
-                                    {/* URL Input */}
-                                    <div>
-                                        <input
-                                            type="url"
-                                            name="featuredImage"
-                                            value={formData.featuredImage}
-                                            onChange={handleChange}
-                                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground text-sm"
-                                            placeholder="Or paste image URL here"
-                                        />
-                                    </div>
                                 </div>
                             )}
-                        </div>
-
-                        {/* SEO Settings */}
-                        <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">
-                                        SEO Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="seoTitle"
-                                        name="seoTitle"
-                                        value={formData.seoTitle}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                        placeholder="SEO optimized title"
-                                        maxLength={60}
-                                    />
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                        {formData.seoTitle.length}/60 characters
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="seoDescription" className="block text-sm font-medium text-card-foreground mb-2">
-                                        SEO Description
-                                    </label>
-                                    <textarea
-                                        id="seoDescription"
-                                        name="seoDescription"
-                                        value={formData.seoDescription}
-                                        onChange={handleChange}
-                                        rows={3}
-                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                        placeholder="SEO optimized description"
-                                        maxLength={160}
-                                    />
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                        {formData.seoDescription.length}/160 characters
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -459,18 +517,18 @@ export default function CreatePostPage() {
                 <div className="flex justify-end space-x-4 pt-6 border-t border-border">
                     <button
                         type="button"
-                        onClick={() => router.back()}
-                        disabled={loading || uploading}
+                        onClick={() => router.push('/dashboard/admin/manage-posts')}
+                        disabled={submitting || uploading}
                         className="px-6 py-3 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        disabled={loading || uploading}
+                        disabled={submitting || uploading || !title || !slug || !content}
                         className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Creating...' : formData.status === 'published' ? 'Publish' : 'Save as Draft'}
+                        {submitting ? 'Creating...' : 'Create Post'}
                     </button>
                 </div>
             </form>

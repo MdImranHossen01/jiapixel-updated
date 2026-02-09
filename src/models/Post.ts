@@ -9,9 +9,6 @@ export interface IPost extends Document {
     featuredImage?: string;
     author?: mongoose.Types.ObjectId;
     authorName?: string;
-    tags: string[];
-    status: "draft" | "published" | "archived";
-    publishedAt?: Date;
     seoTitle?: string;
     seoDescription?: string;
     readTime: number;
@@ -19,6 +16,7 @@ export interface IPost extends Document {
     createdAt: Date;
     updatedAt: Date;
     relatedProjects?: mongoose.Types.ObjectId[];
+    relatedPosts?: mongoose.Types.ObjectId[];
 }
 
 const PostSchema: Schema = new Schema(
@@ -56,23 +54,13 @@ const PostSchema: Schema = new Schema(
             type: String,
             default: "Md. Imran Hossen",
         },
-        tags: [
-            {
-                type: String,
-                trim: true,
-            },
-        ],
-        status: {
-            type: String,
-            enum: ["draft", "published", "archived"],
-            default: "draft",
-        },
-        publishedAt: {
-            type: Date,
-        },
         relatedProjects: [{
             type: Schema.Types.ObjectId,
             ref: "Project"
+        }],
+        relatedPosts: [{
+            type: Schema.Types.ObjectId,
+            ref: "Post"
         }],
         seoTitle: {
             type: String,
@@ -96,21 +84,11 @@ const PostSchema: Schema = new Schema(
     }
 );
 
-PostSchema.index({ status: 1, publishedAt: -1 });
-PostSchema.index({ slug: 1 });
-
 PostSchema.pre("save", function (this: IPost, next) {
     if (this.isModified("content")) {
         const wordsPerMinute = 200;
         const wordCount = this.content.split(/\s+/).length;
         this.readTime = Math.ceil(wordCount / wordsPerMinute);
-    }
-    next();
-});
-
-PostSchema.pre("save", function (this: IPost, next) {
-    if (this.isModified("status") && this.status === "published" && !this.publishedAt) {
-        this.publishedAt = new Date();
     }
     next();
 });

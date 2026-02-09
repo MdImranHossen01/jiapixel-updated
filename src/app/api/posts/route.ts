@@ -26,9 +26,7 @@ export async function GET(request: NextRequest) {
         const tag = searchParams.get('tag');
         const skip = (page - 1) * limit;
 
-        let query: any = { status: 'published' };
-
-        if (tag) query.tags = tag;
+        let query: any = {};
 
         const posts = await Post.find(query)
             .select('-__v') // Exclude version key
@@ -71,7 +69,7 @@ export async function POST(request: NextRequest) {
         await connectDB();
 
         const body = await request.json();
-        const { title, content, excerpt, featuredImage, tags, status, seoTitle, seoDescription, relatedProjects } = body;
+        const { title, content, excerpt, featuredImage, seoTitle, seoDescription, relatedProjects, relatedPosts } = body;
 
         // Validate required fields
         if (!title || !content) {
@@ -104,11 +102,10 @@ export async function POST(request: NextRequest) {
             excerpt: excerpt || `${String(content).substring(0, 150)}...`,
             featuredImage,
             authorName: 'Admin', // Default author name
-            tags: tags || [],
-            status: status || 'draft',
             seoTitle: seoTitle || title,
             seoDescription: seoDescription || excerpt || `${String(content).substring(0, 150)}...`,
-            relatedProjects: relatedProjects || []
+            relatedProjects: relatedProjects || [],
+            relatedPosts: relatedPosts || []
         });
 
 
@@ -139,10 +136,7 @@ export async function POST(request: NextRequest) {
                     excerpt: post.excerpt,
                     featuredImage: post.featuredImage,
                     authorName: post.authorName,
-                    tags: post.tags,
-                    status: post.status,
                     readTime: post.readTime,
-                    publishedAt: post.publishedAt,
                     createdAt: post.createdAt
                 }
             },

@@ -28,11 +28,16 @@ export async function GET(request: NextRequest, { params }: Params) {
             );
         }
 
-        const post = await Post.findOne({ slug, status: 'published' })
+        const post = await Post.findOne({ slug })
             .select('-__v')
             .populate({
                 path: 'relatedProjects',
                 select: 'title slug images description status createdAt',
+                strictPopulate: false
+            })
+            .populate({
+                path: 'relatedPosts',
+                select: 'title slug featuredImage excerpt createdAt',
                 strictPopulate: false
             });
 
@@ -89,7 +94,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
         // Update post fields
         Object.keys(body).forEach(key => {
-            if (body[key] !== undefined && key !== '_id' && key !== 'slug') {
+            if (body[key] !== undefined && key !== '_id') {
                 post[key] = body[key];
             }
         });
@@ -115,10 +120,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
                 excerpt: post.excerpt,
                 featuredImage: post.featuredImage,
                 authorName: post.authorName,
-                tags: post.tags,
-                status: post.status,
                 readTime: post.readTime,
-                publishedAt: post.publishedAt,
                 createdAt: post.createdAt
             }
         });
