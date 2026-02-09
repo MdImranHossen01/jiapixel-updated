@@ -303,12 +303,10 @@ export default function CreateNewsletterPage() {
                             <label className="block text-lg font-semibold text-card-foreground mb-3">
                                 Content *
                             </label>
-                            <div className="min-h-[400px] border border-border rounded-lg bg-background">
-                                <NovelEditor
-                                    initialValue={initialValue}
-                                    onChange={(val) => setContent(val as any)}
-                                />
-                            </div>
+                            <NovelEditor
+                                initialValue={initialValue}
+                                onChange={(val) => setContent(val as any)}
+                            />
                         </div>
 
                         {/* Excerpt */}
