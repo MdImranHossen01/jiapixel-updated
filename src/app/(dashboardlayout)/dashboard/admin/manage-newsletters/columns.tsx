@@ -21,6 +21,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useRouter } from "next/navigation"
+import Swal from "sweetalert2"
 
 export type Newsletter = {
     _id: string
@@ -69,20 +70,30 @@ const ActionsCell = ({ newsletter }: { newsletter: Newsletter }) => {
     const router = useRouter();
 
     const handleDelete = async () => {
-        if (!confirm("Are you sure?")) return;
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
 
-        try {
-            const res = await fetch(`/api/newsletters/${newsletter.slug}`, { method: 'DELETE' });
-            if (res.ok) {
-                toast.success("Newsletter deleted successfully");
-                router.refresh();
-            } else {
-                const data = await res.json();
-                toast.error(data.message || "Failed to delete newsletter");
+        if (result.isConfirmed) {
+            try {
+                const res = await fetch(`/api/newsletters/${newsletter.slug}`, { method: 'DELETE' });
+                if (res.ok) {
+                    toast.success("Newsletter deleted successfully");
+                    router.refresh();
+                } else {
+                    const data = await res.json();
+                    toast.error(data.message || "Failed to delete newsletter");
+                }
+            } catch (error) {
+                console.error("Error deleting newsletter:", error);
+                toast.error("An error occurred while deleting");
             }
-        } catch (error) {
-            console.error("Error deleting newsletter:", error);
-            toast.error("An error occurred while deleting");
         }
     };
 

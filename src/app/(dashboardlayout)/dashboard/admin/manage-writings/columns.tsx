@@ -20,6 +20,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import Swal from "sweetalert2"
+import { useRouter } from "next/navigation"
 
 export type Writing = {
     _id: string
@@ -29,31 +31,102 @@ export type Writing = {
     isIndexedInGoogle: boolean
 }
 
-const handleIndexToggle = async (id: string, slug: string, diff: boolean) => {
-    try {
-        const res = await fetch(`/api/writings/${slug}`, {
-            method: 'PUT',
-            body: JSON.stringify({ isIndexedInGoogle: diff }),
-            headers: { 'Content-Type': 'application/json' }
+const GoogleIndexCell = ({ writing }: { writing: Writing }) => {
+    const router = useRouter();
+    const isIndexed = writing.isIndexedInGoogle;
+
+    const handleIndexToggle = async (checked: boolean) => {
+        try {
+            const res = await fetch(`/api/writings/${writing.slug}`, {
+                method: 'PUT',
+                body: JSON.stringify({ isIndexedInGoogle: checked }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (res.ok) {
+                toast.success(`Google Index status updated to ${checked ? 'Indexed' : 'Not Indexed'}`);
+                router.refresh();
+            } else {
+                toast.error("Failed to update status");
+            }
+        } catch (e) {
+            toast.error("Error updating status");
+        }
+    };
+
+    return (
+        <div className="flex items-center space-x-2">
+            <Switch
+                checked={isIndexed}
+                onCheckedChange={handleIndexToggle}
+            />
+            <span className="text-sm text-muted-foreground">{isIndexed ? "Yes" : "No"}</span>
+        </div>
+    );
+};
+
+const ActionsCell = ({ writing }: { writing: Writing }) => {
+    const router = useRouter();
+
+    const handleDelete = async () => {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
         });
 
-        if (res.ok) {
-            toast.success(`Google Index status updated to ${diff ? 'Indexed' : 'Not Indexed'}`);
-            // Note: The UI updates optimistically via the Switch component state or parent revalidation? 
-            // In Tanstack table, data is usually immutable unless we update the source. 
-            // We might need a router.refresh() in the parent or optimistic update.
-            // For now, we'll rely on router.refresh from the parent component or just let it be.
-            // Ideally, we passed a handler from the parent. But columns are static.
-            // Better to trigger a refresh.
-            window.location.reload(); // Simple but jarring. 
-            // Better: use router.refresh() but we need access to router.
-        } else {
-            toast.error("Failed to update status");
+        if (result.isConfirmed) {
+            try {
+                const res = await fetch(`/api/writings/${writing.slug}`, { method: 'DELETE' });
+                if (res.ok) {
+                    toast.success("Writing deleted successfully");
+                    router.refresh();
+                } else {
+                    toast.error("Failed to delete writing");
+                }
+            } catch (e) {
+                console.error("Error deleting writing:", e);
+                toast.error("Error deleting writing");
+            }
         }
-    } catch (e) {
-        toast.error("Error updating status");
-    }
-}
+    };
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem
+                    onClick={() => navigator.clipboard.writeText(writing._id)}
+                >
+                    Copy ID
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href={`/writings/${writing.slug}`} target="_blank">View Public</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href={`/dashboard/admin/manage-writings/edit/${writing.slug}`}>Edit</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onClick={handleDelete}
+                >
+                    Delete
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+};
 
 export const columns: ColumnDef<Writing>[] = [
     {
@@ -93,21 +166,7 @@ export const columns: ColumnDef<Writing>[] = [
     {
         accessorKey: "isIndexedInGoogle",
         header: "Google Index",
-        cell: ({ row }) => {
-            const isIndexed = row.getValue("isIndexedInGoogle") as boolean;
-            const slug = row.original.slug;
-            const id = row.original._id;
-
-            return (
-                <div className="flex items-center space-x-2">
-                    <Switch
-                        checked={isIndexed}
-                        onCheckedChange={(checked) => handleIndexToggle(id, slug, checked)}
-                    />
-                    <span className="text-sm text-muted-foreground">{isIndexed ? "Yes" : "No"}</span>
-                </div>
-            )
-        },
+        cell: ({ row }) => <GoogleIndexCell writing={row.original} />,
     },
     {
         accessorKey: "createdAt",
@@ -139,45 +198,6 @@ export const columns: ColumnDef<Writing>[] = [
     },
     {
         id: "actions",
-        cell: ({ row }) => {
-            const writing = row.original
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(writing._id)}
-                        >
-                            Copy ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                            <Link href={`/writings/${writing.slug}`} target="_blank">View Public</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link href={`/dashboard/admin/manage-writings/edit/${writing.slug}`}>Edit</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={async () => {
-                                if (confirm("Are you sure?")) {
-                                    await fetch(`/api/writings/${writing.slug}`, { method: 'DELETE' });
-                                    window.location.reload();
-                                }
-                            }}
-                        >
-                            Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
-        },
+        cell: ({ row }) => <ActionsCell writing={row.original} />,
     },
 ]
