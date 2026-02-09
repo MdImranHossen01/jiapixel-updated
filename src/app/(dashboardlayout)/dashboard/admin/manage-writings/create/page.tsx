@@ -235,12 +235,10 @@ export default function CreateWritingPage() {
                             <label className="block text-lg font-semibold text-card-foreground mb-3">
                                 Content *
                             </label>
-                            <div className="min-h-[400px] border border-border rounded-lg bg-background">
-                                <NovelEditor
-                                    initialValue={initialValue}
-                                    onChange={(val) => setFormData(prev => ({ ...prev, content: JSON.stringify(val) }))}
-                                />
-                            </div>
+                            <NovelEditor
+                                initialValue={initialValue}
+                                onChange={(val) => setFormData(prev => ({ ...prev, content: JSON.stringify(val) }))}
+                            />
                         </div>
 
                         {/* Excerpt */}

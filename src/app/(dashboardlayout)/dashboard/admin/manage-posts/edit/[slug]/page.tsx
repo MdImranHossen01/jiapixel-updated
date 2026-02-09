@@ -283,12 +283,10 @@ export default function EditPostPage({ params }: PageProps) {
                             <label className="block text-lg font-semibold text-card-foreground mb-3">
                                 Content *
                             </label>
-                            <div className="min-h-[400px] border border-border rounded-lg bg-background">
-                                <NovelEditor
-                                    initialValue={parseInitialContent(post.content) as any}
-                                    onChange={(val) => setPost((prev) => prev ? ({ ...prev, content: JSON.stringify(val) }) : null)}
-                                />
-                            </div>
+                            <NovelEditor
+                                initialValue={parseInitialContent(post.content) as any}
+                                onChange={(val) => setPost((prev) => prev ? ({ ...prev, content: JSON.stringify(val) }) : null)}
+                            />
                         </div>
 
                         {/* Excerpt */}
