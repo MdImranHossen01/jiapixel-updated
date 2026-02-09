@@ -78,7 +78,7 @@ export const formatShortcutKey = (
 /**
  * Parses a shortcut key string into an array of formatted key symbols
  * @param shortcutKeys - The string of shortcut keys (e.g., "ctrl-alt-shift")
- * @param delimiter - The delimiter used to split the keys (default: "-")
+ * @param delimiter - The delimiter used to split the keys (default: "+")
  * @param capitalize - Whether to capitalize the keys (default: true)
  * @returns Array of formatted shortcut key symbols
  */
@@ -347,7 +347,7 @@ export function selectionWithinConvertibleTypes(
 }
 
 /**
- * Handles image upload to ImgBB with progress tracking and abort capability
+ * Handles image upload with progress tracking and abort capability
  * @param file The file to upload
  * @param onProgress Optional callback for tracking upload progress
  * @param abortSignal Optional AbortSignal for cancelling the upload
@@ -378,24 +378,11 @@ export const handleImageUpload = async (
     const formData = new FormData();
     formData.append('image', file);
 
-    // Get API key from environment or use the provided one
-    const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY || 'd08120f6a6e1af75c0d2755245d6dee1';
-    
-    if (!apiKey) {
-      throw new Error("ImgBB API key is not configured");
-    }
-
-    // Simulate initial progress
-    onProgress?.({ progress: 10 });
-
-    const controller = new AbortController();
-    const signal = abortSignal || controller.signal;
-
-    // Upload to ImgBB
-    const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+    // Upload to local API route which handles ImgBB upload securely
+    const response = await fetch('/api/upload-image', {
       method: 'POST',
       body: formData,
-      signal,
+      signal: abortSignal,
     });
 
     onProgress?.({ progress: 60 });
@@ -403,14 +390,14 @@ export const handleImageUpload = async (
     if (!response.ok) {
       const errorText = await response.text();
       let errorMessage = `Upload failed with status: ${response.status}`;
-      
+
       try {
         const errorData = JSON.parse(errorText);
         errorMessage = errorData.error?.message || errorMessage;
       } catch {
         errorMessage = errorText || errorMessage;
       }
-      
+
       throw new Error(errorMessage);
     }
 
@@ -418,25 +405,22 @@ export const handleImageUpload = async (
 
     const data = await response.json();
 
-    if (!data.success) {
-      throw new Error(data.error?.message || 'Upload failed');
-    }
 
-    // Get the image URL from ImgBB response
-    const imageUrl = data.data.url;
-    
-    if (!imageUrl) {
-      throw new Error('No image URL returned from ImgBB');
+    // Defensive check for URL in response data
+    const imageUrl = data?.data?.url || data?.data?.imageUrl || data?.data?.link || data?.url;
+
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      throw new Error('No valid image URL returned from server');
     }
 
     onProgress?.({ progress: 100 });
 
-    console.log('Image uploaded successfully to ImgBB:', imageUrl);
+    console.log('Image uploaded successfully to server:', imageUrl);
     return imageUrl;
 
   } catch (error) {
     console.error('Image upload error:', error);
-    
+
     if (error instanceof Error) {
       // Handle specific error cases
       if (error.name === 'AbortError') {
@@ -444,7 +428,7 @@ export const handleImageUpload = async (
       }
       throw error;
     }
-    
+
     throw new Error('Upload failed due to an unknown error');
   }
 };

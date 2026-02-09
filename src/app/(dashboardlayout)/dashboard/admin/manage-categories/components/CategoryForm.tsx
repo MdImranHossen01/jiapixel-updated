@@ -9,10 +9,10 @@ import NovelEditor from "@/app/components/editor/NovelEditor";
 
 // Helper function to validate URL
 const isValidUrl = (url: string): boolean => {
-    if (!url) return false;
+    if (!url || !url.trim()) return false;
     try {
-        new URL(url);
-        return true;
+        const parsedUrl = new URL(url);
+        return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
     } catch {
         return false;
     }
@@ -181,8 +181,17 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
         }
     };
 
-    const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent) => {
+        let file: File | undefined;
+
+        if ('dataTransfer' in e) {
+            e.preventDefault();
+            e.stopPropagation();
+            file = e.dataTransfer.files?.[0];
+        } else {
+            file = e.target.files?.[0];
+        }
+
         if (!file) return;
 
         // Validate file type
@@ -203,14 +212,24 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
             const formDataUpload = new FormData();
             formDataUpload.append('image', file);
 
-            const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
+            const response = await fetch('/api/upload-image', {
                 method: 'POST',
                 body: formDataUpload,
             });
 
+            if (!response.ok) {
+                const errorText = await response.text();
+                try {
+                    const errorData = JSON.parse(errorText);
+                    throw new Error(errorData.error?.message || `Upload failed with status: ${response.status}`);
+                } catch {
+                    throw new Error(errorText || `Upload failed with status: ${response.status}`);
+                }
+            }
+
             const result = await response.json();
 
-            if (result.success) {
+            if (result.success && result.data?.url) {
                 const imageUrl = result.data.url;
                 setFormData(prev => ({
                     ...prev,
@@ -225,8 +244,15 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
             toast.error('Failed to upload image. Please try again.');
         } finally {
             setUploading(false);
-            e.target.value = '';
+            if (!('dataTransfer' in e) && e.target) {
+                (e.target as HTMLInputElement).value = '';
+            }
         }
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
     };
 
     const clearBanner = () => {
@@ -373,6 +399,10 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                             <label
                                 htmlFor="banner-upload"
                                 className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onDragOver={handleDragOver}
+                                onDrop={handleBannerUpload}
+                                onDragEnter={handleDragOver}
+                                onDragLeave={handleDragOver}
                             >
                                 {uploading ? (
                                     <div className="flex flex-col items-center space-y-2">

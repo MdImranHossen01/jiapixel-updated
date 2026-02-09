@@ -239,7 +239,7 @@ const extensions = [
       alert(`Upload failed: ${error.message}`);
     },
     onSuccess: (url) => {
-      console.log("Image uploaded successfully to ImgBB:", url);
+      console.log("Image uploaded successfully to server:", url);
     },
   }),
 ];

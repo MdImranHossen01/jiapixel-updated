@@ -6,10 +6,10 @@ import Image from 'next/image';
 import { SimpleEditor, SimpleEditorRef } from '@/components/tiptap-templates/simple/simple-editor';
 
 const isValidUrl = (url: string): boolean => {
-  if (!url) return false;
+  if (!url || !url.trim()) return false;
   try {
-    new URL(url);
-    return true;
+    const parsedUrl = new URL(url);
+    return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
   } catch {
     return false;
   }
@@ -47,13 +47,13 @@ export default function CreateProductPage() {
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
-  
+
   // Ref to access editor content for detailed description
   const editorRef = useRef<SimpleEditorRef>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     if (name.startsWith('price.')) {
       const priceField = name.split('.')[1];
       setFormData(prev => ({
@@ -105,7 +105,7 @@ export default function CreateProductPage() {
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
+      const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
       });
@@ -163,7 +163,7 @@ export default function CreateProductPage() {
   const updateSpecification = (index: number, field: 'name' | 'value', value: string) => {
     setFormData(prev => ({
       ...prev,
-      specifications: prev.specifications.map((spec, i) => 
+      specifications: prev.specifications.map((spec, i) =>
         i === index ? { ...spec, [field]: value } : spec
       )
     }));
@@ -184,23 +184,23 @@ export default function CreateProductPage() {
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
       const featuresArray = formData.features.filter(feature => feature.trim());
       const specificationsArray = formData.specifications.filter(spec => spec.name.trim() && spec.value.trim());
-      
+
       // Get the HTML content from the editor for detailed description
       let editorContent = '';
       if (editorRef.current) {
         editorContent = editorRef.current.getContent();
       }
-      
-      if (!formData.title.trim() || !formData.slug.trim() || !formData.description.trim() || 
-          !formData.shortDescription.trim() || !editorContent.trim() || !formData.category.trim() ||
-          !formData.featuredImage) {
+
+      if (!formData.title.trim() || !formData.slug.trim() || !formData.description.trim() ||
+        !formData.shortDescription.trim() || !editorContent.trim() || !formData.category.trim() ||
+        !formData.featuredImage) {
         alert('Please fill all required fields');
         setLoading(false);
         return;
       }
 
       console.log('Submitting product with detailed content length:', editorContent.length);
-      
+
       const response = await fetch('/api/products', {
         method: 'POST',
         headers: {
@@ -265,7 +265,7 @@ export default function CreateProductPage() {
             {/* Basic Information */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Basic Information</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">
@@ -344,7 +344,7 @@ export default function CreateProductPage() {
               </label>
               <SimpleEditor ref={editorRef} />
               <div className="text-sm text-muted-foreground mt-2">
-                Write your detailed product description above. Images will be automatically uploaded to ImgBB.
+                Write your detailed product description above. Images will be uploaded to our server via /api/upload-image.
               </div>
             </div>
 
@@ -360,7 +360,7 @@ export default function CreateProductPage() {
                   Add Feature
                 </button>
               </div>
-              
+
               <div className="space-y-3">
                 {formData.features.map((feature, index) => (
                   <div key={index} className="flex gap-2">
@@ -397,7 +397,7 @@ export default function CreateProductPage() {
                   Add Specification
                 </button>
               </div>
-              
+
               <div className="space-y-3">
                 {formData.specifications.map((spec, index) => (
                   <div key={index} className="grid grid-cols-2 gap-2">
@@ -437,7 +437,7 @@ export default function CreateProductPage() {
             {/* Pricing */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Pricing</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="price.monthly" className="block text-sm font-medium text-card-foreground mb-2">
@@ -495,7 +495,7 @@ export default function CreateProductPage() {
             {/* Featured Image */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Featured Image *</h3>
-              
+
               {imagePreview && isValidUrl(formData.featuredImage) ? (
                 <div className="space-y-3">
                   <div className="relative aspect-video rounded-lg overflow-hidden border border-border">
@@ -583,7 +583,7 @@ export default function CreateProductPage() {
             {/* Settings */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Settings</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="category" className="block text-sm font-medium text-card-foreground mb-2">
@@ -679,7 +679,7 @@ export default function CreateProductPage() {
             {/* Links */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Links</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="demoUrl" className="block text-sm font-medium text-card-foreground mb-2">
@@ -716,7 +716,7 @@ export default function CreateProductPage() {
             {/* SEO Settings */}
             <div className="bg-card rounded-lg shadow p-6 border">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">

@@ -9,7 +9,7 @@ const onUpload = (file: File) => {
     return new Promise((resolve, reject) => {
         const toastId = toast.loading("Uploading image...");
 
-        fetch("https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1", {
+        fetch("/api/upload-image", {
             method: "POST",
             body: formData,
         })
@@ -19,13 +19,18 @@ const onUpload = (file: File) => {
                     if (data.success) {
                         const url = data.data.url;
                         const image = new Image();
-                        image.src = url;
                         image.onload = () => {
                             resolve(url);
                             toast.success("Image uploaded successfully", { id: toastId });
                         };
+                        image.onerror = () => {
+                            const error = new Error("Failed to load uploaded image");
+                            reject(error);
+                            toast.error(error.message, { id: toastId });
+                        };
+                        image.src = url;
                     } else {
-                        throw new Error(data.error?.message || "Error uploading image to ImgBB");
+                        throw new Error(data.error?.message || "Error uploading image to server");
                     }
                 } else {
                     throw new Error("Error uploading image. Please try again.");

@@ -51,6 +51,7 @@ export default function EditBlogPage({ params }: PageProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [blog, setBlog] = useState<BlogData | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
@@ -134,6 +135,57 @@ export default function EditBlogPage({ params }: PageProps) {
       } else {
         setImagePreview(null);
       }
+    }
+  };
+
+  // Handle image upload to ImgBB
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image size should be less than 10MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const imageUrl = result.data.url;
+        setBlog(prev => prev ? {
+          ...prev,
+          featuredImage: imageUrl
+        } : null);
+        setImagePreview(imageUrl);
+        setImageError(false);
+      } else {
+        throw new Error(result.error?.message || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+      // Reset the file input
+      e.target.value = '';
     }
   };
 
@@ -451,14 +503,46 @@ export default function EditBlogPage({ params }: PageProps) {
                 </div>
               ) : (
                 <div className="space-y-3">
+                  {/* Upload Button */}
                   <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                    <div className="text-muted-foreground mb-2">
-                      No featured image selected
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Add a valid URL to display a featured image
-                    </div>
+                    <input
+                      type="file"
+                      id="image-upload"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {uploading ? (
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          <span className="text-sm text-muted-foreground">Uploading...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="text-2xl mb-2">📁</div>
+                          <div className="text-sm font-medium text-foreground mb-1">
+                            Upload Featured Image
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Click to upload or drag and drop
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            PNG, JPG, GIF up to 10MB
+                          </div>
+                        </>
+                      )}
+                    </label>
                   </div>
+
+                  {/* Or use URL */}
+                  <div className="text-center text-xs text-muted-foreground">OR</div>
+
+                  {/* URL Input */}
                   <div>
                     <input
                       type="url"
@@ -466,7 +550,7 @@ export default function EditBlogPage({ params }: PageProps) {
                       value={blog.featuredImage || ''}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground text-sm"
-                      placeholder="https://example.com/image.jpg"
+                      placeholder="Or paste image URL here"
                     />
                     {blog.featuredImage && !isValidUrl(blog.featuredImage) && (
                       <div className="text-xs text-destructive mt-1">
