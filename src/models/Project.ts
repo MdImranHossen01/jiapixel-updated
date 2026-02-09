@@ -19,6 +19,7 @@ export interface IProject extends Document {
     description: string;
 
     // Metadata
+    isIndexedInGoogle: boolean;
     createdBy: string;
     createdAt: Date;
     updatedAt: Date;
@@ -58,25 +59,33 @@ const ProjectSchema = new Schema<IProject>(
             validate: [
                 (val: string[]) => val.length <= 5,
                 'Validation Error: Exceeds the limit of 5 images'
-            ]
+            ],
+            default: []
         },
 
         // Content
         description: {
             type: String,
-            required: true
+            required: true,
         },
 
+        // Metadata
+        isIndexedInGoogle: {
+            type: Boolean,
+            default: true,
+        },
         createdBy: {
             type: String,
             required: true,
-            default: "jiapixel-admin",
         },
     },
     {
         timestamps: true,
     }
 );
+
+// Add index for searching and filtering
+ProjectSchema.index({ title: "text", description: "text" });
 
 // Pre-save middleware to generate slug from title
 ProjectSchema.pre("save", async function (next) {

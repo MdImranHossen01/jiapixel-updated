@@ -14,6 +14,7 @@ interface ProjectData {
     metaDescription: string;
     images: (File | string)[];
     description: string;
+    isIndexedInGoogle: boolean;
 }
 
 interface ProjectFormProps {
@@ -33,6 +34,7 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
         metaDescription: "",
         images: [],
         description: "",
+        isIndexedInGoogle: true,
     });
 
     const [slugTouched, setSlugTouched] = useState(false);
@@ -110,6 +112,7 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
             const projectDataToSubmit = {
                 ...data,
                 images: existingImages, // Send existing URLs
+                isIndexedInGoogle: data.isIndexedInGoogle,
             };
 
             formData.append("projectData", JSON.stringify(projectDataToSubmit));
@@ -170,7 +173,7 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
 
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 pb-10">
+        <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 pb-4">
 
             {/* Basic Info */}
             <div className="bg-card rounded-lg border p-6 space-y-6">
@@ -298,8 +301,8 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
             </div>
 
             {/* Description */}
-            <div className="bg-card rounded-lg border p-6 space-y-6">
-                <h2 className="text-xl font-semibold">Project Description</h2>
+            <div className="bg-card rounded-lg border p-6">
+                <h2 className="text-xl font-semibold mb-6">Project Description</h2>
                 <div className="border rounded-md overflow-hidden min-h-[400px]">
                     <NovelEditor
                         initialValue={getInitialDescription(data.description)}

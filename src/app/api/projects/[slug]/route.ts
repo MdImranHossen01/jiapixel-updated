@@ -158,6 +158,9 @@ export async function PUT(
         project.metaTitle = projectData.metaTitle;
         project.metaDescription = projectData.metaDescription;
         project.description = projectData.description;
+        if (projectData.isIndexedInGoogle !== undefined) {
+            project.isIndexedInGoogle = projectData.isIndexedInGoogle;
+        }
 
         // Combine existing images (that were kept) with new uploads
         // Combine existing images (that were kept) with new uploads

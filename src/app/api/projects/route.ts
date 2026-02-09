@@ -100,6 +100,7 @@ export async function POST(request: NextRequest) {
                     metaDescription: projectData.metaDescription,
                     images: imageUrls,
                     description: projectData.description,
+                    isIndexedInGoogle: projectData.isIndexedInGoogle !== undefined ? projectData.isIndexedInGoogle : true,
                     createdBy: session.user.email || session.user.name || 'jiapixel-admin',
                 });
 
