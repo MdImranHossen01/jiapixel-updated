@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-        const { title, content, excerpt, featuredImage, seoTitle, seoDescription, relatedProjects } = body;
+        const { title, content, excerpt, featuredImage, seoTitle, seoDescription, relatedProjects, relatedNewsletters } = body;
 
         // Validate required fields
         if (!title || !content) {
@@ -118,7 +118,8 @@ export async function POST(request: NextRequest) {
             authorName: 'Admin', // Default author name
             seoTitle: seoTitle || title,
             seoDescription: seoDescription || excerpt || `${String(content).substring(0, 150)}...`,
-            relatedProjects: relatedProjects || []
+            relatedProjects: relatedProjects || [],
+            relatedNewsletters: relatedNewsletters || []
         });
 
 

@@ -20,10 +20,13 @@ const isValidUrl = (url: string): boolean => {
 export default function CreateNewsletterPage() {
     const router = useRouter();
     const [title, setTitle] = useState('');
+    const [slug, setSlug] = useState('');
+    const [slugTouched, setSlugTouched] = useState(false);
     const [content, setContent] = useState(''); // Stores JSON string
     const [excerpt, setExcerpt] = useState('');
     const [featuredImage, setFeaturedImage] = useState('');
     const [seoTitle, setSeoTitle] = useState('');
+    const [seoTitleTouched, setSeoTitleTouched] = useState(false);
     const [seoDescription, setSeoDescription] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -37,11 +40,38 @@ export default function CreateNewsletterPage() {
     const [projects, setProjects] = useState<any[]>([]);
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
     const [loadingProjects, setLoadingProjects] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [projectSearchQuery, setProjectSearchQuery] = useState("");
+
+    // Newsletters handling
+    const [newsletters, setNewsletters] = useState<any[]>([]);
+    const [selectedNewsletters, setSelectedNewsletters] = useState<string[]>([]);
+    const [loadingNewsletters, setLoadingNewsletters] = useState(true);
+    const [newsletterSearchQuery, setNewsletterSearchQuery] = useState("");
 
     useEffect(() => {
         fetchProjects();
+        fetchNewsletters();
     }, []);
+
+    // Auto-generate slug and SEO title from title
+    useEffect(() => {
+        if (!slugTouched && title) {
+            setSlug(slugify(title));
+        }
+        if (!seoTitleTouched && title) {
+            setSeoTitle(title);
+        }
+    }, [title, slugTouched, seoTitleTouched]);
+
+    const slugify = (text: string) => {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')        // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+            .replace(/\-\-+/g, '-');     // Replace multiple - with single -
+    };
 
     const fetchProjects = async () => {
         try {
@@ -57,6 +87,20 @@ export default function CreateNewsletterPage() {
         }
     };
 
+    const fetchNewsletters = async () => {
+        try {
+            const res = await fetch('/api/newsletters?limit=100');
+            if (res.ok) {
+                const data = await res.json();
+                setNewsletters(data.newsletters || []);
+            }
+        } catch (err) {
+            console.error("Failed to fetch newsletters", err);
+        } finally {
+            setLoadingNewsletters(false);
+        }
+    };
+
     const toggleProject = (projectId: string) => {
         if (selectedProjects.includes(projectId)) {
             setSelectedProjects(selectedProjects.filter(id => id !== projectId));
@@ -69,8 +113,24 @@ export default function CreateNewsletterPage() {
         }
     };
 
+    const toggleNewsletter = (newsletterId: string) => {
+        if (selectedNewsletters.includes(newsletterId)) {
+            setSelectedNewsletters(selectedNewsletters.filter(id => id !== newsletterId));
+        } else {
+            if (selectedNewsletters.length >= 4) {
+                toast.error("You can select up to 4 newsletters only");
+                return;
+            }
+            setSelectedNewsletters([...selectedNewsletters, newsletterId]);
+        }
+    };
+
     const filteredProjects = projects.filter(project =>
-        project.title.toLowerCase().includes(searchQuery.toLowerCase())
+        project.title.toLowerCase().includes(projectSearchQuery.toLowerCase())
+    );
+
+    const filteredNewsletters = newsletters.filter(newsletter =>
+        newsletter.title.toLowerCase().includes(newsletterSearchQuery.toLowerCase())
     );
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,12 +197,14 @@ export default function CreateNewsletterPage() {
         try {
             const newsletterData = {
                 title,
+                slug,
                 content,
                 excerpt,
                 featuredImage,
                 seoTitle: seoTitle || title,
                 seoDescription: seoDescription || excerpt,
-                relatedProjects: selectedProjects
+                relatedProjects: selectedProjects,
+                relatedNewsletters: selectedNewsletters
             };
 
             const response = await fetch('/api/newsletters', {
@@ -189,23 +251,47 @@ export default function CreateNewsletterPage() {
                 <div className="grid grid-cols-1 gap-6">
                     {/* Main Content Column */}
                     <div className="space-y-6">
-                        {/* Title */}
+                        {/* Title and Slug */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <label htmlFor="title" className="block text-lg font-semibold text-card-foreground mb-3">
-                                Newsletter Title *
-                            </label>
-                            <input
-                                type="text"
-                                id="title"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                required
-                                className="w-full px-4 py-3 text-lg border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                placeholder="Enter title..."
-                                maxLength={200}
-                            />
-                            <div className="text-sm text-muted-foreground mt-2">
-                                {title.length}/200 characters
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Newsletter Title *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="title"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                        required
+                                        className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        placeholder="Enter title..."
+                                        maxLength={200}
+                                    />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        {title.length}/200 characters
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="slug" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Slug *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="slug"
+                                        value={slug}
+                                        onChange={(e) => {
+                                            setSlug(e.target.value);
+                                            setSlugTouched(true);
+                                        }}
+                                        required
+                                        className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        placeholder="auto-generated-slug"
+                                    />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        Auto-generated from title (editable)
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -256,13 +342,16 @@ export default function CreateNewsletterPage() {
                                         type="text"
                                         id="seoTitle"
                                         value={seoTitle}
-                                        onChange={(e) => setSeoTitle(e.target.value)}
+                                        onChange={(e) => {
+                                            setSeoTitle(e.target.value);
+                                            setSeoTitleTouched(true);
+                                        }}
                                         className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                                         placeholder="SEO optimized title (max 60 characters)"
                                         maxLength={60}
                                     />
                                     <div className="text-xs text-muted-foreground mt-1">
-                                        {seoTitle.length}/60 characters
+                                        {seoTitle.length}/60 characters · Auto-generated from title (editable)
                                     </div>
                                 </div>
 
@@ -299,8 +388,8 @@ export default function CreateNewsletterPage() {
                                             <input
                                                 type="text"
                                                 placeholder="Search projects..."
-                                                value={searchQuery}
-                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                value={projectSearchQuery}
+                                                onChange={(e) => setProjectSearchQuery(e.target.value)}
                                                 className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm text-foreground focus:ring-primary focus:border-primary"
                                             />
                                         </div>
@@ -326,6 +415,51 @@ export default function CreateNewsletterPage() {
                                             )}
                                         </div>
                                         <p className="text-xs text-muted-foreground">Check the projects you want to display (max 4)</p>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Related Newsletters Selection */}
+                        <div className="bg-card rounded-lg shadow p-6 border border-border">
+                            <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Newsletters</h3>
+                            <div className="space-y-4">
+                                {loadingNewsletters ? (
+                                    <div className="text-sm text-muted-foreground">Loading newsletters...</div>
+                                ) : (
+                                    <>
+                                        {/* Search Input */}
+                                        <div>
+                                            <input
+                                                type="text"
+                                                placeholder="Search newsletters..."
+                                                value={newsletterSearchQuery}
+                                                onChange={(e) => setNewsletterSearchQuery(e.target.value)}
+                                                className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm text-foreground focus:ring-primary focus:border-primary"
+                                            />
+                                        </div>
+
+                                        {/* Newsletter Checkboxes */}
+                                        <div className="border border-border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
+                                            {filteredNewsletters.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {filteredNewsletters.map((newsletter) => (
+                                                        <label key={newsletter._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded text-foreground">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedNewsletters.includes(newsletter._id)}
+                                                                onChange={() => toggleNewsletter(newsletter._id)}
+                                                                className="h-4 w-4 text-primary border bg-background rounded focus:ring-primary"
+                                                            />
+                                                            <span className="text-sm">{newsletter.title}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-muted-foreground text-sm">No newsletters found</p>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Check the newsletters you want to display (max 4)</p>
                                     </>
                                 )}
                             </div>
@@ -416,7 +550,7 @@ export default function CreateNewsletterPage() {
                     </button>
                     <button
                         type="submit"
-                        disabled={submitting || uploading || !title || !content}
+                        disabled={submitting || uploading || !title || !slug || !content}
                         className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {submitting ? 'Creating...' : 'Create Newsletter'}

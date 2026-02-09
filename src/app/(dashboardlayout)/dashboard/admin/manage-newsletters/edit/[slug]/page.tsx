@@ -42,6 +42,7 @@ interface NewsletterData {
     createdAt: string;
     updatedAt: string;
     relatedProjects?: any[];
+    relatedNewsletters?: any[];
 }
 
 interface PageProps {
@@ -58,8 +59,12 @@ export default function EditNewsletterPage({ params }: PageProps) {
     const [newsletter, setNewsletter] = useState<NewsletterData | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
+
     const [projects, setProjects] = useState<any[]>([]);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [projectSearchQuery, setProjectSearchQuery] = useState("");
+
+    const [newsletters, setNewsletters] = useState<any[]>([]);
+    const [newsletterSearchQuery, setNewsletterSearchQuery] = useState("");
 
     // Await params in useEffect
     const [resolvedParams, setResolvedParams] = useState<{ slug: string } | null>(null);
@@ -77,6 +82,7 @@ export default function EditNewsletterPage({ params }: PageProps) {
             fetchNewsletter(resolvedParams.slug);
         }
         fetchProjects();
+        fetchNewsletters();
     }, [resolvedParams]);
 
     const fetchProjects = async () => {
@@ -88,6 +94,18 @@ export default function EditNewsletterPage({ params }: PageProps) {
             }
         } catch (err) {
             console.error("Failed to fetch projects", err);
+        }
+    };
+
+    const fetchNewsletters = async () => {
+        try {
+            const res = await fetch('/api/newsletters?limit=100');
+            if (res.ok) {
+                const data = await res.json();
+                setNewsletters(data.newsletters || []);
+            }
+        } catch (err) {
+            console.error("Failed to fetch newsletters", err);
         }
     };
 
@@ -103,8 +121,15 @@ export default function EditNewsletterPage({ params }: PageProps) {
             const data = await response.json();
             if (data.success) {
                 const newsletterData = data.newsletter;
+
+                // Convert populated projects to IDs
                 if (newsletterData.relatedProjects && newsletterData.relatedProjects.length > 0 && typeof newsletterData.relatedProjects[0] === 'object') {
                     newsletterData.relatedProjects = newsletterData.relatedProjects.map((p: any) => p._id);
+                }
+
+                // Convert populated newsletters to IDs
+                if (newsletterData.relatedNewsletters && newsletterData.relatedNewsletters.length > 0 && typeof newsletterData.relatedNewsletters[0] === 'object') {
+                    newsletterData.relatedNewsletters = newsletterData.relatedNewsletters.map((n: any) => n._id);
                 }
 
                 setNewsletter(newsletterData);
@@ -154,8 +179,35 @@ export default function EditNewsletterPage({ params }: PageProps) {
         }
     };
 
+    const toggleNewsletter = (newsletterId: string) => {
+        if (!newsletter) return;
+
+        const currentSelected = newsletter.relatedNewsletters || [];
+
+        if (currentSelected.includes(newsletterId)) {
+            setNewsletter(prev => prev ? {
+                ...prev,
+                relatedNewsletters: currentSelected.filter(id => id !== newsletterId)
+            } : null);
+        } else {
+            if (currentSelected.length >= 4) {
+                toast.error("You can select up to 4 newsletters only");
+                return;
+            }
+            setNewsletter(prev => prev ? {
+                ...prev,
+                relatedNewsletters: [...currentSelected, newsletterId]
+            } : null);
+        }
+    };
+
     const filteredProjects = projects.filter(project =>
-        project.title.toLowerCase().includes(searchQuery.toLowerCase())
+        project.title.toLowerCase().includes(projectSearchQuery.toLowerCase())
+    );
+
+    const filteredNewsletters = newsletters.filter(n =>
+        n.title.toLowerCase().includes(newsletterSearchQuery.toLowerCase()) &&
+        n._id !== newsletter?._id // Exclude current newsletter
     );
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -301,24 +353,46 @@ export default function EditNewsletterPage({ params }: PageProps) {
                 <div className="grid grid-cols-1 gap-6">
                     {/* Main Content Column */}
                     <div className="space-y-6">
-                        {/* Title */}
+                        {/* Title and Slug */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <label htmlFor="title" className="block text-lg font-semibold text-card-foreground mb-3">
-                                Newsletter Title *
-                            </label>
-                            <input
-                                type="text"
-                                id="title"
-                                name="title"
-                                value={newsletter.title}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-4 py-3 text-lg border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                placeholder="Enter title..."
-                                maxLength={200}
-                            />
-                            <div className="text-sm text-muted-foreground mt-2">
-                                {newsletter.title.length}/200 characters
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Newsletter Title *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="title"
+                                        name="title"
+                                        value={newsletter.title}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        placeholder="Enter title..."
+                                        maxLength={200}
+                                    />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        {newsletter.title.length}/200 characters
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="slug" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Slug *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="slug"
+                                        name="slug"
+                                        value={newsletter.slug}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        placeholder="newsletter-slug"
+                                    />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        URL-friendly identifier (editable)
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -411,8 +485,8 @@ export default function EditNewsletterPage({ params }: PageProps) {
                                     <input
                                         type="text"
                                         placeholder="Search projects..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        value={projectSearchQuery}
+                                        onChange={(e) => setProjectSearchQuery(e.target.value)}
                                         className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm text-foreground focus:ring-primary focus:border-primary"
                                     />
                                 </div>
@@ -438,6 +512,45 @@ export default function EditNewsletterPage({ params }: PageProps) {
                                     )}
                                 </div>
                                 <p className="text-xs text-muted-foreground">Check the projects you want to display (max 4)</p>
+                            </div>
+                        </div>
+
+                        {/* Related Newsletters Selection */}
+                        <div className="bg-card rounded-lg shadow p-6 border border-border">
+                            <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Newsletters</h3>
+                            <div className="space-y-4">
+                                {/* Search Input */}
+                                <div>
+                                    <input
+                                        type="text"
+                                        placeholder="Search newsletters..."
+                                        value={newsletterSearchQuery}
+                                        onChange={(e) => setNewsletterSearchQuery(e.target.value)}
+                                        className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm text-foreground focus:ring-primary focus:border-primary"
+                                    />
+                                </div>
+
+                                {/* Newsletter Checkboxes */}
+                                <div className="border border-border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
+                                    {filteredNewsletters.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {filteredNewsletters.map((n) => (
+                                                <label key={n._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded text-foreground">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={(newsletter.relatedNewsletters || []).includes(n._id)}
+                                                        onChange={() => toggleNewsletter(n._id)}
+                                                        className="h-4 w-4 text-primary border bg-background rounded focus:ring-primary"
+                                                    />
+                                                    <span className="text-sm">{n.title}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-muted-foreground text-sm">No newsletters found</p>
+                                    )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">Check the newsletters you want to display (max 4)</p>
                             </div>
                         </div>
 
@@ -526,7 +639,7 @@ export default function EditNewsletterPage({ params }: PageProps) {
                     </button>
                     <button
                         type="submit"
-                        disabled={saving || uploading || !newsletter.title || !newsletter.content}
+                        disabled={saving || uploading || !newsletter.title || !newsletter.slug || !newsletter.content}
                         className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {saving ? 'Saving...' : 'Update Newsletter'}

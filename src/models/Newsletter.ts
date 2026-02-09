@@ -17,6 +17,7 @@ export interface INewsletter extends Document {
     createdAt: Date;
     updatedAt: Date;
     relatedProjects?: mongoose.Types.ObjectId[];
+    relatedNewsletters?: mongoose.Types.ObjectId[];
 }
 
 const NewsletterSchema: Schema = new Schema(
@@ -61,6 +62,10 @@ const NewsletterSchema: Schema = new Schema(
         relatedProjects: [{
             type: Schema.Types.ObjectId,
             ref: "Project"
+        }],
+        relatedNewsletters: [{
+            type: Schema.Types.ObjectId,
+            ref: "Newsletter"
         }],
         seoTitle: {
             type: String,
