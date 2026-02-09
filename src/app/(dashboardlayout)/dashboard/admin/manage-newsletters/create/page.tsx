@@ -281,8 +281,11 @@ export default function CreateNewsletterPage() {
                                         id="slug"
                                         value={slug}
                                         onChange={(e) => {
-                                            setSlug(e.target.value);
-                                            setSlugTouched(true);
+                                            const newSlug = e.target.value;
+                                            if (!slugTouched) {
+                                                setSlugTouched(true);
+                                            }
+                                            setSlug(newSlug);
                                         }}
                                         required
                                         className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
@@ -343,8 +346,11 @@ export default function CreateNewsletterPage() {
                                         id="seoTitle"
                                         value={seoTitle}
                                         onChange={(e) => {
-                                            setSeoTitle(e.target.value);
-                                            setSeoTitleTouched(true);
+                                            const newSeoTitle = e.target.value;
+                                            if (!seoTitleTouched) {
+                                                setSeoTitleTouched(true);
+                                            }
+                                            setSeoTitle(newSeoTitle);
                                         }}
                                         className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                                         placeholder="SEO optimized title (max 60 characters)"

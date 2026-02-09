@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 interface NewsletterCardClientProps {
     newsletter: any;
@@ -15,27 +14,6 @@ export default function NewsletterCardClient({ newsletter }: NewsletterCardClien
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const getStatusBadge = (status: string) => {
-        const statusConfig = {
-            draft: {
-                variant: "secondary" as const,
-                label: "Draft",
-            },
-            published: {
-                variant: "default" as const,
-                label: "Published",
-            },
-            archived: {
-                variant: "outline" as const,
-                label: "Archived",
-            },
-        };
-
-        const config =
-            statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
-
-        return <Badge variant={config.variant}>{config.label}</Badge>;
-    };
 
     const handleDelete = async () => {
         if (
@@ -75,8 +53,12 @@ export default function NewsletterCardClient({ newsletter }: NewsletterCardClien
                                 <h3 className="text-lg font-semibold text-card-foreground mb-2 line-clamp-2">
                                     {newsletter.title}
                                 </h3>
+                                {newsletter.excerpt && (
+                                    <p className="text-sm text-muted-foreground line-clamp-2">
+                                        {newsletter.excerpt}
+                                    </p>
+                                )}
                             </div>
-                            <div className="flex-shrink-0">{getStatusBadge(newsletter.status)}</div>
                         </div>
                     </div>
 
