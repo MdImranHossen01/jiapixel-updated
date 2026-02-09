@@ -14,7 +14,10 @@ import {
   Menu,
   X,
   ShoppingBag,
-  Folder
+  Folder,
+  MapPin,
+  Mail,
+  PenTool
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 import Logo from '@/app/(mainlayout)/components/Logo';
@@ -79,6 +82,27 @@ const LeftSideNav = () => {
       adminOnly: true,
     },
     {
+      name: 'Manage Newsletters',
+      href: '/dashboard/admin/manage-newsletters',
+      icon: Mail,
+      current: pathname.startsWith('/dashboard/admin/manage-newsletters'),
+      adminOnly: true,
+    },
+    {
+      name: 'Manage Posts',
+      href: '/dashboard/admin/manage-posts',
+      icon: FileText,
+      current: pathname.startsWith('/dashboard/admin/manage-posts'),
+      adminOnly: true,
+    },
+    {
+      name: 'Manage Writings',
+      href: '/dashboard/admin/manage-writings',
+      icon: PenTool,
+      current: pathname.startsWith('/dashboard/admin/manage-writings'),
+      adminOnly: true,
+    },
+    {
       name: 'Manage Services',
       href: '/dashboard/admin/manage-services',
       icon: Server,
@@ -111,6 +135,13 @@ const LeftSideNav = () => {
       href: '/dashboard/admin/manage-categories',
       icon: LayoutDashboard, // Using LayoutDashboard temporarily or import a new icon if needed
       current: pathname.startsWith('/dashboard/admin/manage-categories'),
+      adminOnly: true,
+    },
+    {
+      name: 'Local Categories',
+      href: '/dashboard/admin/manage-local-categories',
+      icon: MapPin,
+      current: pathname.startsWith('/dashboard/admin/manage-local-categories'),
       adminOnly: true,
     },
     {
