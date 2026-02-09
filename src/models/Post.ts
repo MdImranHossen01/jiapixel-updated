@@ -17,6 +17,7 @@ export interface IPost extends Document {
     updatedAt: Date;
     relatedProjects?: mongoose.Types.ObjectId[];
     relatedPosts?: mongoose.Types.ObjectId[];
+    isIndexedInGoogle: boolean;
 }
 
 const PostSchema: Schema = new Schema(
@@ -77,6 +78,10 @@ const PostSchema: Schema = new Schema(
         views: {
             type: Number,
             default: 0,
+        },
+        isIndexedInGoogle: {
+            type: Boolean,
+            default: false,
         },
     },
     {

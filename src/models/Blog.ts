@@ -19,6 +19,7 @@ export interface IBlog extends Document {
   createdAt: Date;
   updatedAt: Date;
   relatedServices?: mongoose.Types.ObjectId[];
+  isIndexedInGoogle: boolean;
 }
 
 const BlogSchema: Schema = new Schema(
@@ -94,6 +95,10 @@ const BlogSchema: Schema = new Schema(
     views: {
       type: Number,
       default: 0,
+    },
+    isIndexedInGoogle: {
+      type: Boolean,
+      default: false,
     },
   },
   {

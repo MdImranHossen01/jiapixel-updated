@@ -1,7 +1,7 @@
 
 import Link from 'next/link';
 import { Suspense } from 'react';
-import PostCardClient from './PostCardClient';
+import PostsClient from './PostsClient';
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -48,18 +48,9 @@ export default async function ManagePostsPage() {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="container mx-auto py-10">
                 <Suspense fallback={<div>Loading posts...</div>}>
-                    {posts.length === 0 ? (
-                        <div className="text-center py-12 bg-card rounded-lg border border-border">
-                            <p className="text-muted-foreground text-lg">No posts found</p>
-                            <p className="text-sm text-muted-foreground mt-2">Get started by creating your first post</p>
-                        </div>
-                    ) : (
-                        posts.map((post: any) => (
-                            <PostCardClient key={post._id} post={post} />
-                        ))
-                    )}
+                    <PostsClient data={posts} />
                 </Suspense>
             </div>
         </div>

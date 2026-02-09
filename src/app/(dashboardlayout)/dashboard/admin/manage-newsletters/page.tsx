@@ -1,7 +1,7 @@
 
 import Link from 'next/link';
 import { Suspense } from 'react';
-import NewsletterCardClient from './NewsletterCardClient';
+import NewslettersClient from './NewslettersClient';
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -48,18 +48,9 @@ export default async function ManageNewslettersPage() {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="container mx-auto py-10">
                 <Suspense fallback={<div>Loading newsletters...</div>}>
-                    {newsletters.length === 0 ? (
-                        <div className="text-center py-12 bg-card rounded-lg border border-border">
-                            <p className="text-muted-foreground text-lg">No newsletters found</p>
-                            <p className="text-sm text-muted-foreground mt-2">Get started by creating your first newsletter</p>
-                        </div>
-                    ) : (
-                        newsletters.map((newsletter: any) => (
-                            <NewsletterCardClient key={newsletter._id} newsletter={newsletter} />
-                        ))
-                    )}
+                    <NewslettersClient data={newsletters} />
                 </Suspense>
             </div>
         </div>

@@ -8,7 +8,7 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card";
-import ManageBlogsClient from "./ManageBlogsClient";
+import BlogsClient from "./BlogsClient";
 
 async function getBlogs() {
   try {
@@ -88,7 +88,7 @@ export default async function DashboardBlogsPage() {
           </CardContent>
         </Card>
       ) : (
-        <ManageBlogsClient blogs={blogs} />
+        <BlogsClient data={blogs} />
       )}
     </div>
   );

@@ -16,6 +16,7 @@ export interface ICategory extends Document {
     selectedServices: string[];
     createdAt: Date;
     updatedAt: Date;
+    isIndexedInGoogle: boolean;
 }
 
 const CategorySchema: Schema = new Schema({
@@ -63,7 +64,11 @@ const CategorySchema: Schema = new Schema({
     selectedServices: [{
         type: Schema.Types.ObjectId,
         ref: 'Service'
-    }]
+    }],
+    isIndexedInGoogle: {
+        type: Boolean,
+        default: false,
+    }
 }, {
     timestamps: true,
 });

@@ -1,7 +1,7 @@
 
 import Link from 'next/link';
 import { Suspense } from 'react';
-import WritingCardClient from './WritingCardClient';
+import WritingsClient from './WritingsClient';
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -48,18 +48,9 @@ export default async function ManageWritingsPage() {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="container mx-auto py-10">
                 <Suspense fallback={<div>Loading writings...</div>}>
-                    {writings.length === 0 ? (
-                        <div className="text-center py-12 bg-card rounded-lg border border-border">
-                            <p className="text-muted-foreground text-lg">No writings found</p>
-                            <p className="text-sm text-muted-foreground mt-2">Get started by creating your first writing</p>
-                        </div>
-                    ) : (
-                        writings.map((writing: any) => (
-                            <WritingCardClient key={writing._id} writing={writing} />
-                        ))
-                    )}
+                    <WritingsClient data={writings} />
                 </Suspense>
             </div>
         </div>

@@ -16,6 +16,7 @@ export interface ILocalCategory extends Document {
     selectedProjects: string[];
     createdAt: Date;
     updatedAt: Date;
+    isIndexedInGoogle: boolean;
 }
 
 const LocalCategorySchema: Schema = new Schema({
@@ -63,7 +64,11 @@ const LocalCategorySchema: Schema = new Schema({
     selectedProjects: [{
         type: Schema.Types.ObjectId,
         ref: 'Project'
-    }]
+    }],
+    isIndexedInGoogle: {
+        type: Boolean,
+        default: false,
+    }
 }, {
     timestamps: true,
 });

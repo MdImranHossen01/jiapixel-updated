@@ -3,21 +3,15 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Trash2, Edit, Plus } from "lucide-react";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import CategoriesClient from "./CategoriesClient";
+import { Plus } from "lucide-react";
 
 interface Category {
     _id: string;
     title: string;
     slug: string;
     createdAt: string;
+    isIndexedInGoogle: boolean;
 }
 
 const ManageCategories = () => {
@@ -44,25 +38,6 @@ const ManageCategories = () => {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this category?")) return;
-
-        try {
-            const res = await fetch(`/api/categories/${id}`, {
-                method: "DELETE",
-            });
-
-            if (res.ok) {
-                toast.success("Category deleted successfully");
-                setCategories(categories.filter((cat) => cat._id !== id));
-            } else {
-                toast.error("Failed to delete category");
-            }
-        } catch (error) {
-            toast.error("An error occurred");
-        }
-    };
-
     if (loading) return <div>Loading...</div>;
 
     return (
@@ -79,54 +54,7 @@ const ManageCategories = () => {
             </div>
 
             <div className="bg-background rounded-lg shadow overflow-hidden">
-                <Table>
-                    <TableHeader className="bg-gray-50">
-                        <TableRow>
-                            <TableHead className="px-6 py-3 text-gray-500 font-medium">Title</TableHead>
-                            <TableHead className="px-6 py-3 text-gray-500 font-medium">Slug</TableHead>
-                            <TableHead className="px-6 py-3 text-gray-500 font-medium">Created At</TableHead>
-                            <TableHead className="px-6 py-3 text-gray-500 font-medium text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {categories.map((category) => (
-                            <TableRow key={category._id} className="hover:bg-gray-50">
-                                <TableCell className="px-6 py-4 text-foreground font-medium">
-                                    <Link href={`/${category.slug}`} target="_blank" className="hover:underline hover:text-primary">
-                                        {category.title}
-                                    </Link>
-                                </TableCell>
-                                <TableCell className="px-6 py-4 text-foreground">{category.slug}</TableCell>
-                                <TableCell className="px-6 py-4 text-foreground">
-                                    {new Date(category.createdAt).toLocaleDateString()}
-                                </TableCell>
-                                <TableCell className="px-6 py-4 text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <Link
-                                            href={`/dashboard/admin/manage-categories/edit/${category.slug}`}
-                                            className="text-blue-500 hover:bg-blue-50 p-2 rounded"
-                                        >
-                                            <Edit size={18} />
-                                        </Link>
-                                        <button
-                                            onClick={() => handleDelete(category._id)}
-                                            className="text-red-500 hover:bg-red-50 p-2 rounded"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                        {categories.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                                    No categories found. Create one to get started.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                <CategoriesClient data={categories} />
             </div>
         </div>
     );

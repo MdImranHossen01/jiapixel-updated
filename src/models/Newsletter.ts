@@ -17,7 +17,9 @@ export interface INewsletter extends Document {
     createdAt: Date;
     updatedAt: Date;
     relatedProjects?: mongoose.Types.ObjectId[];
+    relatedProjects?: mongoose.Types.ObjectId[];
     relatedNewsletters?: mongoose.Types.ObjectId[];
+    isIndexedInGoogle: boolean;
 }
 
 const NewsletterSchema: Schema = new Schema(
@@ -82,6 +84,10 @@ const NewsletterSchema: Schema = new Schema(
         views: {
             type: Number,
             default: 0,
+        },
+        isIndexedInGoogle: {
+            type: Boolean,
+            default: false,
         },
     },
     {

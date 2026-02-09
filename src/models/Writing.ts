@@ -17,6 +17,7 @@ export interface IWriting extends Document {
     updatedAt: Date;
     relatedProjects?: mongoose.Types.ObjectId[];
     relatedWritings?: mongoose.Types.ObjectId[];
+    isIndexedInGoogle: boolean;
 }
 
 const WritingSchema: Schema = new Schema(
@@ -77,6 +78,10 @@ const WritingSchema: Schema = new Schema(
         views: {
             type: Number,
             default: 0,
+        },
+        isIndexedInGoogle: {
+            type: Boolean,
+            default: false,
         },
     },
     {
