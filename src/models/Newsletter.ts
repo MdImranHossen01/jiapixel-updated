@@ -9,8 +9,6 @@ export interface INewsletter extends Document {
     featuredImage?: string;
     author?: mongoose.Types.ObjectId;
     authorName?: string;
-    tags: string[];
-    status: "draft" | "published" | "archived";
     publishedAt?: Date;
     seoTitle?: string;
     seoDescription?: string;
@@ -56,17 +54,7 @@ const NewsletterSchema: Schema = new Schema(
             type: String,
             default: "Md. Imran Hossen",
         },
-        tags: [
-            {
-                type: String,
-                trim: true,
-            },
-        ],
-        status: {
-            type: String,
-            enum: ["draft", "published", "archived"],
-            default: "draft",
-        },
+
         publishedAt: {
             type: Date,
         },
@@ -96,7 +84,7 @@ const NewsletterSchema: Schema = new Schema(
     }
 );
 
-NewsletterSchema.index({ status: 1, publishedAt: -1 });
+NewsletterSchema.index({ publishedAt: -1 });
 NewsletterSchema.index({ slug: 1 });
 
 NewsletterSchema.pre("save", function (this: INewsletter, next) {
@@ -108,12 +96,7 @@ NewsletterSchema.pre("save", function (this: INewsletter, next) {
     next();
 });
 
-NewsletterSchema.pre("save", function (this: INewsletter, next) {
-    if (this.isModified("status") && this.status === "published" && !this.publishedAt) {
-        this.publishedAt = new Date();
-    }
-    next();
-});
+
 
 NewsletterSchema.pre("save", function (this: INewsletter, next) {
     if (this.isModified("title") && !this.slug) {

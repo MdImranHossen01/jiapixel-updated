@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import NovelEditor from '@/app/components/editor/NovelEditor';
+import { toast } from 'sonner';
 
 // Helper function to validate URL
 const isValidUrl = (url: string): boolean => {
@@ -22,20 +23,21 @@ export default function CreateNewsletterPage() {
     const [content, setContent] = useState(''); // Stores JSON string
     const [excerpt, setExcerpt] = useState('');
     const [featuredImage, setFeaturedImage] = useState('');
-    const [status, setStatus] = useState('draft');
-    const [tags, setTags] = useState('');
+    const [seoTitle, setSeoTitle] = useState('');
+    const [seoDescription, setSeoDescription] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
 
     // Helper to get initial value (empty content)
-    // cast to any because NovelEditor expects generic structure but we pass undefined for new props
     const initialValue = undefined;
 
     // Projects handling
     const [projects, setProjects] = useState<any[]>([]);
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
     const [loadingProjects, setLoadingProjects] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         fetchProjects();
@@ -55,19 +57,66 @@ export default function CreateNewsletterPage() {
         }
     };
 
-    const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-        setSelectedProjects(selectedOptions);
+    const toggleProject = (projectId: string) => {
+        if (selectedProjects.includes(projectId)) {
+            setSelectedProjects(selectedProjects.filter(id => id !== projectId));
+        } else {
+            if (selectedProjects.length >= 4) {
+                toast.error("You can select up to 4 projects only");
+                return;
+            }
+            setSelectedProjects([...selectedProjects, projectId]);
+        }
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const url = e.target.value;
-        setFeaturedImage(url);
-        setImageError(false);
-        if (isValidUrl(url)) {
-            setImagePreview(url);
-        } else {
-            setImagePreview(null);
+    const filteredProjects = projects.filter(project =>
+        project.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please select a valid image file');
+            return;
+        }
+
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('Image size should be less than 10MB');
+            return;
+        }
+
+        setUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const imageUrl = result.data.url;
+                setFeaturedImage(imageUrl);
+                setImagePreview(imageUrl);
+                setImageError(false);
+                toast.success('Image uploaded successfully');
+            } else {
+                throw new Error(result.error?.message || 'Upload failed');
+            }
+        } catch (error) {
+            console.error('Image upload error:', error);
+            toast.error('Failed to upload image. Please try again.');
+        } finally {
+            setUploading(false);
+            e.target.value = '';
         }
     };
 
@@ -86,14 +135,13 @@ export default function CreateNewsletterPage() {
         setSubmitting(true);
 
         try {
-            // Content is already updated via onChange in NovelEditor
             const newsletterData = {
                 title,
                 content,
                 excerpt,
                 featuredImage,
-                status,
-                tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+                seoTitle: seoTitle || title,
+                seoDescription: seoDescription || excerpt,
                 relatedProjects: selectedProjects
             };
 
@@ -106,15 +154,15 @@ export default function CreateNewsletterPage() {
             });
 
             if (response.ok) {
-                alert('Newsletter created successfully!');
+                toast.success('Newsletter created successfully!');
                 router.push('/dashboard/admin/manage-newsletters');
             } else {
                 const error = await response.json();
-                alert(error.error || 'Failed to create newsletter');
+                toast.error(error.error || 'Failed to create newsletter');
             }
         } catch (error) {
             console.error('Error creating newsletter:', error);
-            alert('Failed to create newsletter');
+            toast.error('Failed to create newsletter');
         } finally {
             setSubmitting(false);
         }
@@ -195,39 +243,45 @@ export default function CreateNewsletterPage() {
                     </div>
 
                     <div className="space-y-6">
-                        {/* Publishing Settings */}
+                        {/* SEO Settings */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <h3 className="text-lg font-semibold text-card-foreground mb-4">Publishing Settings</h3>
+                            <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label htmlFor="status" className="block text-sm font-medium text-card-foreground mb-2">
-                                        Status
-                                    </label>
-                                    <select
-                                        id="status"
-                                        value={status}
-                                        onChange={(e) => setStatus(e.target.value)}
-                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                    >
-                                        <option value="draft">Draft</option>
-                                        <option value="published">Published</option>
-                                        <option value="archived">Archived</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="tags" className="block text-sm font-medium text-card-foreground mb-2">
-                                        Tags
+                                    <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Meta Title
                                     </label>
                                     <input
                                         type="text"
-                                        id="tags"
-                                        value={tags}
-                                        onChange={(e) => setTags(e.target.value)}
+                                        id="seoTitle"
+                                        value={seoTitle}
+                                        onChange={(e) => setSeoTitle(e.target.value)}
                                         className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                        placeholder="Separate tags with commas"
+                                        placeholder="SEO optimized title (max 60 characters)"
+                                        maxLength={60}
                                     />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        {seoTitle.length}/60 characters
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="seoDescription" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Meta Description
+                                    </label>
+                                    <textarea
+                                        id="seoDescription"
+                                        value={seoDescription}
+                                        onChange={(e) => setSeoDescription(e.target.value)}
+                                        rows={3}
+                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        placeholder="SEO optimized description (max 160 characters)"
+                                        maxLength={160}
+                                    />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        {seoDescription.length}/160 characters
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -239,24 +293,40 @@ export default function CreateNewsletterPage() {
                                 {loadingProjects ? (
                                     <div className="text-sm text-muted-foreground">Loading projects...</div>
                                 ) : (
-                                    <div>
-                                        <label htmlFor="relatedProjects" className="block text-sm font-medium text-card-foreground mb-2">
-                                            Select Projects (Hold Ctrl/Cmd to select multiple)
-                                        </label>
-                                        <select
-                                            multiple
-                                            id="relatedProjects"
-                                            value={selectedProjects}
-                                            onChange={handleProjectChange}
-                                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground h-40"
-                                        >
-                                            {projects.map((project) => (
-                                                <option key={project._id} value={project._id}>
-                                                    {project.title}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    <>
+                                        {/* Search Input */}
+                                        <div>
+                                            <input
+                                                type="text"
+                                                placeholder="Search projects..."
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm text-foreground focus:ring-primary focus:border-primary"
+                                            />
+                                        </div>
+
+                                        {/* Project Checkboxes */}
+                                        <div className="border border-border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
+                                            {filteredProjects.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {filteredProjects.map((project) => (
+                                                        <label key={project._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded text-foreground">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedProjects.includes(project._id)}
+                                                                onChange={() => toggleProject(project._id)}
+                                                                className="h-4 w-4 text-primary border bg-background rounded focus:ring-primary"
+                                                            />
+                                                            <span className="text-sm">{project.title}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-muted-foreground text-sm">No projects found</p>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Check the projects you want to display (max 4)</p>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -265,12 +335,12 @@ export default function CreateNewsletterPage() {
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
                             <h3 className="text-lg font-semibold text-card-foreground mb-4">Featured Image</h3>
 
-                            {imagePreview ? (
+                            {imagePreview && isValidUrl(featuredImage) ? (
                                 <div className="space-y-3">
                                     <div className="relative aspect-video rounded-lg overflow-hidden border border-border">
                                         {!imageError ? (
                                             <Image
-                                                src={imagePreview}
+                                                src={featuredImage}
                                                 alt="Featured image preview"
                                                 fill
                                                 className="object-cover"
@@ -293,14 +363,40 @@ export default function CreateNewsletterPage() {
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    <div>
+                                    {/* Upload Button */}
+                                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                                         <input
-                                            type="url"
-                                            value={featuredImage}
-                                            onChange={handleImageChange}
-                                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground text-sm"
-                                            placeholder="https://example.com/image.jpg"
+                                            type="file"
+                                            id="image-upload"
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                            className="hidden"
+                                            disabled={uploading}
                                         />
+                                        <label
+                                            htmlFor="image-upload"
+                                            className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                            {uploading ? (
+                                                <div className="flex flex-col items-center space-y-2">
+                                                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                                    <span className="text-sm text-muted-foreground">Uploading...</span>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="text-2xl mb-2">📁</div>
+                                                    <div className="text-sm font-medium text-foreground mb-1">
+                                                        Upload Featured Image
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Click to upload or drag and drop
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground mt-1">
+                                                        PNG, JPG, GIF up to 10MB
+                                                    </div>
+                                                </>
+                                            )}
+                                        </label>
                                     </div>
                                 </div>
                             )}
@@ -313,17 +409,17 @@ export default function CreateNewsletterPage() {
                     <button
                         type="button"
                         onClick={() => router.push('/dashboard/admin/manage-newsletters')}
-                        disabled={submitting}
+                        disabled={submitting || uploading}
                         className="px-6 py-3 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        disabled={submitting || !title || !content}
+                        disabled={submitting || uploading || !title || !content}
                         className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {submitting ? 'Creating...' : status === 'published' ? 'Publish Newsletter' : 'Save as Draft'}
+                        {submitting ? 'Creating...' : 'Create Newsletter'}
                     </button>
                 </div>
             </form>

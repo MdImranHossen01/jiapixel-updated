@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, { params }: Params) {
             );
         }
 
-        const newsletter = await Newsletter.findOne({ slug, status: 'published' })
+        const newsletter = await Newsletter.findOne({ slug })
             .select('-__v')
             .populate({
                 path: 'relatedProjects',
@@ -116,8 +116,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
                 excerpt: newsletter.excerpt,
                 featuredImage: newsletter.featuredImage,
                 authorName: newsletter.authorName,
-                tags: newsletter.tags,
-                status: newsletter.status,
                 readTime: newsletter.readTime,
                 publishedAt: newsletter.publishedAt,
                 createdAt: newsletter.createdAt

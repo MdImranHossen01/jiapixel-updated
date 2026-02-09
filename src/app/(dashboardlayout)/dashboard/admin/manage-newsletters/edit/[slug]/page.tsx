@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
 import Image from 'next/image';
 import NovelEditor from '@/app/components/editor/NovelEditor';
+import { toast } from 'sonner';
 
 // Helper function to validate URL
 const isValidUrl = (url: string): boolean => {
@@ -35,8 +34,6 @@ interface NewsletterData {
     excerpt?: string;
     featuredImage?: string;
     authorName?: string;
-    tags: string[];
-    status: 'draft' | 'published' | 'archived';
     seoTitle?: string;
     seoDescription?: string;
     readTime: number;
@@ -57,10 +54,12 @@ export default function EditNewsletterPage({ params }: PageProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [newsletter, setNewsletter] = useState<NewsletterData | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
     const [projects, setProjects] = useState<any[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Await params in useEffect
     const [resolvedParams, setResolvedParams] = useState<{ slug: string } | null>(null);
@@ -117,13 +116,13 @@ export default function EditNewsletterPage({ params }: PageProps) {
             }
         } catch (error) {
             console.error('Error fetching newsletter:', error);
-            alert('Failed to load newsletter');
+            toast.error('Failed to load newsletter');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         if (!newsletter) return;
 
         const { name, value } = e.target;
@@ -131,35 +130,82 @@ export default function EditNewsletterPage({ params }: PageProps) {
             ...prev,
             [name]: value
         } : null);
+    };
 
-        // Handle image preview for featured image
-        if (name === 'featuredImage') {
-            setImageError(false);
-            if (isValidUrl(value)) {
-                setImagePreview(value);
-            } else {
-                setImagePreview(null);
+    const toggleProject = (projectId: string) => {
+        if (!newsletter) return;
+
+        const currentSelected = newsletter.relatedProjects || [];
+
+        if (currentSelected.includes(projectId)) {
+            setNewsletter(prev => prev ? {
+                ...prev,
+                relatedProjects: currentSelected.filter(id => id !== projectId)
+            } : null);
+        } else {
+            if (currentSelected.length >= 4) {
+                toast.error("You can select up to 4 projects only");
+                return;
             }
+            setNewsletter(prev => prev ? {
+                ...prev,
+                relatedProjects: [...currentSelected, projectId]
+            } : null);
         }
     };
 
-    const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!newsletter) return;
+    const filteredProjects = projects.filter(project =>
+        project.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-        const tagsString = e.target.value;
-        setNewsletter(prev => prev ? {
-            ...prev,
-            tags: tagsString.split(',').map(tag => tag.trim()).filter(tag => tag)
-        } : null);
-    };
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        if (!newsletter) return;
-        const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-        setNewsletter(prev => prev ? {
-            ...prev,
-            relatedProjects: selectedOptions
-        } : null);
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please select a valid image file');
+            return;
+        }
+
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('Image size should be less than 10MB');
+            return;
+        }
+
+        setUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('https://api.imgbb.com/1/upload?key=d08120f6a6e1af75c0d2755245d6dee1', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const imageUrl = result.data.url;
+                setNewsletter(prev => prev ? {
+                    ...prev,
+                    featuredImage: imageUrl
+                } : null);
+                setImagePreview(imageUrl);
+                setImageError(false);
+                toast.success('Image uploaded successfully');
+            } else {
+                throw new Error(result.error?.message || 'Upload failed');
+            }
+        } catch (error) {
+            console.error('Image upload error:', error);
+            toast.error('Failed to upload image. Please try again.');
+        } finally {
+            setUploading(false);
+            e.target.value = '';
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -181,16 +227,15 @@ export default function EditNewsletterPage({ params }: PageProps) {
             });
 
             if (response.ok) {
-                const result = await response.json();
-                alert('Newsletter updated successfully!');
+                toast.success('Newsletter updated successfully!');
                 router.push('/dashboard/admin/manage-newsletters');
             } else {
                 const error = await response.json();
-                alert(error.error || 'Failed to update newsletter');
+                toast.error(error.error || 'Failed to update newsletter');
             }
         } catch (error) {
             console.error('Error updating newsletter:', error);
-            alert('Failed to update newsletter');
+            toast.error('Failed to update newsletter');
         } finally {
             setSaving(false);
         }
@@ -234,8 +279,6 @@ export default function EditNewsletterPage({ params }: PageProps) {
             </div>
         );
     }
-
-    const tagsString = newsletter.tags.join(', ');
 
     return (
         <div className="max-w-6xl mx-auto space-y-6">
@@ -304,7 +347,7 @@ export default function EditNewsletterPage({ params }: PageProps) {
                                 onChange={handleChange}
                                 rows={4}
                                 className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                placeholder="Excerpt..."
+                                placeholder="Brief summary of the newsletter..."
                                 maxLength={300}
                             />
                             <div className="text-sm text-muted-foreground mt-2">
@@ -314,41 +357,47 @@ export default function EditNewsletterPage({ params }: PageProps) {
                     </div>
 
                     <div className="space-y-6">
-                        {/* Publishing Settings */}
+                        {/* SEO Settings */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <h3 className="text-lg font-semibold text-card-foreground mb-4">Publishing Settings</h3>
+                            <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label htmlFor="status" className="block text-sm font-medium text-card-foreground mb-2">
-                                        Status
-                                    </label>
-                                    <select
-                                        id="status"
-                                        name="status"
-                                        value={newsletter.status}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                    >
-                                        <option value="draft">Draft</option>
-                                        <option value="published">Published</option>
-                                        <option value="archived">Archived</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="tags" className="block text-sm font-medium text-card-foreground mb-2">
-                                        Tags
+                                    <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Meta Title
                                     </label>
                                     <input
                                         type="text"
-                                        id="tags"
-                                        name="tags"
-                                        value={tagsString}
-                                        onChange={handleTagsChange}
+                                        id="seoTitle"
+                                        name="seoTitle"
+                                        value={newsletter.seoTitle || ''}
+                                        onChange={handleChange}
                                         className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                        placeholder="Separate tags with commas"
+                                        placeholder="SEO optimized title (max 60 characters)"
+                                        maxLength={60}
                                     />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        {(newsletter.seoTitle || '').length}/60 characters
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="seoDescription" className="block text-sm font-medium text-card-foreground mb-2">
+                                        Meta Description
+                                    </label>
+                                    <textarea
+                                        id="seoDescription"
+                                        name="seoDescription"
+                                        value={newsletter.seoDescription || ''}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                        placeholder="SEO optimized description (max 160 characters)"
+                                        maxLength={160}
+                                    />
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        {(newsletter.seoDescription || '').length}/160 characters
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -357,25 +406,38 @@ export default function EditNewsletterPage({ params }: PageProps) {
                         <div className="bg-card rounded-lg shadow p-6 border border-border">
                             <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Projects</h3>
                             <div className="space-y-4">
+                                {/* Search Input */}
                                 <div>
-                                    <label htmlFor="relatedProjects" className="block text-sm font-medium text-card-foreground mb-2">
-                                        Select Projects (Hold Ctrl/Cmd to select multiple)
-                                    </label>
-                                    <select
-                                        multiple
-                                        id="relatedProjects"
-                                        name="relatedProjects"
-                                        value={newsletter.relatedProjects || []}
-                                        onChange={handleProjectChange}
-                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground h-40"
-                                    >
-                                        {projects.map((project) => (
-                                            <option key={project._id} value={project._id}>
-                                                {project.title}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <input
+                                        type="text"
+                                        placeholder="Search projects..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full border border-border bg-background rounded-lg px-3 py-2 text-sm text-foreground focus:ring-primary focus:border-primary"
+                                    />
                                 </div>
+
+                                {/* Project Checkboxes */}
+                                <div className="border border-border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
+                                    {filteredProjects.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {filteredProjects.map((project) => (
+                                                <label key={project._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded text-foreground">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={(newsletter.relatedProjects || []).includes(project._id)}
+                                                        onChange={() => toggleProject(project._id)}
+                                                        className="h-4 w-4 text-primary border bg-background rounded focus:ring-primary"
+                                                    />
+                                                    <span className="text-sm">{project.title}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-muted-foreground text-sm">No projects found</p>
+                                    )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">Check the projects you want to display (max 4)</p>
                             </div>
                         </div>
 
@@ -411,63 +473,43 @@ export default function EditNewsletterPage({ params }: PageProps) {
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    <div>
+                                    {/* Upload Button */}
+                                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                                         <input
-                                            type="url"
-                                            name="featuredImage"
-                                            value={newsletter.featuredImage || ''}
-                                            onChange={handleChange}
-                                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground text-sm"
-                                            placeholder="https://example.com/image.jpg"
+                                            type="file"
+                                            id="image-upload"
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                            className="hidden"
+                                            disabled={uploading}
                                         />
+                                        <label
+                                            htmlFor="image-upload"
+                                            className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                            {uploading ? (
+                                                <div className="flex flex-col items-center space-y-2">
+                                                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                                    <span className="text-sm text-muted-foreground">Uploading...</span>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="text-2xl mb-2">📁</div>
+                                                    <div className="text-sm font-medium text-foreground mb-1">
+                                                        Upload Featured Image
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Click to upload or drag and drop
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground mt-1">
+                                                        PNG, JPG, GIF up to 10MB
+                                                    </div>
+                                                </>
+                                            )}
+                                        </label>
                                     </div>
                                 </div>
                             )}
-                        </div>
-
-                        {/* SEO Settings */}
-                        <div className="bg-card rounded-lg shadow p-6 border border-border">
-                            <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">
-                                        SEO Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="seoTitle"
-                                        name="seoTitle"
-                                        value={newsletter.seoTitle || ''}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                        placeholder="SEO optimized title"
-                                        maxLength={60}
-                                    />
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                        {(newsletter.seoTitle || '').length}/60 characters
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="seoDescription" className="block text-sm font-medium text-card-foreground mb-2">
-                                        SEO Description
-                                    </label>
-                                    <textarea
-                                        id="seoDescription"
-                                        name="seoDescription"
-                                        value={newsletter.seoDescription || ''}
-                                        onChange={handleChange}
-                                        rows={3}
-                                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                        placeholder="SEO optimized description"
-                                        maxLength={160}
-                                    />
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                        {(newsletter.seoDescription || '').length}/160 characters
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -477,17 +519,17 @@ export default function EditNewsletterPage({ params }: PageProps) {
                     <button
                         type="button"
                         onClick={() => router.push('/dashboard/admin/manage-newsletters')}
-                        disabled={saving}
+                        disabled={saving || uploading}
                         className="px-6 py-3 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        disabled={saving || !newsletter.title || !newsletter.content}
+                        disabled={saving || uploading || !newsletter.title || !newsletter.content}
                         className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {saving ? 'Saving...' : newsletter.status === 'published' ? 'Update' : 'Save as Draft'}
+                        {saving ? 'Saving...' : 'Update Newsletter'}
                     </button>
                 </div>
             </form>

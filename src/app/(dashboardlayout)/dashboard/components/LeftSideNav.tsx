@@ -61,6 +61,13 @@ const LeftSideNav = () => {
       adminOnly: false,
     },
     {
+      name: 'Manage Projects',
+      href: '/dashboard/admin/manage-projects',
+      icon: Folder,
+      current: pathname.startsWith('/dashboard/admin/manage-projects'),
+      adminOnly: true,
+    },
+    {
       name: 'Admin Dashboard',
       href: '/dashboard/admin',
       icon: Settings,
