@@ -89,7 +89,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
         // Update newsletter fields
         Object.keys(body).forEach(key => {
-            if (body[key] !== undefined && key !== '_id' && key !== 'slug') {
+            if (body[key] !== undefined && key !== '_id') {
                 newsletter[key] = body[key];
             }
         });

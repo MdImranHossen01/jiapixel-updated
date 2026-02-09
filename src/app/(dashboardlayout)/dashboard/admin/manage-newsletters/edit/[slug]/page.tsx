@@ -57,6 +57,7 @@ export default function EditNewsletterPage({ params }: PageProps) {
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [newsletter, setNewsletter] = useState<NewsletterData | null>(null);
+    const [originalSlug, setOriginalSlug] = useState<string>('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
 
@@ -133,6 +134,7 @@ export default function EditNewsletterPage({ params }: PageProps) {
                 }
 
                 setNewsletter(newsletterData);
+                setOriginalSlug(newsletterData.slug);
                 if (data.newsletter.featuredImage && isValidUrl(data.newsletter.featuredImage)) {
                     setImagePreview(data.newsletter.featuredImage);
                 }
@@ -270,7 +272,7 @@ export default function EditNewsletterPage({ params }: PageProps) {
             // content is already updated in state by NovelEditor onChange
             const updatedNewsletter = { ...newsletter };
 
-            const response = await fetch(`/api/newsletters/${newsletter.slug}`, {
+            const response = await fetch(`/api/newsletters/${originalSlug}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
