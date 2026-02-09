@@ -16,7 +16,7 @@ export interface ILocalCategory extends Document {
     selectedProjects: string[];
     createdAt: Date;
     updatedAt: Date;
-    isIndexedInGoogle: boolean;
+    isIndexedInGoogle?: boolean;
 }
 
 const LocalCategorySchema: Schema = new Schema({

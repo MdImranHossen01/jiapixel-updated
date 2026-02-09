@@ -17,7 +17,7 @@ export interface IPost extends Document {
     updatedAt: Date;
     relatedProjects?: mongoose.Types.ObjectId[];
     relatedPosts?: mongoose.Types.ObjectId[];
-    isIndexedInGoogle: boolean;
+    isIndexedInGoogle?: boolean;
 }
 
 const PostSchema: Schema = new Schema(

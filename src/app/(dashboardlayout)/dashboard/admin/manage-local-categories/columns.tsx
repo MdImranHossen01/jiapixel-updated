@@ -20,6 +20,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useRouter } from "next/navigation"
 
 export type LocalCategory = {
     _id: string
@@ -27,25 +28,6 @@ export type LocalCategory = {
     slug: string
     createdAt: string
     isIndexedInGoogle: boolean
-}
-
-const handleIndexToggle = async (id: string, slug: string, diff: boolean) => {
-    try {
-        const res = await fetch(`/api/local-categories/${slug}`, {
-            method: 'PUT',
-            body: JSON.stringify({ isIndexedInGoogle: diff }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (res.ok) {
-            toast.success(`Google Index status updated to ${diff ? 'Indexed' : 'Not Indexed'}`);
-            window.location.reload();
-        } else {
-            toast.error("Failed to update status");
-        }
-    } catch (e) {
-        toast.error("Error updating status");
-    }
 }
 
 export const columns: ColumnDef<LocalCategory>[] = [
@@ -87,15 +69,36 @@ export const columns: ColumnDef<LocalCategory>[] = [
         accessorKey: "isIndexedInGoogle",
         header: "Google Index",
         cell: ({ row }) => {
+            const router = useRouter();
             const isIndexed = row.getValue("isIndexedInGoogle") as boolean;
             const slug = row.original.slug;
-            const id = row.original._id;
+
+            const handleIndexToggle = async (slug: string, diff: boolean) => {
+                try {
+                    const res = await fetch(`/api/local-categories/${slug}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ isIndexedInGoogle: diff }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (res.ok) {
+                        toast.success(`Google Index status updated to ${diff ? 'Indexed' : 'Not Indexed'}`);
+                        router.refresh();
+                    } else {
+                        const errorData = await res.json();
+                        toast.error(errorData.message || "Failed to update status");
+                    }
+                } catch (e) {
+                    console.error("Error updating status:", e);
+                    toast.error("Error updating status");
+                }
+            }
 
             return (
                 <div className="flex items-center space-x-2">
                     <Switch
                         checked={isIndexed}
-                        onCheckedChange={(checked) => handleIndexToggle(id, slug, checked)}
+                        onCheckedChange={(checked) => handleIndexToggle(slug, checked)}
                     />
                     <span className="text-sm text-muted-foreground">{isIndexed ? "Yes" : "No"}</span>
                 </div>
@@ -126,14 +129,38 @@ export const columns: ColumnDef<LocalCategory>[] = [
             const date = new Date(row.getValue("createdAt"));
             const now = new Date();
             const diffTime = Math.abs(now.getTime() - date.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return `${diffDays} days ago`
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return "Today";
+            if (diffDays === 1) return "1 day ago";
+            return `${diffDays} days ago`;
         },
     },
     {
         id: "actions",
         cell: ({ row }) => {
+            const router = useRouter();
             const category = row.original
+
+            const handleDelete = async () => {
+                if (!confirm("Are you sure?")) return;
+
+                try {
+                    const res = await fetch(`/api/local-categories/${category.slug}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        toast.success("Category deleted successfully");
+                        router.refresh();
+                        // Optional fallback if router.refresh() doesn't immediately reflect in all environments w/out soft navigations
+                        // window.location.reload(); 
+                    } else {
+                        const data = await res.json();
+                        toast.error(data.message || "Failed to delete category");
+                    }
+                } catch (error) {
+                    console.error("Error deleting category:", error);
+                    toast.error("An error occurred while deleting");
+                }
+            };
 
             return (
                 <DropdownMenu>
@@ -159,12 +186,7 @@ export const columns: ColumnDef<LocalCategory>[] = [
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
-                            onClick={async () => {
-                                if (confirm("Are you sure?")) {
-                                    await fetch(`/api/local-categories/${category.slug}`, { method: 'DELETE' });
-                                    window.location.reload();
-                                }
-                            }}
+                            onClick={handleDelete}
                         >
                             Delete
                         </DropdownMenuItem>

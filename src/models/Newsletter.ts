@@ -17,7 +17,6 @@ export interface INewsletter extends Document {
     createdAt: Date;
     updatedAt: Date;
     relatedProjects?: mongoose.Types.ObjectId[];
-    relatedProjects?: mongoose.Types.ObjectId[];
     relatedNewsletters?: mongoose.Types.ObjectId[];
     isIndexedInGoogle: boolean;
 }

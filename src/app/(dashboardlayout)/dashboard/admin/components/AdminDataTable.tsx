@@ -93,7 +93,7 @@ export function AdminDataTable<TData, TValue>({
         <div className="w-full">
             <div className="flex items-center py-4 gap-4">
                 <Input
-                    placeholder={`Search by title...`}
+                    placeholder={`Search by ${searchKey}...`}
                     value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
                         table.getColumn(searchKey)?.setFilterValue(event.target.value)
@@ -104,7 +104,9 @@ export function AdminDataTable<TData, TValue>({
                     <Select
                         value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? "all"}
                         onValueChange={(value) =>
-                            table.getColumn(filterKey)?.setFilterValue(value === "all" ? "" : value === "true" ? true : false)
+                            table.getColumn(filterKey)?.setFilterValue(
+                                value === "all" ? "" : value === "true" ? true : value === "false" ? false : value
+                            )
                         }
                     >
                         <SelectTrigger className="w-[180px]">

@@ -20,6 +20,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useRouter } from "next/navigation"
 
 export type Blog = {
     _id: string
@@ -27,25 +28,6 @@ export type Blog = {
     slug: string
     createdAt: string
     isIndexedInGoogle: boolean
-}
-
-const handleIndexToggle = async (id: string, slug: string, diff: boolean) => {
-    try {
-        const res = await fetch(`/api/blogs/${slug}`, {
-            method: 'PUT',
-            body: JSON.stringify({ isIndexedInGoogle: diff }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (res.ok) {
-            toast.success(`Google Index status updated to ${diff ? 'Indexed' : 'Not Indexed'}`);
-            window.location.reload();
-        } else {
-            toast.error("Failed to update status");
-        }
-    } catch (e) {
-        toast.error("Error updating status");
-    }
 }
 
 export const columns: ColumnDef<Blog>[] = [
@@ -87,15 +69,36 @@ export const columns: ColumnDef<Blog>[] = [
         accessorKey: "isIndexedInGoogle",
         header: "Google Index",
         cell: ({ row }) => {
+            const router = useRouter();
             const isIndexed = row.getValue("isIndexedInGoogle") as boolean;
             const slug = row.original.slug;
-            const id = row.original._id;
+
+            const handleIndexToggle = async (slug: string, diff: boolean) => {
+                try {
+                    const res = await fetch(`/api/blogs/${slug}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ isIndexedInGoogle: diff }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (res.ok) {
+                        toast.success(`Google Index status updated to ${diff ? 'Indexed' : 'Not Indexed'}`);
+                        router.refresh();
+                    } else {
+                        const errorData = await res.json();
+                        toast.error(errorData.message || "Failed to update status");
+                    }
+                } catch (e) {
+                    console.error("Error updating status:", e);
+                    toast.error("Error updating status");
+                }
+            }
 
             return (
                 <div className="flex items-center space-x-2">
                     <Switch
                         checked={isIndexed}
-                        onCheckedChange={(checked) => handleIndexToggle(id, slug, checked)}
+                        onCheckedChange={(checked) => handleIndexToggle(slug, checked)}
                     />
                     <span className="text-sm text-muted-foreground">{isIndexed ? "Yes" : "No"}</span>
                 </div>
@@ -125,15 +128,46 @@ export const columns: ColumnDef<Blog>[] = [
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"));
             const now = new Date();
-            const diffTime = Math.abs(now.getTime() - date.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return `${diffDays} days ago`
+            const msPerDay = 1000 * 60 * 60 * 24;
+            const diffMs = now.getTime() - date.getTime();
+
+            if (diffMs > 0) {
+                const diffDays = Math.floor(diffMs / msPerDay);
+                if (diffDays === 0) return "Today";
+                if (diffDays === 1) return "1 day ago";
+                return `${diffDays} days ago`;
+            } else {
+                // Future date
+                const futureDays = Math.ceil(Math.abs(diffMs) / msPerDay);
+                if (futureDays === 0) return "Today";
+                if (futureDays === 1) return "in 1 day";
+                return `in ${futureDays} days`;
+            }
         },
     },
     {
         id: "actions",
         cell: ({ row }) => {
+            const router = useRouter();
             const blog = row.original
+
+            const handleDelete = async () => {
+                if (!confirm("Are you sure?")) return;
+
+                try {
+                    const res = await fetch(`/api/blogs/${blog.slug}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        toast.success("Blog deleted successfully");
+                        router.refresh();
+                    } else {
+                        const data = await res.json();
+                        toast.error(data.message || "Failed to delete blog");
+                    }
+                } catch (error) {
+                    console.error("Error deleting blog:", error);
+                    toast.error("An error occurred while deleting");
+                }
+            };
 
             return (
                 <DropdownMenu>
@@ -159,12 +193,7 @@ export const columns: ColumnDef<Blog>[] = [
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
-                            onClick={async () => {
-                                if (confirm("Are you sure?")) {
-                                    await fetch(`/api/blogs/${blog.slug}`, { method: 'DELETE' });
-                                    window.location.reload();
-                                }
-                            }}
+                            onClick={handleDelete}
                         >
                             Delete
                         </DropdownMenuItem>
