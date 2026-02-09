@@ -360,7 +360,7 @@ const CategoryForm = ({ initialData, isEdit }: CategoryFormProps) => {
                 <p className="text-xs text-muted-foreground mt-1">Check the services you want to appear on this category page.</p>
             </div>
 
-            {/* Banner Upload */}
+            {/* Banner Uploading*/}
             <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Banner Image</label>
 
