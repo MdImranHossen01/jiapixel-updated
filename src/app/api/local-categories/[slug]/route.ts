@@ -83,7 +83,7 @@ export async function PUT(
         // Revalidate cache
         if (category.slug) {
             revalidatePath(`/categories/${category.slug}`); // Update the public page path (assuming /categories/[slug])
-            revalidateTag(`local-category-${category.slug}`); // Update the data cache tag
+            revalidateTag(`local-category-${category.slug}`, 'default'); // Update the data cache tag
         }
 
         return NextResponse.json({ category });
@@ -113,7 +113,7 @@ export async function DELETE(
 
         if (category.slug) {
             revalidatePath(`/categories/${category.slug}`);
-            revalidateTag(`local-category-${category.slug}`);
+            revalidateTag(`local-category-${category.slug}`, 'default');
         }
 
         return NextResponse.json({ message: 'Category deleted successfully' });
