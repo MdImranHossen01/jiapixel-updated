@@ -30,6 +30,95 @@ export type LocalCategory = {
     isIndexedInGoogle: boolean
 }
 
+const LocalCategoryGoogleIndexCell = ({ slug, isIndexed }: { slug: string; isIndexed: boolean }) => {
+    const router = useRouter();
+
+    const handleIndexToggle = async (checked: boolean) => {
+        try {
+            const res = await fetch(`/api/local-categories/${slug}`, {
+                method: 'PUT',
+                body: JSON.stringify({ isIndexedInGoogle: checked }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (res.ok) {
+                toast.success(`Google Index status updated to ${checked ? 'Indexed' : 'Not Indexed'}`);
+                router.refresh();
+            } else {
+                const errorData = await res.json();
+                toast.error(errorData.message || "Failed to update status");
+            }
+        } catch (e) {
+            console.error("Error updating status:", e);
+            toast.error("Error updating status");
+        }
+    }
+
+    return (
+        <div className="flex items-center space-x-2">
+            <Switch
+                checked={isIndexed}
+                onCheckedChange={handleIndexToggle}
+            />
+            <span className="text-sm text-muted-foreground">{isIndexed ? "Yes" : "No"}</span>
+        </div>
+    )
+}
+
+const LocalCategoryActions = ({ category }: { category: LocalCategory }) => {
+    const router = useRouter();
+
+    const handleDelete = async () => {
+        if (!confirm("Are you sure?")) return;
+
+        try {
+            const res = await fetch(`/api/local-categories/${category.slug}`, { method: 'DELETE' });
+            if (res.ok) {
+                toast.success("Category deleted successfully");
+                router.refresh();
+            } else {
+                const data = await res.json();
+                toast.error(data.message || "Failed to delete category");
+            }
+        } catch (error) {
+            console.error("Error deleting category:", error);
+            toast.error("An error occurred while deleting");
+        }
+    };
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem
+                    onClick={() => navigator.clipboard.writeText(category._id)}
+                >
+                    Copy ID
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href={`/categories/${category.slug}`} target="_blank">View Public</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href={`/dashboard/admin/manage-local-categories/edit/${category.slug}`}>Edit</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onClick={handleDelete}
+                >
+                    Delete
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
+
 export const columns: ColumnDef<LocalCategory>[] = [
     {
         accessorKey: "title",
@@ -69,40 +158,7 @@ export const columns: ColumnDef<LocalCategory>[] = [
         accessorKey: "isIndexedInGoogle",
         header: "Google Index",
         cell: ({ row }) => {
-            const router = useRouter();
-            const isIndexed = row.getValue("isIndexedInGoogle") as boolean;
-            const slug = row.original.slug;
-
-            const handleIndexToggle = async (slug: string, diff: boolean) => {
-                try {
-                    const res = await fetch(`/api/local-categories/${slug}`, {
-                        method: 'PUT',
-                        body: JSON.stringify({ isIndexedInGoogle: diff }),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-
-                    if (res.ok) {
-                        toast.success(`Google Index status updated to ${diff ? 'Indexed' : 'Not Indexed'}`);
-                        router.refresh();
-                    } else {
-                        const errorData = await res.json();
-                        toast.error(errorData.message || "Failed to update status");
-                    }
-                } catch (e) {
-                    console.error("Error updating status:", e);
-                    toast.error("Error updating status");
-                }
-            }
-
-            return (
-                <div className="flex items-center space-x-2">
-                    <Switch
-                        checked={isIndexed}
-                        onCheckedChange={(checked) => handleIndexToggle(slug, checked)}
-                    />
-                    <span className="text-sm text-muted-foreground">{isIndexed ? "Yes" : "No"}</span>
-                </div>
-            )
+            return <LocalCategoryGoogleIndexCell slug={row.original.slug} isIndexed={row.getValue("isIndexedInGoogle")} />
         },
     },
     {
@@ -139,60 +195,7 @@ export const columns: ColumnDef<LocalCategory>[] = [
     {
         id: "actions",
         cell: ({ row }) => {
-            const router = useRouter();
-            const category = row.original
-
-            const handleDelete = async () => {
-                if (!confirm("Are you sure?")) return;
-
-                try {
-                    const res = await fetch(`/api/local-categories/${category.slug}`, { method: 'DELETE' });
-                    if (res.ok) {
-                        toast.success("Category deleted successfully");
-                        router.refresh();
-                        // Optional fallback if router.refresh() doesn't immediately reflect in all environments w/out soft navigations
-                        // window.location.reload(); 
-                    } else {
-                        const data = await res.json();
-                        toast.error(data.message || "Failed to delete category");
-                    }
-                } catch (error) {
-                    console.error("Error deleting category:", error);
-                    toast.error("An error occurred while deleting");
-                }
-            };
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(category._id)}
-                        >
-                            Copy ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                            <Link href={`/categories/${category.slug}`} target="_blank">View Public</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link href={`/dashboard/admin/manage-local-categories/edit/${category.slug}`}>Edit</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={handleDelete}
-                        >
-                            Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
+            return <LocalCategoryActions category={row.original} />
         },
     },
 ]

@@ -13,7 +13,7 @@ export interface ILocalCategory extends Document {
         answer: string;
     }[];
     tags: string[];
-    selectedProjects: string[];
+    selectedProjects: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
     isIndexedInGoogle?: boolean;
