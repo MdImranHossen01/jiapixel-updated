@@ -302,13 +302,11 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
 
             {/* Description */}
             <div className="bg-card rounded-lg border p-6">
-                <h2 className="text-xl font-semibold mb-6">Project Description</h2>
-                <div className="border rounded-md overflow-hidden min-h-[400px]">
-                    <NovelEditor
-                        initialValue={getInitialDescription(data.description)}
-                        onChange={handleDescriptionChange}
-                    />
-                </div>
+                <h2 className="text-xl font-semibold mb-4">Project Description</h2>
+                <NovelEditor
+                    initialValue={getInitialDescription(data.description)}
+                    onChange={handleDescriptionChange}
+                />
             </div>
 
             {/* Submit */}
