@@ -101,7 +101,12 @@ export async function DELETE(
     const { slug } = await params;
 
     try {
-        let category = await LocalCategory.findByIdAndDelete(slug);
+        let category;
+        const isObjectId = slug.match(/^[0-9a-fA-F]{24}$/);
+
+        if (isObjectId) {
+            category = await LocalCategory.findByIdAndDelete(slug);
+        }
 
         if (!category) {
             category = await LocalCategory.findOneAndDelete({ slug: slug });
