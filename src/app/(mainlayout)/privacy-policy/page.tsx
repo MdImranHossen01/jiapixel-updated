@@ -4,10 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Shield, Eye, User, Database, Lock, Mail } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | JIA Pixel - Data Protection & Privacy',
+  title: 'Privacy Policy',
   description: 'Read JIA Pixel Privacy Policy. Learn how we collect, use, and protect your personal data. Your privacy and data security are our top priorities.',
   keywords: 'privacy policy, data protection, GDPR, personal data, privacy policy digital agency, data security',
-  
+
   openGraph: {
     title: 'Privacy Policy | JIA Pixel',
     description: 'Learn how JIA Pixel collects, uses, and protects your personal data',
@@ -23,18 +23,18 @@ export const metadata: Metadata = {
       },
     ],
   },
-  
+
   twitter: {
     card: 'summary_large_image',
     title: 'Privacy Policy | JIA Pixel',
     description: 'Learn how JIA Pixel collects, uses, and protects your personal data',
     images: ['/og-privacy.jpg'],
   },
-  
+
   alternates: {
     canonical: 'https://www.jiapixel.com/privacy-policy',
   },
-  
+
   robots: {
     index: true,
     follow: true,
@@ -106,7 +106,7 @@ const PrivacyPolicyPage = () => {
       />
       <div className="min-h-screen  py-20">
         <div className="container mx-auto px-4 max-w-4xl">
-          
+
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex justify-center mb-6">
@@ -119,10 +119,10 @@ const PrivacyPolicyPage = () => {
               Your privacy is important to us. This policy explains how we collect, use, and protect your information.
             </p>
             <div className="mt-6 text-sm text-muted-foreground">
-              Last updated: {new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              Last updated: {new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
               })}
             </div>
           </div>
@@ -132,17 +132,17 @@ const PrivacyPolicyPage = () => {
             <CardContent className="p-8">
               <h2 className="text-2xl font-bold mb-4">Policy Overview</h2>
               <p className="text-lg leading-relaxed text-muted-foreground">
-                At JIA Pixel, we are committed to protecting your privacy and ensuring the security of your personal data. 
+                At JIA Pixel, we are committed to protecting your privacy and ensuring the security of your personal data.
                 This Privacy Policy outlines how we collect, use, store, and protect your information when you use our services.
               </p>
             </CardContent>
           </Card>
 
           <div className="grid lg:grid-cols-3 gap-8 mb-16">
-            
+
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-12">
-              
+
               {/* Information We Collect */}
               <section>
                 <h2 className="text-2xl font-bold mb-6">1. Information We Collect</h2>
@@ -160,11 +160,11 @@ const PrivacyPolicyPage = () => {
                       <li>Communication preferences</li>
                     </ul>
                   </div>
-                  
+
                   <div>
                     <h3 className="text-lg font-semibold mb-3">Automatically Collected Information</h3>
                     <p className="text-muted-foreground">
-                      When you visit our website, we may automatically collect certain information about your device and usage patterns, 
+                      When you visit our website, we may automatically collect certain information about your device and usage patterns,
                       including IP address, browser type, pages visited, and time spent on our site.
                     </p>
                   </div>
@@ -226,7 +226,7 @@ const PrivacyPolicyPage = () => {
                 <h2 className="text-2xl font-bold mb-6">5. Data Security</h2>
                 <div className="space-y-4">
                   <p className="text-muted-foreground">
-                    We implement appropriate technical and organizational security measures to protect your personal data 
+                    We implement appropriate technical and organizational security measures to protect your personal data
                     against unauthorized access, alteration, disclosure, or destruction.
                   </p>
                   <div className="grid md:grid-cols-2 gap-4">
@@ -264,8 +264,8 @@ const PrivacyPolicyPage = () => {
                 <h2 className="text-2xl font-bold mb-6">7. Cookies and Tracking Technologies</h2>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                  We use cookies and similar tracking technologies to enhance your experience on our website. 
-                  Cookies are small text files stored on your device that help us:
+                    We use cookies and similar tracking technologies to enhance your experience on our website.
+                    Cookies are small text files stored on your device that help us:
                   </p>
                   <ul className="list-disc list-inside space-y-2 ml-4">
                     <li>Remember your preferences and settings</li>
@@ -274,7 +274,7 @@ const PrivacyPolicyPage = () => {
                     <li>Provide personalized content</li>
                   </ul>
                   <p>
-                    You can control cookie preferences through your browser settings. However, disabling cookies 
+                    You can control cookie preferences through your browser settings. However, disabling cookies
                     may affect your experience on our website.
                   </p>
                 </div>
@@ -284,9 +284,9 @@ const PrivacyPolicyPage = () => {
               <section>
                 <h2 className="text-2xl font-bold mb-6">8. Data Retention</h2>
                 <p className="text-muted-foreground">
-                  We retain personal data only for as long as necessary to fulfill the purposes for which it was collected, 
-                  including for the purposes of satisfying any legal, accounting, or reporting requirements. Typically, 
-                  we retain client data for 7 years after the completion of services, unless a longer retention period is 
+                  We retain personal data only for as long as necessary to fulfill the purposes for which it was collected,
+                  including for the purposes of satisfying any legal, accounting, or reporting requirements. Typically,
+                  we retain client data for 7 years after the completion of services, unless a longer retention period is
                   required by law.
                 </p>
               </section>
@@ -295,8 +295,8 @@ const PrivacyPolicyPage = () => {
               <section>
                 <h2 className="text-2xl font-bold mb-6">9. International Data Transfers</h2>
                 <p className="text-muted-foreground">
-                  Your information may be transferred to and maintained on computers located outside of your state, province, 
-                  country, or other governmental jurisdiction where the data protection laws may differ. We ensure appropriate 
+                  Your information may be transferred to and maintained on computers located outside of your state, province,
+                  country, or other governmental jurisdiction where the data protection laws may differ. We ensure appropriate
                   safeguards are in place to protect your data during international transfers.
                 </p>
               </section>
@@ -305,8 +305,8 @@ const PrivacyPolicyPage = () => {
               <section>
                 <h2 className="text-2xl font-bold mb-6">10. Children&apos;s Privacy</h2>
                 <p className="text-muted-foreground">
-                  Our services are not intended for individuals under the age of 16. We do not knowingly collect personal 
-                  information from children under 16. If you become aware that a child has provided us with personal data, 
+                  Our services are not intended for individuals under the age of 16. We do not knowingly collect personal
+                  information from children under 16. If you become aware that a child has provided us with personal data,
                   please contact us immediately.
                 </p>
               </section>
@@ -315,8 +315,8 @@ const PrivacyPolicyPage = () => {
               <section>
                 <h2 className="text-2xl font-bold mb-6">11. Changes to This Policy</h2>
                 <p className="text-muted-foreground">
-                  We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new 
-                  Privacy Policy on this page and updating the &quot;Last updated&quot; date. We encourage you to review this Privacy 
+                  We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new
+                  Privacy Policy on this page and updating the &quot;Last updated&quot; date. We encourage you to review this Privacy
                   Policy periodically for any changes.
                 </p>
               </section>
@@ -368,7 +368,7 @@ const PrivacyPolicyPage = () => {
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-4">Contact Us</h2>
               <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                If you have any questions about this Privacy Policy or wish to exercise your data protection rights, 
+                If you have any questions about this Privacy Policy or wish to exercise your data protection rights,
                 please contact our Data Protection Officer.
               </p>
               <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -395,7 +395,7 @@ const PrivacyPolicyPage = () => {
           {/* Policy Footer */}
           <div className="text-center mt-12 text-sm text-muted-foreground">
             <p>
-              This Privacy Policy is compliant with GDPR, CCPA, and other applicable data protection regulations. 
+              This Privacy Policy is compliant with GDPR, CCPA, and other applicable data protection regulations.
               By using our services, you acknowledge that you have read and understood this Privacy Policy.
             </p>
           </div>

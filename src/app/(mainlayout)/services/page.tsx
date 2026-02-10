@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title:
-      "Our Services - Professional Web Development & Digital Marketing | Jiapixel",
+      "Our Services - Professional Web Development & Digital Marketing",
     description:
       "Explore our professional services including web development, SEO, digital marketing, and more. Get custom solutions for your business growth.",
     keywords:
