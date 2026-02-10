@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import PostAdminActions from '@/components/PostAdminActions';
-import { ViewContent } from "@/app/components/editor/ViewContent";
+import { generateHtml } from '@/lib/server-html';
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
 
@@ -144,13 +144,7 @@ export default async function PostPage({ params }: PageProps) {
     return (
         <div className="min-h-screen py-8">
             <div className="container mx-auto px-4 max-w-7xl">
-                {/* SEO: Hidden div with plain text content for crawlers */}
-                {isJson && (
-                    <div className="sr-only">
-                        <h1>{post.title}</h1>
-                        <article>{seoContent}</article>
-                    </div>
-                )}
+
 
                 <div className="flex items-center justify-between mb-8">
                     <nav>
@@ -191,44 +185,11 @@ export default async function PostPage({ params }: PageProps) {
                                 <SocialShare title={post.title} url={`https://www.jiapixel.com/posts/${post.slug}`} />
                             </div>
 
-                            {/* SR-ONLY SEO Content - Always render text for crawlers */}
-                            <div className="sr-only">
-                                {(() => {
-                                    try {
-                                        let content = post.content;
-                                        if (typeof content === 'string') {
-                                            try {
-                                                let parsed = JSON.parse(content);
-                                                if (typeof parsed === 'string') {
-                                                    parsed = JSON.parse(parsed);
-                                                }
-                                                content = parsed;
-                                            } catch (e) {
-                                                // content is string
-                                            }
-                                        }
-
-                                        if (content?.content && Array.isArray(content.content)) {
-                                            return content.content.map((node: any, i: number) => {
-                                                if (node.type === 'heading') {
-                                                    const Level = `h${node.attrs?.level || 2}` as React.ElementType;
-                                                    return <Level key={i}>{node.content?.map((c: any) => c.text).join('')}</Level>;
-                                                }
-                                                if (node.type === 'paragraph') {
-                                                    return <p key={i}>{node.content?.map((c: any) => c.text).join('')}</p>;
-                                                }
-                                                return null;
-                                            });
-                                        }
-                                        return typeof content === 'string' ? <p>{content}</p> : null;
-                                    } catch (e) {
-                                        return null;
-                                    }
-                                })()}
-                            </div>
-
-                            {/* Content Rendering */}
-                            <ViewContent content={post.content} />
+                            {/* Server-side rendered content for SEO/Crawlers */}
+                            <div
+                                className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground dark:prose-invert"
+                                dangerouslySetInnerHTML={{ __html: generateHtml(post.content) }}
+                            />
                         </article>
                     </div>
 

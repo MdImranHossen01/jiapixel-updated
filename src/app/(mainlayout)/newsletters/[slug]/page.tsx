@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
-import { ViewContent } from '@/app/components/editor/ViewContent';
+import { generateHtml } from '@/lib/server-html';
 import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import NewsletterAdminActions from '@/components/NewsletterAdminActions';
@@ -192,46 +192,11 @@ export default async function NewsletterPage({ params }: PageProps) {
                                 <SocialShare title={newsletter.title} url={`https://www.jiapixel.com/newsletters/${newsletter.slug}`} />
                             </div>
 
-                            {/* SR-ONLY SEO Content - Always render text for crawlers */}
-                            <div className="sr-only">
-                                {(() => {
-                                    try {
-                                        let content = newsletter.content;
-                                        if (typeof content === 'string') {
-                                            try {
-                                                let parsed = JSON.parse(content);
-                                                if (typeof parsed === 'string') {
-                                                    parsed = JSON.parse(parsed);
-                                                }
-                                                content = parsed;
-                                            } catch (e) {
-                                                // content is string
-                                            }
-                                        }
-
-                                        if (content?.content && Array.isArray(content.content)) {
-                                            return content.content.map((node: any, i: number) => {
-                                                if (node.type === 'heading') {
-                                                    const rawLevel = node.attrs?.level || 2;
-                                                    const level = Math.max(1, Math.min(6, Math.floor(rawLevel)));
-                                                    const Level = `h${level}` as React.ElementType;
-                                                    return <Level key={i}>{node.content?.map((c: any) => c.text).join('')}</Level>;
-                                                }
-                                                if (node.type === 'paragraph') {
-                                                    return <p key={i}>{node.content?.map((c: any) => c.text).join('')}</p>;
-                                                }
-                                                return null;
-                                            });
-                                        }
-                                        return typeof content === 'string' ? <p>{content}</p> : null;
-                                    } catch (e) {
-                                        return null;
-                                    }
-                                })()}
-                            </div>
-
-                            {/* Content Rendering */}
-                            <ViewContent content={newsletter.content} />
+                            {/* Server-side rendered content for SEO/Crawlers */}
+                            <div
+                                className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground dark:prose-invert"
+                                dangerouslySetInnerHTML={{ __html: generateHtml(newsletter.content) }}
+                            />
                         </article>
                     </div>
 

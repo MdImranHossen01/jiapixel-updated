@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import ProjectCard from '@/components/ProjectCard';
-import { ViewContent } from '@/app/components/editor/ViewContent';
+import { generateHtml } from '@/lib/server-html';
 import LocalCategoryAdminActions from '@/components/LocalCategoryAdminActions';
 import CategoryHero from '@/components/CategoryHero';
 
@@ -177,10 +177,10 @@ const LocalCategoryPage = async ({ params }: PageProps) => {
                     <div className="bg-background rounded-xl shadow-sm p-8 mb-12">
                         <article className="prose max-w-none dark:prose-invert">
                             {/* Server-side rendered content for SEO/Crawlers */}
-
-
-                            {/* Client-side rich editor view */}
-                            <ViewContent content={category.description} />
+                            <div
+                                className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground dark:prose-invert"
+                                dangerouslySetInnerHTML={{ __html: generateHtml(category.description) }}
+                            />
                         </article>
                     </div>
                 )}

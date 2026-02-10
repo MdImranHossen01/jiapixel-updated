@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ViewContent } from '@/app/components/editor/ViewContent';
+import { generateHtml } from '@/lib/server-html';
 import { extractTextFromProjectDescription } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -209,45 +209,10 @@ export default async function ProjectDetailsPage({ params }: PageProps) {
 
                             <div className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
                                 {/* Server-side rendered content for SEO/Crawlers */}
-                                <div className="sr-only">
-                                    {(() => {
-                                        try {
-                                            let content = project.description;
-                                            if (typeof content === 'string') {
-                                                try {
-                                                    let parsed = JSON.parse(content);
-                                                    if (typeof parsed === 'string') {
-                                                        parsed = JSON.parse(parsed);
-                                                    }
-                                                    content = parsed;
-                                                } catch (e) {
-                                                    // content is string
-                                                }
-                                            }
-
-                                            if (content?.content && Array.isArray(content.content)) {
-                                                return content.content.map((node: any, i: number) => {
-                                                    if (node.type === 'heading') {
-                                                        const rawLevel = Number(node.attrs?.level);
-                                                        const level = isNaN(rawLevel) ? 2 : Math.min(Math.max(rawLevel, 1), 6);
-                                                        const Level = `h${level}` as React.ElementType;
-                                                        return <Level key={i}>{node.content?.map((c: any) => c.text).join('')}</Level>;
-                                                    }
-                                                    if (node.type === 'paragraph') {
-                                                        return <p key={i}>{node.content?.map((c: any) => c.text).join('')}</p>;
-                                                    }
-                                                    return null;
-                                                });
-                                            }
-                                            return typeof content === 'string' ? <p>{content}</p> : null;
-                                        } catch (e) {
-                                            return null;
-                                        }
-                                    })()}
-                                </div>
-
-                                {/* Client-side rich editor view */}
-                                <ViewContent content={project.description} />
+                                <div
+                                    className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground"
+                                    dangerouslySetInnerHTML={{ __html: generateHtml(project.description) }}
+                                />
                             </div>
                         </div>
                     </section>

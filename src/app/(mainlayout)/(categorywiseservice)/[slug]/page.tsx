@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import ServiceCard from '@/components/ServiceCard';
 import CategoryHero from '@/components/CategoryHero';
 import CategoryAdminActions from '@/components/CategoryAdminActions';
-import { ViewContent } from '@/app/components/editor/ViewContent';
+import { generateHtml } from '@/lib/server-html';
 
 interface PageProps {
     params: Promise<{
@@ -192,10 +192,10 @@ const CategoryPage = async ({ params }: PageProps) => {
                     <div className="bg-background rounded-xl shadow-sm p-8 mb-12">
                         <article className="prose max-w-none">
                             {/* Server-side rendered content for SEO/Crawlers */}
-
-
-                            {/* Client-side rich editor view */}
-                            <ViewContent content={category.description} />
+                            <div
+                                className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground"
+                                dangerouslySetInnerHTML={{ __html: generateHtml(category.description) }}
+                            />
                         </article>
                     </div>
                 )}
