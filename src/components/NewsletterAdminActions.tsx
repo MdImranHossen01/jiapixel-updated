@@ -13,6 +13,8 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
 
 interface NewsletterAdminActionsProps {
     newsletterSlug: string;
@@ -31,9 +33,17 @@ export default function NewsletterAdminActions({
     if (!isAdmin) return null;
 
     const handleDelete = async () => {
-        if (!confirm(`Are you sure you want to delete "${newsletterTitle}"?`)) {
-            return;
-        }
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: `You won't be able to revert this!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if (!result.isConfirmed) return;
 
         setIsDeleting(true);
         try {
@@ -42,14 +52,15 @@ export default function NewsletterAdminActions({
             });
 
             if (response.ok) {
+                toast.success("Newsletter deleted successfully");
                 router.push("/newsletters");
                 router.refresh();
             } else {
-                alert("Failed to delete newsletter");
+                toast.error("Failed to delete newsletter");
             }
         } catch (error) {
             console.error("Error deleting newsletter:", error);
-            alert("Error deleting newsletter");
+            toast.error("Error deleting newsletter");
         } finally {
             setIsDeleting(false);
         }
