@@ -217,7 +217,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
 
                 {/* Server-side rendered content for SEO/Crawlers */}
                 <div
-                  className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-title font-sans leading-normal text-[16px] prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground tiptap"
+                  className="prose max-w-none dark:prose-invert prose-headings:font-title font-sans leading-normal prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground ProseMirror p-0"
                   dangerouslySetInnerHTML={{ __html: generateHtml(service.projectSummary) }}
                 />
               </div>

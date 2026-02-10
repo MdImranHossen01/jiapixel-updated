@@ -36,16 +36,16 @@ const renderNode = (node: any): string => {
 
     switch (node.type) {
         case 'doc': return children;
-        case 'paragraph': return `<p>${children}</p>`;
+        case 'paragraph': return `<p class="my-2">${children}</p>`;
         case 'heading':
             const level = node.attrs?.level || 2;
-            return `<h${level}>${children}</h${level}>`;
+            return `<h${level} class="mt-6 mb-2">${children}</h${level}>`;
         case 'bulletList':
-            return `<ul class="list-disc list-outside leading-3 -mt-2 ml-4">${children}</ul>`;
+            return `<ul class="list-disc list-outside my-2 ml-4">${children}</ul>`;
         case 'orderedList':
-            return `<ol class="list-decimal list-outside leading-3 -mt-2 ml-4">${children}</ol>`;
+            return `<ol class="list-decimal list-outside my-2 ml-4">${children}</ol>`;
         case 'listItem':
-            return `<li class="leading-normal -mb-2">${children}</li>`;
+            return `<li class="my-0">${children}</li>`;
         case 'blockquote':
             return `<blockquote class="border-l-4 border-primary pl-4 py-1">${children}</blockquote>`;
         case 'codeBlock':

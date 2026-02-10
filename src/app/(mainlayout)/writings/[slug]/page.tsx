@@ -184,7 +184,7 @@ export default async function WritingPage({ params }: PageProps) {
 
                             {/* Server-side rendered content for SEO/Crawlers */}
                             <div
-                                className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground dark:prose-invert"
+                                className="prose max-w-none dark:prose-invert prose-headings:font-title font-sans leading-normal prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground ProseMirror p-0"
                                 dangerouslySetInnerHTML={{ __html: generateHtml(writing.content) }}
                             />
                         </article>
