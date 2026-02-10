@@ -35,12 +35,9 @@ const LocalCategoryForm = ({ initialData, isEdit }: LocalCategoryFormProps) => {
         metaDescription: "",
         description: "",
 
-        tags: [] as string[],
         selectedProjects: [] as string[],
-        faqs: [] as { question: string; answer: string }[],
     });
 
-    const [currentTag, setCurrentTag] = useState("");
     const [slugTouched, setSlugTouched] = useState(false);
 
     // Helper to parse description safely
@@ -69,9 +66,7 @@ const LocalCategoryForm = ({ initialData, isEdit }: LocalCategoryFormProps) => {
         if (initialData) {
             setFormData({
                 ...initialData,
-                tags: initialData.tags || [],
                 selectedProjects: initialData.selectedProjects || [],
-                faqs: initialData.faqs || [],
             });
         }
     }, [initialData]);
@@ -106,42 +101,6 @@ const LocalCategoryForm = ({ initialData, isEdit }: LocalCategoryFormProps) => {
         if (name === 'slug') {
             setSlugTouched(true);
         }
-    };
-
-    const handleAddTag = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" && currentTag.trim()) {
-            e.preventDefault();
-            if (!formData.tags.includes(currentTag.trim())) {
-                setFormData({ ...formData, tags: [...formData.tags, currentTag.trim()] });
-            }
-            setCurrentTag("");
-        }
-    };
-
-    const removeTag = (tagToRemove: string) => {
-        setFormData({
-            ...formData,
-            tags: formData.tags.filter((tag) => tag !== tagToRemove),
-        });
-    };
-
-    const addFaq = () => {
-        setFormData({
-            ...formData,
-            faqs: [...formData.faqs, { question: "", answer: "" }],
-        });
-    };
-
-    const removeFaq = (index: number) => {
-        const newFaqs = [...formData.faqs];
-        newFaqs.splice(index, 1);
-        setFormData({ ...formData, faqs: newFaqs });
-    };
-
-    const handleFaqChange = (index: number, field: "question" | "answer", value: string) => {
-        const newFaqs = [...formData.faqs];
-        newFaqs[index][field] = value;
-        setFormData({ ...formData, faqs: newFaqs });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -463,69 +422,7 @@ const LocalCategoryForm = ({ initialData, isEdit }: LocalCategoryFormProps) => {
                 </div>
             </div>
 
-            <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Tags (Press Enter to add)</label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                    {(formData.tags || []).map((tag) => (
-                        <span key={tag} className="bg-secondary px-3 py-1 rounded-full text-sm flex items-center gap-1 text-secondary-foreground">
-                            {tag}
-                            <button type="button" onClick={() => removeTag(tag)} className="text-muted-foreground hover:text-destructive">
-                                <X size={14} />
-                            </button>
-                        </span>
-                    ))}
-                </div>
-                <input
-                    type="text"
-                    value={currentTag}
-                    onChange={(e) => setCurrentTag(e.target.value)}
-                    onKeyDown={handleAddTag}
-                    className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
-                    placeholder="Add tags..."
-                />
-            </div>
-
-            <div>
-                <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-medium text-foreground">FAQs</label>
-                    <button
-                        type="button"
-                        onClick={addFaq}
-                        className="text-primary text-sm font-medium flex items-center gap-1 hover:text-primary/90"
-                    >
-                        <Plus size={16} /> Add FAQ
-                    </button>
-                </div>
-                <div className="space-y-4">
-                    {(formData.faqs || []).map((faq, index) => (
-                        <div key={index} className="border border-border p-4 rounded-md relative group bg-muted/30">
-                            <button
-                                type="button"
-                                onClick={() => removeFaq(index)}
-                                className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
-                            >
-                                <X size={16} />
-                            </button>
-                            <div className="mb-2">
-                                <input
-                                    type="text"
-                                    placeholder="Question"
-                                    value={faq.question}
-                                    onChange={(e) => handleFaqChange(index, "question", e.target.value)}
-                                    className="w-full border bg-background rounded-lg px-3 py-2 mb-2 text-foreground focus:ring-ring focus:border-ring"
-                                />
-                                <textarea
-                                    placeholder="Answer"
-                                    rows={2}
-                                    value={faq.answer}
-                                    onChange={(e) => handleFaqChange(index, "answer", e.target.value)}
-                                    className="w-full border bg-background rounded-lg px-3 py-2 text-foreground focus:ring-ring focus:border-ring"
-                                />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            {/* Tags and FAQs removed */}\n
 
             <div className="flex justify-end gap-4">
                 <button

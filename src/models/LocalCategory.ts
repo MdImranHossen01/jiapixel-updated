@@ -8,11 +8,6 @@ export interface ILocalCategory extends Document {
     metaDescription: string;
     description: string;
 
-    faqs: {
-        question: string;
-        answer: string;
-    }[];
-    tags: string[];
     selectedProjects: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
@@ -50,14 +45,6 @@ const LocalCategorySchema: Schema = new Schema({
         trim: true,
     },
 
-    faqs: [{
-        question: { type: String, required: true },
-        answer: { type: String, required: true },
-    }],
-    tags: [{
-        type: String,
-        trim: true,
-    }],
     selectedProjects: [{
         type: Schema.Types.ObjectId,
         ref: 'Project'
