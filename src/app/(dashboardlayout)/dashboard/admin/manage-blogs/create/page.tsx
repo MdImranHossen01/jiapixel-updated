@@ -20,18 +20,19 @@ export default function CreateBlogPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [services, setServices] = useState<any[]>([]); // state for fetching services
+  const [services, setServices] = useState<any[]>([]);
+  const [blogs, setBlogs] = useState<any[]>([]); // state for fetching blogs
+  const [blogSearch, setBlogSearch] = useState("");
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     excerpt: '',
     featuredImage: '',
-    tags: '',
-    category: '',
     status: 'draft',
     seoTitle: '',
     seoDescription: '',
-    relatedServices: [] as string[] // new field for selected services
+    relatedServices: [] as string[],
+    relatedBlogs: [] as string[] // new field for selected blogs
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
@@ -39,20 +40,29 @@ export default function CreateBlogPage() {
   // Ref to access editor content
   const editorRef = useRef<SimpleEditorRef>(null);
 
-  // Fetch services on mount
+  // Fetch services and blogs on mount
   useEffect(() => {
-    async function fetchServices() {
+    async function fetchData() {
       try {
-        const res = await fetch('/api/services?limit=100'); // Assuming this endpoint returns a list of services
-        if (res.ok) {
-          const data = await res.json();
+        const [servicesRes, blogsRes] = await Promise.all([
+          fetch('/api/services?limit=100'),
+          fetch('/api/blogs?limit=100') // Fetch all blogs for selection
+        ]);
+
+        if (servicesRes.ok) {
+          const data = await servicesRes.json();
           setServices(data.services || []);
         }
+
+        if (blogsRes.ok) {
+          const data = await blogsRes.json();
+          setBlogs(data.blogs || []);
+        }
       } catch (err) {
-        console.error("Failed to fetch services", err);
+        console.error("Failed to fetch data", err);
       }
     }
-    fetchServices();
+    fetchData();
   }, []);
 
   const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -61,6 +71,21 @@ export default function CreateBlogPage() {
       ...prev,
       relatedServices: selectedOptions
     }));
+  };
+
+  const toggleRelatedBlog = (blogId: string) => {
+    setFormData(prev => {
+      const current = prev.relatedBlogs;
+      if (current.includes(blogId)) {
+        return { ...prev, relatedBlogs: current.filter(id => id !== blogId) };
+      } else {
+        if (current.length >= 4) {
+          alert("You can verify select up to 4 related blogs.");
+          return prev;
+        }
+        return { ...prev, relatedBlogs: [...current, blogId] };
+      }
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -137,8 +162,6 @@ export default function CreateBlogPage() {
     setLoading(true);
 
     try {
-      const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-
       // Get the HTML content from the editor
       let editorContent = '';
       if (editorRef.current) {
@@ -146,8 +169,9 @@ export default function CreateBlogPage() {
       }
 
       // Validate required fields
-      if (!formData.title.trim() || !editorContent.trim() || !formData.category.trim()) {
-        alert('Title, content, and category are required');
+      // Validate required fields
+      if (!formData.title.trim() || !editorContent.trim()) {
+        alert('Title and content are required');
         setLoading(false);
         return;
       }
@@ -164,12 +188,13 @@ export default function CreateBlogPage() {
           content: editorContent,
           excerpt: formData.excerpt,
           featuredImage: formData.featuredImage,
-          tags: tagsArray,
-          category: formData.category,
+
+          // tags and category removed
           status: formData.status,
           seoTitle: formData.seoTitle,
           seoDescription: formData.seoDescription,
-          relatedServices: formData.relatedServices
+          relatedServices: formData.relatedServices,
+          relatedBlogs: formData.relatedBlogs // Added relatedBlogs
         }),
       });
 
@@ -273,257 +298,240 @@ export default function CreateBlogPage() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            {/* Publishing Settings */}
-            <div className="bg-card rounded-lg shadow p-6 border">
-              <h3 className="text-lg font-semibold text-card-foreground mb-4">Publishing Settings</h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="status" className="block text-sm font-medium text-card-foreground mb-2">
-                    Status
-                  </label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="category" className="block text-sm font-medium text-card-foreground mb-2">
-                    Category *
-                  </label>
-                  <input
-                    type="text"
-                    id="category"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                    placeholder="e.g., Technology, Business, Design"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="tags" className="block text-sm font-medium text-card-foreground mb-2">
-                    Tags
-                  </label>
-                  <input
-                    type="text"
-                    id="tags"
-                    name="tags"
-                    value={formData.tags}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                    placeholder="Separate tags with commas (nextjs, react, web)"
-                  />
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Separate multiple tags with commas
-                  </div>
-                </div>
+          {/* Related Blogs Selection */}
+          <div className="bg-card rounded-lg shadow p-6 border">
+            <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Blogs</h3>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="blogSearch" className="block text-sm font-medium text-card-foreground mb-2">
+                  Search Blogs
+                </label>
+                <input
+                  type="text"
+                  id="blogSearch"
+                  value={blogSearch}
+                  onChange={(e) => setBlogSearch(e.target.value)}
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  placeholder="Search by title..."
+                />
               </div>
-            </div>
 
-            {/* Related Services Selection */}
-            <div className="bg-card rounded-lg shadow p-6 border">
-              <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Services</h3>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="relatedServices" className="block text-sm font-medium text-card-foreground mb-2">
-                    Select Services (Hold Ctrl/Cmd to select multiple)
-                  </label>
-                  <select
-                    multiple
-                    id="relatedServices"
-                    name="relatedServices"
-                    value={formData.relatedServices}
-                    onChange={handleServiceChange}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground h-40"
-                  >
-                    {services.map((service) => (
-                      <option key={service._id} value={service._id}>
-                        {service.title}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Selected services will appear in the "Related Services" section of the blog post.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Featured Image */}
-            <div className="bg-card rounded-lg shadow p-6 border">
-              <h3 className="text-lg font-semibold text-card-foreground mb-4">Featured Image</h3>
-
-              {imagePreview && isValidUrl(formData.featuredImage) ? (
-                <div className="space-y-3">
-                  <div className="relative aspect-video rounded-lg overflow-hidden border border-border">
-                    {!imageError ? (
-                      <Image
-                        src={formData.featuredImage}
-                        alt="Featured image preview"
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 400px"
-                        onError={handleImageError}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">
-                        Failed to load image
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={clearFeaturedImage}
-                    className="w-full px-3 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors text-sm"
-                  >
-                    Remove Image
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {/* Upload Button */}
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+              <div className="border border-border rounded-lg max-h-60 overflow-y-auto p-2 space-y-2">
+                {blogs.filter(b => b.title.toLowerCase().includes(blogSearch.toLowerCase())).map(blog => (
+                  <div key={blog._id} className="flex items-center space-x-2 p-2 hover:bg-accent rounded">
                     <input
-                      type="file"
-                      id="image-upload"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      disabled={uploading}
+                      type="checkbox"
+                      id={`blog-${blog._id}`}
+                      checked={formData.relatedBlogs.includes(blog._id)}
+                      onChange={() => toggleRelatedBlog(blog._id)}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                     />
-                    <label
-                      htmlFor="image-upload"
-                      className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {uploading ? (
-                        <div className="flex flex-col items-center space-y-2">
-                          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                          <span className="text-sm text-muted-foreground">Uploading...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="text-2xl mb-2">📁</div>
-                          <div className="text-sm font-medium text-foreground mb-1">
-                            Upload Featured Image
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Click to upload or drag and drop
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            PNG, JPG, GIF up to 10MB
-                          </div>
-                        </>
-                      )}
+                    <label htmlFor={`blog-${blog._id}`} className="text-sm cursor-pointer flex-1">
+                      {blog.title}
                     </label>
                   </div>
-
-                  {/* Or use URL */}
-                  <div className="text-center text-xs text-muted-foreground">OR</div>
-
-                  {/* URL Input */}
-                  <div>
-                    <input
-                      type="url"
-                      name="featuredImage"
-                      value={formData.featuredImage}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground text-sm"
-                      placeholder="Or paste image URL here"
-                    />
-                    {formData.featuredImage && !isValidUrl(formData.featuredImage) && (
-                      <div className="text-xs text-destructive mt-1">
-                        Please enter a valid URL
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+                ))}
+                {blogs.length === 0 && <p className="text-muted-foreground text-sm p-2">No blogs found.</p>}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Selected: {formData.relatedBlogs.length} / 4
+              </div>
             </div>
+          </div>
 
-            {/* SEO Settings */}
-            <div className="bg-card rounded-lg shadow p-6 border">
-              <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
+          {/* Related Services Selection */}
+          <div className="bg-card rounded-lg shadow p-6 border">
+            <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Services</h3>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="relatedServices" className="block text-sm font-medium text-card-foreground mb-2">
+                  Select Services (Hold Ctrl/Cmd to select multiple)
+                </label>
+                <select
+                  multiple
+                  id="relatedServices"
+                  name="relatedServices"
+                  value={formData.relatedServices}
+                  onChange={handleServiceChange}
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground h-40"
+                >
+                  {services.map((service) => (
+                    <option key={service._id} value={service._id}>
+                      {service.title}
+                    </option>
+                  ))}
+                </select>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Selected services will appear in the "Related Services" section of the blog post.
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">
-                    SEO Title
-                  </label>
+          {/* Featured Image */}
+          <div className="bg-card rounded-lg shadow p-6 border">
+            <h3 className="text-lg font-semibold text-card-foreground mb-4">Featured Image</h3>
+
+            {imagePreview && isValidUrl(formData.featuredImage) ? (
+              <div className="space-y-3">
+                <div className="relative aspect-video rounded-lg overflow-hidden border border-border">
+                  {!imageError ? (
+                    <Image
+                      src={formData.featuredImage}
+                      alt="Featured image preview"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 400px"
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">
+                      Failed to load image
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={clearFeaturedImage}
+                  className="w-full px-3 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors text-sm"
+                >
+                  Remove Image
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Upload Button */}
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                   <input
-                    type="text"
-                    id="seoTitle"
-                    name="seoTitle"
-                    value={formData.seoTitle}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                    placeholder="SEO optimized title (max 60 characters)"
-                    maxLength={60}
+                    type="file"
+                    id="image-upload"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={uploading}
                   />
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {formData.seoTitle.length}/60 characters
-                  </div>
+                  <label
+                    htmlFor="image-upload"
+                    className={`cursor-pointer block ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {uploading ? (
+                      <div className="flex flex-col items-center space-y-2">
+                        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <span className="text-sm text-muted-foreground">Uploading...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="text-2xl mb-2">📁</div>
+                        <div className="text-sm font-medium text-foreground mb-1">
+                          Upload Featured Image
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Click to upload or drag and drop
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          PNG, JPG, GIF up to 10MB
+                        </div>
+                      </>
+                    )}
+                  </label>
                 </div>
 
+                {/* Or use URL */}
+                <div className="text-center text-xs text-muted-foreground">OR</div>
+
+                {/* URL Input */}
                 <div>
-                  <label htmlFor="seoDescription" className="block text-sm font-medium text-card-foreground mb-2">
-                    SEO Description
-                  </label>
-                  <textarea
-                    id="seoDescription"
-                    name="seoDescription"
-                    value={formData.seoDescription}
+                  <input
+                    type="url"
+                    name="featuredImage"
+                    value={formData.featuredImage}
                     onChange={handleChange}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                    placeholder="SEO optimized description (max 160 characters)"
-                    maxLength={160}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground text-sm"
+                    placeholder="Or paste image URL here"
                   />
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {formData.seoDescription.length}/160 characters
-                  </div>
+                  {formData.featuredImage && !isValidUrl(formData.featuredImage) && (
+                    <div className="text-xs text-destructive mt-1">
+                      Please enter a valid URL
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* SEO Settings */}
+          <div className="bg-card rounded-lg shadow p-6 border">
+            <h3 className="text-lg font-semibold text-card-foreground mb-4">SEO Settings</h3>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="seoTitle" className="block text-sm font-medium text-card-foreground mb-2">
+                  SEO Title
+                </label>
+                <input
+                  type="text"
+                  id="seoTitle"
+                  name="seoTitle"
+                  value={formData.seoTitle}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  placeholder="SEO optimized title (max 60 characters)"
+                  maxLength={60}
+                />
+                <div className="text-xs text-muted-foreground mt-1">
+                  {formData.seoTitle.length}/60 characters
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="seoDescription" className="block text-sm font-medium text-card-foreground mb-2">
+                  SEO Description
+                </label>
+                <textarea
+                  id="seoDescription"
+                  name="seoDescription"
+                  value={formData.seoDescription}
+                  onChange={handleChange}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  placeholder="SEO optimized description (max 160 characters)"
+                  maxLength={160}
+                />
+                <div className="text-xs text-muted-foreground mt-1">
+                  {formData.seoDescription.length}/160 characters
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end space-x-4 pt-6 border-t border-border">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            disabled={loading || uploading}
-            className="px-6 py-3 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading || uploading}
-            className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                <span>Creating...</span>
-              </span>
-            ) : (
-              formData.status === 'published' ? 'Publish Blog' : 'Save as Draft'
-            )}
-          </button>
-        </div>
-      </form>
     </div>
+
+        {/* Action Buttons */ }
+  <div className="flex justify-end space-x-4 pt-6 border-t border-border">
+    <button
+      type="button"
+      onClick={() => router.back()}
+      disabled={loading || uploading}
+      className="px-6 py-3 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      disabled={loading || uploading}
+      className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {loading ? (
+        <span className="flex items-center space-x-2">
+          <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+          <span>Creating...</span>
+        </span>
+      ) : (
+        formData.status === 'published' ? 'Publish Blog' : 'Save as Draft'
+      )}
+    </button>
+  </div>
+      </form >
+    </div >
   );
 }

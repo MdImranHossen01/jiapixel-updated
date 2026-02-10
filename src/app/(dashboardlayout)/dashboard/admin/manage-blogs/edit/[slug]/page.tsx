@@ -27,8 +27,8 @@ interface BlogData {
   excerpt?: string;
   featuredImage?: string;
   authorName?: string;
-  tags: string[];
-  category: string;
+  // tags: string[];
+  // category: string;
   status: 'draft' | 'published' | 'archived';
   seoTitle?: string;
   seoDescription?: string;
@@ -38,6 +38,7 @@ interface BlogData {
   createdAt: string;
   updatedAt: string;
   relatedServices?: any[]; // Allow population or array of IDs
+  relatedBlogs?: any[]; // Added
 }
 
 interface PageProps {
@@ -55,7 +56,9 @@ export default function EditBlogPage({ params }: PageProps) {
   const [blog, setBlog] = useState<BlogData | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
-  const [services, setServices] = useState<any[]>([]); // New state for services
+  const [services, setServices] = useState<any[]>([]);
+  const [blogs, setBlogs] = useState<any[]>([]); // New state for blogs
+  const [blogSearch, setBlogSearch] = useState("");
 
   // Await params in useEffect
   const [resolvedParams, setResolvedParams] = useState<{ slug: string } | null>(null);
@@ -72,18 +75,27 @@ export default function EditBlogPage({ params }: PageProps) {
     if (resolvedParams?.slug) {
       fetchBlog(resolvedParams.slug);
     }
-    fetchServices();
+    fetchServicesAndBlogs();
   }, [resolvedParams]);
 
-  const fetchServices = async () => {
+  const fetchServicesAndBlogs = async () => {
     try {
-      const res = await fetch('/api/services?limit=100');
-      if (res.ok) {
-        const data = await res.json();
+      const [servicesRes, blogsRes] = await Promise.all([
+        fetch('/api/services?limit=100'),
+        fetch('/api/blogs?limit=100')
+      ]);
+
+      if (servicesRes.ok) {
+        const data = await servicesRes.json();
         setServices(data.services || []);
       }
+
+      if (blogsRes.ok) {
+        const data = await blogsRes.json();
+        setBlogs(data.blogs || []);
+      }
     } catch (err) {
-      console.error("Failed to fetch services", err);
+      console.error("Failed to fetch data", err);
     }
   };
 
@@ -103,6 +115,13 @@ export default function EditBlogPage({ params }: PageProps) {
         if (blogData.relatedServices && blogData.relatedServices.length > 0 && typeof blogData.relatedServices[0] === 'object') {
           blogData.relatedServices = blogData.relatedServices.map((s: any) => s._id);
         }
+        // Ensure relatedBlogs is an array of IDs
+        if (blogData.relatedBlogs && blogData.relatedBlogs.length > 0 && typeof blogData.relatedBlogs[0] === 'object') {
+          blogData.relatedBlogs = blogData.relatedBlogs.map((b: any) => b._id);
+        } else if (!blogData.relatedBlogs) {
+          blogData.relatedBlogs = [];
+        }
+
         setBlog(blogData);
         if (data.blog.featuredImage && isValidUrl(data.blog.featuredImage)) {
           setImagePreview(data.blog.featuredImage);
@@ -190,15 +209,7 @@ export default function EditBlogPage({ params }: PageProps) {
   };
 
 
-  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!blog) return;
 
-    const tagsString = e.target.value;
-    setBlog(prev => prev ? {
-      ...prev,
-      tags: tagsString.split(',').map(tag => tag.trim()).filter(tag => tag)
-    } : null);
-  };
 
   const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!blog) return;
@@ -207,6 +218,23 @@ export default function EditBlogPage({ params }: PageProps) {
       ...prev,
       relatedServices: selectedOptions
     } : null);
+  };
+
+  const toggleRelatedBlog = (blogId: string) => {
+    if (!blog) return;
+    setBlog(prev => {
+      if (!prev) return null;
+      const current = prev.relatedBlogs || [];
+      if (current.includes(blogId)) {
+        return { ...prev, relatedBlogs: current.filter(id => id !== blogId) };
+      } else {
+        if (current.length >= 4) {
+          alert("You can verify select up to 4 related blogs.");
+          return prev;
+        }
+        return { ...prev, relatedBlogs: [...current, blogId] };
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -295,7 +323,7 @@ export default function EditBlogPage({ params }: PageProps) {
     );
   }
 
-  const tagsString = blog.tags.join(', ');
+
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -370,74 +398,43 @@ export default function EditBlogPage({ params }: PageProps) {
 
           <div className="space-y-6">
             {/* Publishing Settings */}
-            <div className="bg-card rounded-lg shadow p-6 border border-border">
-              <h3 className="text-lg font-semibold text-card-foreground mb-4">Publishing Settings</h3>
-
+            {/* Related Blogs Selection */}
+            <div className="bg-card rounded-lg shadow p-6 border">
+              <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Blogs</h3>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="status" className="block text-sm font-medium text-card-foreground mb-2">
-                    Status
-                  </label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={blog.status}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="category" className="block text-sm font-medium text-card-foreground mb-2">
-                    Category *
+                  <label htmlFor="blogSearch" className="block text-sm font-medium text-card-foreground mb-2">
+                    Search Blogs
                   </label>
                   <input
                     type="text"
-                    id="category"
-                    name="category"
-                    value={blog.category}
-                    onChange={handleChange}
-                    required
+                    id="blogSearch"
+                    value={blogSearch}
+                    onChange={(e) => setBlogSearch(e.target.value)}
                     className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                    placeholder="e.g., Technology, Business, Design"
+                    placeholder="Search by title..."
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="tags" className="block text-sm font-medium text-card-foreground mb-2">
-                    Tags
-                  </label>
-                  <input
-                    type="text"
-                    id="tags"
-                    name="tags"
-                    value={tagsString}
-                    onChange={handleTagsChange}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                    placeholder="Separate tags with commas (nextjs, react, web)"
-                  />
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Separate multiple tags with commas
-                  </div>
+                <div className="border border-border rounded-lg max-h-60 overflow-y-auto p-2 space-y-2">
+                  {blogs.filter(b => b.title.toLowerCase().includes(blogSearch.toLowerCase()) && b._id !== blog._id).map(b => (
+                    <div key={b._id} className="flex items-center space-x-2 p-2 hover:bg-accent rounded">
+                      <input
+                        type="checkbox"
+                        id={`blog-${b._id}`}
+                        checked={(blog.relatedBlogs || []).includes(b._id)}
+                        onChange={() => toggleRelatedBlog(b._id)}
+                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <label htmlFor={`blog-${b._id}`} className="text-sm cursor-pointer flex-1">
+                        {b.title}
+                      </label>
+                    </div>
+                  ))}
+                  {blogs.length === 0 && <p className="text-muted-foreground text-sm p-2">No blogs found.</p>}
                 </div>
-
-                <div>
-                  <label htmlFor="authorName" className="block text-sm font-medium text-card-foreground mb-2">
-                    Author Name
-                  </label>
-                  <input
-                    type="text"
-                    id="authorName"
-                    name="authorName"
-                    value={blog.authorName || ''}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                    placeholder="Author name"
-                  />
+                <div className="text-xs text-muted-foreground">
+                  Selected: {(blog.relatedBlogs || []).length} / 4
                 </div>
               </div>
             </div>
@@ -657,7 +654,7 @@ export default function EditBlogPage({ params }: PageProps) {
           </button>
           <button
             type="submit"
-            disabled={saving || !blog.title || !blog.content || !blog.category}
+            disabled={saving || !blog.title || !blog.content}
             className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? (
