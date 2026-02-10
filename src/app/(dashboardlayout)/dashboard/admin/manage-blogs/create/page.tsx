@@ -28,7 +28,7 @@ export default function CreateBlogPage() {
     content: '',
     excerpt: '',
     featuredImage: '',
-    featuredImage: '',
+
     seoTitle: '',
     seoDescription: '',
     relatedServices: [] as string[],
@@ -503,34 +503,31 @@ export default function CreateBlogPage() {
             </div>
           </div>
         </div>
+        <div className="flex justify-end space-x-4 pt-6 border-t border-border">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            disabled={loading || uploading}
+            className="px-6 py-3 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading || uploading}
+            className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <span className="flex items-center space-x-2">
+                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                <span>Creating...</span>
+              </span>
+            ) : (
+              'Publish Blog'
+            )}
+          </button>
+        </div>
+      </form>
     </div>
-
-        {/* Action Buttons */ }
-  <div className="flex justify-end space-x-4 pt-6 border-t border-border">
-    <button
-      type="button"
-      onClick={() => router.back()}
-      disabled={loading || uploading}
-      className="px-6 py-3 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
-    >
-      Cancel
-    </button>
-    <button
-      type="submit"
-      disabled={loading || uploading}
-      className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {loading ? (
-        <span className="flex items-center space-x-2">
-          <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-          <span>Creating...</span>
-        </span>
-      ) : (
-        'Publish Blog'
-      )}
-    </button>
-  </div>
-      </form >
-    </div >
   );
 }
