@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 interface NewsletterCardClientProps {
     newsletter: any;
@@ -16,13 +18,17 @@ export default function NewsletterCardClient({ newsletter }: NewsletterCardClien
 
 
     const handleDelete = async () => {
-        if (
-            !confirm(
-                `Are you sure you want to delete "${newsletter.title}"? This action cannot be undone.`
-            )
-        ) {
-            return;
-        }
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: `You sure you want to delete "${newsletter.title}"? This action cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if (!result.isConfirmed) return;
 
         setIsDeleting(true);
         try {
@@ -31,13 +37,14 @@ export default function NewsletterCardClient({ newsletter }: NewsletterCardClien
             });
 
             if (response.ok) {
+                toast.success("Newsletter deleted successfully");
                 router.refresh();
             } else {
-                alert("Failed to delete newsletter");
+                toast.error("Failed to delete newsletter");
             }
         } catch (error) {
             console.error("Error deleting newsletter:", error);
-            alert("Error deleting newsletter");
+            toast.error("Error deleting newsletter");
         } finally {
             setIsDeleting(false);
         }
