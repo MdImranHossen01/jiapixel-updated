@@ -92,7 +92,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const title = category.seoTitle || category.title;
     const description = category.metaDescription || category.description?.replace(/<[^>]*>/g, '').substring(0, 160) || `Explore our ${category.title} services.`;
     const canonicalUrl = `${url}/${category.slug}`;
-    const imageUrl = category.banner || `${url}/og-image.jpg`;
+    const imageUrl = category.banner || `${url}/Jia-pixel-your-partner-in-digital-transformation.png`;
 
     return {
         title: title,
