@@ -59,6 +59,7 @@ export default function EditBlogPage({ params }: PageProps) {
   const [services, setServices] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<any[]>([]); // New state for blogs
   const [blogSearch, setBlogSearch] = useState("");
+  const [serviceSearch, setServiceSearch] = useState("");
 
   // Await params in useEffect
   const [resolvedParams, setResolvedParams] = useState<{ slug: string } | null>(null);
@@ -211,13 +212,21 @@ export default function EditBlogPage({ params }: PageProps) {
 
 
 
-  const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const toggleRelatedService = (serviceId: string) => {
     if (!blog) return;
-    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-    setBlog(prev => prev ? {
-      ...prev,
-      relatedServices: selectedOptions
-    } : null);
+    setBlog(prev => {
+      if (!prev) return null;
+      const current = prev.relatedServices || [];
+      if (current.includes(serviceId)) {
+        return { ...prev, relatedServices: current.filter(id => id !== serviceId) };
+      } else {
+        if (current.length >= 4) {
+          alert("You can verify select up to 4 related services.");
+          return prev;
+        }
+        return { ...prev, relatedServices: [...current, serviceId] };
+      }
+    });
   };
 
   const toggleRelatedBlog = (blogId: string) => {
@@ -444,26 +453,38 @@ export default function EditBlogPage({ params }: PageProps) {
               <h3 className="text-lg font-semibold text-card-foreground mb-4">Related Services</h3>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="relatedServices" className="block text-sm font-medium text-card-foreground mb-2">
-                    Select Services (Hold Ctrl/Cmd to select multiple)
+                  <label htmlFor="serviceSearch" className="block text-sm font-medium text-card-foreground mb-2">
+                    Search Services
                   </label>
-                  <select
-                    multiple
-                    id="relatedServices"
-                    name="relatedServices"
-                    value={blog.relatedServices || []}
-                    onChange={handleServiceChange}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground h-40"
-                  >
-                    {services.map((service) => (
-                      <option key={service._id} value={service._id}>
+                  <input
+                    type="text"
+                    id="serviceSearch"
+                    value={serviceSearch}
+                    onChange={(e) => setServiceSearch(e.target.value)}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                    placeholder="Search by title..."
+                  />
+                </div>
+
+                <div className="border border-border rounded-lg max-h-60 overflow-y-auto p-2 space-y-2">
+                  {services.filter(s => s.title.toLowerCase().includes(serviceSearch.toLowerCase())).map(service => (
+                    <div key={service._id} className="flex items-center space-x-2 p-2 hover:bg-accent rounded">
+                      <input
+                        type="checkbox"
+                        id={`service-${service._id}`}
+                        checked={(blog.relatedServices || []).includes(service._id)}
+                        onChange={() => toggleRelatedService(service._id)}
+                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <label htmlFor={`service-${service._id}`} className="text-sm cursor-pointer flex-1">
                         {service.title}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Selected services will appear in the "Related Services" section of the blog post.
-                  </div>
+                      </label>
+                    </div>
+                  ))}
+                  {services.length === 0 && <p className="text-muted-foreground text-sm p-2">No services found.</p>}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Selected: {(blog.relatedServices || []).length} / 4
                 </div>
               </div>
             </div>
