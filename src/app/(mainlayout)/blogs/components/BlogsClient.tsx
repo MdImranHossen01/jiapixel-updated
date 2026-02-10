@@ -18,21 +18,18 @@ const ITEMS_PER_PAGE = 12;
 
 const BlogsClient: React.FC<BlogsClientProps> = ({ initialBlogs }) => {
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState<string>("All");
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Filter blogs based on search and category
+    // Filter blogs based on search
     const filteredBlogs = useMemo(() => {
         return initialBlogs.filter((blog) => {
             const matchesSearch = searchQuery.trim()
                 ? blog.title?.toLowerCase().includes(searchQuery.toLowerCase().trim())
                 : true;
 
-            const matchesCategory = selectedCategory === "All" || blog.category === selectedCategory;
-
-            return matchesSearch && matchesCategory;
+            return matchesSearch;
         });
-    }, [initialBlogs, searchQuery, selectedCategory]);
+    }, [initialBlogs, searchQuery]);
 
     // Pagination Logic
     const totalPages = Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE);
@@ -44,7 +41,7 @@ const BlogsClient: React.FC<BlogsClientProps> = ({ initialBlogs }) => {
     // Reset pagination when filter changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, selectedCategory]);
+    }, [searchQuery]);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -64,7 +61,7 @@ const BlogsClient: React.FC<BlogsClientProps> = ({ initialBlogs }) => {
                     <div className="lg:col-span-8">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="text-2xl font-bold">
-                                {selectedCategory === "All" ? "Latest Articles" : `${selectedCategory} Articles`}
+                                Latest Articles
                             </h2>
                             <span className="text-muted-foreground text-sm">
                                 Showing {paginatedBlogs.length} of {filteredBlogs.length} result{filteredBlogs.length !== 1 && 's'}
@@ -124,13 +121,12 @@ const BlogsClient: React.FC<BlogsClientProps> = ({ initialBlogs }) => {
                                         No matching articles found
                                     </h3>
                                     <p className="text-muted-foreground">
-                                        Try adjusting your search terms or category.
+                                        Try adjusting your search terms.
                                     </p>
                                     <Button
                                         variant="link"
                                         onClick={() => {
                                             setSearchQuery("");
-                                            setSelectedCategory("All");
                                         }}
                                         className="mt-4"
                                     >
@@ -145,8 +141,6 @@ const BlogsClient: React.FC<BlogsClientProps> = ({ initialBlogs }) => {
                     <aside className="lg:col-span-4">
                         <BlogSidebar
                             blogs={initialBlogs}
-                            selectedCategory={selectedCategory}
-                            onSelectCategory={setSelectedCategory}
                         />
                     </aside>
                 </div>

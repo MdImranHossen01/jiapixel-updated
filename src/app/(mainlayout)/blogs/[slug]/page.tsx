@@ -4,12 +4,11 @@ import type { Metadata } from 'next';
 import ReadOnlyEditor from '@/components/tiptap-templates/simple/read-only-editor';
 import { SocialShare } from '@/components/blog/SocialShare';
 import BlogCard from '@/app/(mainlayout)/components/BlogSection/BlogCard';
-import ServiceCard from '@/components/ServiceCard';
 import CompactServiceCard from '@/components/CompactServiceCard';
 import CompactBlogCard from '@/components/CompactBlogCard';
 import BlogAdminActions from '@/components/BlogAdminActions';
 
-async function getRelatedBlogs(category: string, currentSlug: string) {
+async function getRelatedBlogs(currentSlug: string) {
   try {
     const baseUrl = process.env.NODE_ENV === 'production'
       ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
@@ -26,30 +25,10 @@ async function getRelatedBlogs(category: string, currentSlug: string) {
     const allBlogs = data.blogs || [];
 
     return allBlogs
-      .filter((b: any) => b.category === category && b.slug !== currentSlug)
+      .filter((b: any) => b.slug !== currentSlug)
       .slice(0, 3);
   } catch (error) {
     console.error("Error fetching related blogs:", error);
-    return [];
-  }
-}
-
-async function getRelatedServices(category: string) {
-  try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/services?category=${category}&limit=4`, {
-      next: { revalidate: 3600 }
-    });
-
-    if (!response.ok) return [];
-
-    const data = await response.json();
-    return data.services || [];
-  } catch (error) {
-    console.error('Error fetching related services:', error);
     return [];
   }
 }
@@ -110,7 +89,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: plainTextTitle,
     description: plainTextDescription,
-    keywords: blog.tags?.join(', ') || `${blog.category}, web development, digital marketing`,
+    keywords: `web development, digital marketing, ${blog.title}`,
 
     // Canonical URL
     alternates: {
@@ -136,7 +115,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       publishedTime: blog.publishedAt || blog.createdAt,
       modifiedTime: blog.updatedAt,
       authors: [blog.authorName || 'Md Imran Hossen'],
-      tags: blog.tags || [],
     },
 
     // Twitter Card
@@ -158,16 +136,17 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
-  const relatedBlogs = await getRelatedBlogs(blog.category, slug);
+  let relatedBlogs = [];
+  if (blog.relatedBlogs && blog.relatedBlogs.length > 0) {
+    relatedBlogs = blog.relatedBlogs;
+  } else {
+    relatedBlogs = await getRelatedBlogs(slug);
+  }
 
   let services = [];
   if (blog.relatedServices && blog.relatedServices.length > 0) {
     services = blog.relatedServices;
-  } else {
-    services = await getRelatedServices(blog.category);
   }
-
-
 
   // Generate structured data for individual blog post
   const blogStructuredData = {
@@ -194,9 +173,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': `https://www.jiapixel.com/blogs/${blog.slug}`
-    },
-    articleSection: blog.category,
-    keywords: blog.tags?.join(', ')
+    }
   };
 
   return (
@@ -236,11 +213,6 @@ export default async function BlogPostPage({ params }: PageProps) {
                     <p className="text-sm text-muted-foreground">
                       {new Date(blog.createdAt).toLocaleDateString()} • {blog.readTime || 5} min read
                     </p>
-                    <div className="mt-2 flex gap-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                        {blog.category}
-                      </span>
-                    </div>
                   </div>
                   <SocialShare title={blog.title} url={`https://www.jiapixel.com/blogs/${blog.slug}`} />
                 </div>

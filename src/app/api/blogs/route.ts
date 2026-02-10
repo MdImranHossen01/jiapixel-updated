@@ -14,15 +14,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
-    const category = searchParams.get('category');
-    const tag = searchParams.get('tag');
 
     const skip = (page - 1) * limit;
 
     let query: any = { status: 'published' };
-
-    if (category) query.category = category;
-    if (tag) query.tags = tag;
 
     // Remove populate for now since we don't have User model set up
     const blogs = await Blog.find(query)
@@ -62,14 +57,14 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const body = await request.json();
-    const { title, content, excerpt, featuredImage, tags, category, status, seoTitle, seoDescription, slug: providedSlug } = body;
+    const { title, content, excerpt, featuredImage, seoTitle, seoDescription, slug: providedSlug } = body;
 
     // Validate required fields
-    if (!title || !content || !category) {
+    if (!title || !content) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Title, content, and category are required'
+          error: 'Title and content are required'
         },
         { status: 400 }
       );
@@ -102,12 +97,10 @@ export async function POST(request: NextRequest) {
       excerpt: excerpt || `${content.substring(0, 150)}...`,
       featuredImage,
       authorName: 'Admin', // Default author name
-      tags: tags || [],
-      category,
-      status: status || 'draft',
       seoTitle: seoTitle || title,
       seoDescription: seoDescription || excerpt || `${content.substring(0, 150)}...`,
-      relatedServices: body.relatedServices || []
+      relatedServices: body.relatedServices || [],
+      relatedBlogs: body.relatedBlogs || []
     });
 
 
@@ -124,9 +117,6 @@ export async function POST(request: NextRequest) {
           excerpt: blog.excerpt,
           featuredImage: blog.featuredImage,
           authorName: blog.authorName,
-          tags: blog.tags,
-          category: blog.category,
-          status: blog.status,
           readTime: blog.readTime,
           publishedAt: blog.publishedAt,
           createdAt: blog.createdAt

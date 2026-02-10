@@ -3,36 +3,22 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { TrendingUp, Folder, Calendar } from "lucide-react";
+import { TrendingUp, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BlogSidebarProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     blogs: any[];
-    selectedCategory: string;
-    onSelectCategory: (category: string) => void;
 }
 
 const BlogSidebar: React.FC<BlogSidebarProps> = ({
     blogs,
-    selectedCategory,
-    onSelectCategory,
 }) => {
     // 1. Get Popular Articles (Top 4 by views, fallback to sorted by date if no views)
     const popularArticles = useMemo(() => {
         // Clone to avoid mutating original array
         const sorted = [...blogs].sort((a, b) => (b.views || 0) - (a.views || 0));
         return sorted.slice(0, 4);
-    }, [blogs]);
-
-    // 2. Get Unique Categories with counts
-    const categories = useMemo(() => {
-        const catMap = new Map<string, number>();
-        blogs.forEach((blog) => {
-            const cat = blog.category || "Uncategorized";
-            catMap.set(cat, (catMap.get(cat) || 0) + 1);
-        });
-        return Array.from(catMap.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
     }, [blogs]);
 
     // 3. Get Archive (Year-Month)
@@ -84,46 +70,6 @@ const BlogSidebar: React.FC<BlogSidebarProps> = ({
                         </Link>
                     ))}
                 </div>
-            </div>
-
-            {/* Categories Widget */}
-            <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Folder size={18} className="text-primary" />
-                    Top Categories
-                </h3>
-                <ul className="space-y-2">
-                    <li>
-                        <button
-                            onClick={() => onSelectCategory("All")}
-                            className={`w-full flex items-center justify-between text-sm p-2 rounded-lg transition-colors ${selectedCategory === "All"
-                                ? "bg-primary/10 text-primary font-medium"
-                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                }`}
-                        >
-                            <span>All Articles</span>
-                            <span className="bg-background/50 px-2 py-0.5 rounded-full text-xs box-border border">
-                                {blogs.length}
-                            </span>
-                        </button>
-                    </li>
-                    {categories.map(([cat, count]) => (
-                        <li key={cat}>
-                            <button
-                                onClick={() => onSelectCategory(cat)}
-                                className={`w-full flex items-center justify-between text-sm p-2 rounded-lg transition-colors ${selectedCategory === cat
-                                    ? "bg-primary/10 text-primary font-medium"
-                                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                    }`}
-                            >
-                                <span>{cat}</span>
-                                <span className="bg-background/50 px-2 py-0.5 rounded-full text-xs box-border border">
-                                    {count}
-                                </span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
             </div>
 
             {/* Archive Widget */}

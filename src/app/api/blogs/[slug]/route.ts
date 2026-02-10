@@ -33,6 +33,11 @@ export async function GET(request: NextRequest, { params }: Params) {
         path: 'relatedServices',
         select: 'title slug images featuredImage isFeatured',
         strictPopulate: false
+      })
+      .populate({
+        path: 'relatedBlogs',
+        select: 'title slug featuredImage createdAt',
+        strictPopulate: false
       });
 
 
@@ -46,8 +51,11 @@ export async function GET(request: NextRequest, { params }: Params) {
       );
     }
 
-    // Increment views
-    await Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } });
+    // Increment views only if published (implicit since we fetched only published)
+    // But double check if we change query later
+    if (blog.status === 'published') {
+      await Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } });
+    }
 
     return NextResponse.json({
       success: true,
@@ -101,6 +109,12 @@ export async function PUT(request: NextRequest, { params }: Params) {
       console.log('No relatedServices in body');
     }
 
+    // Explicitly handle relatedBlogs
+    if (body.relatedBlogs) {
+      console.log('Updating relatedBlogs:', body.relatedBlogs);
+      blog.relatedBlogs = body.relatedBlogs;
+    }
+
     await blog.save();
 
     // Revalidate the blog details page to show updates instantly
@@ -117,9 +131,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
         excerpt: blog.excerpt,
         featuredImage: blog.featuredImage,
         authorName: blog.authorName,
-        tags: blog.tags,
-        category: blog.category,
-        status: blog.status,
         readTime: blog.readTime,
         publishedAt: blog.publishedAt,
         createdAt: blog.createdAt

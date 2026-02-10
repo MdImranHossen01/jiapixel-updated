@@ -8,8 +8,6 @@ export interface IBlog extends Document {
   featuredImage?: string;
   author?: mongoose.Types.ObjectId;
   authorName?: string;
-  tags: string[];
-  category: string;
   status: "draft" | "published" | "archived";
   publishedAt?: Date;
   seoTitle?: string;
@@ -19,6 +17,7 @@ export interface IBlog extends Document {
   createdAt: Date;
   updatedAt: Date;
   relatedServices?: mongoose.Types.ObjectId[];
+  relatedBlogs?: mongoose.Types.ObjectId[];
   isIndexedInGoogle?: boolean;
 }
 
@@ -57,28 +56,23 @@ const BlogSchema: Schema = new Schema(
       type: String,
       default: "Md. Imran Hossen",
     },
-    tags: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
-    category: {
-      type: String,
-      required: [true, "Category is required"],
-      trim: true,
-    },
     status: {
       type: String,
       enum: ["draft", "published", "archived"],
       default: "draft",
+      index: true,
     },
     publishedAt: {
       type: Date,
+      default: Date.now,
     },
     relatedServices: [{
       type: Schema.Types.ObjectId,
       ref: "Service"
+    }],
+    relatedBlogs: [{
+      type: Schema.Types.ObjectId,
+      ref: "Blog"
     }],
     seoTitle: {
       type: String,
@@ -107,10 +101,8 @@ const BlogSchema: Schema = new Schema(
 );
 
 // Performance indexes for common query patterns
-BlogSchema.index({ status: 1, publishedAt: -1 }); // For published blogs sorted by date
-BlogSchema.index({ status: 1, createdAt: -1 }); // For all blogs sorted by creation
-BlogSchema.index({ category: 1, status: 1 }); // For category filtering
-BlogSchema.index({ tags: 1 }); // For tag-based queries
+BlogSchema.index({ publishedAt: -1 }); // For sorting by date
+BlogSchema.index({ createdAt: -1 }); // For sorting by creation
 BlogSchema.index({ slug: 1 }); // For slug lookups (already unique, but explicit)
 
 //  Calculate read time before saving
@@ -119,14 +111,6 @@ BlogSchema.pre("save", function (this: IBlog, next) {
     const wordsPerMinute = 200;
     const wordCount = this.content.split(/\s+/).length;
     this.readTime = Math.ceil(wordCount / wordsPerMinute);
-  }
-  next();
-});
-
-// 🗓️ Auto-set publishedAt when published
-BlogSchema.pre("save", function (this: IBlog, next) {
-  if (this.isModified("status") && this.status === "published" && !this.publishedAt) {
-    this.publishedAt = new Date();
   }
   next();
 });
@@ -150,3 +134,4 @@ if (process.env.NODE_ENV !== 'production' && mongoose.models.Blog) {
 
 const Blog = mongoose.models.Blog || mongoose.model<IBlog>("Blog", BlogSchema);
 export default Blog;
+
