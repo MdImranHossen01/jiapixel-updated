@@ -35,7 +35,8 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
     // Autofocus on input by default
     useEffect(() => {
         inputRef.current?.focus();
-    });
+    }, [open]);
+
     if (!editor) return null;
 
     return (
@@ -55,10 +56,8 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
             <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
                 <form
                     onSubmit={(e) => {
-                        const target = e.currentTarget as HTMLFormElement;
                         e.preventDefault();
-                        const input = target[0] as HTMLInputElement;
-                        const url = getUrlFromString(input.value);
+                        const url = getUrlFromString(inputRef.current?.value || "");
                         if (url) {
                             editor.chain().focus().setLink({ href: url }).run();
                             onOpenChange(false);
@@ -90,7 +89,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                             <Trash className="h-4 w-4" />
                         </Button>
                     ) : (
-                        <Button size="icon" className="h-8">
+                        <Button size="icon" className="h-8" type="submit">
                             <Check className="h-4 w-4" />
                         </Button>
                     )}
