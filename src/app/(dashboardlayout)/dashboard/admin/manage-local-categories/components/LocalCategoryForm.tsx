@@ -422,7 +422,7 @@ const LocalCategoryForm = ({ initialData, isEdit }: LocalCategoryFormProps) => {
                 </div>
             </div>
 
-            {/* Tags and FAQs removed */}\n
+            {/* Tags and FAQs removed */}
 
             <div className="flex justify-end gap-4">
                 <button
