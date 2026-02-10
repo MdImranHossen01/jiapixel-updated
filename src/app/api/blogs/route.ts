@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    let query: any = { status: 'published' };
+    let query: any = {};
 
     // Remove populate for now since we don't have User model set up
     const blogs = await Blog.find(query)

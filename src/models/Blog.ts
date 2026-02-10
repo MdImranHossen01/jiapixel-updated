@@ -8,7 +8,6 @@ export interface IBlog extends Document {
   featuredImage?: string;
   author?: mongoose.Types.ObjectId;
   authorName?: string;
-  status: "draft" | "published" | "archived";
   publishedAt?: Date;
   seoTitle?: string;
   seoDescription?: string;
@@ -55,12 +54,6 @@ const BlogSchema: Schema = new Schema(
     authorName: {
       type: String,
       default: "Md. Imran Hossen",
-    },
-    status: {
-      type: String,
-      enum: ["draft", "published", "archived"],
-      default: "draft",
-      index: true,
     },
     publishedAt: {
       type: Date,

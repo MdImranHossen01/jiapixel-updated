@@ -29,7 +29,7 @@ interface BlogData {
   authorName?: string;
   // tags: string[];
   // category: string;
-  status: 'draft' | 'published' | 'archived';
+  // status: 'draft' | 'published' | 'archived';
   seoTitle?: string;
   seoDescription?: string;
   readTime: number;
@@ -663,7 +663,7 @@ export default function EditBlogPage({ params }: PageProps) {
                 <span>Saving...</span>
               </span>
             ) : (
-              blog.status === 'published' ? 'Update Blog' : 'Save as Draft'
+              'Update Blog'
             )}
           </button>
         </div>

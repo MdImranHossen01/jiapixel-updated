@@ -18,7 +18,7 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
     await connectDB();
 
     const [blogs, services, portfolios, categories] = await Promise.all([
-      Blog.find({ status: { $in: ["published", "draft"] } }, "slug updatedAt")
+      Blog.find({}, "slug updatedAt")
         .lean()
         .exec(),
 

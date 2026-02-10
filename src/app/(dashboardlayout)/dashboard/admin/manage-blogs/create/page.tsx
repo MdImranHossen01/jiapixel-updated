@@ -28,7 +28,7 @@ export default function CreateBlogPage() {
     content: '',
     excerpt: '',
     featuredImage: '',
-    status: 'draft',
+    featuredImage: '',
     seoTitle: '',
     seoDescription: '',
     relatedServices: [] as string[],
@@ -190,7 +190,6 @@ export default function CreateBlogPage() {
           featuredImage: formData.featuredImage,
 
           // tags and category removed
-          status: formData.status,
           seoTitle: formData.seoTitle,
           seoDescription: formData.seoDescription,
           relatedServices: formData.relatedServices,
@@ -527,7 +526,7 @@ export default function CreateBlogPage() {
           <span>Creating...</span>
         </span>
       ) : (
-        formData.status === 'published' ? 'Publish Blog' : 'Save as Draft'
+        'Publish Blog'
       )}
     </button>
   </div>
