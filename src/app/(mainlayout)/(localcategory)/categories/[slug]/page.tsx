@@ -1,18 +1,10 @@
 import React from 'react';
-import { Edit } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from "@/components/ui/button";
 import ProjectCard from '@/components/ProjectCard';
 import { ViewContent } from '@/app/components/editor/ViewContent';
-
-
-// Reusing CategoryHero equivalent or just building it inline for now to avoid dependency hell if it's tightly coupled.
-// Let's check CategoryHero import in CategoryPage. It was local: ./components/CategoryHero
-// I'll build a simple hero section inline or create a new one if complex.
-// The user asked for "banner user the same image as category page", likely meaning usage style.
+import LocalCategoryAdminActions from '@/components/LocalCategoryAdminActions';
+import CategoryHero from '@/components/CategoryHero';
 
 interface PageProps {
     params: Promise<{
@@ -38,10 +30,13 @@ const getCategory = async (slug: string) => {
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[LocalCategoryPage] Failed. Status: ${response.status} ${response.statusText}. Body: ${errorText}`);
             return null;
         }
 
         const data = await response.json();
+        console.log(`[LocalCategoryPage] Success. Category found: ${!!data.category}`);
         return data.category || null;
 
     } catch (error) {
@@ -149,46 +144,33 @@ const LocalCategoryPage = async ({ params }: PageProps) => {
     };
 
     return (
-        <div className="min-h-screen bg-background pb-12">
+        <div className="min-h-screen bg-background">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
             {/* Banner Section */}
-            <div className="relative w-full h-[300px] md:h-[400px] flex items-center justify-center bg-gray-100 overflow-hidden">
-                {category.banner ? (
-                    <Image
-                        src={category.banner}
-                        alt={category.title}
-                        fill
-                        className="object-cover"
-                        priority
-                    />
-                ) : (
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20" />
-                )}
-
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-black/40" />
-
-                <div className="relative z-10 text-center text-white px-4 max-w-4xl">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4">{category.title}</h1>
-
-                </div>
-
-                {/* Admin Actions - Floating or Absolute */}
-                <div className="absolute top-4 right-4 z-20">
-                    <Link href={`/dashboard/admin/manage-local-categories/edit/${category.slug}`}>
-                        <Button variant="outline" size="sm" className="bg-white/90 hover:bg-white text-black">
-                            <Edit className="w-4 h-4 mr-2" /> Edit Category
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-
+            <CategoryHero title={category.title}>
+                <LocalCategoryAdminActions
+                    categorySlug={category.slug}
+                    categoryTitle={category.title}
+                />
+            </CategoryHero>
 
             <div className="container mx-auto px-4 mt-8">
+
+                {/* Projects Section */}
+                {projects.length > 0 && (
+                    <div className="mb-12">
+                        <h2 className="text-2xl font-bold mb-6">Related Projects</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {projects.map((project: any) => (
+                                <ProjectCard key={project._id} project={project} />
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Description - Prioritized for SEO */}
                 {category.description && (
@@ -238,29 +220,13 @@ const LocalCategoryPage = async ({ params }: PageProps) => {
                     </div>
                 )}
 
-                {/* Projects Section */}
-                {projects.length > 0 ? (
-                    <div className="mb-12">
-                        <h2 className="text-2xl font-bold mb-6">Related Projects</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            {projects.map((project: any) => (
-                                <ProjectCard key={project._id} project={project} />
-                            ))}
-                        </div>
-                    </div>
-                ) : (
-                    <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-                        <p>No projects available in this category yet.</p>
-                    </div>
-                )}
-
                 {/* FAQs Section */}
                 {category.faqs && category.faqs.length > 0 && (
-                    <div className="max-w-3xl mx-auto mt-16">
+                    <div className="max-w-3xl mx-auto mb-16">
                         <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
                         <div className="space-y-4">
                             {category.faqs.map((faq: any, index: number) => (
-                                <div key={index} className="bg-background rounded-lg p-6 shadow-sm border border-border">
+                                <div key={index} className="bg-background rounded-lg p-6 shadow-sm border border-gray-100 dark:border-gray-800">
                                     <h3 className="text-lg font-semibold mb-2">{faq.question}</h3>
                                     <p className="text-muted-foreground">{faq.answer}</p>
                                 </div>

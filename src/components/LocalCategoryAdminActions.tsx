@@ -13,15 +13,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-interface CategoryAdminActionsProps {
+interface LocalCategoryAdminActionsProps {
     categorySlug: string;
     categoryTitle?: string;
 }
 
-export default function CategoryAdminActions({
+export default function LocalCategoryAdminActions({
     categorySlug,
     categoryTitle,
-}: CategoryAdminActionsProps) {
+}: LocalCategoryAdminActionsProps) {
     const { data: session } = useSession();
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
@@ -36,7 +36,7 @@ export default function CategoryAdminActions({
 
         setIsDeleting(true);
         try {
-            const response = await fetch(`/api/categories/${categorySlug}`, {
+            const response = await fetch(`/api/local-categories/${categorySlug}`, {
                 method: "DELETE",
             });
 
@@ -68,13 +68,13 @@ export default function CategoryAdminActions({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="border-0 shadow-lg">
                 <DropdownMenuItem
-                    onClick={() => router.push("/dashboard/admin/manage-categories/create")}
+                    onClick={() => router.push("/dashboard/admin/manage-local-categories/create")}
                 >
                     <Plus className="mr-2 h-4 w-4" />
                     Create New
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                    onClick={() => router.push("/dashboard/admin/manage-categories")}
+                    onClick={() => router.push("/dashboard/admin/manage-local-categories")}
                 >
                     <LayoutGrid className="mr-2 h-4 w-4" />
                     Manage
@@ -82,7 +82,7 @@ export default function CategoryAdminActions({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                     onClick={() =>
-                        router.push(`/dashboard/admin/manage-categories/edit/${categorySlug}`)
+                        router.push(`/dashboard/admin/manage-local-categories/edit/${categorySlug}`)
                     }
                 >
                     <Edit className="mr-2 h-4 w-4" />

@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import ServiceCard from '@/components/ServiceCard';
-import CategoryHero from './components/CategoryHero';
+import CategoryHero from '@/components/CategoryHero';
 import CategoryAdminActions from '@/components/CategoryAdminActions';
 import { ViewContent } from '@/app/components/editor/ViewContent';
 
