@@ -57,9 +57,9 @@ const HeroSection = ({
         </div>
 
         {/* Main Content - Service Images */}
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4">
           <div>
-            <div className="space-y-8">
+            <div className="space-y-4">
               {/* Service Images Slider */}
               {service.images && service.images.length > 0 && (
                 <div className="relative">

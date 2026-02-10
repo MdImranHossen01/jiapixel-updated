@@ -206,12 +206,12 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
             />
           </section>
           {/* Service Description */}
-          <section className="py-8">
+          <section className="py-4">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
 
 
-                <p className="text-4xl font-bold text-foreground">
+                <p className="lg:text-2xl text-xl  font-bold py-2 text-foreground">
                   Service Details
                 </p>
 
