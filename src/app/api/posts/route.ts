@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
         await connectDB();
 
         const body = await request.json();
-        const { title, content, featuredImage, seoTitle, seoDescription, relatedProjects, relatedPosts } = body;
+        const { title, content, featuredImage, seoTitle, seoDescription, relatedProjects, relatedPosts, slug: providedSlug } = body;
 
         // Validate required fields
         if (!title || !content) {
@@ -84,8 +84,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Generate slug from title
-        let slug = title
+        // Generate slug from provided slug or title
+        let slug = (providedSlug || title)
             .toLowerCase()
             .replace(/[^a-z0-9 -]/g, '')
             .replace(/\s+/g, '-')

@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-        const { title, content, featuredImage, seoTitle, seoDescription, relatedProjects, relatedWritings } = body;
+        const { title, content, featuredImage, seoTitle, seoDescription, relatedProjects, relatedWritings, slug: providedSlug } = body;
 
         // Validate required fields
         if (!title || !content) {
@@ -106,8 +106,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Generate slug from title
-        let slug = title
+        // Generate slug from provided slug or title
+        let slug = (providedSlug || title)
             .toLowerCase()
             .replace(/[^a-z0-9 -]/g, '')
             .replace(/\s+/g, '-')
