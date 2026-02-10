@@ -1,44 +1,23 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import LocalCategoriesClient from "./LocalCategoriesClient";
+import dbConnect from "@/lib/db";
+import LocalCategoryModel from "@/models/LocalCategory";
 
-interface LocalCategory {
-    _id: string;
-    title: string;
-    slug: string;
-    createdAt: string;
-    isIndexedInGoogle: boolean;
-}
+export const dynamic = 'force-dynamic';
 
-const ManageLocalCategories = () => {
-    const [categories, setCategories] = useState<LocalCategory[]>([]);
-    const [loading, setLoading] = useState(true);
+const ManageLocalCategories = async () => {
+    await dbConnect();
+    const rawCategories = await LocalCategoryModel.find({}).sort({ createdAt: -1 }).lean();
 
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () => {
-        try {
-            const res = await fetch("/api/local-categories");
-            const data = await res.json();
-            if (res.ok) {
-                setCategories(data);
-            } else {
-                toast.error("Failed to fetch categories");
-            }
-        } catch (error) {
-            toast.error("An error occurred");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (loading) return <div>Loading...</div>;
+    const categories = rawCategories.map((cat: any) => ({
+        _id: cat._id.toString(),
+        title: cat.title,
+        slug: cat.slug,
+        createdAt: cat.createdAt?.toISOString(),
+        isIndexedInGoogle: cat.isIndexedInGoogle || false,
+    }));
 
     return (
         <div className="p-6">
