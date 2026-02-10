@@ -92,7 +92,7 @@ const ContactPage = () => {
     {
       icon: <Phone className="w-6 h-6" />,
       title: 'Call Us',
-      details: +8801919011101',
+      details: '+8801919011101',
       description: 'Mon to Fri, 9am to 6pm'
     },
     {
