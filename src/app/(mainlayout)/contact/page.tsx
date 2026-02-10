@@ -24,8 +24,8 @@ const structuredData = {
     '@type': 'Organization',
     name: 'JIA Pixel',
     description: 'Digital agency creating exceptional digital experiences',
-    email: 'hello@jiapixel.com',
-    telephone: '+1-555-123-4567',
+    email: 'mail.jiapixel@gmail.com',
+    telephone: '+8801919011101',
     address: {
       '@type': 'PostalAddress',
       streetAddress: '123 Design Street',
@@ -86,7 +86,7 @@ const ContactPage = () => {
     {
       icon: <Mail className="w-6 h-6" />,
       title: 'Email Us',
-      details: 'hello@jiapixel.com',
+      details: 'mail.jiapixel@gmail.com',
       description: 'Send us an email anytime'
     },
     {
