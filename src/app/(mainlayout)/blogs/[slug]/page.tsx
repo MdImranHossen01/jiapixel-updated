@@ -8,30 +8,7 @@ import CompactServiceCard from '@/components/CompactServiceCard';
 import CompactBlogCard from '@/components/CompactBlogCard';
 import BlogAdminActions from '@/components/BlogAdminActions';
 
-async function getRelatedBlogs(currentSlug: string) {
-  try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
 
-    // Ideally this should be a specific API endpoint, but fetching all and filtering works for small scale
-    const response = await fetch(`${baseUrl}/api/blogs`, {
-      next: { revalidate: 3600 }
-    });
-
-    if (!response.ok) return [];
-
-    const data = await response.json();
-    const allBlogs = data.blogs || [];
-
-    return allBlogs
-      .filter((b: any) => b.slug !== currentSlug)
-      .slice(0, 3);
-  } catch (error) {
-    console.error("Error fetching related blogs:", error);
-    return [];
-  }
-}
 
 async function getBlog(slug: string) {
   try {
@@ -139,8 +116,6 @@ export default async function BlogPostPage({ params }: PageProps) {
   let relatedBlogs = [];
   if (blog.relatedBlogs && blog.relatedBlogs.length > 0) {
     relatedBlogs = blog.relatedBlogs;
-  } else {
-    relatedBlogs = await getRelatedBlogs(slug);
   }
 
   let services = [];
