@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import PricingComponent from "../components/Pricing";
 import HeroSection from "../components/HeroSection";
 // import ReadOnlyEditor from "@/components/tiptap-templates/simple/read-only-editor";
-import { ViewContent } from '@/app/components/editor/ViewContent';
+
 import ServiceAdminActions from "@/components/ServiceAdminActions";
 import { extractTextFromProjectDescription } from "@/lib/utils";
+import { generateHtml } from "@/lib/server-html";
 
 interface PageProps {
   params: Promise<{
@@ -214,13 +215,11 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                   Service Details
                 </p>
 
-                <div className="prose prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground">
-                  {/* Server-side rendered content for SEO/Crawlers */}
-
-
-                  {/* Client-side rich editor view */}
-                  <ViewContent content={service.projectSummary} />
-                </div>
+                {/* Server-side rendered content for SEO/Crawlers */}
+                <div
+                  className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-title font-sans leading-normal text-[16px] prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground tiptap"
+                  dangerouslySetInnerHTML={{ __html: generateHtml(service.projectSummary) }}
+                />
               </div>
             </div>
           </section>
