@@ -9,6 +9,8 @@ import Blog from "@/models/Blog";
 import Service from "@/models/Service";
 import Portfolio from "@/models/Portfolios";
 
+import LocalCategory from "@/models/LocalCategory";
+
 export const dynamic = "force-dynamic";
 
 const BASE_URL = "https://www.jiapixel.com";
@@ -17,7 +19,7 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
   try {
     await connectDB();
 
-    const [blogs, services, portfolios, categories] = await Promise.all([
+    const [blogs, services, portfolios, categories, localCategories] = await Promise.all([
       Blog.find({}, "slug updatedAt")
         .lean()
         .exec(),
@@ -32,6 +34,8 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
       Portfolio.find({}, "slug updatedAt").lean().exec(),
 
       Category.find({}, "slug updatedAt").lean().exec(),
+
+      LocalCategory.find({}, "slug updatedAt").lean().exec(),
     ]);
 
     const blogRoutes: MetadataRoute.Sitemap = blogs.map((item: any) => ({
@@ -64,7 +68,22 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
       priority: 0.9,
     }));
 
-    return [...blogRoutes, ...serviceRoutes, ...portfolioRoutes, ...categoryRoutes];
+    const localCategoryRoutes: MetadataRoute.Sitemap = localCategories.map(
+      (item: any) => ({
+        url: `${BASE_URL}/categories/${item.slug}`,
+        lastModified: item.updatedAt || new Date(),
+        changeFrequency: "weekly",
+        priority: 0.9,
+      })
+    );
+
+    return [
+      ...blogRoutes,
+      ...serviceRoutes,
+      ...portfolioRoutes,
+      ...categoryRoutes,
+      ...localCategoryRoutes,
+    ];
   } catch (error) {
     console.error("Error generating dynamic sitemap routes:", error);
     return [];
