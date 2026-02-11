@@ -27,7 +27,7 @@ export async function GET(request: NextRequest, { params }: Params) {
       );
     }
 
-    const blog = await Blog.findOne({ slug, status: 'published' })
+    const blog = await Blog.findOne({ slug })
       .select('-__v')
       .populate({
         path: 'relatedServices',
@@ -51,11 +51,8 @@ export async function GET(request: NextRequest, { params }: Params) {
       );
     }
 
-    // Increment views only if published (implicit since we fetched only published)
-    // But double check if we change query later
-    if (blog.status === 'published') {
-      await Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } });
-    }
+    // Increment views
+    await Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } });
 
     return NextResponse.json({
       success: true,
