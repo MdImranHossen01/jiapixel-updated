@@ -2,7 +2,7 @@ import { createImageUpload } from "novel";
 import { toast } from "sonner";
 
 
-const onUpload = (file: File) => {
+export const onUpload = (file: File) => {
     const formData = new FormData();
     formData.append("image", file);
 

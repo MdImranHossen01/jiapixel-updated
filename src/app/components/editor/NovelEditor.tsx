@@ -17,7 +17,8 @@ import { useState, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { defaultExtensions } from "./extensions";
 import { slashCommand, suggestionItems } from "./slash-command";
-import { uploadFn } from "./image-upload";
+import { onUpload } from "./image-upload";
+import { toast } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
 
@@ -89,8 +90,58 @@ export default function NovelEditor({ initialValue, onChange, readOnly = false }
                         handleDOMEvents: {
                             keydown: (_view, event) => handleCommandNavigation(event),
                         },
-                        handlePaste: (view, event) => handleImagePaste(view, event, uploadFn),
-                        handleDrop: (view, event, _slice, moved) => handleImageDrop(view, event, moved, uploadFn),
+                        handlePaste: (view, event) => {
+                            if (event.clipboardData && event.clipboardData.files.length > 0) {
+                                const file = event.clipboardData.files[0];
+                                if (file.type.startsWith("image/")) {
+                                    event.preventDefault(); // Prevent default paste behavior
+                                    const alt = file.name.split(".")[0]; // Use filename as alt text
+
+                                    // Upload the image
+                                    onUpload(file)
+                                        .then((url) => {
+                                            if (typeof url === "string") {
+                                                const { schema } = view.state;
+                                                const node = schema.nodes.image.create({ src: url, alt });
+                                                const transaction = view.state.tr.insert(view.state.selection.from, node);
+                                                view.dispatch(transaction);
+                                            }
+                                        })
+                                        .catch((error) => {
+                                            toast.error(error.message || "Failed to upload image");
+                                        });
+                                    return true; // Handled
+                                }
+                            }
+                            return false; // Not handled
+                        },
+                        handleDrop: (view, event, _slice, moved) => {
+                            if (!moved && event.dataTransfer && event.dataTransfer.files.length > 0) {
+                                const file = event.dataTransfer.files[0];
+                                if (file.type.startsWith("image/")) {
+                                    event.preventDefault();
+                                    const alt = file.name.split(".")[0]; // Use filename as alt text
+
+                                    const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+
+                                    // Upload the image
+                                    onUpload(file)
+                                        .then((url) => {
+                                            if (typeof url === "string") {
+                                                const { schema } = view.state;
+                                                const node = schema.nodes.image.create({ src: url, alt });
+                                                const transaction = view.state.tr.insert(coordinates?.pos ?? view.state.selection.from, node);
+                                                view.dispatch(transaction);
+                                            }
+                                        })
+                                        .catch((error) => {
+                                            toast.error(error.message || "Failed to upload image");
+                                        });
+                                    return true; // Handled
+                                }
+                            }
+                            return false; // Not handled
+                        },
                         attributes: {
                             class: "prose prose-lg dark:prose-invert prose-headings:font-title font-sans leading-normal focus:outline-none max-w-full text-[16px]",
                         },
