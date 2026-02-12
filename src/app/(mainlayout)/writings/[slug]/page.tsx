@@ -6,10 +6,10 @@ import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import WritingAdminActions from '@/components/WritingAdminActions';
 import { generateHtml } from '@/lib/server-html';
-import ViewTracker from '@/components/ViewTracker';
 
 import connectDB from '@/lib/db';
 import Writing from '@/models/Writing';
+
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -139,7 +139,6 @@ export default async function WritingPage({ params }: PageProps) {
 
     return (
         <div className="min-h-screen py-8">
-            <ViewTracker slug={slug} />
             <div className="container mx-auto px-4 max-w-7xl">
 
 

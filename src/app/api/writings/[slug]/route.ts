@@ -55,6 +55,9 @@ export async function GET(request: NextRequest, { params }: Params) {
             );
         }
 
+        // Increment views
+        await Writing.findByIdAndUpdate(updatedWriting._id, { $inc: { views: 1 } });
+
         return NextResponse.json({
             success: true,
             writing: updatedWriting
@@ -98,30 +101,21 @@ export async function PUT(request: NextRequest, { params }: Params) {
         }
 
         // Update writing fields
-        // Explicit allowlist for updatable fields
-        const allowedFields = [
-            'title',
-            'slug',
-            'content',
-            'featuredImage',
-            'seoTitle',
-            'seoDescription',
-            'status',
-            'authorName',
-            'readTime',
-            'relatedProjects',
-            'relatedWritings',
-            'tags',
-            'excerpt', // Keeping just in case, though we removed it from UI
-            'isIndexedInGoogle'
-        ];
-
-        // Update writing fields only if they are in the allowlist and present in body
-        allowedFields.forEach(key => {
-            if (body[key] !== undefined) {
+        Object.keys(body).forEach(key => {
+            if (body[key] !== undefined && key !== '_id') {
                 writing[key] = body[key];
             }
         });
+
+        // Explicitly handle relatedProjects to be sure
+        if (body.relatedProjects) {
+            writing.relatedProjects = body.relatedProjects;
+        }
+
+        // Explicitly handle relatedWritings to be sure
+        if (body.relatedWritings) {
+            writing.relatedWritings = body.relatedWritings;
+        }
 
         await writing.save();
 
