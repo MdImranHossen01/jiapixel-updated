@@ -10,6 +10,7 @@ import Service from "@/models/Service";
 import Portfolio from "@/models/Portfolios";
 
 import LocalCategory from "@/models/LocalCategory";
+import Writing from "@/models/Writing";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
   try {
     await connectDB();
 
-    const [blogs, services, portfolios, categories, localCategories] = await Promise.all([
+    const [blogs, services, portfolios, categories, localCategories, writings] = await Promise.all([
       Blog.find({}, "slug updatedAt")
         .lean()
         .exec(),
@@ -36,6 +37,8 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
       Category.find({}, "slug updatedAt").lean().exec(),
 
       LocalCategory.find({}, "slug updatedAt").lean().exec(),
+
+      Writing.find({}, "slug updatedAt").lean().exec(),
     ]);
 
     const blogRoutes: MetadataRoute.Sitemap = blogs.map((item: any) => ({
@@ -77,12 +80,20 @@ const getDynamicRoutes = async (): Promise<MetadataRoute.Sitemap> => {
       })
     );
 
+    const writingRoutes: MetadataRoute.Sitemap = writings.map((item: any) => ({
+      url: `${BASE_URL}/writings/${item.slug}`,
+      lastModified: item.updatedAt || new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
+
     return [
       ...blogRoutes,
       ...serviceRoutes,
       ...portfolioRoutes,
       ...categoryRoutes,
       ...localCategoryRoutes,
+      ...writingRoutes,
     ];
   } catch (error) {
     console.error("Error generating dynamic sitemap routes:", error);
@@ -114,6 +125,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${BASE_URL}/blogs`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/writings`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
