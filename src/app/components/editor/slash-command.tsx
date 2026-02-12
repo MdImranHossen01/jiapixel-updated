@@ -12,7 +12,8 @@ import {
     Youtube,
 } from "lucide-react";
 import { Command, createSuggestionItems, renderItems } from "novel";
-import { uploadFn } from "./image-upload";
+import { uploadFn, onUpload } from "./image-upload";
+import { toast } from "sonner";
 
 export const suggestionItems = createSuggestionItems([
 
@@ -109,7 +110,18 @@ export const suggestionItems = createSuggestionItems([
                 if (input.files?.length) {
                     const file = input.files[0];
                     const pos = editor.view.state.selection.from;
-                    uploadFn(file, editor.view, pos);
+                    const alt = file.name.split(".")[0];
+
+                    onUpload(file).then((url) => {
+                        if (typeof url === "string") {
+                            const { schema } = editor.view.state;
+                            const node = schema.nodes.image.create({ src: url, alt, title: alt });
+                            const transaction = editor.view.state.tr.insert(pos, node);
+                            editor.view.dispatch(transaction);
+                        }
+                    }).catch((error) => {
+                        toast.error(error.message || "Failed to upload image");
+                    });
                 }
             };
             input.click();

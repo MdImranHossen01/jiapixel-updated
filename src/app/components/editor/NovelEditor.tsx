@@ -102,7 +102,7 @@ export default function NovelEditor({ initialValue, onChange, readOnly = false }
                                         .then((url) => {
                                             if (typeof url === "string") {
                                                 const { schema } = view.state;
-                                                const node = schema.nodes.image.create({ src: url, alt });
+                                                const node = schema.nodes.image.create({ src: url, alt, title: alt });
                                                 const transaction = view.state.tr.insert(view.state.selection.from, node);
                                                 view.dispatch(transaction);
                                             }
@@ -129,7 +129,7 @@ export default function NovelEditor({ initialValue, onChange, readOnly = false }
                                         .then((url) => {
                                             if (typeof url === "string") {
                                                 const { schema } = view.state;
-                                                const node = schema.nodes.image.create({ src: url, alt });
+                                                const node = schema.nodes.image.create({ src: url, alt, title: alt });
                                                 const transaction = view.state.tr.insert(coordinates?.pos ?? view.state.selection.from, node);
                                                 view.dispatch(transaction);
                                             }
