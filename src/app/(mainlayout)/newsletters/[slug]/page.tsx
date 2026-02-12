@@ -8,50 +8,7 @@ import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import NewsletterAdminActions from '@/components/NewsletterAdminActions';
 import CompactBlogCard from '@/components/CompactBlogCard';
-import connectDB from '@/lib/db';
-import Newsletter from '@/models/Newsletter';
 
-// Helper function to get base URL
-function getBaseUrl() {
-    if (process.env.NODE_ENV === 'production') {
-        return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
-    }
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-}
-
-async function getNewsletter(slug: string) {
-    try {
-        await connectDB();
-        const newsletter = await Newsletter.findOne({ slug }).lean();
-        if (!newsletter) return null;
-        return JSON.parse(JSON.stringify(newsletter));
-    } catch (error) {
-        console.error('Error fetching newsletter:', error);
-        return null;
-    }
-}
-
-async function getRelatedNewsletters(newsletterSlug: string) {
-    // Basic implementation: fetch latest 3 distinct
-    try {
-        await connectDB();
-        const newsletters = await Newsletter.find({ slug: { $ne: newsletterSlug } })
-            .select('title slug featuredImage startDate createdAt')
-            .sort({ createdAt: -1 })
-            .limit(3)
-            .lean();
-
-        return JSON.parse(JSON.stringify(newsletters));
-    } catch (error) {
-        return [];
-    }
-}
-
-interface PageProps {
-    params: Promise<{
-        slug: string;
-    }>;
-}
 
 const extractText = (content: any): string => {
     if (!content) return '';
@@ -77,6 +34,42 @@ const extractTextFromJSON = (json: any): string => {
     if (json.content) return extractTextFromJSON(json.content);
     return '';
 };
+
+// Helper function to get base URL
+function getBaseUrl() {
+    if (process.env.NODE_ENV === 'production') {
+        return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
+    }
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+}
+
+async function getNewsletter(slug: string) {
+    try {
+        const baseUrl = getBaseUrl();
+        const response = await fetch(`${baseUrl}/api/newsletters/${slug}`, {
+            cache: 'force-cache',
+            next: { tags: [`newsletter-${slug}`] }
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) return null;
+            console.error('Error fetching newsletter:', response.status);
+            return null;
+        }
+
+        const data = await response.json();
+        return data.newsletter || null;
+    } catch (error) {
+        console.error('Error fetching newsletter:', error);
+        return null;
+    }
+}
+
+interface PageProps {
+    params: Promise<{
+        slug: string;
+    }>;
+}
 
 const isJsonString = (str: string) => {
     try {
@@ -143,8 +136,7 @@ export default async function NewsletterPage({ params }: PageProps) {
         notFound();
     }
 
-    // Fetch related newsletters (optional fallback)
-    const relatedNewsletters = await getRelatedNewsletters(slug);
+    const relatedNewsletters = newsletter.relatedNewsletters || [];
 
     const relatedProjects = newsletter.relatedProjects || [];
 
@@ -255,9 +247,20 @@ export default async function NewsletterPage({ params }: PageProps) {
 // Generate static params
 export async function generateStaticParams() {
     try {
-        await connectDB();
-        const newsletters = await Newsletter.find({}).select('slug').lean();
-        return newsletters.map((n: any) => ({ slug: n.slug }));
+        const baseUrl = getBaseUrl();
+
+        const response = await fetch(`${baseUrl}/api/newsletters`, {
+            cache: 'force-cache'
+        });
+
+        if (!response.ok) {
+            return [];
+        }
+
+        const data = await response.json();
+        return data.newsletters?.map((newsletter: any) => ({
+            slug: newsletter.slug
+        })) || [];
     } catch (error) {
         return [];
     }

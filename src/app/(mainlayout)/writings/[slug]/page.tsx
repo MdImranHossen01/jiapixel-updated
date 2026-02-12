@@ -7,8 +7,7 @@ import ProjectCard from '@/components/ProjectCard';
 import WritingAdminActions from '@/components/WritingAdminActions';
 import { generateHtml } from '@/lib/server-html';
 
-import connectDB from '@/lib/db';
-import Writing from '@/models/Writing';
+
 
 
 // Helper function to get base URL
@@ -42,31 +41,28 @@ const extractText = (content: any): string => {
 
 async function getWriting(slug: string) {
     try {
-        await connectDB();
-        const writing = await Writing.findOne({ slug }).lean();
-        if (!writing) return null;
+        const baseUrl = getBaseUrl();
 
-        return JSON.parse(JSON.stringify(writing));
+        const response = await fetch(`${baseUrl}/api/writings/${slug}`, {
+            cache: 'force-cache',
+            next: { tags: [`writing-${slug}`] }
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) return null;
+            console.error('Error fetching writing:', response.status);
+            return null;
+        }
+
+        const data = await response.json();
+        return data.writing || null;
     } catch (error) {
         console.error('Error fetching writing:', error);
         return null;
     }
 }
 
-async function getRelatedWritings(writingSlug: string) {
-    try {
-        await connectDB();
-        const writings = await Writing.find({ slug: { $ne: writingSlug } })
-            .select('title slug featuredImage createdAt tags')
-            .sort({ createdAt: -1 })
-            .limit(3)
-            .lean();
 
-        return JSON.parse(JSON.stringify(writings));
-    } catch (error) {
-        return [];
-    }
-}
 
 interface PageProps {
     params: Promise<{
@@ -130,7 +126,7 @@ export default async function WritingPage({ params }: PageProps) {
         notFound();
     }
 
-    const relatedWritings = await getRelatedWritings(slug);
+    const relatedWritings = writing.relatedWritings || [];
     const relatedProjects = writing.relatedProjects || [];
     const isJson = isJsonString(writing.content);
 
@@ -240,12 +236,24 @@ export default async function WritingPage({ params }: PageProps) {
     );
 }
 
+
 // Generate static params
 export async function generateStaticParams() {
     try {
-        await connectDB();
-        const writings = await Writing.find({}).select('slug').lean();
-        return writings.map((n: any) => ({ slug: n.slug }));
+        const baseUrl = getBaseUrl();
+
+        const response = await fetch(`${baseUrl}/api/writings`, {
+            cache: 'force-cache'
+        });
+
+        if (!response.ok) {
+            return [];
+        }
+
+        const data = await response.json();
+        return data.writings?.map((writing: any) => ({
+            slug: writing.slug
+        })) || [];
     } catch (error) {
         return [];
     }

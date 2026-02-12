@@ -7,8 +7,7 @@ import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import PostAdminActions from '@/components/PostAdminActions';
 import { generateHtml } from '@/lib/server-html';
-import connectDB from '@/lib/db';
-import Post from '@/models/Post';
+
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -28,7 +27,6 @@ const isJsonString = (str: string) => {
     }
 };
 
-// Helper to extract text from JSON content for SEO
 const extractText = (content: any): string => {
     if (typeof content === 'string') return content.replace(/<[^>]*>/g, '');
     if (Array.isArray(content)) return content.map(extractText).join(' ');
@@ -41,27 +39,23 @@ const extractText = (content: any): string => {
 
 async function getPost(slug: string) {
     try {
-        await connectDB();
-        const post = await Post.findOne({ slug }).lean();
-        if (!post) return null;
-        return JSON.parse(JSON.stringify(post));
+        const baseUrl = getBaseUrl();
+        const response = await fetch(`${baseUrl}/api/posts/${slug}`, {
+            cache: 'force-cache',
+            next: { tags: [`post-${slug}`] }
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) return null;
+            console.error('Error fetching post:', response.status);
+            return null;
+        }
+
+        const data = await response.json();
+        return data.post || null;
     } catch (error) {
         console.error('Error fetching post:', error);
         return null;
-    }
-}
-
-async function getRelatedPosts(postSlug: string) {
-    try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/posts?limit=3`, {
-            next: { revalidate: 3600 }
-        });
-        if (!response.ok) return [];
-        const data = await response.json();
-        return data.posts.filter((n: any) => n.slug !== postSlug).slice(0, 3) || [];
-    } catch (error) {
-        return [];
     }
 }
 
@@ -134,7 +128,7 @@ export default async function PostPage({ params }: PageProps) {
         notFound();
     }
 
-    const relatedPosts = await getRelatedPosts(slug);
+    const relatedPosts = post.relatedPosts || [];
     const relatedProjects = post.relatedProjects || [];
     const isJson = isJsonString(post.content);
 
@@ -244,12 +238,22 @@ export default async function PostPage({ params }: PageProps) {
     );
 }
 
-// Generate static params
 export async function generateStaticParams() {
     try {
-        await connectDB();
-        const posts = await Post.find({}).select('slug').lean();
-        return posts.map((n: any) => ({ slug: n.slug }));
+        const baseUrl = getBaseUrl();
+
+        const response = await fetch(`${baseUrl}/api/posts`, {
+            cache: 'force-cache'
+        });
+
+        if (!response.ok) {
+            return [];
+        }
+
+        const data = await response.json();
+        return data.posts?.map((post: any) => ({
+            slug: post.slug
+        })) || [];
     } catch (error) {
         return [];
     }

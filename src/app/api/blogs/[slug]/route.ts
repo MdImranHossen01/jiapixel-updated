@@ -27,7 +27,12 @@ export async function GET(request: NextRequest, { params }: Params) {
       );
     }
 
-    const blog = await Blog.findOne({ slug })
+    // Atomic increment views and fetch the updated document
+    const blog = await Blog.findOneAndUpdate(
+      { slug },
+      { $inc: { views: 1 } },
+      { new: true }
+    )
       .select('-__v')
       .populate({
         path: 'relatedServices',
@@ -50,9 +55,6 @@ export async function GET(request: NextRequest, { params }: Params) {
         { status: 404 }
       );
     }
-
-    // Increment views
-    await Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } });
 
     return NextResponse.json({
       success: true,
@@ -91,15 +93,29 @@ export async function PUT(request: NextRequest, { params }: Params) {
       );
     }
 
-    // Update blog fields
-    Object.keys(body).forEach(key => {
-      if (body[key] !== undefined && key !== '_id' && key !== 'slug') {
+    // Define allowed fields for update to prevent mass-assignment
+    const permittedFields = [
+      'title',
+      'slug',
+      'content',
+      'featuredImage',
+      'authorName',
+      'publishedAt',
+      'seoTitle',
+      'seoDescription',
+      'isIndexedInGoogle',
+      'tags'
+    ];
+
+    // Update only permitted fields
+    permittedFields.forEach(key => {
+      if (body[key] !== undefined) {
         blog[key] = body[key];
       }
     });
 
     // Explicitly handle relatedServices to be sure
-    if (body.relatedServices) {
+    if (body.relatedServices !== undefined) {
       console.log('Updating relatedServices:', body.relatedServices);
       blog.relatedServices = body.relatedServices;
     } else {
@@ -107,7 +123,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     }
 
     // Explicitly handle relatedBlogs
-    if (body.relatedBlogs) {
+    if (body.relatedBlogs !== undefined) {
       console.log('Updating relatedBlogs:', body.relatedBlogs);
       blog.relatedBlogs = body.relatedBlogs;
     }

@@ -30,9 +30,13 @@ export async function GET(request: NextRequest, { params }: Params) {
             );
         }
 
-        // Atomic increment views and fetch the updated document
 
-        const updatedWriting = await Writing.findOne({ slug })
+        // Atomic increment views and fetch the updated document
+        const writing = await Writing.findOneAndUpdate(
+            { slug },
+            { $inc: { views: 1 } },
+            { new: true } // Return the updated document
+        )
             .select('-__v')
             .populate({
                 path: 'relatedProjects',
@@ -45,7 +49,7 @@ export async function GET(request: NextRequest, { params }: Params) {
                 strictPopulate: false
             });
 
-        if (!updatedWriting) { // Should be covered by previous check but good for safety
+        if (!writing) {
             return NextResponse.json(
                 {
                     success: false,
@@ -55,12 +59,9 @@ export async function GET(request: NextRequest, { params }: Params) {
             );
         }
 
-        // Increment views
-        await Writing.findByIdAndUpdate(updatedWriting._id, { $inc: { views: 1 } });
-
         return NextResponse.json({
             success: true,
-            writing: updatedWriting
+            writing
         });
     } catch (error) {
         console.error('Error fetching writing:', error);
@@ -100,20 +101,33 @@ export async function PUT(request: NextRequest, { params }: Params) {
             );
         }
 
-        // Update writing fields
-        Object.keys(body).forEach(key => {
-            if (body[key] !== undefined && key !== '_id') {
+        // Define allowed fields for update to prevent mass-assignment
+        const permittedFields = [
+            'title',
+            'slug',
+            'content',
+            'featuredImage',
+            'authorName',
+            'seoTitle',
+            'seoDescription',
+            'isIndexedInGoogle',
+            'tags'
+        ];
+
+        // Update only permitted fields
+        permittedFields.forEach(key => {
+            if (body[key] !== undefined) {
                 writing[key] = body[key];
             }
         });
 
         // Explicitly handle relatedProjects to be sure
-        if (body.relatedProjects) {
+        if (body.relatedProjects !== undefined) {
             writing.relatedProjects = body.relatedProjects;
         }
 
         // Explicitly handle relatedWritings to be sure
-        if (body.relatedWritings) {
+        if (body.relatedWritings !== undefined) {
             writing.relatedWritings = body.relatedWritings;
         }
 

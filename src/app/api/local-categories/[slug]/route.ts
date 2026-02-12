@@ -60,17 +60,37 @@ export async function PUT(
     try {
         const body = await req.json();
 
+        // Define allowed fields for update to prevent mass-assignment
+        const permittedFields = [
+            'title',
+            'slug',
+            'banner',
+            'seoTitle',
+            'metaDescription',
+            'description',
+            'selectedProjects',
+            'isIndexedInGoogle'
+        ];
+
+        // Filter body to only include permitted fields
+        const updateData: any = {};
+        permittedFields.forEach(key => {
+            if (body[key] !== undefined) {
+                updateData[key] = body[key];
+            }
+        });
+
         // Handle update similar to GET logic for finding
         const isObjectId = slug.match(/^[0-9a-fA-F]{24}$/);
 
         let category;
         if (isObjectId) {
-            category = await LocalCategory.findByIdAndUpdate(slug, body, {
+            category = await LocalCategory.findByIdAndUpdate(slug, updateData, {
                 new: true,
                 runValidators: true,
             });
         } else {
-            category = await LocalCategory.findOneAndUpdate({ slug: slug }, body, {
+            category = await LocalCategory.findOneAndUpdate({ slug: slug }, updateData, {
                 new: true,
                 runValidators: true,
             });

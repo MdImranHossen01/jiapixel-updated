@@ -41,7 +41,13 @@ export async function GET(request: NextRequest, { params }: Params) {
             query.status = 'published';
         }
 
-        const post = await Post.findOne(query)
+        // Atomic increment views and fetch the updated document
+        // Note: We check for published status if not admin
+        const post = await Post.findOneAndUpdate(
+            query,
+            { $inc: { views: 1 } },
+            { new: true }
+        )
             .select('-__v')
             .populate({
                 path: 'relatedProjects',
@@ -64,9 +70,6 @@ export async function GET(request: NextRequest, { params }: Params) {
                 { status: 404 }
             );
         }
-
-        // Increment views
-        await Post.findByIdAndUpdate(post._id, { $inc: { views: 1 } });
 
         return NextResponse.json({
             success: true,
@@ -105,16 +108,35 @@ export async function PUT(request: NextRequest, { params }: Params) {
             );
         }
 
-        // Update post fields
-        Object.keys(body).forEach(key => {
-            if (body[key] !== undefined && key !== '_id') {
+        // Define allowed fields for update to prevent mass-assignment
+        const permittedFields = [
+            'title',
+            'slug',
+            'content',
+            'featuredImage',
+            'authorName',
+            'seoTitle',
+            'seoDescription',
+            'isIndexedInGoogle',
+            'status',
+            'tags'
+        ];
+
+        // Update only permitted fields
+        permittedFields.forEach(key => {
+            if (body[key] !== undefined) {
                 post[key] = body[key];
             }
         });
 
         // Explicitly handle relatedProjects to be sure
-        if (body.relatedProjects) {
+        if (body.relatedProjects !== undefined) {
             post.relatedProjects = body.relatedProjects;
+        }
+
+        // Explicitly handle relatedPosts
+        if (body.relatedPosts !== undefined) {
+            post.relatedPosts = body.relatedPosts;
         }
 
         await post.save();

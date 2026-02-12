@@ -28,11 +28,21 @@ export async function GET(request: NextRequest, { params }: Params) {
             );
         }
 
-        const newsletter = await Newsletter.findOne({ slug })
+        // Atomic increment views and fetch the updated document
+        const newsletter = await Newsletter.findOneAndUpdate(
+            { slug },
+            { $inc: { views: 1 } },
+            { new: true }
+        )
             .select('-__v')
             .populate({
                 path: 'relatedProjects',
                 select: 'title slug images description status createdAt',
+                strictPopulate: false
+            })
+            .populate({
+                path: 'relatedNewsletters',
+                select: 'title slug featuredImage startDate createdAt',
                 strictPopulate: false
             });
 
@@ -46,9 +56,6 @@ export async function GET(request: NextRequest, { params }: Params) {
                 { status: 404 }
             );
         }
-
-        // Increment views
-        await Newsletter.findByIdAndUpdate(newsletter._id, { $inc: { views: 1 } });
 
         return NextResponse.json({
             success: true,
@@ -87,17 +94,36 @@ export async function PUT(request: NextRequest, { params }: Params) {
             );
         }
 
-        // Update newsletter fields
-        Object.keys(body).forEach(key => {
-            if (body[key] !== undefined && key !== '_id') {
+        // Define allowed fields for update to prevent mass-assignment
+        const permittedFields = [
+            'title',
+            'slug',
+            'content',
+            'featuredImage',
+            'authorName',
+            'publishedAt',
+            'seoTitle',
+            'seoDescription',
+            'isIndexedInGoogle',
+            'tags'
+        ];
+
+        // Update only permitted fields
+        permittedFields.forEach(key => {
+            if (body[key] !== undefined) {
                 newsletter[key] = body[key];
             }
         });
 
         // Explicitly handle relatedProjects to be sure
-        if (body.relatedProjects) {
+        if (body.relatedProjects !== undefined) {
             console.log('Updating relatedProjects:', body.relatedProjects);
             newsletter.relatedProjects = body.relatedProjects;
+        }
+
+        // Explicitly handle relatedNewsletters
+        if (body.relatedNewsletters !== undefined) {
+            newsletter.relatedNewsletters = body.relatedNewsletters;
         }
 
         await newsletter.save();
