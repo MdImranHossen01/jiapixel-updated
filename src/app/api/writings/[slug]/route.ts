@@ -112,7 +112,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
             'relatedProjects',
             'relatedWritings',
             'tags',
-            'excerpt' // Keeping just in case, though we removed it from UI
+            'excerpt', // Keeping just in case, though we removed it from UI
+            'isIndexedInGoogle'
         ];
 
         // Update writing fields only if they are in the allowlist and present in body
