@@ -27,7 +27,6 @@ export default function CreateBlogPage() {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    excerpt: '',
     featuredImage: '',
 
     seoTitle: '',
@@ -194,7 +193,6 @@ export default function CreateBlogPage() {
         body: JSON.stringify({
           title: formData.title,
           content: editorContent,
-          excerpt: formData.excerpt,
           featuredImage: formData.featuredImage,
 
           // tags and category removed
@@ -284,25 +282,7 @@ export default function CreateBlogPage() {
               </div>
             </div>
 
-            {/* Excerpt */}
-            <div className="bg-card rounded-lg shadow p-6 border">
-              <label htmlFor="excerpt" className="block text-lg font-semibold text-card-foreground mb-3">
-                Excerpt
-              </label>
-              <textarea
-                id="excerpt"
-                name="excerpt"
-                value={formData.excerpt}
-                onChange={handleChange}
-                rows={4}
-                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                placeholder="Write a brief description of your blog post for search engines and social media..."
-                maxLength={300}
-              />
-              <div className="text-sm text-muted-foreground mt-2">
-                {formData.excerpt.length}/300 characters
-              </div>
-            </div>
+
           </div>
 
           {/* Related Blogs Selection */}

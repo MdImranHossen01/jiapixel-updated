@@ -109,7 +109,7 @@ export default async function BlogsPage() {
       item: {
         '@type': 'BlogPosting',
         headline: blog.title,
-        description: blog.excerpt ? createPlainTextExcerpt(blog.excerpt) : '',
+        description: blog.seoDescription || createPlainTextExcerpt(blog.content) || '',
         url: `https://www.jiapixel.com/blogs/${blog.slug}`,
         image: blog.featuredImage,
         datePublished: blog.publishedAt || blog.createdAt,

@@ -24,7 +24,6 @@ interface BlogData {
   title: string;
   slug: string;
   content: string;
-  excerpt?: string;
   featuredImage?: string;
   authorName?: string;
   // tags: string[];
@@ -384,25 +383,7 @@ export default function EditBlogPage({ params }: PageProps) {
               <SimpleEditor ref={editorRef} initialContent={blog.content} />
             </div>
 
-            {/* Excerpt */}
-            <div className="bg-card rounded-lg shadow p-6 border border-border">
-              <label htmlFor="excerpt" className="block text-lg font-semibold text-card-foreground mb-3">
-                Excerpt
-              </label>
-              <textarea
-                id="excerpt"
-                name="excerpt"
-                value={blog.excerpt || ''}
-                onChange={handleChange}
-                rows={4}
-                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                placeholder="Write a brief description of your blog post for search engines and social media..."
-                maxLength={300}
-              />
-              <div className="text-sm text-muted-foreground mt-2">
-                {(blog.excerpt || '').length}/300 characters
-              </div>
-            </div>
+
           </div>
 
           <div className="space-y-6">

@@ -4,7 +4,7 @@ export interface IBlog extends Document {
   title: string;
   slug: string;
   content: string;
-  excerpt?: string;
+
   featuredImage?: string;
   author?: mongoose.Types.ObjectId;
   authorName?: string;
@@ -39,10 +39,7 @@ const BlogSchema: Schema = new Schema(
       type: String,
       required: [true, "Content is required"],
     },
-    excerpt: {
-      type: String,
-      maxlength: [300, "Excerpt cannot be more than 300 characters"],
-    },
+
     featuredImage: {
       type: String,
     },

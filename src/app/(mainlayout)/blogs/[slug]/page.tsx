@@ -55,13 +55,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalUrl = `${baseUrl}/blogs/${blog.slug}`;
 
   // Create plain text descriptions
-  const plainTextDescription = blog.excerpt ||
+  const plainTextDescription = blog.seoDescription ||
     blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) ||
     `Read ${blog.title} on Jiapixel blog.`;
 
-  const plainTextTitle = blog.title.length > 60
+  const plainTextTitle = blog.seoTitle || (blog.title.length > 60
     ? `${blog.title.substring(0, 57)}`
-    : `${blog.title}`;
+    : `${blog.title}`);
 
   return {
     title: plainTextTitle,
@@ -128,7 +128,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: blog.title,
-    description: blog.excerpt,
+    description: blog.seoDescription || blog.content?.replace(/<[^>]*>/g, "").substring(0, 160) || '',
     image: blog.featuredImage || 'https://www.jiapixel.com/icon.png',
     datePublished: blog.publishedAt || blog.createdAt,
     dateModified: blog.updatedAt,

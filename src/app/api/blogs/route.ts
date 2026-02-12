@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const body = await request.json();
-    const { title, content, excerpt, featuredImage, seoTitle, seoDescription, slug: providedSlug } = body;
+    const { title, content, featuredImage, seoTitle, seoDescription, slug: providedSlug } = body;
 
     // Validate required fields
     if (!title || !content) {
@@ -94,11 +94,10 @@ export async function POST(request: NextRequest) {
       title,
       slug,
       content,
-      excerpt: excerpt || `${content.substring(0, 150)}...`,
       featuredImage,
       authorName: 'Admin', // Default author name
       seoTitle: seoTitle || title,
-      seoDescription: seoDescription || excerpt || `${content.substring(0, 150)}...`,
+      seoDescription: seoDescription || `${content.substring(0, 150)}...`,
       relatedServices: body.relatedServices || [],
       relatedBlogs: body.relatedBlogs || []
     });
@@ -114,7 +113,6 @@ export async function POST(request: NextRequest) {
           _id: blog._id,
           title: blog.title,
           slug: blog.slug,
-          excerpt: blog.excerpt,
           featuredImage: blog.featuredImage,
           authorName: blog.authorName,
           readTime: blog.readTime,
