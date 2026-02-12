@@ -31,13 +31,12 @@ export type Writing = {
     isIndexedInGoogle: boolean
 }
 
-const GoogleIndexCell = ({ writing }: { writing: Writing }) => {
+const GoogleIndexCell = ({ slug, isIndexed }: { slug: string; isIndexed: boolean }) => {
     const router = useRouter();
-    const isIndexed = writing.isIndexedInGoogle;
 
     const handleIndexToggle = async (checked: boolean) => {
         try {
-            const res = await fetch(`/api/writings/${writing.slug}`, {
+            const res = await fetch(`/api/writings/${slug}`, {
                 method: 'PUT',
                 body: JSON.stringify({ isIndexedInGoogle: checked }),
                 headers: { 'Content-Type': 'application/json' }
@@ -47,12 +46,14 @@ const GoogleIndexCell = ({ writing }: { writing: Writing }) => {
                 toast.success(`Google Index status updated to ${checked ? 'Indexed' : 'Not Indexed'}`);
                 router.refresh();
             } else {
-                toast.error("Failed to update status");
+                const errorData = await res.json();
+                toast.error(errorData.message || "Failed to update status");
             }
         } catch (e) {
+            console.error("Error updating status:", e);
             toast.error("Error updating status");
         }
-    };
+    }
 
     return (
         <div className="flex items-center space-x-2">
@@ -62,8 +63,8 @@ const GoogleIndexCell = ({ writing }: { writing: Writing }) => {
             />
             <span className="text-sm text-muted-foreground">{isIndexed ? "Yes" : "No"}</span>
         </div>
-    );
-};
+    )
+}
 
 const ActionsCell = ({ writing }: { writing: Writing }) => {
     const router = useRouter();
@@ -86,11 +87,12 @@ const ActionsCell = ({ writing }: { writing: Writing }) => {
                     toast.success("Writing deleted successfully");
                     router.refresh();
                 } else {
-                    toast.error("Failed to delete writing");
+                    const data = await res.json();
+                    toast.error(data.message || "Failed to delete writing");
                 }
-            } catch (e) {
-                console.error("Error deleting writing:", e);
-                toast.error("Error deleting writing");
+            } catch (error) {
+                console.error("Error deleting writing:", error);
+                toast.error("An error occurred while deleting");
             }
         }
     };
@@ -166,7 +168,9 @@ export const columns: ColumnDef<Writing>[] = [
     {
         accessorKey: "isIndexedInGoogle",
         header: "Google Index",
-        cell: ({ row }) => <GoogleIndexCell writing={row.original} />,
+        cell: ({ row }) => {
+            return <GoogleIndexCell slug={row.original.slug} isIndexed={row.getValue("isIndexedInGoogle")} />
+        },
     },
     {
         accessorKey: "createdAt",
@@ -191,9 +195,20 @@ export const columns: ColumnDef<Writing>[] = [
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"));
             const now = new Date();
-            const diffTime = Math.abs(now.getTime() - date.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return `${diffDays} days ago`
+            const diffMs = now.getTime() - date.getTime();
+            const msPerDay = 1000 * 60 * 60 * 24;
+
+            if (diffMs > 0) {
+                const diffDays = Math.floor(diffMs / msPerDay);
+                if (diffDays === 0) return "Today";
+                if (diffDays === 1) return "1 day ago";
+                return `${diffDays} days ago`;
+            } else {
+                const futureDays = Math.ceil(Math.abs(diffMs) / msPerDay);
+                if (futureDays === 0) return "Today";
+                if (futureDays === 1) return "In 1 day";
+                return `In ${futureDays} days`;
+            }
         },
     },
     {
