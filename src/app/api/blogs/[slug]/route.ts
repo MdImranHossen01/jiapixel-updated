@@ -125,7 +125,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
         _id: blog._id,
         title: blog.title,
         slug: blog.slug,
-        slug: blog.slug,
         featuredImage: blog.featuredImage,
         authorName: blog.authorName,
         readTime: blog.readTime,
