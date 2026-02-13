@@ -195,6 +195,11 @@ export const columns: ColumnDef<Category>[] = [
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"));
             const now = new Date();
+
+            // Reset time part to ensure we count calendar days
+            date.setHours(0, 0, 0, 0);
+            now.setHours(0, 0, 0, 0);
+
             const msPerDay = 1000 * 60 * 60 * 24;
             const diffMs = now.getTime() - date.getTime();
 

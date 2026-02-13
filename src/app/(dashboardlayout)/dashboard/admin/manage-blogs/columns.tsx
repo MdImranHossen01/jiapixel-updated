@@ -195,20 +195,25 @@ export const columns: ColumnDef<Blog>[] = [
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"));
             const now = new Date();
-            const msPerDay = 1000 * 60 * 60 * 24;
-            const diffMs = now.getTime() - date.getTime();
 
-            if (diffMs > 0) {
-                const diffDays = Math.floor(diffMs / msPerDay);
-                if (diffDays === 0) return "Today";
+            // Normalize to midnight to compare calendar days
+            const targetDate = new Date(date);
+            targetDate.setHours(0, 0, 0, 0);
+            const currentDate = new Date(now);
+            currentDate.setHours(0, 0, 0, 0);
+
+            const diffTime = currentDate.getTime() - targetDate.getTime();
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 0) {
                 if (diffDays === 1) return "1 day ago";
                 return `${diffDays} days ago`;
-            } else {
-                // Future date
-                const futureDays = Math.floor(Math.abs(diffMs) / msPerDay);
-                if (futureDays === 0) return "Today";
+            } else if (diffDays < 0) {
+                const futureDays = Math.abs(diffDays);
                 if (futureDays === 1) return "in 1 day";
                 return `in ${futureDays} days`;
+            } else {
+                return "Today";
             }
         },
     },

@@ -129,12 +129,26 @@ export const columns: ColumnDef<Service>[] = [
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"));
             const now = new Date();
-            const diffTime = Math.abs(now.getTime() - date.getTime());
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-            if (diffDays === 0) return "Today";
-            if (diffDays === 1) return "1 day ago";
-            return `${diffDays} days ago`;
+            // Reset time part to ensure we count calendar days
+            date.setHours(0, 0, 0, 0);
+            now.setHours(0, 0, 0, 0);
+
+            const msPerDay = 1000 * 60 * 60 * 24;
+            const diffMs = now.getTime() - date.getTime();
+
+            if (diffMs > 0) {
+                const diffDays = Math.floor(diffMs / msPerDay);
+                if (diffDays === 0) return "Today";
+                if (diffDays === 1) return "1 day ago";
+                return `${diffDays} days ago`;
+            } else {
+                // Future date catch
+                const futureDays = Math.floor(Math.abs(diffMs) / msPerDay);
+                if (futureDays === 0) return "Today";
+                if (futureDays === 1) return "in 1 day";
+                return `in ${futureDays} days`;
+            }
         },
     },
     {

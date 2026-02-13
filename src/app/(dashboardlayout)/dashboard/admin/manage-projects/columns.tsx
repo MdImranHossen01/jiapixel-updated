@@ -200,8 +200,13 @@ export const columns: ColumnDef<Project>[] = [
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"));
             const now = new Date();
-            const diffMs = now.getTime() - date.getTime();
+
+            // Reset time part to ensure we count calendar days
+            date.setHours(0, 0, 0, 0);
+            now.setHours(0, 0, 0, 0);
+
             const msPerDay = 1000 * 60 * 60 * 24;
+            const diffMs = now.getTime() - date.getTime();
 
             if (diffMs > 0) {
                 const diffDays = Math.floor(diffMs / msPerDay);
@@ -209,7 +214,7 @@ export const columns: ColumnDef<Project>[] = [
                 if (diffDays === 1) return "1 day ago";
                 return `${diffDays} days ago`;
             } else {
-                const futureDays = Math.ceil(Math.abs(diffMs) / msPerDay);
+                const futureDays = Math.floor(Math.abs(diffMs) / msPerDay);
                 if (futureDays === 0) return "Today";
                 if (futureDays === 1) return "In 1 day";
                 return `In ${futureDays} days`;
