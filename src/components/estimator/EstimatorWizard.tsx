@@ -225,6 +225,7 @@ export const EstimatorWizard = () => {
                 serviceTitle="Custom Project Estimate"
                 selectedTier={null}
                 serviceUrl={typeof window !== "undefined" ? window.location.href : ""}
+                detailedBreakdown={`Estimator Selections:\n${selectedItems.map(item => `- ${item.label}: $${item.price}`).join('\n')}\nTotal Estimate: $${totalCost}`}
                 onClose={closeModal}
                 onMessageSend={handleSendMessageResponse}
             />

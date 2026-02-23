@@ -17,6 +17,7 @@ interface AuthModalProps {
   serviceTitle: string;
   selectedTier: ServiceTier | null;
   serviceUrl?: string; // Add service URL prop
+  detailedBreakdown?: string; // Optional detailed breakdown for estimators
   onClose: () => void;
   onMessageSend: (message: string) => void;
 }
@@ -26,6 +27,7 @@ const AuthModal = ({
   serviceTitle,
   selectedTier,
   serviceUrl,
+  detailedBreakdown,
   onClose,
   onMessageSend
 }: AuthModalProps) => {
@@ -44,10 +46,15 @@ const AuthModal = ({
   };
 
   const handleSendMessage = () => {
-    if (!selectedTier) return;
+    if (!selectedTier && !detailedBreakdown) return;
 
     // Generate message with service URL
-    let message = `Hello! I'm interested in the ${serviceTitle} - ${selectedTier.title} package ($${selectedTier.price}). Please provide more details.`;
+    let message = selectedTier ? `Hello! I'm interested in the ${serviceTitle} - ${selectedTier.title} package ($${selectedTier.price}). Please provide more details.` : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.`;
+
+    // Add detailed breakdown if available
+    if (detailedBreakdown) {
+      message += `\n\n${detailedBreakdown}`;
+    }
 
     // Add service URL if available
     if (serviceUrl) {
@@ -91,8 +98,8 @@ const AuthModal = ({
               <div className="bg-background border border-border rounded-lg p-4">
                 <p className="text-sm text-foreground whitespace-pre-line">
                   {selectedTier
-                    ? `Hello!\n I'm interested in the ${serviceTitle} \n\n Package: ${selectedTier.title}  ($${selectedTier.price}).\n Please provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
-                    : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
+                    ? `Hello!\n I'm interested in the ${serviceTitle} \n\n Package: ${selectedTier.title}  ($${selectedTier.price}).\n Please provide more details.${detailedBreakdown ? `\n\n${detailedBreakdown}` : ''}${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
+                    : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.${detailedBreakdown ? `\n\n${detailedBreakdown}` : ''}${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
                   }
                 </p>
               </div>
