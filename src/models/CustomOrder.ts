@@ -5,7 +5,7 @@ export interface ICustomOrder extends Document {
     description: string; // Novel.sh JSON content stringified
     admin: mongoose.Types.ObjectId;
     client?: mongoose.Types.ObjectId;
-    status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed";
+    status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed" | "canceled";
     shareableSlug: string;
     price?: number;
 
@@ -42,7 +42,7 @@ const CustomOrderSchema = new Schema<ICustomOrder>(
         },
         status: {
             type: String,
-            enum: ["proposed", "accepted", "pending", "paid", "processing", "delivered", "under review", "completed"],
+            enum: ["proposed", "accepted", "pending", "paid", "processing", "delivered", "under review", "completed", "canceled"],
             default: "proposed",
         },
         shareableSlug: {

@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, FileText, CheckCircle, RefreshCcw, DollarSign, PackageCheck, Copy, Trash2, Edit, Search, Filter, Clock } from "lucide-react";
+import { MoreHorizontal, FileText, CheckCircle, RefreshCcw, DollarSign, PackageCheck, Copy, Trash2, Edit, Search, Filter, Clock, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -37,7 +37,7 @@ interface CustomOrder {
     title: string;
     client: { name: string; email: string; } | string;
     admin: { name: string; email: string; } | string;
-    status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed";
+    status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed" | "canceled";
     price?: number;
     isSubscription: boolean;
     dueDate?: string;
@@ -46,7 +46,7 @@ interface CustomOrder {
 
 const ALL_STATUSES = [
     "proposed", "accepted", "pending", "paid",
-    "processing", "delivered", "under review", "completed"
+    "processing", "delivered", "under review", "completed", "canceled"
 ];
 
 const ManageCustomOrdersClient = () => {
@@ -138,6 +138,8 @@ const ManageCustomOrdersClient = () => {
             case "completed":
             case "delivered":
                 return "default";
+            case "canceled":
+                return "destructive";
             default:
                 return "outline";
         }
@@ -324,7 +326,8 @@ const ManageCustomOrdersClient = () => {
                                                         >
                                                             {s === "accepted" || s === "completed" || s === "delivered" ? <CheckCircle className="mr-2 h-4 w-4" /> :
                                                                 s === "paid" ? <DollarSign className="mr-2 h-4 w-4" /> :
-                                                                    <RefreshCcw className="mr-2 h-4 w-4" />
+                                                                    s === "canceled" ? <XCircle className="mr-2 h-4 w-4" /> :
+                                                                        <RefreshCcw className="mr-2 h-4 w-4" />
                                                             }
                                                             Mark as {s}
                                                         </DropdownMenuItem>
