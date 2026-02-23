@@ -26,6 +26,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
       },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+      },
       // Add imgBB domains for your image uploads
       {
         protocol: "https",
@@ -97,6 +101,7 @@ const withPWA = require("@ducanh2912/next-pwa").default({
   disable: process.env.NODE_ENV === "development",
   register: true,
   skipWaiting: true,
+  buildExcludes: [/app\/api\/debug\/.*/],
 });
 
 export default withPWA(nextConfig);

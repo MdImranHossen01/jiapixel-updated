@@ -9,11 +9,11 @@ export interface ICustomOrder extends Document {
     shareableSlug: string;
     price?: number;
 
-    // Delivery & Subscription features
+    // Admin tracking features
     dueDate?: Date;
-    isSubscription: boolean;
-    billingCycle?: "monthly" | "yearly";
-    subscriptionDurationMonths?: number;
+    renewDate?: Date;
+    renewPrice?: number;
+    adminNote?: string;
 
     createdAt: Date;
     updatedAt: Date;
@@ -58,18 +58,18 @@ const CustomOrderSchema = new Schema<ICustomOrder>(
             type: Date,
             required: false,
         },
-        isSubscription: {
-            type: Boolean,
-            default: false,
-        },
-        billingCycle: {
-            type: String,
-            enum: ["monthly", "yearly"],
+        renewDate: {
+            type: Date,
             required: false,
         },
-        subscriptionDurationMonths: {
+        renewPrice: {
             type: Number,
             required: false,
+        },
+        adminNote: {
+            type: String,
+            required: false,
+            default: "",
         },
     },
     {

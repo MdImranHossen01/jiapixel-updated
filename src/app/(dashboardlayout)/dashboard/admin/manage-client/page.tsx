@@ -3,8 +3,40 @@
 import React, { useState, useEffect } from 'react';
 import { uploadToImgBB } from '@/lib/imgbb';
 import Image from 'next/image';
-import { Edit2, Trash2, X } from 'lucide-react';
-
+import { Edit2, Trash2, X, Search, Filter } from 'lucide-react';
+import Link from 'next/link';
+import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
 interface Client {
     _id: string;
     name: string;
@@ -21,7 +53,9 @@ interface Client {
     service: string;
     price: number;
     renewDate: string;
+    lastContacted?: string;
     email: string[];
+    customOrders?: any[];
 }
 
 export default function ManageClientPage() {
@@ -30,6 +64,12 @@ export default function ManageClientPage() {
     const [submitting, setSubmitting] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [editingClient, setEditingClient] = useState<Client | null>(null);
+    const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+    // Search & Filter State
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterLevel, setFilterLevel] = useState('all');
 
     // Form State
     const [formData, setFormData] = useState({
@@ -37,6 +77,7 @@ export default function ManageClientPage() {
         service: '',
         price: '',
         renewDate: '',
+        lastContacted: '',
         email: '', // Comma separated string for input
         country: '',
         website: '',
@@ -74,6 +115,7 @@ export default function ManageClientPage() {
             service: client.service,
             price: String(client.price),
             renewDate: client.renewDate ? new Date(client.renewDate).toISOString().split('T')[0] : '',
+            lastContacted: client.lastContacted ? new Date(client.lastContacted).toISOString().split('T')[0] : '',
             email: client.email.join(', '),
             country: client.country || '',
             website: client.website || '',
@@ -107,6 +149,11 @@ export default function ManageClientPage() {
             console.error('Error deleting client', error);
             alert('An error occurred during deletion');
         }
+    };
+
+    const handleViewClient = (client: Client) => {
+        setSelectedClient(client);
+        setIsDetailsOpen(true);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,6 +200,8 @@ export default function ManageClientPage() {
                 service: formData.service,
                 price: Number(formData.price),
                 renewDate: formData.renewDate,
+                // If they clear the date, formData.lastContacted is "". Default back to now.
+                lastContacted: formData.lastContacted ? new Date(formData.lastContacted).toISOString() : new Date().toISOString(),
                 country: formData.country,
                 website: formData.website,
                 email: emailArray,
@@ -203,6 +252,7 @@ export default function ManageClientPage() {
             service: '',
             price: '',
             renewDate: '',
+            lastContacted: '',
             email: '',
             country: '',
             website: '',
@@ -223,6 +273,38 @@ export default function ManageClientPage() {
     }
 
     if (loading) return <div className="p-8 text-center">Loading clients...</div>;
+
+    // Search & Filtering Logic
+    const filteredClients = clients.filter(client => {
+        // Search Match (Name or Service)
+        const matchesSearch =
+            client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            client.service.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // Filter Match (Last Contacted)
+        let matchesFilter = true;
+
+        if (filterLevel !== 'all') {
+            if (!client.lastContacted) {
+                // If they have no contact date, they only show up under 'all' or if we want to treat them as overdue
+                matchesFilter = filterLevel === 'overdue' || filterLevel === 'need_contact';
+            } else {
+                const diffDays = Math.floor((new Date().getTime() - new Date(client.lastContacted).getTime()) / (1000 * 60 * 60 * 24));
+
+                if (filterLevel === 'today') {
+                    matchesFilter = diffDays === 0;
+                } else if (filterLevel === 'within_30') {
+                    matchesFilter = diffDays > 0 && diffDays <= 30;
+                } else if (filterLevel === 'need_contact') {
+                    matchesFilter = diffDays > 60 && diffDays <= 90;
+                } else if (filterLevel === 'overdue') {
+                    matchesFilter = diffDays > 90;
+                }
+            }
+        }
+
+        return matchesSearch && matchesFilter;
+    });
 
     return (
         <div className="p-6">
@@ -280,6 +362,12 @@ export default function ManageClientPage() {
                             <div>
                                 <label className="block text-sm font-medium mb-1">Renew Date</label>
                                 <input required type="date" name="renewDate" value={formData.renewDate} onChange={handleChange} className="w-full border p-2 rounded" />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Last Contacted</label>
+                                <input type="date" name="lastContacted" value={formData.lastContacted} onChange={handleChange} className="w-full border p-2 rounded" />
+                                <p className="text-xs text-muted-foreground mt-1">Leave empty to default to today.</p>
                             </div>
 
                             <div>
@@ -349,73 +437,234 @@ export default function ManageClientPage() {
                 </div>
             )}
 
-            {/* Client List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {clients.map((client) => (
-                    <div key={client._id} className="bg-white border rounded-lg p-5 shadow-sm hover:shadow-md transition relative group">
-                        <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => handleEditClick(client)} className="p-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200" title="Edit">
-                                <Edit2 size={16} />
-                            </button>
-                            <button onClick={() => handleDeleteClick(client._id)} className="p-1 bg-red-100 text-red-600 rounded hover:bg-red-200" title="Delete">
-                                <Trash2 size={16} />
-                            </button>
-                        </div>
+            {/* Filters and Search Bar */}
+            <div className="mt-6 mb-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="relative w-full md:w-1/3">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="text"
+                        placeholder="Search by name or service..."
+                        className="pl-9 bg-white"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
 
-                        <div className="flex items-center space-x-4 mb-4">
-                            <div className="relative w-16 h-16 rounded-full overflow-hidden border shrink-0">
-                                <Image src={client.clientImage} alt={client.name} fill className="object-cover" />
-                            </div>
-                            <div className="min-w-0">
-                                <h3 className="font-bold text-lg truncate" title={client.name}>{client.name}</h3>
-                                <p className="text-blue-600 text-sm font-medium truncate">{client.service}</p>
-                                {client.country && <p className="text-gray-400 text-xs">{client.country}</p>}
-                            </div>
-                        </div>
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                    <Filter className="h-4 w-4 text-muted-foreground hidden md:block" />
+                    <Select value={filterLevel} onValueChange={setFilterLevel}>
+                        <SelectTrigger className="w-full md:w-[220px] bg-white">
+                            <SelectValue placeholder="Filter by Contact Date" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Clients</SelectItem>
+                            <SelectItem value="today">Contacted Today</SelectItem>
+                            <SelectItem value="within_30">Contacted within 30 Days</SelectItem>
+                            <SelectItem value="need_contact">Needs Contact (&gt;60 Days)</SelectItem>
+                            <SelectItem value="overdue">Overdue (&gt;90 Days)</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
 
-                        <div className="space-y-2 text-sm text-gray-700 mb-4">
-                            <div>
-                                <strong>Emails:</strong>
-                                <div className="flex flex-col gap-1 mt-1">
-                                    {(Array.isArray(client.email) ? client.email : (client.email ? [client.email] : [])).map((email, idx) => (
-                                        <a key={idx} href={`mailto:${email}`} className="text-gray-600 hover:text-blue-600 truncate block">{email}</a>
-                                    ))}
+            {/* Client List Table */}
+            <div className="bg-white rounded-md border text-sm">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[80px]">Client</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Service</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Renew Date</TableHead>
+                            <TableHead>Last Contacted</TableHead>
+                            <TableHead>Orders</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {filteredClients.length === 0 && !loading ? (
+                            <TableRow>
+                                <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                                    No clients found.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            filteredClients.map((client) => (
+                                <TableRow key={client._id}>
+                                    <TableCell>
+                                        <div className="relative w-10 h-10 rounded-full overflow-hidden border">
+                                            <Image src={client.clientImage} alt={client.name} fill className="object-cover" />
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="font-medium cursor-pointer hover:underline text-primary" onClick={() => handleViewClient(client)}>
+                                        {client.name}
+                                        {client.country && <span className="text-xs text-muted-foreground block font-normal no-underline">{client.country}</span>}
+                                    </TableCell>
+                                    <TableCell>{client.service}</TableCell>
+                                    <TableCell>${client.price}</TableCell>
+                                    <TableCell>{client.renewDate ? new Date(client.renewDate).toLocaleDateString() : 'N/A'}</TableCell>
+                                    <TableCell>
+                                        {client.lastContacted ? (
+                                            (() => {
+                                                const diffDays = Math.floor((new Date().getTime() - new Date(client.lastContacted).getTime()) / (1000 * 60 * 60 * 24));
+                                                let badgeVariant: "default" | "secondary" | "destructive" | "outline" = "secondary";
+
+                                                if (diffDays < 0) {
+                                                    return (
+                                                        <Badge variant="default">
+                                                            In {Math.abs(diffDays)} days
+                                                        </Badge>
+                                                    );
+                                                }
+
+                                                if (diffDays > 90) badgeVariant = "destructive"; // Over 3 months
+                                                else if (diffDays > 60) badgeVariant = "outline"; // Pushing 3 months
+
+                                                return (
+                                                    <Badge variant={badgeVariant}>
+                                                        {diffDays === 0 ? "Today" : `${diffDays} days ago`}
+                                                    </Badge>
+                                                )
+                                            })()
+                                        ) : (
+                                            <Badge variant="secondary">N/A</Badge>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant="secondary">
+                                            {client.customOrders ? client.customOrders.length : 0} Orders
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right text-muted-foreground">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                    <span className="sr-only">Open menu</span>
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onClick={() => handleViewClient(client)}>
+                                                    View Details
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleEditClick(client)}>
+                                                    <Edit2 className="w-4 h-4 mr-2" /> Edit
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    className="text-red-600 focus:bg-red-50"
+                                                    onClick={() => handleDeleteClick(client._id)}
+                                                >
+                                                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* View Details Dialog */}
+            <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Client Details</DialogTitle>
+                        <DialogDescription>
+                            Detailed breakdown of the client&apos;s information and custom orders.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {selectedClient && (
+                        <div className="space-y-6 mt-4">
+                            {/* Profile Header */}
+                            <div className="flex items-center space-x-4">
+                                <div className="relative w-20 h-20 rounded-full overflow-hidden border">
+                                    <Image src={selectedClient.clientImage} alt={selectedClient.name} fill className="object-cover" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h2 className="text-2xl font-bold">{selectedClient.name}</h2>
+                                    <p className="text-primary font-medium">{selectedClient.service}</p>
+                                    {selectedClient.country && <p className="text-muted-foreground text-sm">{selectedClient.country}</p>}
                                 </div>
                             </div>
 
-                            {client.website && (
-                                <p className="truncate"><strong>Web:</strong> <a href={client.website} target="_blank" className="text-blue-500 hover:underline">{client.website}</a></p>
-                            )}
+                            {/* Contact & Billing Info */}
+                            <div className="grid grid-cols-2 gap-4 text-sm bg-muted/30 p-4 rounded-lg border">
+                                <div>
+                                    <strong className="block mb-1 text-muted-foreground">Emails</strong>
+                                    {(Array.isArray(selectedClient.email) ? selectedClient.email : [selectedClient.email]).map((email: string, idx: number) => (
+                                        <a key={idx} href={`mailto:${email}`} className="text-blue-600 hover:underline block">{email}</a>
+                                    ))}
+                                </div>
+                                <div>
+                                    <strong className="block mb-1 text-muted-foreground">Billing Info</strong>
+                                    <p>Price: ${selectedClient.price}</p>
+                                    <p>Renews: {selectedClient.renewDate ? new Date(selectedClient.renewDate).toLocaleDateString() : 'N/A'}</p>
+                                    <p>Last Contact: {selectedClient.lastContacted ? new Date(selectedClient.lastContacted).toLocaleDateString() : 'N/A'}</p>
+                                </div>
+                                {selectedClient.website && (
+                                    <div className="col-span-2 mt-2">
+                                        <strong className="block mb-1 text-muted-foreground">Website</strong>
+                                        <a href={selectedClient.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{selectedClient.website}</a>
+                                    </div>
+                                )}
+                            </div>
 
-                            <div className="flex justify-between items-center">
-                                <span><strong>Price:</strong> ${client.price}</span>
-                                <span className="text-xs bg-gray-100 px-2 py-1 rounded">Due: {new Date(client.renewDate).toLocaleDateString()}</span>
+                            {/* Social Links */}
+                            <div>
+                                <h3 className="text-sm font-semibold mb-2">Social Links</h3>
+                                <div className="flex flex-wrap gap-3 text-sm">
+                                    {selectedClient.socialLinks?.linkedin && <a href={selectedClient.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">LinkedIn</a>}
+                                    {selectedClient.socialLinks?.whatsapp && (Array.isArray(selectedClient.socialLinks.whatsapp) ? selectedClient.socialLinks.whatsapp : [selectedClient.socialLinks.whatsapp]).map((wa: string, idx: number, arr: any[]) => (
+                                        <a key={idx} href={`https://wa.me/${wa.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">
+                                            WhatsApp {arr.length > 1 ? idx + 1 : ''}
+                                        </a>
+                                    ))}
+                                    {selectedClient.socialLinks?.facebook && <a href={selectedClient.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-blue-800 hover:underline">Facebook</a>}
+                                    {selectedClient.socialLinks?.instagram && <a href={selectedClient.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:underline">Instagram</a>}
+                                    {selectedClient.socialLinks?.youtube && <a href={selectedClient.socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:underline">YouTube</a>}
+                                </div>
+                            </div>
+
+                            {/* Custom Orders */}
+                            <div>
+                                <h3 className="text-sm font-semibold mb-3 pt-4 border-t">Custom Orders ({selectedClient.customOrders ? selectedClient.customOrders.length : 0})</h3>
+                                {selectedClient.customOrders && selectedClient.customOrders.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {selectedClient.customOrders.map((order: any, idx: number) => (
+                                            <div key={idx} className="bg-muted p-3 rounded-md border flex flex-col gap-1">
+                                                <div className="flex justify-between items-start">
+                                                    <Link href={`/proposal/${order.shareableSlug}`} className="text-blue-600 hover:underline font-semibold leading-tight line-clamp-1 max-w-[70%]" title={order.title}>
+                                                        {order.title}
+                                                    </Link>
+                                                    <Badge variant={order.status === 'accepted' ? 'default' : 'secondary'} className="capitalize shrink-0">
+                                                        {order.status}
+                                                    </Badge>
+                                                </div>
+                                                <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                                                    <span>Renews: {order.renewDate ? new Date(order.renewDate).toLocaleDateString() : 'N/A'}</span>
+                                                    {order.renewPrice !== undefined && order.renewPrice !== null && (
+                                                        <span>Price: ${order.renewPrice}</span>
+                                                    )}
+                                                </div>
+                                                {order.adminNote && (
+                                                    <div className="mt-2 text-xs italic text-orange-700 bg-orange-50 p-2 rounded border border-orange-100">
+                                                        Note: {order.adminNote}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">No custom orders found for this client.</p>
+                                )}
                             </div>
                         </div>
-
-                        <div className="mt-auto pt-4 border-t flex flex-wrap gap-2 text-xs">
-                            {client.socialLinks.linkedin && <a href={client.socialLinks.linkedin} target="_blank" className="text-blue-600 hover:underline font-semibold">LinkedIn</a>}
-
-                            {/* WhatsApp Loop */}
-                            {client.socialLinks.whatsapp && (Array.isArray(client.socialLinks.whatsapp) ? client.socialLinks.whatsapp : [client.socialLinks.whatsapp]).map((wa, idx, arr) => (
-                                <a key={idx} href={`https://wa.me/${wa.replace(/[^0-9]/g, '')}`} target="_blank" className="text-green-600 hover:underline font-semibold">
-                                    WhatsApp {arr.length > 1 ? idx + 1 : ''}
-                                </a>
-                            ))}
-
-                            {client.socialLinks.facebook && <a href={client.socialLinks.facebook} target="_blank" className="text-blue-800 hover:underline font-semibold">Facebook</a>}
-                            {client.socialLinks.instagram && <a href={client.socialLinks.instagram} target="_blank" className="text-pink-600 hover:underline font-semibold">Instagram</a>}
-                            {client.socialLinks.youtube && <a href={client.socialLinks.youtube} target="_blank" className="text-red-600 hover:underline font-semibold">YouTube</a>}
-                        </div>
-                    </div>
-                ))}
-
-                {clients.length === 0 && !loading && (
-                    <div className="col-span-full text-center py-12 text-gray-500">
-                        No clients found. Add one above.
-                    </div>
-                )}
-            </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

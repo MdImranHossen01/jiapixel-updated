@@ -14,8 +14,10 @@ export interface IClient extends Document {
     };
     service: string;
     price: number;
-    renewDate: Date;
+    renewDate?: Date;
+    lastContacted?: Date;
     email: string[]; // Array of strings
+    customOrders: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -57,13 +59,21 @@ const ClientSchema: Schema = new Schema({
     },
     renewDate: {
         type: Date,
-        required: [true, 'Renew date is required'],
+        required: false,
+    },
+    lastContacted: {
+        type: Date,
+        default: Date.now,
     },
     email: [{ // Changed to array
         type: String,
         required: [true, 'At least one email is required'],
         trim: true,
         lowercase: true,
+    }],
+    customOrders: [{
+        type: Schema.Types.ObjectId,
+        ref: 'CustomOrder'
     }],
 }, {
     timestamps: true,

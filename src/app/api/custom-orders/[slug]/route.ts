@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import CustomOrder from "@/models/CustomOrder";
+import Client from "@/models/Client";
+import User from "@/models/User";
 
 export async function GET(
     request: NextRequest,
@@ -24,6 +26,16 @@ export async function GET(
 
         if (!order) {
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
+        }
+
+        const session = await getServerSession(authOptions);
+        const isAdmin = (session?.user as any)?.role === "admin";
+
+        // Strip admin-only fields if not an admin
+        if (!isAdmin) {
+            delete (order as any).renewDate;
+            delete (order as any).renewPrice;
+            delete (order as any).adminNote;
         }
 
         return NextResponse.json({ order });
@@ -87,7 +99,7 @@ export async function PATCH(
             finalUpdate.$set.client = session.user.id;
         }
 
-        const updatedOrder = await CustomOrder.findOneAndUpdate(
+        const updatedOrder: any = await CustomOrder.findOneAndUpdate(
             filter,
             finalUpdate,
             { new: true, runValidators: true }
@@ -104,6 +116,45 @@ export async function PATCH(
             }
 
             return NextResponse.json({ error: "Forbidden. You are not authorized to modify this order." }, { status: 403 });
+        }
+        // --- Client Integration Logic ---
+        // If the proposal is newly accepted, we link it to the Client dashboard.
+        if (status === "accepted" && updatedOrder.status === "accepted") {
+            try {
+                // 1. Get the user's details for the Client profile.
+                const user: any = await User.findById(session.user.id).lean();
+
+                if (user) {
+                    // 2. Find if they already have a Client profile by checking their email
+                    const existingClient: any = await Client.findOne({ email: user.email });
+
+                    if (existingClient) {
+                        // 3a. They exist. Push the new order ID to their customOrders array if not already present.
+                        if (!existingClient.customOrders.some((id: any) => id.toString() === updatedOrder._id.toString())) {
+                            existingClient.customOrders.push(updatedOrder._id);
+                            await existingClient.save();
+                        }
+                    } else {
+                        // 3b. They don't exist. Let's create a new Client profile for them.
+                        // Default renewDate to 1 year from now if not explicitly set on the proposal.
+                        const defaultRenewDate = new Date();
+                        defaultRenewDate.setFullYear(defaultRenewDate.getFullYear() + 1);
+
+                        await Client.create({
+                            name: user.name || "Unknown Client",
+                            email: [user.email],
+                            clientImage: user.image || "https://res.cloudinary.com/dhdqebns9/image/upload/v1727027581/default-image.jpg", // Default placeholder
+                            service: updatedOrder.title,
+                            price: updatedOrder.price || 0,
+                            renewDate: updatedOrder.renewDate || defaultRenewDate,
+                            customOrders: [updatedOrder._id]
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Error linking Client profile upon proposal acceptance:", err);
+                // We don't fail the entire request, just log it, as the order itself was successfully accepted.
+            }
         }
 
         return NextResponse.json({ message: "Status updated successfully", order: updatedOrder });
@@ -170,9 +221,9 @@ export async function PUT(
             "status",
             "price",
             "dueDate",
-            "isSubscription",
-            "billingCycle",
-            "subscriptionDurationMonths"
+            "renewDate",
+            "renewPrice",
+            "adminNote",
         ];
 
         const sanitizedUpdate: any = {};

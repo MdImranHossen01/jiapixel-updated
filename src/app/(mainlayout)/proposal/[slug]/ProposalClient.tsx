@@ -7,9 +7,10 @@ import NovelEditor from "@/app/components/editor/NovelEditor";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { CheckCircle2, Clock, DollarSign, Loader2, ArrowRight } from "lucide-react";
+import { CheckCircle2, Clock, DollarSign, Loader2, ArrowRight, User } from "lucide-react";
 import Link from "next/link";
 import AuthModal from "@/components/AuthModal";
+import Image from "next/image";
 
 interface ProposalClientProps {
     slug: string;
@@ -129,6 +130,9 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
     // We show the button if it's still proposed AND (it has no client assigned yet OR the logged user is the assigned client)
     const showActionButtons = isProposed && (!hasClient || isAssignedClient);
 
+    // Check if the current user viewing is an admin
+    const isAdmin = session?.user?.role === "admin";
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content Area */}
@@ -236,6 +240,37 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                         </CardFooter>
                     )}
                 </Card>
+
+                {isAdmin && hasClient && (
+                    <Card className="shadow-md">
+                        <CardHeader className="pb-4">
+                            <CardTitle className="text-xl flex items-center gap-2">
+                                <User className="h-5 w-5 text-primary" /> Assigned Client
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center gap-4 border p-4 rounded-lg bg-muted/30">
+                                {order.client.image ? (
+                                    <Image
+                                        src={order.client.image}
+                                        alt={order.client.name || "Client Avatar"}
+                                        width={48}
+                                        height={48}
+                                        className="rounded-full shadow-sm"
+                                    />
+                                ) : (
+                                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold shadow-sm">
+                                        {order.client.name?.charAt(0)?.toUpperCase()}
+                                    </div>
+                                )}
+                                <div className="overflow-hidden">
+                                    <p className="font-semibold text-foreground truncate">{order.client.name}</p>
+                                    <p className="text-sm text-muted-foreground truncate">{order.client.email}</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
             </div>
 
             <AuthModal

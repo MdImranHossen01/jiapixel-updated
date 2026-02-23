@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { title, description, client, price, dueDate, isSubscription, billingCycle, subscriptionDurationMonths } = body;
+        const { title, description, client, price, dueDate, renewDate, renewPrice, adminNote } = body;
 
         if (!title) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -30,17 +30,15 @@ export async function POST(request: NextRequest) {
             admin: session.user.id,
             status: "proposed",
             shareableSlug,
-            isSubscription: !!isSubscription,
         };
 
         // Only add optional fields if they exist to avoid Mongoose casting errors and preserve zero values
         if (client !== undefined && client !== null && client !== "") orderData.client = client;
         if (price !== undefined && price !== null && price !== "") orderData.price = Number(price);
         if (dueDate !== undefined && dueDate !== null && dueDate !== "") orderData.dueDate = new Date(dueDate);
-        if (billingCycle !== undefined && billingCycle !== null && billingCycle !== "") orderData.billingCycle = billingCycle;
-        if (subscriptionDurationMonths !== undefined && subscriptionDurationMonths !== null && subscriptionDurationMonths !== "") {
-            orderData.subscriptionDurationMonths = Number(subscriptionDurationMonths);
-        }
+        if (renewDate !== undefined && renewDate !== null && renewDate !== "") orderData.renewDate = new Date(renewDate);
+        if (renewPrice !== undefined && renewPrice !== null && renewPrice !== "") orderData.renewPrice = Number(renewPrice);
+        if (adminNote !== undefined && adminNote !== null && adminNote !== "") orderData.adminNote = adminNote;
 
         const newOrder = await CustomOrder.create(orderData);
 
@@ -77,8 +75,9 @@ export async function GET(request: NextRequest) {
                 .sort({ createdAt: -1 })
                 .lean();
         } else {
-            // Clients only see custom orders assigned to them
+            // Clients only see custom orders assigned to them AND do NOT see admin-only fields
             orders = await CustomOrder.find({ client: session.user.id })
+                .select('-renewDate -renewPrice -adminNote')
                 .populate("admin", "name email image")
                 .sort({ createdAt: -1 })
                 .lean();
