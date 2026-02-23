@@ -305,35 +305,39 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                         </p>
                       </div>
 
-                      {/* Balance Cards */}
-                      <div className="px-4 py-2 grid grid-cols-2 gap-2 mb-2">
-                        <div className="bg-purple-50 p-2 rounded-lg border border-purple-100">
-                          <p className="text-[10px] text-purple-600">Monthly Balance</p>
-                          <p className="text-lg font-bold text-purple-700">
-                            {balanceData ? formatBDT(balanceData.monthly) : '...'}
-                          </p>
-                          <p className="text-[10px] text-purple-400">Current Period Net</p>
-                        </div>
-                        <div className="bg-blue-50 p-2 rounded-lg border border-blue-100">
-                          <p className="text-[10px] text-blue-600">Closing Balance</p>
-                          <p className="text-lg font-bold text-blue-700">
-                            {balanceData ? formatBDT(balanceData.closing) : '...'}
-                          </p>
-                          <p className="text-[10px] text-blue-400">As of {new Date().toLocaleDateString()}</p>
-                        </div>
-                      </div>
+                      {/* Admin Only: Balance Cards & Add Transaction */}
+                      {session.user?.role === "admin" && (
+                        <>
+                          <div className="px-4 py-2 grid grid-cols-2 gap-2 mb-2">
+                            <div className="bg-purple-50 p-2 rounded-lg border border-purple-100">
+                              <p className="text-[10px] text-purple-600">Monthly Balance</p>
+                              <p className="text-lg font-bold text-purple-700">
+                                {balanceData ? formatBDT(balanceData.monthly) : '...'}
+                              </p>
+                              <p className="text-[10px] text-purple-400">Current Period Net</p>
+                            </div>
+                            <div className="bg-blue-50 p-2 rounded-lg border border-blue-100">
+                              <p className="text-[10px] text-blue-600">Closing Balance</p>
+                              <p className="text-lg font-bold text-blue-700">
+                                {balanceData ? formatBDT(balanceData.closing) : '...'}
+                              </p>
+                              <p className="text-[10px] text-blue-400">As of {new Date().toLocaleDateString()}</p>
+                            </div>
+                          </div>
 
-                      <button
-                        onClick={() => {
-                          setIsTransactionModalOpen(true);
-                          setIsDropdownOpen(false);
-                        }}
-                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
-                        aria-label="Add Transaction"
-                      >
-                        <PlusCircle className="w-4 h-4" />
-                        <span>Add Transaction</span>
-                      </button>
+                          <button
+                            onClick={() => {
+                              setIsTransactionModalOpen(true);
+                              setIsDropdownOpen(false);
+                            }}
+                            className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
+                            aria-label="Add Transaction"
+                          >
+                            <PlusCircle className="w-4 h-4" />
+                            <span>Add Transaction</span>
+                          </button>
+                        </>
+                      )}
 
                       <button
                         onClick={handleDashboard}

@@ -46,40 +46,30 @@ const AuthModal = ({
     }
   };
 
+  const buildInquiryMessage = () => {
+    if (detailedBreakdown) {
+      return `Hello!\nI'm interested in the ${serviceTitle}.\nPlease provide more details.\n\n${detailedBreakdown}`;
+    }
+
+    if (selectedTier) {
+      const baseMessage = `Hello!\nI'm interested in the ${serviceTitle}\n\nPackage: ${selectedTier.title} ($${selectedTier.price}).\nPlease provide more details.`;
+      return serviceUrl ? `${baseMessage}\n\nService Details: ${serviceUrl}` : baseMessage;
+    }
+
+    const baseMessage = `Hello! I'm interested in the ${serviceTitle}. Please provide more details.`;
+    return serviceUrl ? `${baseMessage}\n\nService Details: ${serviceUrl}` : baseMessage;
+  };
+
   const handleSendMessage = () => {
     if (!selectedTier && !detailedBreakdown) return;
 
-    let message = "";
-
-    if (detailedBreakdown) {
-      // Estimator flow: Just use a clean intro and the detailed breakdown without URL
-      message = `Hello! I'm interested in the ${serviceTitle}. Please provide more details.\n\n${detailedBreakdown}`;
-    } else {
-      // Standard service flow
-      message = selectedTier
-        ? `Hello! I'm interested in the ${serviceTitle} - ${selectedTier.title} package ($${selectedTier.price}). Please provide more details.`
-        : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.`;
-
-      if (serviceUrl) {
-        message += `\n\nService Details: ${serviceUrl}`;
-      }
-    }
-
-    onMessageSend(message);
+    onMessageSend(buildInquiryMessage());
     onClose();
   };
 
   if (!isOpen) return null;
 
-  // Determine the display message for the preview UI
-  let previewMessage = "";
-  if (detailedBreakdown) {
-    previewMessage = `Hello!\nI'm interested in the ${serviceTitle}.\nPlease provide more details.\n\n${detailedBreakdown}`;
-  } else {
-    previewMessage = selectedTier
-      ? `Hello!\nI'm interested in the ${serviceTitle}\n\nPackage: ${selectedTier.title} ($${selectedTier.price}).\nPlease provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
-      : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`;
-  }
+  const previewMessage = buildInquiryMessage();
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

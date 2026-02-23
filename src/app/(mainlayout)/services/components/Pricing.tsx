@@ -139,7 +139,7 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
         );
       } else {
         toast.error(
-          "Message sent but there was an issue with order placement. Please check your orders."
+          "Order placed but message failed. The admin will still review your order shortly."
         );
       }
     } catch (error) {

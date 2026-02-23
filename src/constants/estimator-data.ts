@@ -153,10 +153,10 @@ export const ESTIMATOR_DATA: PricingCategory[] = [
         multiSelect: true,
         dependsOn: { "service_type": ["Youtube-Growth"] },
         options: [
-            { id: "yt_watch_time", label: "4000 Hours Watch Time", price: 1000, description: "Achieve the YouTube Partner Program threshold" },
-            { id: "yt_subs", label: "1,000 Subscribers", price: 250, description: "Boost your channel credibility instantly" },
-            { id: "yt_monthly_pkg", label: "100k Views + 2-5% Subs Growth", price: 200, description: "Consistent organic views and engagement monthly" },
-            { id: "yt_seo_mgmt", label: "Channel Management & SEO", price: 150, description: "Video optimization, keyword targeting & strategy" },
+            { id: "yt_watch_time", label: "4000+ Hours Watch Time/45-60 days", price: 1000, description: "Achieve the YouTube Partner Program threshold" },
+            { id: "yt_subs", label: "1,000+ Subscribers/45-60 days", price: 250, description: "Boost your channel credibility instantly" },
+            { id: "yt_monthly_pkg", label: "100k+ Views + 2-5% Subs Growth/Month", price: 200, description: "Consistent organic views and engagement monthly" },
+            { id: "yt_seo_mgmt", label: "Channel Management & SEO/Monthly", price: 150, description: "Video optimization, keyword targeting & strategy" },
         ]
     },
     {
