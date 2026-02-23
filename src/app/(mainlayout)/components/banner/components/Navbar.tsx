@@ -12,6 +12,7 @@ import Image from "next/image";
 import { QuickTransactionModal } from '@/components/dashboard/QuickTransactionModal';
 import { PlusCircle, Calendar } from 'lucide-react';
 import { useBooking } from "@/components/booking-provider";
+import AuthModal from "@/components/AuthModal";
 
 interface NavbarProps {
   onSearchClick: () => void;
@@ -25,6 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [balanceData, setBalanceData] = useState<{ monthly: number, closing: number } | null>(null);
 
   const formatBDT = (amount: number) => {
@@ -160,7 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
   };
 
   const handleLogin = () => {
-    router.push("/login");
+    setIsAuthModalOpen(true);
   };
 
   const handleMessages = () => {
@@ -432,6 +434,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
       <QuickTransactionModal
         isOpen={isTransactionModalOpen}
         onClose={() => setIsTransactionModalOpen(false)}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </>
   );
