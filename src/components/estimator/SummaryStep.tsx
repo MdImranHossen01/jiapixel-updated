@@ -3,15 +3,16 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useBooking } from "@/components/booking-provider";
-import { ArrowRight, RefreshCcw } from "lucide-react";
+import { ArrowRight, RefreshCcw, Send } from "lucide-react";
 
 interface SummaryStepProps {
     totalCost: number;
     selections: { category: string; option: string; price: number; label: string }[];
     onRestart: () => void;
+    onSendEstimate: () => void;
 }
 
-export const SummaryStep: React.FC<SummaryStepProps> = ({ totalCost, selections, onRestart }) => {
+export const SummaryStep: React.FC<SummaryStepProps> = ({ totalCost, selections, onRestart, onSendEstimate }) => {
     const { openBooking } = useBooking();
 
     return (
@@ -46,7 +47,10 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({ totalCost, selections,
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button onClick={openBooking} size="lg" className="gap-2">
+                <Button onClick={onSendEstimate} size="lg" className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+                    Send to Admin <Send size={18} />
+                </Button>
+                <Button onClick={openBooking} size="lg" className="gap-2" variant="secondary">
                     Book a Consultation <ArrowRight size={18} />
                 </Button>
                 <Button variant="outline" onClick={onRestart} size="lg" className="gap-2">

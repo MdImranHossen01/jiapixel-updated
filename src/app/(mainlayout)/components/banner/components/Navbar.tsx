@@ -206,7 +206,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
           </div>
 
           {/* Right Actions */}
-          {/* Right Actions */}
           <div className="flex items-center gap-4">
             <div
               onClick={onSearchClick}
