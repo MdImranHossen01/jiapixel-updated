@@ -15,18 +15,18 @@ interface ServiceTier {
 
 interface AuthModalProps {
   isOpen: boolean;
-  serviceTitle: string;
-  selectedTier: ServiceTier | null;
+  serviceTitle?: string;
+  selectedTier?: ServiceTier | null;
   serviceUrl?: string; // Add service URL prop
   detailedBreakdown?: string; // Optional detailed breakdown for estimators
   onClose: () => void;
-  onMessageSend: (message: string) => void;
+  onMessageSend?: (message: string) => void;
 }
 
 const AuthModal = ({
   isOpen,
-  serviceTitle,
-  selectedTier,
+  serviceTitle = "Service Inquiry",
+  selectedTier = null,
   serviceUrl,
   detailedBreakdown,
   onClose,
@@ -61,9 +61,9 @@ const AuthModal = ({
   };
 
   const handleSendMessage = () => {
-    if (!selectedTier && !detailedBreakdown) return;
-
-    onMessageSend(buildInquiryMessage());
+    if (onMessageSend) {
+      onMessageSend(buildInquiryMessage());
+    }
     onClose();
   };
 
@@ -98,17 +98,31 @@ const AuthModal = ({
             </div>
           ) : isLoggedIn ? (
             <div className="space-y-4">
-              <div className="bg-background border border-border rounded-lg p-4">
-                <p className="text-sm text-foreground whitespace-pre-line">
-                  {previewMessage}
-                </p>
-              </div>
-              <button
-                onClick={handleSendMessage}
-                className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors font-medium"
-              >
-                Send Message to Admin
-              </button>
+              {onMessageSend ? (
+                <>
+                  <div className="bg-background border border-border rounded-lg p-4">
+                    <p className="text-sm text-foreground whitespace-pre-line">
+                      {previewMessage}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleSendMessage}
+                    className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                  >
+                    Send Message to Admin
+                  </button>
+                </>
+              ) : (
+                <div className="text-center py-6">
+                  <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-foreground font-medium">Logged in successfully!</p>
+                  <p className="text-sm text-muted-foreground mt-1">You can now proceed with your action.</p>
+                </div>
+              )}
             </div>
           ) : (
             // Not logged in - show login options

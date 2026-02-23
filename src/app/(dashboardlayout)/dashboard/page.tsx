@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ClientCustomOrdersTable from './components/ClientCustomOrdersTable';
 
 export default function DashboardPage() {
   return (
@@ -13,15 +14,11 @@ export default function DashboardPage() {
         </Link>
       </div>
       <Link href="/dashboard/blogs" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent">
-  
-  <span>Blogs</span>
-</Link>
-      
-      <div className="bg-card rounded-lg shadow p-6 border">
-        <h2 className="text-xl font-semibold mb-4 text-card-foreground">Your Projects</h2>
-        <p className="text-muted-foreground">No projects yet. Create your first project!</p>
-        
-      </div>
+
+        <span>Blogs</span>
+      </Link>
+
+      <ClientCustomOrdersTable />
     </div>
   );
 }

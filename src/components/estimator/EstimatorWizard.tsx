@@ -185,7 +185,7 @@ export const EstimatorWizard = () => {
                         onRestart={handleRestart}
                         onSendEstimate={() => openModal(
                             "Project Estimate Inquiry",
-                            { title: `Custom Estimate ($${totalCost})`, price: totalCost, description: "Based on estimator selections" },
+                            null as any, // Bypass AuthModal tier logic, strictly rely on detailedBreakdown
                             window.location.href
                         )}
                     />

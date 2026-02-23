@@ -138,6 +138,13 @@ const LeftSideNav = () => {
       adminOnly: true,
     },
     {
+      name: 'Manage Custom Orders',
+      href: '/dashboard/admin/manage-custom-orders',
+      icon: ShoppingBag,
+      current: pathname.startsWith('/dashboard/admin/manage-custom-orders'),
+      adminOnly: true,
+    },
+    {
       name: 'Manage Categories',
       href: '/dashboard/admin/manage-categories',
       icon: LayoutDashboard, // Using LayoutDashboard temporarily or import a new icon if needed
