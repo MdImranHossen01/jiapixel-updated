@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import { useAuthModal } from "@/hooks/useAuthModal";
+import { toast } from "sonner";
 
 export const EstimatorWizard = () => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -76,7 +77,7 @@ export const EstimatorWizard = () => {
             const adminUsers = usersData.users || [];
 
             if (adminUsers.length === 0) {
-                alert("Admin user not found. Please try again later.");
+                toast.error("Admin user not found. Please try again later.");
                 return;
             }
 
@@ -98,14 +99,14 @@ export const EstimatorWizard = () => {
             });
 
             if (response.ok) {
-                alert("Estimate details sent to admin successfully! They will get back to you soon.");
+                toast.success("Estimate details sent to admin successfully! They will get back to you soon.");
                 closeModal();
             } else {
-                alert("Message could not be sent. Please try again later.");
+                toast.error("Message could not be sent. Please try again later.");
             }
         } catch (error) {
             console.error("Error in handleSendMessage:", error);
-            alert("Error processing your request. Please try again.");
+            toast.error("Error processing your request. Please try again.");
         }
     };
 

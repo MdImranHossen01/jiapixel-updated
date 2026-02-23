@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react";
 import { GoogleIcon } from "./CustomIcons";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 interface ServiceTier {
   title: string;
@@ -48,17 +49,20 @@ const AuthModal = ({
   const handleSendMessage = () => {
     if (!selectedTier && !detailedBreakdown) return;
 
-    // Generate message with service URL
-    let message = selectedTier ? `Hello! I'm interested in the ${serviceTitle} - ${selectedTier.title} package ($${selectedTier.price}). Please provide more details.` : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.`;
+    let message = "";
 
-    // Add detailed breakdown if available
     if (detailedBreakdown) {
-      message += `\n\n${detailedBreakdown}`;
-    }
+      // Estimator flow: Just use a clean intro and the detailed breakdown without URL
+      message = `Hello! I'm interested in the ${serviceTitle}. Please provide more details.\n\n${detailedBreakdown}`;
+    } else {
+      // Standard service flow
+      message = selectedTier
+        ? `Hello! I'm interested in the ${serviceTitle} - ${selectedTier.title} package ($${selectedTier.price}). Please provide more details.`
+        : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.`;
 
-    // Add service URL if available
-    if (serviceUrl) {
-      message += `\n\nService Details: ${serviceUrl}`;
+      if (serviceUrl) {
+        message += `\n\nService Details: ${serviceUrl}`;
+      }
     }
 
     onMessageSend(message);
@@ -66,6 +70,16 @@ const AuthModal = ({
   };
 
   if (!isOpen) return null;
+
+  // Determine the display message for the preview UI
+  let previewMessage = "";
+  if (detailedBreakdown) {
+    previewMessage = `Hello!\nI'm interested in the ${serviceTitle}.\nPlease provide more details.\n\n${detailedBreakdown}`;
+  } else {
+    previewMessage = selectedTier
+      ? `Hello!\nI'm interested in the ${serviceTitle}\n\nPackage: ${selectedTier.title} ($${selectedTier.price}).\nPlease provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
+      : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`;
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -93,14 +107,10 @@ const AuthModal = ({
               <p className="text-sm text-muted-foreground mt-2">Loading...</p>
             </div>
           ) : isLoggedIn ? (
-            // Logged in user - show message preview and send button
             <div className="space-y-4">
               <div className="bg-background border border-border rounded-lg p-4">
                 <p className="text-sm text-foreground whitespace-pre-line">
-                  {selectedTier
-                    ? `Hello!\n I'm interested in the ${serviceTitle} \n\n Package: ${selectedTier.title}  ($${selectedTier.price}).\n Please provide more details.${detailedBreakdown ? `\n\n${detailedBreakdown}` : ''}${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
-                    : `Hello! I'm interested in the ${serviceTitle}. Please provide more details.${detailedBreakdown ? `\n\n${detailedBreakdown}` : ''}${serviceUrl ? `\n\nService Details: ${serviceUrl}` : ''}`
-                  }
+                  {previewMessage}
                 </p>
               </div>
               <button

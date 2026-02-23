@@ -5,6 +5,7 @@ import React from "react";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import AuthModal from "@/components/AuthModal";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 interface Tier {
   _id?: string;
@@ -115,7 +116,7 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
       const adminUsers = usersData.users || [];
 
       if (adminUsers.length === 0) {
-        alert("Admin user not found. Please try again later.");
+        toast.error("Admin user not found. Please try again later.");
         return;
       }
 
@@ -133,17 +134,17 @@ const PricingComponent = ({ service }: PricingComponentProps) => {
       });
 
       if (response.ok) {
-        alert(
+        toast.success(
           "Order placed and message sent to admin successfully! They will get back to you soon."
         );
       } else {
-        alert(
+        toast.error(
           "Message sent but there was an issue with order placement. Please check your orders."
         );
       }
     } catch (error) {
       console.error("Error in handleSendMessage:", error);
-      alert("Error processing your request. Please try again.");
+      toast.error("Error processing your request. Please try again.");
     }
   };
 
