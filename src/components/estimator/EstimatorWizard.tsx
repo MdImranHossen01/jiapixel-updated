@@ -83,10 +83,6 @@ export const EstimatorWizard = () => {
 
             const adminUser = adminUsers[0];
 
-            // Append estimator breakdown exactly as the user requested
-            const breakdownDetails = selectedItems.map(item => `- ${item.label}: $${item.price}`).join('\n');
-            const fullMessage = `${message}\n\n---\nEstimator Selections:\n${breakdownDetails}\nTotal Estimate: $${totalCost}`;
-
             const response = await fetch("/api/messages", {
                 method: "POST",
                 headers: {
@@ -94,7 +90,7 @@ export const EstimatorWizard = () => {
                 },
                 body: JSON.stringify({
                     receiverId: adminUser._id,
-                    content: fullMessage,
+                    content: message,
                 }),
             });
 
