@@ -16,7 +16,7 @@ interface UseAuthModalReturn {
   serviceTitle: string;
   selectedTier: ServiceTier | null;
   serviceUrl: string; // Add service URL to return type
-  openModal: (title: string, tier: ServiceTier, serviceUrl?: string) => void; // Add serviceUrl parameter
+  openModal: (title: string, tier: ServiceTier | null, serviceUrl?: string) => void; // tier can be null if no specific tier is selected
   closeModal: () => void;
   isLoggedIn: boolean;
   isLoading: boolean;
@@ -29,7 +29,7 @@ export const useAuthModal = (): UseAuthModalReturn => {
   const [selectedTier, setSelectedTier] = useState<ServiceTier | null>(null);
   const [serviceUrl, setServiceUrl] = useState(''); // Add service URL state
 
-  const openModal = (title: string, tier: ServiceTier, serviceUrl: string = '') => {
+  const openModal = (title: string, tier: ServiceTier | null, serviceUrl: string = '') => {
     setServiceTitle(title);
     setSelectedTier(tier);
     setServiceUrl(serviceUrl);

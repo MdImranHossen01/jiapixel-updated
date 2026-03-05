@@ -41,10 +41,10 @@ interface PageProps {
 
 async function getProduct(slug: string): Promise<Product | null> {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
+    const baseUrl = process.env.NODE_ENV === 'production'
       ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
       : 'http://localhost:3000';
-    
+
     const response = await fetch(`${baseUrl}/api/products/${slug}`, {
       cache: 'force-cache'
     });
@@ -79,11 +79,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: product.title,
     description: product.shortDescription,
     keywords: `${product.category}, ${product.tags?.join(', ')}, digital product, SaaS`,
-    
+
     alternates: {
       canonical: canonicalUrl,
     },
-    
+
     openGraph: {
       title: product.title,
       description: product.shortDescription,
@@ -100,7 +100,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: 'en_US',
       type: 'website',
     },
-    
+
     twitter: {
       card: 'summary_large_image',
       title: product.title,
@@ -170,20 +170,20 @@ export default async function ProductDetailPage({ params }: PageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productStructuredData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productStructuredData).replace(/<\s*\/script\s*>/gi, '<\\/script>') }}
       />
-      
+
       <div className="min-h-screen bg-background pt-20">
         {/* Hero Section */}
         <section className="bg-linear-to-br from-primary/10 to-secondary/10 py-16">
           <div className="container mx-auto px-4">
-            <Link 
+            <Link
               href="/products"
               className="inline-flex items-center text-primary hover:text-primary/80 mb-6 transition-colors"
             >
               ← Back to Products
             </Link>
-            
+
             <div className="max-w-6xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 {/* Product Image */}
@@ -197,7 +197,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                       className="w-full h-auto"
                     />
                   </div>
-                  
+
                   {/* Additional Images */}
                   {product.images && product.images.length > 0 && (
                     <div className="grid grid-cols-3 gap-4 mt-4">
@@ -402,18 +402,18 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
 export async function generateStaticParams() {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
+    const baseUrl = process.env.NODE_ENV === 'production'
       ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
       : 'http://localhost:3000';
-    
+
     const response = await fetch(`${baseUrl}/api/products`, {
       cache: 'force-cache'
     });
-    
+
     if (!response.ok) {
       return [];
     }
-    
+
     const data = await response.json();
     return data.products?.map((product: Product) => ({
       slug: product.slug,

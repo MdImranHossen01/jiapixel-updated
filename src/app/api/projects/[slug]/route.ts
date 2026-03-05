@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/api/projects/[slug]/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '../../../../lib/db';
-import Project from '../../../../models/Project';
-import { uploadMultipleToImgBB } from '../../../../lib/imgbb';
-import { generateSlug } from '../../../../lib/slug';
+import { NextResponse, NextRequest } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import connectDB from '@/lib/db';
+import Project from '@/models/Project';
+import { uploadMultipleToImgBB } from '@/lib/imgbb';
+import { generateSlug } from '@/lib/slug';
 
 export async function GET(
     request: NextRequest,
@@ -14,7 +15,8 @@ export async function GET(
         await connectDB();
         const { slug } = await params;
 
-        const project = await Project.findOne({ slug });
+        const project = await Project.findOne({ slug })
+            .populate('relatedProjects', 'title slug images');
 
         if (!project) {
             return NextResponse.json(
@@ -54,6 +56,30 @@ export async function PUT(
             );
         }
 
+        const contentType = request.headers.get('content-type') || '';
+
+        // Handle JSON payloads (e.g., from the Google Index toggle)
+        if (contentType.includes('application/json')) {
+            const body = await request.json();
+
+            // Allow updating specific fields like isIndexedInGoogle
+            if ('isIndexedInGoogle' in body) {
+                project.isIndexedInGoogle = body.isIndexedInGoogle;
+                await project.save();
+
+                return NextResponse.json(
+                    { success: true, message: 'Project status updated successfully', project },
+                    { status: 200 }
+                );
+            }
+
+            return NextResponse.json(
+                { success: false, message: 'Invalid JSON payload. Only isIndexedInGoogle is supported via JSON.' },
+                { status: 400 }
+            );
+        }
+
+        // Handle FormData (e.g., from the main project edit form)
         const formData = await request.formData();
 
         // Handle Image Uploads
@@ -158,6 +184,8 @@ export async function PUT(
         project.metaTitle = projectData.metaTitle;
         project.metaDescription = projectData.metaDescription;
         project.description = projectData.description;
+        project.relatedProjects = projectData.relatedProjects || [];
+
         if (projectData.isIndexedInGoogle !== undefined) {
             project.isIndexedInGoogle = projectData.isIndexedInGoogle;
         }
@@ -167,6 +195,10 @@ export async function PUT(
         project.images = [...validExistingImages, ...imageUrls];
 
         await project.save();
+
+        // Revalidate the project details page to show updates instantly
+        revalidatePath(`/projects/${project.slug}`);
+        revalidateTag(`project-${project.slug}`, 'default');
 
         return NextResponse.json({
             success: true,

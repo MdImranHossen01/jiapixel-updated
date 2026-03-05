@@ -156,7 +156,7 @@ async function PortfoliosPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData).replace(/<\/script>/g, '<\\/script>') }}
       />
       <div className="min-h-screen bg-background">
         <PortfoliosClient initialPortfolios={portfolios} pagination={data.pagination} />

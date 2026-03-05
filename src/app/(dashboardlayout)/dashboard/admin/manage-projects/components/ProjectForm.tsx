@@ -15,6 +15,7 @@ interface ProjectData {
     images: (File | string)[];
     description: string;
     isIndexedInGoogle: boolean;
+    relatedProjects?: string[];
 }
 
 interface ProjectFormProps {
@@ -34,11 +35,38 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
         metaDescription: "",
         images: [],
         description: "",
-        isIndexedInGoogle: true,
+        isIndexedInGoogle: false,
+        relatedProjects: [],
     });
 
     const [slugTouched, setSlugTouched] = useState(false);
     const [metaTitleTouched, setMetaTitleTouched] = useState(false);
+
+    // Projects and writings for selection
+    const [allProjects, setAllProjects] = useState<any[]>([]);
+    const [loadingRelated, setLoadingRelated] = useState(true);
+    const [projectSearchQuery, setProjectSearchQuery] = useState("");
+
+    useEffect(() => {
+        const fetchRelatedData = async () => {
+            try {
+                const [projectsRes] = await Promise.all([
+                    fetch('/api/projects?limit=100'),
+                ]);
+
+                if (projectsRes.ok) {
+                    const projectsData = await projectsRes.json();
+                    setAllProjects(projectsData.projects || []);
+                }
+            } catch (err) {
+                console.error("Failed to fetch related data", err);
+            } finally {
+                setLoadingRelated(false);
+            }
+        };
+
+        fetchRelatedData();
+    }, []);
 
     const slugify = (text: string) => {
         return text
@@ -61,6 +89,23 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
             }
         }
     }, [data.title, slugTouched, metaTitleTouched, isEdit]);
+
+    const toggleRelatedProject = (projectId: string) => {
+        const current = data.relatedProjects || [];
+        if (current.includes(projectId)) {
+            updateData("relatedProjects", current.filter(id => id !== projectId));
+        } else {
+            if (current.length >= 4) {
+                toast.error("You can select up to 4 projects only");
+                return;
+            }
+            updateData("relatedProjects", [...current, projectId]);
+        }
+    };
+
+    const filteredProjects = allProjects.filter(project =>
+        project.title.toLowerCase().includes(projectSearchQuery.toLowerCase()) && project.slug !== data.slug
+    );
 
     const updateData = (field: keyof ProjectData, value: any) => {
         setData((prev) => ({ ...prev, [field]: value }));
@@ -112,6 +157,7 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
             const projectDataToSubmit = {
                 ...data,
                 images: existingImages, // Send existing URLs
+                relatedProjects: data.relatedProjects || [],
                 isIndexedInGoogle: data.isIndexedInGoogle,
             };
 
@@ -298,6 +344,43 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
                     className="hidden"
                 />
                 <p className="text-xs text-muted-foreground">Supported: JPG, PNG, WebP. Max 5MB per image.</p>
+            </div>
+
+            {/* Related Items Selection */}
+            <div className="grid grid-cols-1 gap-6">
+                {/* Related Projects */}
+                <div className="bg-card rounded-lg border p-6 space-y-4">
+                    <h3 className="text-lg font-semibold">Related Projects</h3>
+                    <input
+                        type="text"
+                        placeholder="Search projects..."
+                        value={projectSearchQuery}
+                        onChange={(e) => setProjectSearchQuery(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md bg-background text-sm"
+                    />
+                    <div className="border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
+                        {loadingRelated ? (
+                            <div className="text-sm text-muted-foreground">Loading...</div>
+                        ) : filteredProjects.length > 0 ? (
+                            <div className="space-y-2">
+                                {filteredProjects.map((project) => (
+                                    <label key={project._id} className="flex items-center space-x-3 cursor-pointer p-2 hover:bg-accent rounded">
+                                        <input
+                                            type="checkbox"
+                                            checked={(data.relatedProjects || []).includes(project._id)}
+                                            onChange={() => toggleRelatedProject(project._id)}
+                                            className="h-4 w-4 text-primary border rounded"
+                                        />
+                                        <span className="text-sm">{project.title}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-muted-foreground text-sm">No projects found</p>
+                        )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Select up to 4 related projects</p>
+                </div>
             </div>
 
             {/* Description */}

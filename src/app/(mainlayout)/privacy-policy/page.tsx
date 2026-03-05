@@ -102,7 +102,7 @@ const PrivacyPolicyPage = () => {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/<\/script>/g, '<\\/script>') }}
       />
       <div className="min-h-screen  py-20">
         <div className="container mx-auto px-4 max-w-4xl">

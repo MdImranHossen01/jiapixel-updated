@@ -131,7 +131,7 @@ const ContactPage = () => {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/<\/script>/g, '<\\/script>') }}
       />
       <div className="min-h-screen pb-20">
         <BackgroundLines className="min-h-screen">

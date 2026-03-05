@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import mongoose from 'mongoose';
 // src/app/api/projects/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../lib/db';
@@ -100,6 +101,9 @@ export async function POST(request: NextRequest) {
                     metaDescription: projectData.metaDescription,
                     images: imageUrls,
                     description: projectData.description,
+                    relatedProjects: Array.isArray(projectData.relatedProjects)
+                        ? projectData.relatedProjects.filter((id: string) => mongoose.Types.ObjectId.isValid(id))
+                        : [],
                     isIndexedInGoogle: projectData.isIndexedInGoogle !== undefined ? projectData.isIndexedInGoogle : true,
                     createdBy: session.user.email || session.user.name || 'jiapixel-admin',
                 });

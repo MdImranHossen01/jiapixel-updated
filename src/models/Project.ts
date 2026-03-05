@@ -18,6 +18,9 @@ export interface IProject extends Document {
     // Content
     description: string;
 
+    // Related items
+    relatedProjects?: mongoose.Types.ObjectId[];
+
     // Metadata
     isIndexedInGoogle: boolean;
     createdBy: string;
@@ -69,10 +72,16 @@ const ProjectSchema = new Schema<IProject>(
             required: true,
         },
 
+        // Related items
+        relatedProjects: [{
+            type: Schema.Types.ObjectId,
+            ref: "Project"
+        }],
+
         // Metadata
         isIndexedInGoogle: {
             type: Boolean,
-            default: true,
+            default: false,
         },
         createdBy: {
             type: String,
@@ -134,6 +143,10 @@ ProjectSchema.pre("save", function (next) {
 });
 
 ProjectSchema.index({ createdAt: -1 });
+
+if (process.env.NODE_ENV !== 'production' && mongoose.models.Project) {
+    delete mongoose.models.Project;
+}
 
 export default mongoose.models.Project ||
     mongoose.model<IProject>("Project", ProjectSchema);

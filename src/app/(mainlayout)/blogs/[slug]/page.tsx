@@ -156,7 +156,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       {/* Structured Data for Blog Post */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData).replace(/</g, '\\u003c') }}
       />
 
       <div className="min-h-screen py-8">

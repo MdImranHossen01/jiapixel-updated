@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import ShareButtons from './ShareButtons'; 
+import ShareButtons from './ShareButtons';
 import type { Metadata } from 'next';
 
 interface Portfolio {
@@ -34,10 +34,10 @@ interface PageProps {
 
 async function getPortfolio(slug: string): Promise<Portfolio | null> {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production' 
+    const baseUrl = process.env.NODE_ENV === 'production'
       ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
       : 'http://localhost:3000';
-    
+
     const response = await fetch(`${baseUrl}/api/portfolios/${slug}`, {
       cache: 'force-cache'
     });
@@ -48,12 +48,12 @@ async function getPortfolio(slug: string): Promise<Portfolio | null> {
     }
 
     const data = await response.json();
-    
+
     // REMOVE THIS STATUS CHECK - show all portfolios regardless of status
     // if (data.portfolio.status !== 'published') {
     //   return null;
     // }
-    
+
     return data.portfolio;
   } catch (error) {
     console.error('Error fetching portfolio:', error);
@@ -74,7 +74,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseUrl = 'https://www.jiapixel.com';
   const canonicalUrl = `${baseUrl}/portfolios/${portfolio.slug}`;
 
-  const plainTextTitle = portfolio.title.length > 60 
+  const plainTextTitle = portfolio.title.length > 60
     ? `${portfolio.title.substring(0, 57)}... - Jiapixel Portfolio`
     : `${portfolio.title} - Jiapixel Portfolio`;
 
@@ -84,12 +84,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: plainTextTitle,
     description: plainTextDescription,
     keywords: `${portfolio.category}, ${portfolio.technologies?.join(', ')}, web development, portfolio`,
-    
+
     // Canonical URL
     alternates: {
       canonical: canonicalUrl,
     },
-    
+
     // Open Graph
     openGraph: {
       title: plainTextTitle,
@@ -107,7 +107,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: 'en_US',
       type: 'website',
     },
-    
+
     // Twitter Card
     twitter: {
       card: 'summary_large_image',
@@ -161,20 +161,20 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
       {/* Structured Data for Portfolio */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData).replace(/<\/script>/g, '<\\/script>') }}
       />
-      
+
       <div className="min-h-screen bg-background pt-20">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-primary/10 to-secondary/10 py-16">
           <div className="container mx-auto px-4">
-            <Link 
+            <Link
               href="/portfolios"
               className="inline-flex items-center text-primary hover:text-primary/80 mb-6 transition-colors"
             >
               ← Back to Portfolio
             </Link>
-            
+
             <div className="max-w-4xl mx-auto text-center">
               <span className="text-primary font-medium mb-4 block">
                 {portfolio.category}
@@ -185,7 +185,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
               <p className="text-xl text-muted-foreground mb-8">
                 {portfolio.description}
               </p>
-              
+
               <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
                 <div>
                   <strong className="text-foreground">Client:</strong> {portfolio.client}
@@ -238,7 +238,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                   )}
 
                   {/* Content */}
-                  <div 
+                  <div
                     className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-li:text-foreground"
                     dangerouslySetInnerHTML={{ __html: portfolio.content }}
                   />
@@ -248,7 +248,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                 <div className="lg:col-span-1">
                   <div className="bg-card rounded-lg shadow-lg p-6 sticky top-24">
                     <h3 className="text-xl font-bold text-foreground mb-4">Project Details</h3>
-                    
+
                     {/* Technologies */}
                     {portfolio.technologies && portfolio.technologies.length > 0 && (
                       <div className="mb-6">
@@ -278,7 +278,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                           View Live Project
                         </Link>
                       )}
-                      
+
                       {portfolio.githubUrl && (
                         <Link
                           href={portfolio.githubUrl}

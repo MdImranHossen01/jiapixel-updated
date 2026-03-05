@@ -4,6 +4,8 @@ import { signIn } from "next-auth/react";
 import { GoogleIcon } from "./CustomIcons";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 
 interface ServiceTier {
   title: string;
@@ -35,6 +37,11 @@ const AuthModal = ({
   const { data: session, status } = useSession();
   const isLoggedIn = !!session;
   const isLoading = status === 'loading';
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleGoogleLogin = async () => {
     try {
@@ -67,12 +74,12 @@ const AuthModal = ({
     onClose();
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const previewMessage = buildInquiryMessage();
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
       <div className="bg-card rounded-lg w-full max-w-md mx-auto border border-border shadow-lg">
         <div className="p-6">
           {/* Header */}
@@ -148,7 +155,8 @@ const AuthModal = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
