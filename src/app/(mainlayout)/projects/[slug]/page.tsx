@@ -160,7 +160,7 @@ export default async function ProjectDetailsPage({ params }: PageProps) {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(projectStructuredData).replace(/<\/script>/g, '<\\/script>'),
+                    __html: JSON.stringify(projectStructuredData).replace(/</g, '\\u003c'),
                 }}
             />
             <div className="overflow-hidden py-8">
