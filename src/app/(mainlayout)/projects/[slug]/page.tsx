@@ -163,7 +163,7 @@ export default async function ProjectDetailsPage({ params }: PageProps) {
                     __html: JSON.stringify(projectStructuredData).replace(/</g, '\\u003c'),
                 }}
             />
-            <div className="overflow-hidden py-8">
+            <div className="overflow-clip py-8">
                 <div className="container mx-auto px-4 w-full">
                     {/* 
                         Main Grid Strategy:
