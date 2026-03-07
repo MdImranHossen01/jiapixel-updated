@@ -27,10 +27,10 @@ const ProjectHero: React.FC<ProjectHeroProps> = ({ searchQuery, setSearchQuery }
 
             <div className="container relative mx-auto px-4 text-center">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
-                    Our Previous Work & Projects
+                    Our Professional Projects
                 </h1>
                 <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-                    Explore our portfolio of successful projects and case studies. See how we've helped businesses achieve their digital goals with our custom solutions.
+                    Explore our projects and case studies. See how we've helped businesses achieve their digital goals with our custom solutions.
                 </p>
 
                 {/* Search Bar */}
