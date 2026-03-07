@@ -1,6 +1,7 @@
 import React from 'react';
 import Footer from "./components/Footer";
 import AiStylistModalWrapper from './components/AiStylistModalWrapper';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 
 const Mainlayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -13,6 +14,7 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 
         <main className="grow relative">
           {children}
+          <ScrollToTop />
         </main>
 
         <footer className="relative z-20">

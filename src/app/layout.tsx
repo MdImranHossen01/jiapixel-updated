@@ -8,7 +8,6 @@ import StructuredData from "./components/StructuredData";
 import GoogleTagManager from "./components/GoogleTagManager";
 import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 import { BookingProvider } from "@/components/booking-provider";
-import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import { Toaster } from "sonner";
 
@@ -161,7 +160,6 @@ export default function RootLayout({
             </BookingProvider>
           </SmoothScrollProvider>
         </SessionProvider>
-        <ScrollToTop />
       </body>
     </html>
   );

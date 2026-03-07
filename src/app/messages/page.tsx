@@ -32,6 +32,7 @@ const MessagesPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const messagesContainerRef = React.useRef<HTMLDivElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] =
@@ -57,8 +58,12 @@ const MessagesPage = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // Add a slight delay to ensure DOM is updated before scrolling
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [messages, selectedConversation]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -296,7 +301,7 @@ const MessagesPage = () => {
   }
 
   return (
-    <div className="h-[100dvh] bg-background pt-16 flex flex-col overflow-hidden">
+    <div className="h-[100dvh] bg-background pt-4 md:pt-8 flex flex-col overflow-hidden">
       <div className="container mx-auto p-0 md:p-4 flex-1 h-full overflow-hidden">
         <div className="bg-card md:rounded-lg border-0 md:border border-border h-full flex flex-col md:flex-row overflow-hidden">
           {/* Conversations List */}
@@ -560,21 +565,37 @@ const MessagesPage = () => {
 
                 {/* Message Input */}
                 <div className="p-4 border-t border-border bg-card z-10 sticky bottom-0 flex-shrink-0">
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
+                  <div className="flex space-x-2 items-end">
+                    <textarea
+                      ref={textareaRef}
                       value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") sendMessageInConversation();
+                      onChange={(e) => {
+                        setNewMessage(e.target.value);
+                        // Auto-resize textarea height
+                        e.target.style.height = 'auto';
+                        e.target.style.height = `${Math.min(e.target.scrollHeight, 150)}px`;
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessageInConversation();
+                          // Reset height
+                          if (textareaRef.current) textareaRef.current.style.height = 'auto';
+                        }
                       }}
                       placeholder="Type a message..."
-                      className="flex-1 px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                      rows={1}
+                      className="flex-1 px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background resize-none overflow-y-auto"
+                      style={{ minHeight: '40px', maxHeight: '150px' }}
                     />
                     <button
-                      onClick={sendMessageInConversation}
+                      onClick={() => {
+                        sendMessageInConversation();
+                        // Reset textarea height query
+                        if (textareaRef.current) textareaRef.current.style.height = 'auto';
+                      }}
                       disabled={!newMessage.trim()}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors h-10"
                     >
                       Send
                     </button>
