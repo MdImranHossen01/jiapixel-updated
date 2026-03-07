@@ -28,7 +28,12 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const imageInputRef = useRef<HTMLInputElement>(null);
 
-    const [data, setData] = useState<ProjectData>(initialData || {
+    const [data, setData] = useState<ProjectData>(initialData ? {
+        ...initialData,
+        relatedProjects: initialData.relatedProjects?.map((rp: any) =>
+            typeof rp === 'string' ? rp : (rp._id || rp.id)
+        ).filter(Boolean) || []
+    } : {
         title: "",
         slug: "",
         metaTitle: "",
@@ -36,7 +41,7 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
         images: [],
         description: "",
         isIndexedInGoogle: false,
-        relatedProjects: [],
+        relatedProjects: [] as string[],
     });
 
     const [slugTouched, setSlugTouched] = useState(false);
@@ -164,7 +169,7 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
             formData.append("projectData", JSON.stringify(projectDataToSubmit));
 
             const url = isEdit
-                ? `/api/projects/${data.slug}`
+                ? `/api/projects/${initialData?.slug || data.slug}`
                 : "/api/projects";
 
             const method = isEdit ? "PUT" : "POST";

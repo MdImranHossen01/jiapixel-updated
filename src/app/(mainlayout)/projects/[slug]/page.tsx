@@ -6,6 +6,7 @@ import { generateHtml } from '@/lib/server-html';
 import { extractTextFromProjectDescription } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import ProjectInquiryButton from "./components/ProjectInquiryButton";
+import ProjectAdminActions from "@/components/ProjectAdminActions";
 
 interface PageProps {
     params: Promise<{
@@ -176,10 +177,14 @@ export default async function ProjectDetailsPage({ params }: PageProps) {
                         {/* Wrapper 1: Title and Actions (Right Column on Desktop) */}
                         <div className="contents lg:block lg:col-span-1 lg:order-2 lg:sticky lg:top-24 self-start space-y-8">
                             {/* 1. Title - Mobile Order: 1 */}
-                            <div className="order-1 flex flex-col gap-4">
+                            <div className="order-1 flex items-start justify-between gap-4">
                                 <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight">
                                     {project.title}
                                 </h1>
+                                <ProjectAdminActions
+                                    projectSlug={project.slug}
+                                    projectTitle={project.title}
+                                />
                             </div>
 
                             {/* 3. Action Card - Mobile Order: 3 */}
