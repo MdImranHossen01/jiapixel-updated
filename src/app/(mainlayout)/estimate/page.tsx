@@ -17,11 +17,9 @@ export default function EstimatePage() {
                     <p className="text-lg text-muted-foreground">
                         Answer a few quick questions to get a rough estimate for your project. No emails required to see the price.
                     </p>
-
                 </div>
 
                 <EstimatorWizard />
-
             </div>
         </div>
     );
