@@ -296,9 +296,9 @@ const MessagesPage = () => {
   }
 
   return (
-    <div className="min-h-[calc(100dvh-4rem)] bg-background pt-16 flex flex-col">
-      <div className="container mx-auto p-4 flex-1 h-[calc(100dvh-4rem)]">
-        <div className="bg-card rounded-lg border border-border h-full flex flex-col md:flex-row overflow-hidden">
+    <div className="h-[100dvh] bg-background pt-16 flex flex-col overflow-hidden">
+      <div className="container mx-auto p-0 md:p-4 flex-1 h-full overflow-hidden">
+        <div className="bg-card md:rounded-lg border-0 md:border border-border h-full flex flex-col md:flex-row overflow-hidden">
           {/* Conversations List */}
           <div className={`w-full md:w-1/3 border-b md:border-b-0 md:border-r border-border flex flex-col ${selectedConversation ? "hidden md:flex" : "flex"}`}>
             <div className="p-4 border-b border-border">
@@ -437,7 +437,7 @@ const MessagesPage = () => {
             {selectedConversation ? (
               <>
                 {/* Chat Header */}
-                <div className="p-4 border-b border-border">
+                <div className="p-4 border-b border-border bg-card z-10 sticky top-0 flex-shrink-0">
                   {(() => {
                     const otherUser = selectedConversation.participants.find(
                       (p) => p._id !== session?.user?.id
@@ -487,7 +487,7 @@ const MessagesPage = () => {
                 {/* Messages */}
                 <div
                   ref={messagesContainerRef}
-                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                  className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/10 relative"
                 >
                   {messages.length === 0 ? (
                     <div className="text-center text-muted-foreground py-8">
@@ -559,7 +559,7 @@ const MessagesPage = () => {
                 </div>
 
                 {/* Message Input */}
-                <div className="p-4 border-t border-border">
+                <div className="p-4 border-t border-border bg-card z-10 sticky bottom-0 flex-shrink-0">
                   <div className="flex space-x-2">
                     <input
                       type="text"
