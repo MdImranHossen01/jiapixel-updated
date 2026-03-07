@@ -44,6 +44,35 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
         relatedProjects: [] as string[],
     });
 
+    const [previewUrls, setPreviewUrls] = useState<Map<File, string>>(new Map());
+
+    // Generate Object URLs for newly added blobs without leaking map references
+    useEffect(() => {
+        setPreviewUrls(prev => {
+            const nextMap = new Map(prev);
+            let changed = false;
+
+            data.images.forEach(file => {
+                if (file instanceof File && !nextMap.has(file)) {
+                    nextMap.set(file, URL.createObjectURL(file));
+                    changed = true;
+                }
+            });
+
+            return changed ? nextMap : prev;
+        });
+    }, [data.images]);
+
+    // Cleanup all Object URLs heavily generated over lifecycle on unmount
+    useEffect(() => {
+        return () => {
+            setPreviewUrls(prev => {
+                prev.forEach(url => URL.revokeObjectURL(url));
+                return new Map();
+            });
+        };
+    }, []);
+
     const [slugTouched, setSlugTouched] = useState(false);
     const [metaTitleTouched, setMetaTitleTouched] = useState(false);
 
@@ -127,6 +156,19 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
     };
 
     const removeFile = (index: number) => {
+        const fileToRemove = data.images[index];
+        if (fileToRemove instanceof File) {
+            setPreviewUrls(prev => {
+                const nextMap = new Map(prev);
+                const url = nextMap.get(fileToRemove);
+                if (url) {
+                    URL.revokeObjectURL(url);
+                    nextMap.delete(fileToRemove);
+                }
+                return nextMap;
+            });
+        }
+
         const updatedFiles = data.images.filter((_, i) => i !== index);
         updateData("images", updatedFiles);
     };
@@ -137,6 +179,10 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
 
         if (!data.title) {
             toast.error("Title is required");
+            return;
+        }
+        if (!data.slug || data.slug.trim() === "") {
+            toast.error("Slug is required");
             return;
         }
         if (!data.description) {
@@ -314,7 +360,7 @@ export default function ProjectForm({ initialData, isEdit }: ProjectFormProps) {
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     {data.images.map((file, index) => {
                         const isUrl = typeof file === 'string';
-                        const previewUrl = isUrl ? file : URL.createObjectURL(file);
+                        const previewUrl = isUrl ? file : (previewUrls.get(file as File) || "");
 
                         return (
                             <div key={index} className="relative aspect-square border rounded-md overflow-hidden group">
