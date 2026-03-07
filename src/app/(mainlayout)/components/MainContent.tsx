@@ -14,7 +14,6 @@ const MainContent = () => {
       <AboutUsSection />
       <PortfoilioSection />
       <HoverServices />
-
       <SEOFeatures />
       <MarketingFeatures />
       <BlogSection />
