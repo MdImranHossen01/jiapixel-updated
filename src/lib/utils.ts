@@ -84,3 +84,12 @@ export function extractTextFromProjectDescription(content: any): string {
     return String(content).substring(0, 160);
   }
 }
+
+export function getBaseUrl() {
+  if (typeof window !== 'undefined') return window.location.origin;
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+}
+

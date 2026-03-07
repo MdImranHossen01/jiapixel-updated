@@ -5,6 +5,7 @@ import ProjectCard from '@/components/ProjectCard';
 import { generateHtml } from '@/lib/server-html';
 import LocalCategoryAdminActions from '@/components/LocalCategoryAdminActions';
 import CategoryHero from '@/components/CategoryHero';
+import { getBaseUrl } from '@/lib/utils';
 
 interface PageProps {
     params: Promise<{
@@ -14,9 +15,7 @@ interface PageProps {
 
 const getCategory = async (slug: string) => {
     try {
-        const baseUrl = process.env.NODE_ENV === 'production'
-            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-            : 'http://localhost:3000';
+        const baseUrl = getBaseUrl();
 
         const apiUrl = `${baseUrl}/api/local-categories/${slug}?populate=true`;
 
@@ -47,9 +46,7 @@ const getCategory = async (slug: string) => {
 
 export async function generateStaticParams() {
     try {
-        const baseUrl = process.env.NODE_ENV === 'production'
-            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-            : 'http://localhost:3000';
+        const baseUrl = getBaseUrl();
 
         const response = await fetch(`${baseUrl}/api/local-categories`, {
             cache: 'force-cache'
@@ -70,7 +67,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
     const category = await getCategory(slug);
-    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
+    const url = getBaseUrl();
 
     if (!category) {
         return {
@@ -123,7 +120,7 @@ const LocalCategoryPage = async ({ params }: PageProps) => {
     }
 
     const projects = category.selectedProjects || [];
-    const url = process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
+    const url = getBaseUrl();
 
     // Structured Data (JSON-LD)
     const jsonLd = {
