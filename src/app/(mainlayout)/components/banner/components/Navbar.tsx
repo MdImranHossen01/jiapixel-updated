@@ -200,7 +200,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
 
             {/* Desktop Links */}
             <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-foreground">
-              <Link href="/services" className="hover:text-primary transition-colors">Services</Link>
+              <Link href="/projects" className="hover:text-primary transition-colors">Projects</Link>
               {/* <Link href="/products" className="hover:text-primary transition-colors">Products</Link> */}
               <Link href="/portfolios" className="hover:text-primary transition-colors">Portfolios</Link>
               <Link href="/blogs" className="hover:text-primary transition-colors">Blogs</Link>
@@ -410,7 +410,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
               <span>Book a Call</span>
             </div>
             <Link href="/estimate" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Get Estimate</Link>
-            <Link href="/services" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Services</Link>
+            <Link href="/projects" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Projects</Link>
             {/* <Link href="/products" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link> */}
             <Link href="/portfolios" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Portfolios</Link>
             <Link href="/blogs" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Blogs</Link>

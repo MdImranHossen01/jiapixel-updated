@@ -132,7 +132,7 @@ export const HeroGrid: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
             >
-              <Link href="/services">
+              <Link href="/projects">
                 <button className="px-4 py-2 md:px-6 md:py-3 text-[12px] md:text-base cursor-pointer bg-white text-black rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center gap-1.5 md:gap-2">
                   <Code className="w-3.5 h-3.5 md:w-5 md:h-5" />
                   View Projects
