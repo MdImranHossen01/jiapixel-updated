@@ -22,7 +22,11 @@ const WritingSidebar: React.FC<WritingSidebarProps> = ({
     // 1. Get Popular Writings (Top 4 by views, fallback to sorted by date if no views)
     const popularWritings = useMemo(() => {
         // Clone to avoid mutating original array
-        const sorted = [...writings].sort((a, b) => (b.views || 0) - (a.views || 0));
+        const sorted = [...writings].sort((a, b) => {
+            const viewsDiff = (b.views || 0) - (a.views || 0);
+            if (viewsDiff !== 0) return viewsDiff;
+            return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+        });
         return sorted.slice(0, 4);
     }, [writings]);
 
@@ -41,13 +45,22 @@ const WritingSidebar: React.FC<WritingSidebarProps> = ({
 
     // 3. Get Archive (Year-Month)
     const archives = useMemo(() => {
-        const archiveMap = new Map<string, number>();
+        const archiveMap = new Map<string, { count: number; dateValue: number }>();
         writings.forEach((writing) => {
             const date = new Date(writing.createdAt);
             const key = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-            archiveMap.set(key, (archiveMap.get(key) || 0) + 1);
+            const existing = archiveMap.get(key);
+            if (existing) {
+                existing.count += 1;
+            } else {
+                archiveMap.set(key, { count: 1, dateValue: date.getTime() });
+            }
         });
-        return Array.from(archiveMap.entries()).slice(0, 5); // Limit to top 5 recent months
+
+        return Array.from(archiveMap.entries())
+            .sort((a, b) => b[1].dateValue - a[1].dateValue)
+            .slice(0, 5)
+            .map(([date, data]) => [date, data.count] as [string, number]);
     }, [writings]);
 
     return (
@@ -90,39 +103,10 @@ const WritingSidebar: React.FC<WritingSidebarProps> = ({
                 </div>
             </div>
 
-            {/* Tags Widget */}
-            <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Folder size={18} className="text-primary" />
-                    Topics
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                    <button
-                        onClick={() => onSelectTag("All")}
-                        className={`text-xs px-3 py-1 rounded-full transition-colors border ${selectedTag === "All"
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-background text-muted-foreground border-border hover:bg-accent"
-                            }`}
-                    >
-                        All
-                    </button>
-                    {tags.map(([tag, count]) => (
-                        <button
-                            key={tag}
-                            onClick={() => onSelectTag(tag)}
-                            className={`text-xs px-3 py-1 rounded-full transition-colors border ${selectedTag === tag
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background text-muted-foreground border-border hover:bg-accent"
-                                }`}
-                        >
-                            {tag} ({count})
-                        </button>
-                    ))}
-                </div>
-            </div>
+
 
             {/* Archive Widget */}
-            <div className="bg-card rounded-xl border-border p-4 shadow-sm">
+            <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <Calendar size={18} className="text-primary" />
                     Archive
