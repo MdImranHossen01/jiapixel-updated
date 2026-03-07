@@ -296,11 +296,11 @@ const MessagesPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-16">
-      <div className="container mx-auto p-4 h-[calc(100vh-4rem)]">
-        <div className="bg-card rounded-lg border border-border h-full flex flex-col md:flex-row">
+    <div className="min-h-[calc(100dvh-4rem)] bg-background pt-16 flex flex-col">
+      <div className="container mx-auto p-4 flex-1 h-[calc(100dvh-4rem)]">
+        <div className="bg-card rounded-lg border border-border h-full flex flex-col md:flex-row overflow-hidden">
           {/* Conversations List */}
-          <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-border flex flex-col">
+          <div className={`w-full md:w-1/3 border-b md:border-b-0 md:border-r border-border flex flex-col ${selectedConversation ? "hidden md:flex" : "flex"}`}>
             <div className="p-4 border-b border-border">
               <h2 className="text-xl font-bold text-foreground">
                 Messages {isAdmin && "(Admin)"}
@@ -433,7 +433,7 @@ const MessagesPage = () => {
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 flex flex-col">
+          <div className={`flex-1 flex flex-col ${!selectedConversation ? "hidden md:flex" : "flex"}`}>
             {selectedConversation ? (
               <>
                 {/* Chat Header */}
@@ -443,32 +443,41 @@ const MessagesPage = () => {
                       (p) => p._id !== session?.user?.id
                     );
                     return otherUser ? (
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                          {otherUser.image ? (
-                            <img
-                              src={otherUser.image}
-                              alt={otherUser.name}
-                              className="w-10 h-10 rounded-full"
-                            />
-                          ) : (
-                            <span className="text-primary-foreground font-semibold">
-                              {otherUser.name?.charAt(0).toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-foreground">
-                            {otherUser.name}
-                            {otherUser.role === "admin" && (
-                              <span className="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                                Admin
+                      <div className="flex items-center">
+                        <button
+                          onClick={() => setSelectedConversation(null)}
+                          className="md:hidden mr-3 p-2 -ml-2 text-muted-foreground hover:bg-accent rounded-full transition-colors flex-shrink-0"
+                          aria-label="Back to conversations"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                            {otherUser.image ? (
+                              <img
+                                src={otherUser.image}
+                                alt={otherUser.name}
+                                className="w-10 h-10 rounded-full"
+                              />
+                            ) : (
+                              <span className="text-primary-foreground font-semibold">
+                                {otherUser.name?.charAt(0).toUpperCase()}
                               </span>
                             )}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            {otherUser.email}
-                          </p>
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-foreground">
+                              {otherUser.name}
+                              {otherUser.role === "admin" && (
+                                <span className="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                                  Admin
+                                </span>
+                              )}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {otherUser.email}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     ) : null;
