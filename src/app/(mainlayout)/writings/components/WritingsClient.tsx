@@ -9,9 +9,8 @@ import Image from "next/image";
 
 import WritingHero from "./WritingHero";
 import WritingSidebar from "./WritingSidebar";
+import WritingCard from "./WritingCard";
 import { Breadcrumb } from "@/components/ui/breadcrumb-custom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 interface WritingsClientProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,7 +67,7 @@ const WritingsClient: React.FC<WritingsClientProps> = ({ initialWritings }) => {
                     <div className="lg:col-span-8">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="text-2xl font-bold">
-                                {selectedTag === "All" ? "Latest Writings" : `${selectedTag} Writings`}
+                                Latest Writings
                             </h2>
                             <span className="text-muted-foreground text-sm">
                                 Showing {paginatedWritings.length} of {filteredWritings.length} result{filteredWritings.length !== 1 && 's'}
@@ -77,46 +76,10 @@ const WritingsClient: React.FC<WritingsClientProps> = ({ initialWritings }) => {
 
                         {paginatedWritings.length > 0 ? (
                             <>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                     {paginatedWritings.map((writing: any) => (
-                                        <Card key={writing._id} className="h-full hover:shadow-lg transition-shadow duration-300 flex flex-col">
-                                            {writing.featuredImage && (
-                                                <div className="relative w-full aspect-video overflow-hidden rounded-t-xl">
-                                                    <Image
-                                                        src={writing.featuredImage}
-                                                        alt={writing.title}
-                                                        fill
-                                                        className="object-cover hover:scale-105 transition-transform duration-500"
-                                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                                    />
-                                                </div>
-                                            )}
-                                            <CardContent className="flex-1 p-6 flex flex-col">
-                                                <div className="mb-4 flex flex-wrap gap-2">
-                                                    {writing.tags && writing.tags.slice(0, 3).map((tag: string) => (
-                                                        <Badge key={tag} variant="secondary" className="text-xs font-normal">
-                                                            {tag}
-                                                        </Badge>
-                                                    ))}
-                                                </div>
-                                                <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-                                                    <Link href={`/writings/${writing.slug}`}>
-                                                        {writing.title}
-                                                    </Link>
-                                                </h3>
-                                                <p className="text-muted-foreground text-sm line-clamp-3 mb-6 flex-1">
-                                                    {writing.excerpt || "Read more about this writing..."}
-                                                </p>                                                <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
-                                                    <span className="text-xs text-muted-foreground">
-                                                        {new Date(writing.createdAt).toLocaleDateString()}
-                                                    </span>
-                                                    <Link href={`/writings/${writing.slug}`} className="text-primary text-sm font-medium hover:underline">
-                                                        Read More &rarr;
-                                                    </Link>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
+                                        <WritingCard key={writing._id} writing={writing} />
                                     ))}
                                 </div>
 
