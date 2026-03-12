@@ -144,7 +144,7 @@ const LocalCategoryPage = async ({ params }: PageProps) => {
         <div className="min-h-screen bg-background">
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/<\/script>/gi, '<\\/script>') }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
             />
 
             {/* Banner Section */}
