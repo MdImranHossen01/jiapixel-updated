@@ -193,7 +193,7 @@ export default async function ProjectDetailsPage({ params }: PageProps) {
                                     <p className="text-sm text-muted-foreground">Interested in a similar project?</p>
                                     <p className="text-lg font-medium">Get a custom quote today.</p>
                                 </div>
-                                <ProjectInquiryButton project={project} />
+                                <ProjectInquiryButton project={{ _id: project._id, title: project.title, slug: project.slug }} />
                             </div>
                         </div>
 
