@@ -12,6 +12,7 @@ export interface IIncome extends Document {
     type: 'Regular' | 'Contract';
     amount: number;
     description?: string;
+    cashflowId?: mongoose.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -41,6 +42,11 @@ const IncomeSchema: Schema = new Schema({
     description: {
         type: String,
         trim: true,
+    },
+    cashflowId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Cashflow',
+        index: true,
     },
 }, {
     timestamps: true,

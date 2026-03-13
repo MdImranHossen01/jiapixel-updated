@@ -10,6 +10,7 @@ export interface ICost extends Document {
     category: string;
     amount: number;
     description?: string;
+    cashflowId?: mongoose.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -34,6 +35,11 @@ const CostSchema: Schema = new Schema({
     description: {
         type: String,
         trim: true,
+    },
+    cashflowId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Cashflow',
+        index: true,
     },
 }, {
     timestamps: true,

@@ -75,114 +75,133 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+    const session = await (await connectDB()).startSession();
     try {
-        await connectDB();
         const body = await req.json();
+        let responseData: any = null;
+        await session.withTransaction(async () => {
+            // Basic validation
+            if (!body.date || !body.type || !body.amount || !body.description) {
+                throw new Error('Missing required fields');
+            }
 
-        // Basic validation
-        if (!body.date || !body.type || !body.amount || !body.description) {
-            return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
-        }
+            const newTransaction = await Cashflow.create([body], { session });
+            const createdTx = newTransaction[0];
 
-        const newTransaction = await Cashflow.create(body);
-
-
-
-        // --- Automatic Sync with Cost & Income ---
-        if (body.type === 'OUT' && body.category && COST_CATEGORIES.includes(body.category)) {
-            try {
-                await Cost.create({
+            // --- Automatic Sync with Cost & Income ---
+            if (body.type === 'OUT' && body.category && COST_CATEGORIES.includes(body.category)) {
+                await Cost.create([{
                     date: body.date,
                     category: body.category,
                     amount: body.amount,
-                    description: body.description || 'Auto-created from Cashflow'
-                });
-                console.log(`Auto-created Cost entry for ${body.category}`);
-            } catch (err) {
-                console.error('Failed to auto-create Cost entry:', err);
-            }
-        } else if (body.type === 'IN' && body.category && INCOME_SOURCES.includes(body.category)) {
-            try {
-                // Map category to source, default to 'Regular' type
-                await Income.create({
+                    description: body.description || 'Auto-created from Cashflow',
+                    cashflowId: createdTx._id
+                }], { session });
+            } else if (body.type === 'IN' && body.category && INCOME_SOURCES.includes(body.category)) {
+                await Income.create([{
                     date: body.date,
                     source: body.category,
                     amount: body.amount,
-                    type: 'Regular', // Default type
-                    description: body.description || 'Auto-created from Cashflow'
-                });
-                console.log(`Auto-created Income entry for ${body.category}`);
-            } catch (err) {
-                console.error('Failed to auto-create Income entry:', err);
+                    type: 'Regular',
+                    description: body.description || 'Auto-created from Cashflow',
+                    cashflowId: createdTx._id
+                }], { session });
             }
-        }
-        // -----------------------------------------
+            responseData = createdTx;
+        });
 
-        return NextResponse.json({ success: true, data: newTransaction }, { status: 201 });
+        return NextResponse.json({ success: true, data: responseData }, { status: 201 });
     } catch (error: any) {
         console.error('Error adding cashflow:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } finally {
+        await session.endSession();
+    }
+}
+
+export async function PUT(req: NextRequest) {
+    const session = await (await connectDB()).startSession();
+    try {
+        const body = await req.json();
+        const { id, ...updateData } = body;
+
+        let responseData: any = null;
+        await session.withTransaction(async () => {
+            if (!id) throw new Error('ID is required');
+
+            const oldTransaction = await Cashflow.findById(id).session(session);
+            if (!oldTransaction) throw new Error('Transaction not found');
+
+            // Merge data to handle partial updates correctly
+            const mergedData = {
+                date: updateData.date || oldTransaction.date,
+                type: updateData.type || oldTransaction.type,
+                amount: updateData.amount !== undefined ? updateData.amount : oldTransaction.amount,
+                description: updateData.description !== undefined ? updateData.description : oldTransaction.description,
+                category: updateData.category !== undefined ? updateData.category : oldTransaction.category
+            };
+
+            // 1. Delete old linked records using cashflowId
+            await Cost.deleteMany({ cashflowId: oldTransaction._id }, { session });
+            await Income.deleteMany({ cashflowId: oldTransaction._id }, { session });
+
+            // 2. Create new linked records if applicable using merged data
+            if (mergedData.type === 'OUT' && mergedData.category && COST_CATEGORIES.includes(mergedData.category)) {
+                await Cost.create([{
+                    date: mergedData.date,
+                    category: mergedData.category,
+                    amount: mergedData.amount,
+                    description: mergedData.description || 'Auto-created from Cashflow',
+                    cashflowId: oldTransaction._id
+                }], { session });
+            } else if (mergedData.type === 'IN' && mergedData.category && INCOME_SOURCES.includes(mergedData.category)) {
+                await Income.create([{
+                    date: mergedData.date,
+                    source: mergedData.category,
+                    amount: mergedData.amount,
+                    type: 'Regular',
+                    description: mergedData.description || 'Auto-created from Cashflow',
+                    cashflowId: oldTransaction._id
+                }], { session });
+            }
+
+            const updatedTransaction = await Cashflow.findByIdAndUpdate(id, updateData, { new: true, session });
+            responseData = updatedTransaction;
+        });
+
+        return NextResponse.json({ success: true, data: responseData });
+    } catch (error: any) {
+        console.error('Error updating cashflow:', error);
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } finally {
+        await session.endSession();
     }
 }
 
 export async function DELETE(req: NextRequest) {
+    const session = await (await connectDB()).startSession();
     try {
-        await connectDB();
-        const { searchParams } = new URL(req.url);
-        const id = searchParams.get('id');
+        await session.withTransaction(async () => {
+            const { searchParams } = new URL(req.url);
+            const id = searchParams.get('id');
 
-        if (!id) {
-            return NextResponse.json({ success: false, error: 'ID is required' }, { status: 400 });
-        }
+            if (!id) throw new Error('ID is required');
 
-        const transaction = await Cashflow.findById(id);
-        if (!transaction) {
-            return NextResponse.json({ success: false, error: 'Transaction not found' }, { status: 404 });
-        }
+            const transaction = await Cashflow.findById(id).session(session);
+            if (!transaction) throw new Error('Transaction not found');
 
-        // --- Sync Deletion: Remove corresponding Cost/Income ---
-        if (transaction.type === 'OUT' && transaction.category) {
-            try {
-                // Determine date range for safer matching (same day)
-                const txDateStart = new Date(transaction.date);
-                txDateStart.setHours(0, 0, 0, 0);
-                const txDateEnd = new Date(transaction.date);
-                txDateEnd.setHours(23, 59, 59, 999);
+            // --- Sync Deletion: Remove corresponding Cost/Income using cashflowId ---
+            await Cost.deleteMany({ cashflowId: transaction._id }, { session });
+            await Income.deleteMany({ cashflowId: transaction._id }, { session });
 
-                await Cost.findOneAndDelete({
-                    category: transaction.category,
-                    amount: transaction.amount,
-                    date: { $gte: txDateStart, $lte: txDateEnd },
-                    // description: transaction.description // Optional: strict matching
-                });
-                console.log(`Auto-deleted Cost entry for ${transaction.category}`);
-            } catch (err) {
-                console.error('Failed to auto-delete Cost entry:', err);
-            }
-        } else if (transaction.type === 'IN' && transaction.category) {
-            try {
-                const txDateStart = new Date(transaction.date);
-                txDateStart.setHours(0, 0, 0, 0);
-                const txDateEnd = new Date(transaction.date);
-                txDateEnd.setHours(23, 59, 59, 999);
-
-                await Income.findOneAndDelete({
-                    source: transaction.category,
-                    amount: transaction.amount,
-                    date: { $gte: txDateStart, $lte: txDateEnd }
-                });
-                console.log(`Auto-deleted Income entry for ${transaction.category}`);
-            } catch (err) {
-                console.error('Failed to auto-delete Income entry:', err);
-            }
-        }
-        // -------------------------------------------------------
-
-        await Cashflow.findByIdAndDelete(id);
+            await Cashflow.findByIdAndDelete(id, { session });
+        });
 
         return NextResponse.json({ success: true, message: 'Transaction and linked records deleted' });
     } catch (error: any) {
         console.error('Error deleting cashflow:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } finally {
+        await session.endSession();
     }
 }

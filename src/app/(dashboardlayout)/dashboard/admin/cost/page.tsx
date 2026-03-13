@@ -3,8 +3,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { COST_CATEGORIES, INCOME_SOURCES } from '@/constants/financials';
-import { Edit2, Trash2, Plus, X, Save, AlertCircle, RefreshCw } from 'lucide-react';
+import { Edit2, Trash2, Plus, X, Save, AlertCircle, RefreshCw, MoreVertical } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#8dd1e1', '#a4de6c', '#d0ed57', '#ffc0cb', '#40E0D0', '#FF6347', '#D2691E', '#6495ED'];
 
@@ -173,6 +179,7 @@ export default function CostPage() {
         category: ''
     });
     const [submittingCashflow, setSubmittingCashflow] = useState(false);
+    const [editingCashflow, setEditingCashflow] = useState<CashflowTransaction | null>(null);
     const cashflowAmountRef = useRef<HTMLInputElement>(null);
     const cashflowCategoryRef = useRef<HTMLSelectElement>(null);
     const cashflowDescriptionRef = useRef<HTMLInputElement>(null);
@@ -353,30 +360,61 @@ export default function CostPage() {
         e.preventDefault();
         setSubmittingCashflow(true);
         try {
-            const res = await fetch('/api/cashflow', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...cashflowForm,
-                    amount: Number(cashflowForm.amount)
-                })
-            });
+            let res;
+            if (editingCashflow) {
+                res = await fetch('/api/cashflow', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: editingCashflow._id,
+                        ...cashflowForm,
+                        amount: Number(cashflowForm.amount)
+                    })
+                });
+            } else {
+                res = await fetch('/api/cashflow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...cashflowForm,
+                        amount: Number(cashflowForm.amount)
+                    })
+                });
+            }
+
             const data = await res.json();
             if (data.success) {
+                const prevEditing = editingCashflow;
                 fetchCashflow();
-                setCashflowForm(prev => ({ ...prev, amount: '', description: '', category: '' })); // Reset fields
-                // Focus amount field for next entry
-                setTimeout(() => {
-                    cashflowAmountRef.current?.focus();
-                }, 0);
+                setCashflowForm(prev => ({ ...prev, amount: '', description: '', category: '' }));
+                setEditingCashflow(null);
+                
+                // Focus amount field for next entry only if we weren't just editing
+                if (!prevEditing) {
+                    setTimeout(() => {
+                        cashflowAmountRef.current?.focus();
+                    }, 0);
+                }
             } else {
-                alert('Failed to add transaction: ' + data.error);
+                alert('Failed to save transaction: ' + data.error);
             }
         } catch (error) {
             console.error('Error adding transaction', error);
         } finally {
             setSubmittingCashflow(false);
         }
+    };
+
+    const handleCashflowEdit = (t: CashflowTransaction) => {
+        setEditingCashflow(t);
+        setCashflowForm({
+            date: formatLocalDate(new Date(t.date)),
+            type: t.type,
+            amount: String(t.amount),
+            description: t.description || '',
+            category: t.category || ''
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleDeleteTransaction = async (id: string) => {
@@ -1882,8 +1920,20 @@ export default function CostPage() {
                                         disabled={submittingCashflow}
                                         className={`w-full py-3 px-4 text-white rounded-lg font-medium transition shadow-md ${cashflowForm.type === 'IN' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'}`}
                                     >
-                                        {submittingCashflow ? 'Saving...' : (cashflowForm.type === 'IN' ? 'Add Cash In' : 'Add Cash Out')}
+                                        {submittingCashflow ? 'Saving...' : (editingCashflow ? 'Update Transaction' : (cashflowForm.type === 'IN' ? 'Add Cash In' : 'Add Cash Out'))}
                                     </button>
+                                    {editingCashflow && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setEditingCashflow(null);
+                                                setCashflowForm(prev => ({ ...prev, amount: '', description: '', category: '' }));
+                                            }}
+                                            className="w-full mt-2 py-2 px-4 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition"
+                                        >
+                                            Cancel Edit
+                                        </button>
+                                    )}
                                 </form>
                             </div>
 
@@ -1949,13 +1999,29 @@ export default function CostPage() {
                                                             {t.type === 'IN' ? '+' : '-'}{formatBDT(t.amount)}
                                                         </td>
                                                         <td className="p-2 sm:p-4 text-center">
-                                                            <button
-                                                                onClick={() => handleDeleteTransaction(t._id)}
-                                                                className="opacity-100 sm:opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition p-1.5 hover:bg-red-50 rounded"
-                                                                title="Delete Transaction"
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                                                                        <MoreVertical size={16} className="text-gray-500" />
+                                                                    </button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end" className="bg-white">
+                                                                    <DropdownMenuItem 
+                                                                        onClick={() => handleCashflowEdit(t)}
+                                                                        className="flex items-center gap-2 cursor-pointer"
+                                                                    >
+                                                                        <Edit2 size={14} className="text-blue-500" />
+                                                                        <span>Edit</span>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem 
+                                                                        onClick={() => handleDeleteTransaction(t._id)}
+                                                                        className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                                                                    >
+                                                                        <Trash2 size={14} />
+                                                                        <span>Delete</span>
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
                                                         </td>
                                                     </tr>
                                                 ))
