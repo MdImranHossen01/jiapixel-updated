@@ -62,7 +62,7 @@ export default function ManageUsersPage() {
       });
 
       if (response.ok) {
-        setUsers(users.map(user => 
+        setUsers(users.map(user =>
           user._id === userId ? { ...user, role: newRole } : user
         ));
         alert(`User role updated to ${newRole}`);
@@ -133,7 +133,7 @@ export default function ManageUsersPage() {
 
       if (response.ok) {
         const result = await response.json();
-        setUsers(users.map(user => 
+        setUsers(users.map(user =>
           user._id === editingUser._id ? result.user : user
         ));
         setEditingUser(null);
@@ -164,14 +164,14 @@ export default function ManageUsersPage() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Manage Users</h1>
             <p className="text-muted-foreground mt-2">Manage user accounts and permissions</p>
           </div>
           <div className="h-10 w-32 bg-muted rounded-lg animate-pulse"></div>
         </div>
-        
+
         {/* Search and Filter Skeleton */}
         <div className="bg-card rounded-lg shadow p-6 border mb-6">
           <div className="flex flex-col md:flex-row gap-4">
@@ -205,7 +205,7 @@ export default function ManageUsersPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Manage Users</h1>
           <p className="text-muted-foreground mt-2">Manage user accounts and permissions</p>
@@ -258,7 +258,7 @@ export default function ManageUsersPage() {
             {searchTerm || roleFilter !== 'all' ? 'No Users Found' : 'No Users Yet'}
           </h3>
           <p className="text-muted-foreground">
-            {searchTerm || roleFilter !== 'all' 
+            {searchTerm || roleFilter !== 'all'
               ? 'Try adjusting your search or filter criteria'
               : 'Users will appear here once they sign up'
             }
@@ -338,8 +338,8 @@ export default function ManageUsersPage() {
                 </div>
               ) : (
                 /* View Mode */
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
+                  <div className="flex items-center space-x-4 w-full sm:w-auto">
                     {/* User Avatar */}
                     <Image
                       src={user.image || '/default-avatar.png'}
@@ -366,16 +366,15 @@ export default function ManageUsersPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
                     {/* Role Toggle */}
                     <button
                       onClick={() => updateUserRole(user._id, user.role === 'admin' ? 'user' : 'admin')}
                       disabled={actionLoading === user._id}
-                      className={`px-3 py-2 rounded text-sm font-medium transition-colors disabled:opacity-50 ${
-                        user.role === 'admin'
+                      className={`px-3 py-2 rounded text-sm font-medium transition-colors disabled:opacity-50 ${user.role === 'admin'
                           ? 'bg-red-500 text-red-900 hover:bg-red-600'
                           : 'bg-green-500 text-green-900 hover:bg-green-600'
-                      }`}
+                        }`}
                     >
                       {actionLoading === user._id ? '...' : user.role === 'admin' ? 'Make User' : 'Make Admin'}
                     </button>

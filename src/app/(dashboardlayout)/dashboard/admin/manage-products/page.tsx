@@ -75,7 +75,7 @@ export default function ManageProductsPage() {
 
   const toggleProductStatus = async (productId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'published' ? 'draft' : 'published';
-    
+
     try {
       const response = await fetch(`/api/products/${productId}`, {
         method: 'PUT',
@@ -88,7 +88,7 @@ export default function ManageProductsPage() {
       });
 
       if (response.ok) {
-        setProducts(products.map(product => 
+        setProducts(products.map(product =>
           product._id === productId ? { ...product, status: newStatus as any } : product
         ));
         alert(`Product ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
@@ -115,7 +115,7 @@ export default function ManageProductsPage() {
       });
 
       if (response.ok) {
-        setProducts(products.map(product => 
+        setProducts(products.map(product =>
           product._id === productId ? { ...product, featured: !currentFeatured } : product
         ));
         alert(`Product ${!currentFeatured ? 'added to' : 'removed from'} featured successfully`);
@@ -132,7 +132,7 @@ export default function ManageProductsPage() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Manage Products</h1>
             <p className="text-muted-foreground mt-2">Manage your digital products and subscriptions</p>
@@ -162,7 +162,7 @@ export default function ManageProductsPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Manage Products</h1>
           <p className="text-muted-foreground mt-2">Manage your digital products and subscriptions</p>
@@ -191,7 +191,7 @@ export default function ManageProductsPage() {
         <div className="space-y-4">
           {products.map((product) => (
             <div key={product._id} className="bg-card rounded-lg shadow p-6 border">
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
                 {/* Product Image */}
                 <div className="shrink-0">
                   <Image
@@ -214,13 +214,12 @@ export default function ManageProductsPage() {
                         Featured
                       </span>
                     )}
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      product.status === 'published' 
-                        ? 'bg-green-500 text-green-900' 
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.status === 'published'
+                        ? 'bg-green-500 text-green-900'
                         : product.status === 'draft'
-                        ? 'bg-gray-500 text-gray-900'
-                        : 'bg-red-500 text-red-900'
-                    }`}>
+                          ? 'bg-gray-500 text-gray-900'
+                          : 'bg-red-500 text-red-900'
+                      }`}>
                       {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
                     </span>
                   </div>
@@ -237,25 +236,23 @@ export default function ManageProductsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2 w-full md:w-auto mt-4 md:mt-0">
                   <button
                     onClick={() => toggleFeatured(product._id, product.featured)}
-                    className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                      product.featured
+                    className={`px-3 py-2 rounded text-sm font-medium transition-colors ${product.featured
                         ? 'bg-yellow-500 text-yellow-900 hover:bg-yellow-600'
                         : 'bg-gray-500 text-gray-900 hover:bg-gray-600'
-                    }`}
+                      }`}
                   >
                     {product.featured ? 'Unfeature' : 'Feature'}
                   </button>
 
                   <button
                     onClick={() => toggleProductStatus(product._id, product.status)}
-                    className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                      product.status === 'published'
+                    className={`px-3 py-2 rounded text-sm font-medium transition-colors ${product.status === 'published'
                         ? 'bg-gray-500 text-gray-900 hover:bg-gray-600'
                         : 'bg-green-500 text-green-900 hover:bg-green-600'
-                    }`}
+                      }`}
                   >
                     {product.status === 'published' ? 'Unpublish' : 'Publish'}
                   </button>

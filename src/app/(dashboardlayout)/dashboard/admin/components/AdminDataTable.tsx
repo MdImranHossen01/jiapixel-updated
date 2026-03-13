@@ -91,7 +91,7 @@ export function AdminDataTable<TData, TValue>({
 
     return (
         <div className="w-full">
-            <div className="flex items-center py-4 gap-4">
+            <div className="flex flex-wrap sm:flex-nowrap items-center py-4 gap-4">
                 <Input
                     placeholder={`Search by ${searchKey}...`}
                     value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}

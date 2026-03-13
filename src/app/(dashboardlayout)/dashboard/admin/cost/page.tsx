@@ -763,9 +763,9 @@ export default function CostPage() {
 
                             {/* Date Range Picker - Centered Below */}
                             <div className="flex justify-center">
-                                <div className="bg-white p-3 rounded-xl shadow border border-gray-100 flex items-center gap-4 w-fit">
+                                <div className="bg-white p-3 rounded-xl shadow border border-gray-100 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-fit">
                                     <p className="text-gray-500 text-xs font-medium whitespace-nowrap">Date Range:</p>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2 justify-center">
                                         <input
                                             type="date"
                                             value={dateRange.startDate}
@@ -781,9 +781,9 @@ export default function CostPage() {
                                         />
                                     </div>
 
-                                    <div className="h-6 w-px bg-gray-200 mx-2"></div>
+                                    <div className="hidden sm:block h-6 w-px bg-gray-200 mx-2"></div>
 
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2 justify-center mt-2 sm:mt-0">
                                         <select
                                             className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                                             onChange={(e) => {
@@ -1090,9 +1090,9 @@ export default function CostPage() {
 
                             {/* Date Range Picker */}
                             <div className="flex justify-center">
-                                <div className="bg-white p-3 rounded-xl shadow border border-gray-100 flex items-center gap-4 w-fit">
+                                <div className="bg-white p-3 rounded-xl shadow border border-gray-100 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-fit">
                                     <p className="text-gray-500 text-xs font-medium whitespace-nowrap">Date Range:</p>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2 justify-center">
                                         <input
                                             type="date"
                                             value={incomeDateRange.startDate}
@@ -1107,9 +1107,9 @@ export default function CostPage() {
                                             className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"
                                         />
                                     </div>
-                                    <div className="h-6 w-px bg-gray-200 mx-2"></div>
+                                    <div className="hidden sm:block h-6 w-px bg-gray-200 mx-2"></div>
 
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2 justify-center mt-2 sm:mt-0">
                                         <select
                                             className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                                             onChange={(e) => {
@@ -1524,14 +1524,14 @@ export default function CostPage() {
 
                         {/* Asset Table */}
                         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                            <div className="p-6 border-b bg-gray-50 flex justify-between items-center">
+                            <div className="p-6 border-b bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-800">Assets & Zakat Management</h3>
                                     <p className="text-sm text-gray-500">Track asset values and calculate Zakat liability details</p>
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex flex-wrap items-center gap-4">
                                     {zakatYearConfig && (
-                                        <div className="flex items-center gap-2 text-sm">
+                                        <div className="flex flex-wrap items-center gap-2 text-sm">
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] text-gray-500 font-bold uppercase">Start Date</span>
                                                 <input
@@ -1890,7 +1890,7 @@ export default function CostPage() {
                             {/* Transaction List */}
                             <div className="lg:col-span-2 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col h-[600px]">
                                 <div className="p-4 border-b bg-gray-50 flex flex-wrap justify-between items-center gap-4">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         <h3 className="font-semibold text-gray-700">Transactions</h3>
                                         <span className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">{cashflowData?.transactions.length || 0}</span>
                                         <button
@@ -1903,24 +1903,24 @@ export default function CostPage() {
                                             {syncing ? 'Syncing...' : 'Sync Missing Costs'}
                                         </button>
                                     </div>
-                                    <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border shadow-sm">
+                                    <div className="flex flex-wrap items-center gap-2 bg-white px-2 py-1 rounded border shadow-sm">
                                         <input
                                             type="date"
                                             value={cashflowFilter.startDate}
                                             onChange={(e) => setCashflowFilter({ ...cashflowFilter, startDate: e.target.value })}
-                                            className="border-none text-sm focus:ring-0 text-gray-600"
+                                            className="border-none text-sm focus:ring-0 text-gray-600 max-w-[130px]"
                                         />
                                         <span className="text-gray-400">to</span>
                                         <input
                                             type="date"
                                             value={cashflowFilter.endDate}
                                             onChange={(e) => setCashflowFilter({ ...cashflowFilter, endDate: e.target.value })}
-                                            className="border-none text-sm focus:ring-0 text-gray-600"
+                                            className="border-none text-sm focus:ring-0 text-gray-600 max-w-[130px]"
                                         />
                                     </div>
                                 </div>
 
-                                <div className="overflow-auto flex-1">
+                                <div className="overflow-x-auto flex-1">
                                     <table className="w-full text-left">
                                         <thead className="bg-gray-50 text-gray-500 text-xs uppercase sticky top-0 z-10">
                                             <tr>

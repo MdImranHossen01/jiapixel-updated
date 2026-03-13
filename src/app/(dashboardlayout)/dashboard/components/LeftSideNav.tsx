@@ -201,13 +201,15 @@ const LeftSideNav = () => {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <div className="md:hidden fixed top-4 left-4 z-50">
+      {/* Mobile Top Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-50 flex items-center justify-between px-4">
+        <Logo />
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
+          className="p-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-lg shadow-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Toggle mobile menu"
         >
-          {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
@@ -216,11 +218,11 @@ const LeftSideNav = () => {
         fixed md:static inset-y-0 left-0 z-40
         w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-full
         transform transition-transform duration-300 ease-in-out
-        flex flex-col
+        flex flex-col pt-16 md:pt-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Logo/Brand */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="hidden md:block p-6 border-b border-gray-200 dark:border-gray-700">
           <Logo />
         </div>
 
