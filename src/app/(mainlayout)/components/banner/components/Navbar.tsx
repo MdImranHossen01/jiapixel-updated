@@ -27,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [balanceData, setBalanceData] = useState<{ monthly: number, closing: number } | null>(null);
+  const [balanceData, setBalanceData] = useState<{ monthly: number, monthlyCost: number } | null>(null);
 
   const formatBDT = (amount: number) => {
     return new Intl.NumberFormat('en-BD', {
@@ -51,8 +51,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
           const data = await res.json();
           if (data.success) {
             const monthly = (data.data.summary.totalIn || 0) - (data.data.summary.totalOut || 0);
-            const closing = data.data.closingBalance || 0;
-            setBalanceData({ monthly, closing });
+            const monthlyCost = data.data.summary.totalOut || 0;
+            setBalanceData({ monthly, monthlyCost });
           }
         } catch (error) {
           console.error("Failed to fetch balances", error);
@@ -319,11 +319,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                               <p className="text-[10px] text-purple-400">Current Period Net</p>
                             </div>
                             <div className="bg-blue-50 p-2 rounded-lg border border-blue-100">
-                              <p className="text-[10px] text-blue-600">Closing Balance</p>
+                              <p className="text-[10px] text-blue-600">Monthly Cost</p>
                               <p className="text-lg font-bold text-blue-700">
-                                {balanceData ? formatBDT(balanceData.closing) : '...'}
+                                {balanceData ? formatBDT(balanceData.monthlyCost) : '...'}
                               </p>
-                              <p className="text-[10px] text-blue-400">As of {new Date().toLocaleDateString()}</p>
+                              <p className="text-[10px] text-blue-400">Current Period Expenses</p>
                             </div>
                           </div>
 
