@@ -896,19 +896,19 @@ export default function CostPage() {
 
                                 <div className="overflow-x-auto max-h-[600px]">
                                     <table className="w-full text-left">
-                                        <thead className="bg-gray-50 text-gray-600 text-sm uppercase sticky top-0">
+                                        <thead className="bg-gray-50 text-gray-600 text-xs sm:text-sm uppercase sticky top-0">
                                             <tr>
-                                                <th className="p-4 font-medium">Date</th>
-                                                <th className="p-4 font-medium">Category</th>
-                                                <th className="p-4 font-medium">Description</th>
-                                                <th className="p-4 font-medium text-right">Amount</th>
+                                                <th className="p-2 sm:p-4 font-medium">Date</th>
+                                                <th className="p-2 sm:p-4 font-medium">Category</th>
+                                                <th className="p-2 sm:p-4 font-medium">Description</th>
+                                                <th className="p-2 sm:p-4 font-medium text-right">Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                             {loadingCosts ? (
-                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading costs...</td></tr>
+                                                <tr><td colSpan={4} className="p-4 sm:p-8 text-center text-gray-500">Loading costs...</td></tr>
                                             ) : costs.length === 0 ? (
-                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">No costs found for this date.</td></tr>
+                                                <tr><td colSpan={4} className="p-4 sm:p-8 text-center text-gray-500">No costs found for this date.</td></tr>
                                             ) : (
                                                 costs
                                                     .filter(cost =>
@@ -917,10 +917,10 @@ export default function CostPage() {
                                                     )
                                                     .map((cost) => (
                                                         <tr key={cost._id} className="hover:bg-gray-50 transition group">
-                                                            <td className="p-4 text-gray-600 text-sm">{formatLocalDate(new Date(cost.date))}</td>
-                                                            <td className="p-4 font-medium text-gray-800">{cost.category}</td>
-                                                            <td className="p-4 text-gray-600 text-sm">{cost.description || '-'}</td>
-                                                            <td className="p-4 text-right font-bold text-gray-800">{formatBDT(cost.amount)}</td>
+                                                            <td className="p-2 sm:p-4 text-gray-600 text-xs sm:text-sm whitespace-nowrap">{formatLocalDate(new Date(cost.date))}</td>
+                                                            <td className="p-2 sm:p-4 font-medium text-gray-800 text-xs sm:text-sm">{cost.category}</td>
+                                                            <td className="p-2 sm:p-4 text-gray-600 text-xs sm:text-sm">{cost.description || '-'}</td>
+                                                            <td className="p-2 sm:p-4 text-right font-bold text-gray-800 text-xs sm:text-sm">{formatBDT(cost.amount)}</td>
                                                         </tr>
                                                     ))
                                             )}
@@ -1217,19 +1217,19 @@ export default function CostPage() {
 
                                 <div className="overflow-x-auto max-h-[600px]">
                                     <table className="w-full text-left">
-                                        <thead className="bg-gray-50 text-gray-600 text-sm uppercase sticky top-0">
+                                        <thead className="bg-gray-50 text-gray-600 text-xs sm:text-sm uppercase sticky top-0">
                                             <tr>
-                                                <th className="p-4 font-medium">Date</th>
-                                                <th className="p-4 font-medium">Source</th>
-                                                <th className="p-4 font-medium">Description</th>
-                                                <th className="p-4 font-medium text-right">Amount</th>
+                                                <th className="p-2 sm:p-4 font-medium">Date</th>
+                                                <th className="p-2 sm:p-4 font-medium">Source</th>
+                                                <th className="p-2 sm:p-4 font-medium">Description</th>
+                                                <th className="p-2 sm:p-4 font-medium text-right">Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                             {loadingIncome ? (
-                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading income...</td></tr>
+                                                <tr><td colSpan={4} className="p-4 sm:p-8 text-center text-gray-500">Loading income...</td></tr>
                                             ) : !fetchedIncomeData?.data?.length ? (
-                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">No income found for this date.</td></tr>
+                                                <tr><td colSpan={4} className="p-4 sm:p-8 text-center text-gray-500">No income found for this date.</td></tr>
                                             ) : (
                                                 fetchedIncomeData.data
                                                     .filter((inc: any) =>
@@ -1238,10 +1238,10 @@ export default function CostPage() {
                                                     )
                                                     .map((inc: any) => (
                                                         <tr key={inc._id} className="hover:bg-gray-50 transition group">
-                                                            <td className="p-4 text-gray-600 text-sm">{formatLocalDate(new Date(inc.date))}</td>
-                                                            <td className="p-4 font-medium text-gray-800">{inc.source}</td>
-                                                            <td className="p-4 text-gray-600 text-sm">{inc.description || '-'}</td>
-                                                            <td className="p-4 text-right font-bold text-gray-800">{formatBDT(inc.amount)}</td>
+                                                            <td className="p-2 sm:p-4 text-gray-600 text-xs sm:text-sm whitespace-nowrap">{formatLocalDate(new Date(inc.date))}</td>
+                                                            <td className="p-2 sm:p-4 font-medium text-gray-800 text-xs sm:text-sm">{inc.source}</td>
+                                                            <td className="p-2 sm:p-4 text-gray-600 text-xs sm:text-sm">{inc.description || '-'}</td>
+                                                            <td className="p-2 sm:p-4 text-right font-bold text-gray-800 text-xs sm:text-sm">{formatBDT(inc.amount)}</td>
                                                         </tr>
                                                     ))
                                             )}
@@ -1922,36 +1922,36 @@ export default function CostPage() {
 
                                 <div className="overflow-x-auto flex-1">
                                     <table className="w-full text-left">
-                                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase sticky top-0 z-10">
+                                        <thead className="bg-gray-50 text-gray-500 text-[10px] sm:text-xs uppercase sticky top-0 z-10">
                                             <tr>
-                                                <th className="p-4 font-medium">Date</th>
-                                                <th className="p-4 font-medium">Description</th>
-                                                <th className="p-4 font-medium text-right">Amount</th>
-                                                <th className="p-4 font-medium text-center">Action</th>
+                                                <th className="p-2 sm:p-4 font-medium">Date</th>
+                                                <th className="p-2 sm:p-4 font-medium">Description</th>
+                                                <th className="p-2 sm:p-4 font-medium text-right">Amount</th>
+                                                <th className="p-2 sm:p-4 font-medium text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                             {loadingCashflow ? (
-                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading transactions...</td></tr>
+                                                <tr><td colSpan={4} className="p-4 sm:p-8 text-center text-gray-500 text-sm">Loading transactions...</td></tr>
                                             ) : !cashflowData?.transactions.length ? (
-                                                <tr><td colSpan={4} className="p-8 text-center text-gray-500">No transactions found in this range.</td></tr>
+                                                <tr><td colSpan={4} className="p-4 sm:p-8 text-center text-gray-500 text-sm">No transactions found in this range.</td></tr>
                                             ) : (
                                                 cashflowData.transactions.map((t) => (
                                                     <tr key={t._id} className="hover:bg-gray-50 transition group">
-                                                        <td className="p-4 text-gray-600 text-sm whitespace-nowrap">
+                                                        <td className="p-2 sm:p-4 text-gray-600 text-xs sm:text-sm whitespace-nowrap">
                                                             {new Date(t.date).toLocaleDateString()}
                                                         </td>
-                                                        <td className="p-4">
-                                                            <div className="font-medium text-gray-800">{t.description}</div>
-                                                            {t.category && <div className="text-xs text-gray-400">{t.category}</div>}
+                                                        <td className="p-2 sm:p-4">
+                                                            <div className="font-medium text-gray-800 text-xs sm:text-sm">{t.description}</div>
+                                                            {t.category && <div className="text-[10px] sm:text-xs text-gray-400">{t.category}</div>}
                                                         </td>
-                                                        <td className={`p-4 text-right font-bold ${t.type === 'IN' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                                        <td className={`p-2 sm:p-4 text-right font-bold text-xs sm:text-sm ${t.type === 'IN' ? 'text-emerald-600' : 'text-rose-600'}`}>
                                                             {t.type === 'IN' ? '+' : '-'}{formatBDT(t.amount)}
                                                         </td>
-                                                        <td className="p-4 text-center">
+                                                        <td className="p-2 sm:p-4 text-center">
                                                             <button
                                                                 onClick={() => handleDeleteTransaction(t._id)}
-                                                                className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition p-1.5 hover:bg-red-50 rounded"
+                                                                className="opacity-100 sm:opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition p-1.5 hover:bg-red-50 rounded"
                                                                 title="Delete Transaction"
                                                             >
                                                                 <Trash2 size={16} />
