@@ -69,7 +69,7 @@ const WritingCard: React.FC<WritingCardProps> = ({ writing }) => {
             className="bg-card rounded-sm lg:rounded-md shadow-lg overflow-hidden border border-border hover:shadow-xl transition-shadow duration-300 group h-full flex flex-col relative"
         >
             {writing.featuredImage && (
-                <div className="relative h-48 overflow-hidden shrink-0">
+                <div className="relative w-full aspect-[1024/570] overflow-hidden shrink-0">
                     <Image
                         src={writing.featuredImage}
                         alt={writing.title || 'Writing image'}

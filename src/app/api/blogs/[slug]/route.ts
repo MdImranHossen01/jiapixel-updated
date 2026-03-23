@@ -133,6 +133,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     // Revalidate the blog details page to show updates instantly
     revalidatePath(`/blogs/${slug}`);
     revalidateTag(`blog-${slug}`, 'default');
+    revalidateTag('blogs', 'default');
 
     return NextResponse.json({
       success: true,
@@ -181,6 +182,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     }
 
     await Blog.findByIdAndDelete(blog._id);
+    revalidateTag('blogs', 'default');
 
     return NextResponse.json({
       success: true,

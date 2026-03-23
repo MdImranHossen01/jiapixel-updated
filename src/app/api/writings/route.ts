@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Writing from '@/models/Writing';
 import { getServerSession } from 'next-auth';
@@ -149,6 +150,8 @@ export async function POST(request: NextRequest) {
             }
             throw error;
         }
+
+        revalidateTag('writings', 'default');
 
         return NextResponse.json(
             {

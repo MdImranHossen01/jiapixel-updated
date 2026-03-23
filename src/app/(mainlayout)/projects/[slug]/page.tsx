@@ -7,6 +7,7 @@ import { extractTextFromProjectDescription } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import ProjectInquiryButton from "./components/ProjectInquiryButton";
 import ProjectAdminActions from "@/components/ProjectAdminActions";
+import ProjectCard from "@/components/ProjectCard";
 
 interface PageProps {
     params: Promise<{
@@ -259,24 +260,7 @@ export default async function ProjectDetailsPage({ params }: PageProps) {
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {project.relatedProjects.map((related: any) => (
-                                    <Link
-                                        key={related._id}
-                                        href={`/projects/${related.slug}`}
-                                        className="group space-y-4"
-                                    >
-                                        <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                                            <Image
-                                                src={related.images?.[0] || "/Jia-pixel-your-partner-in-digital-transformation.png"}
-                                                alt={related.title}
-                                                fill
-                                                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                sizes="(max-width: 768px) 100vw, 25vw"
-                                            />
-                                        </div>
-                                        <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
-                                            {related.title}
-                                        </h3>
-                                    </Link>
+                                    <ProjectCard key={related._id} project={related} />
                                 ))}
                             </div>
                         </section>

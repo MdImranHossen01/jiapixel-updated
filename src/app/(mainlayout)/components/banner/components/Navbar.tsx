@@ -203,7 +203,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
               <Link href="/projects" className="hover:text-primary transition-colors">Projects</Link>
               {/* <Link href="/products" className="hover:text-primary transition-colors">Products</Link> */}
               <Link href="/portfolios" className="hover:text-primary transition-colors">Portfolios</Link>
-              <Link href="/blogs" className="hover:text-primary transition-colors">Blogs</Link>
+              <Link href="/writings" className="hover:text-primary transition-colors">Writings</Link>
             </div>
           </div>
 
@@ -413,7 +413,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
             <Link href="/projects" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Projects</Link>
             {/* <Link href="/products" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Products</Link> */}
             <Link href="/portfolios" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Portfolios</Link>
-            <Link href="/blogs" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Blogs</Link>
+            <Link href="/writings" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Writings</Link>
             <div
               onClick={() => {
                 onSearchClick();

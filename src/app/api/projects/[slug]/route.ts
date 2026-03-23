@@ -199,6 +199,7 @@ export async function PUT(
         // Revalidate the project details page to show updates instantly
         revalidatePath(`/projects/${project.slug}`);
         revalidateTag(`project-${project.slug}`, 'default');
+        revalidateTag('projects', 'default');
 
         return NextResponse.json({
             success: true,
@@ -234,6 +235,8 @@ export async function DELETE(
                 { status: 404 }
             );
         }
+
+        revalidateTag('projects', 'default');
 
         return NextResponse.json({
             success: true,

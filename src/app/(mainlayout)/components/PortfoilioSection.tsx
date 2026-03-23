@@ -121,22 +121,22 @@ const PortfolioSection = () => {
       </div>
 
       {/* Right side content with three marquees - larger images */}
-      <div className="relative flex h-[350px] md:h-[600px] justify-center gap-3 rounded-4xl lg:gap-4 overflow-hidden">
+      <div className="relative flex h-[500px] md:h-[600px] justify-center gap-2 md:gap-4 rounded-4xl overflow-hidden">
         {/* First Column: Top to Bottom */}
         <Marquee
           vertical
           pauseOnHover
-          className="[--duration:80s] w-48 lg:w-52"
+          className="[--duration:80s] w-[45%] md:w-48 lg:w-52"
         >
           {firstRow.map((src, index) => (
             <div key={`first-${index}`} className="group p-2">
-              <div className="relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform group-hover:scale-[1.02]">
+              <div className="relative overflow-hidden rounded-sm lg:rounded-md shadow-lg hover:shadow-2xl transition-all duration-500 transform group-hover:scale-[1.02]">
                 <Image
                   src={src}
                   alt={`Portfolio image ${index + 1}`}
-                  width={300}
-                  height={169}
-                  sizes="(max-width: 768px) 192px, 208px"
+                  width={400}
+                  height={225}
+                  sizes="(max-width: 768px) 50vw, 208px"
                   className="w-full h-auto object-cover aspect-video"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -150,16 +150,17 @@ const PortfolioSection = () => {
           vertical
           pauseOnHover
           reverse
-          className="[--duration:90s] w-48 lg:w-52"
+          className="[--duration:90s] w-[45%] md:w-48 lg:w-52"
         >
           {secondRow.map((src, index) => (
             <div key={`second-${index}`} className="group p-2">
-              <div className="relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform group-hover:scale-[1.02]">
+              <div className="relative overflow-hidden rounded-sm lg:rounded-md shadow-lg hover:shadow-2xl transition-all duration-500 transform group-hover:scale-[1.02]">
                 <Image
                   src={src}
                   alt={`Portfolio image ${index + 1 + firstRow.length}`}
-                  width={380}
-                  height={214}
+                  width={400}
+                  height={225}
+                  sizes="(max-width: 768px) 50vw, 208px"
                   className="w-full h-auto object-cover aspect-video"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -168,21 +169,22 @@ const PortfolioSection = () => {
           ))}
         </Marquee>
 
-        {/* Third Column: Top to Bottom */}
+        {/* Third Column: Top to Bottom - HIDDEN ON MOBILE */}
         <Marquee
           vertical
           pauseOnHover
-          className="[--duration:85s] w-48 lg:w-52"
+          className="hidden md:flex [--duration:85s] md:w-48 lg:w-52"
         >
           {thirdRow.map((src, index) => (
             <div key={`third-${index}`} className="group p-2">
-              <div className="relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform group-hover:scale-[1.02]">
+              <div className="relative overflow-hidden rounded-sm lg:rounded-md shadow-lg hover:shadow-2xl transition-all duration-500 transform group-hover:scale-[1.02]">
                 <Image
                   src={src}
                   alt={`Portfolio image ${index + 1 + firstRow.length + secondRow.length
                     }`}
-                  width={380}
-                  height={214}
+                  width={400}
+                  height={225}
+                  sizes="208px"
                   className="w-full h-auto object-cover aspect-video"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -192,12 +194,12 @@ const PortfolioSection = () => {
         </Marquee>
 
         {/* Enhanced Gradient Fades */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-linear-to-b from-background to-transparent z-10"></div>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent z-10"></div>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-background to-transparent z-10"></div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-background to-transparent z-10"></div>
 
         {/* Reduced side gradients */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-4 bg-linear-to-r from-background to-transparent z-10"></div>
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-4 bg-linear-to-l from-background to-transparent z-10"></div>
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-linear-to-r from-background to-transparent z-10"></div>
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-linear-to-l from-background to-transparent z-10"></div>
       </div>
     </div>
   );

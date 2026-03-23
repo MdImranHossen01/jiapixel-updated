@@ -2,6 +2,7 @@
 import mongoose from 'mongoose';
 // src/app/api/projects/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import connectDB from '../../../lib/db';
 import Project from '../../../models/Project';
 import { uploadMultipleToImgBB } from '../../../lib/imgbb';
@@ -119,6 +120,8 @@ export async function POST(request: NextRequest) {
                 throw error; // Re-throw if other error or max retries reached
             }
         }
+
+        revalidateTag('projects', 'default');
 
         return NextResponse.json(
             {

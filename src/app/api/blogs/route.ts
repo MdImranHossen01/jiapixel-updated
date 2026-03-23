@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Blog from '@/models/Blog';
 
@@ -104,6 +105,7 @@ export async function POST(request: NextRequest) {
 
 
     await blog.save();
+    revalidateTag('blogs', 'default');
 
     return NextResponse.json(
       {

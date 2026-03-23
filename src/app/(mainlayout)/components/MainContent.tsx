@@ -5,18 +5,18 @@ import AboutUsSection from "./aboutus/AboutUsSection";
 import MarketingFeatures from "./MarketingFeatures";
 import SEOFeatures from "./SEOFeatures";
 import FeaturedProjectSection from "./FeaturedProjectSection/FeaturedProjectSection";
-import BlogSection from "./BlogSection/BlogSection";
+import WritingSection from "./WritingSection/WritingSection";
 
-const MainContent = () => {
+const MainContent = async () => {
   return (
     <>
-      < FeaturedProjectSection />
+      <FeaturedProjectSection />
       <AboutUsSection />
       <PortfoilioSection />
       <HoverServices />
       <SEOFeatures />
       <MarketingFeatures />
-      <BlogSection />
+      <WritingSection />
       <FaqSection />
     </>
   );

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { IClientProject } from "@/models/ClientProject";
-import { ProjectCard } from "@/components/client/ProjectCard";
+import ProjectCard from "@/components/ProjectCard";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -66,7 +66,7 @@ export default function ClientDashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {projects.map((project) => (
                         // @ts-ignore - _id exists on mongoose doc
-                        <ProjectCard key={project._id} project={project} />
+                        <ProjectCard key={project._id} project={project} clientMode={true} />
                     ))}
                 </div>
             )}

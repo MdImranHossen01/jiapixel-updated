@@ -18,7 +18,7 @@ async function getBlog(slug: string) {
 
     const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
       cache: 'force-cache',
-      next: { tags: [`blog-${slug}`] }
+      next: { tags: [`blog-${slug}`, 'blogs'] }
     } as RequestInit);
 
     if (!response.ok) {
