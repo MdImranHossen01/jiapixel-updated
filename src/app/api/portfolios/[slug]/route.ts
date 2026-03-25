@@ -84,6 +84,7 @@ export async function PUT(
     // Update portfolio fields
     Object.keys(body).forEach(key => {
       if (key in portfolio && body[key] !== undefined) {
+        // @ts-ignore - dynamic key access
         portfolio[key] = body[key];
       }
     });

@@ -21,7 +21,7 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
             {/* Background Image */}
             <div className="absolute inset-0">
                 <Image
-                    src="/Assets/banner/service-banner-jia-pixel.webp"
+                    src="/Assets/banner/portfolio_bg.webp"
                     alt="Portfolio Hero Background"
                     fill
                     className="object-cover"

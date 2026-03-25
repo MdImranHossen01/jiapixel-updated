@@ -1,7 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useState } from 'react';
 
 interface Portfolio {
   slug: string;
@@ -13,19 +13,27 @@ interface ShareButtonsProps {
 }
 
 export default function ShareButtons({ portfolio }: ShareButtonsProps) {
+  const [shareUrl, setShareUrl] = useState('');
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setShareUrl(`${window.location.origin}/portfolios/${portfolio.slug}`);
+    }
+  }, [portfolio.slug]);
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}/portfolios/${portfolio.slug}`);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (shareUrl) {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
     } catch (err) {
       console.error('Failed to copy:', err);
     }
   };
 
-  const shareUrl = `${window.location.origin}/portfolios/${portfolio.slug}`;
   const shareText = `Check out this portfolio: ${portfolio.title}`;
 
   return (

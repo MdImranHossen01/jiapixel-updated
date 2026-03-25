@@ -42,21 +42,38 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
+interface FilterConfig {
+    key: string
+    label: string
+    options: { label: string; value: string }[]
+}
+
 interface AdminDataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
     searchKey: string
-    filterKey?: string // Key for filtering (e.g., 'isIndexedInGoogle')
-    filterOptions?: { label: string; value: string }[] // Options for the filter dropdown
+    filters?: FilterConfig[] // Multiple filters support
+    filterKey?: string // For backward compatibility
+    filterOptions?: { label: string; value: string }[] // For backward compatibility
 }
 
 export function AdminDataTable<TData, TValue>({
     columns,
     data,
     searchKey,
+    filters = [],
     filterKey,
     filterOptions,
 }: AdminDataTableProps<TData, TValue>) {
+    // Merge single filter into filters array for uniform handling
+    const allFilters = [...filters];
+    if (filterKey && filterOptions) {
+        allFilters.push({
+            key: filterKey,
+            label: "Filter",
+            options: filterOptions
+        });
+    }
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
@@ -100,28 +117,29 @@ export function AdminDataTable<TData, TValue>({
                     }
                     className="max-w-sm"
                 />
-                {filterKey && filterOptions && (
+                {allFilters.map((filter) => (
                     <Select
-                        value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? "all"}
+                        key={filter.key}
+                        value={(table.getColumn(filter.key)?.getFilterValue() as string) ?? "all"}
                         onValueChange={(value) =>
-                            table.getColumn(filterKey)?.setFilterValue(
+                            table.getColumn(filter.key)?.setFilterValue(
                                 value === "all" ? "" : value === "true" ? true : value === "false" ? false : value
                             )
                         }
                     >
                         <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Filter by Index" />
+                            <SelectValue placeholder={filter.label} />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            {filterOptions.map((option) => (
+                            <SelectItem value="all">All {filter.label}</SelectItem>
+                            {filter.options.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                     {option.label}
                                 </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
-                )}
+                ))}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">

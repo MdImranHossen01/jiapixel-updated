@@ -2,23 +2,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import PortfoliosClient from './components/PortfoliosClient';
+import { extractTextFromProjectDescription } from '@/lib/utils';
 
 interface Portfolio {
   _id: string;
   title: string;
   slug: string;
-  description: string;
   content: string;
   featuredImage: string;
-  images: string[];
-  technologies: string[];
-  category: string;
-  client: string;
-  projectDate: string;
-  projectUrl?: string;
-  githubUrl?: string;
   featured: boolean;
-  status: 'draft' | 'published' | 'archived';
+  isIndexedInGoogle: boolean;
   metaTitle?: string;
   metaDescription?: string;
   createdAt: string;
@@ -139,10 +132,10 @@ async function PortfoliosPage() {
       item: {
         '@type': 'CreativeWork',
         name: portfolio.title,
-        description: portfolio.description,
+        description: extractTextFromProjectDescription(portfolio.content).substring(0, 160),
         url: `https://www.jiapixel.com/portfolios/${portfolio.slug}`,
         image: portfolio.featuredImage,
-        dateCreated: portfolio.projectDate,
+        dateCreated: portfolio.createdAt,
         author: {
           '@type': 'Organization',
           name: 'Jiapixel',

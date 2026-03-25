@@ -3,27 +3,23 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ShareButtons from './ShareButtons';
 import type { Metadata } from 'next';
+import { generateHtml } from '@/lib/server-html';
+import { extractTextFromProjectDescription } from '@/lib/utils';
 
 interface Portfolio {
   _id: string;
   title: string;
   slug: string;
-  description: string;
   content: string;
   featuredImage: string;
-  images: string[];
-  technologies: string[];
-  category: string;
-  client: string;
-  projectDate: string;
-  projectUrl?: string;
-  githubUrl?: string;
   featured: boolean;
-  status: 'draft' | 'published' | 'archived';
+  isIndexedInGoogle: boolean;
   metaTitle?: string;
   metaDescription?: string;
   createdAt: string;
   updatedAt: string;
+  projectUrl?: string;
+  githubUrl?: string;
 }
 
 interface PageProps {
@@ -74,16 +70,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseUrl = 'https://www.jiapixel.com';
   const canonicalUrl = `${baseUrl}/portfolios/${portfolio.slug}`;
 
-  const plainTextTitle = portfolio.title.length > 60
-    ? `${portfolio.title.substring(0, 57)}... - Jiapixel Portfolio`
-    : `${portfolio.title} - Jiapixel Portfolio`;
+  const titleToUse = portfolio.metaTitle || portfolio.title;
+  const plainTextTitle = titleToUse.length > 60
+    ? `${titleToUse.substring(0, 57)}... - Jiapixel Portfolio`
+    : `${titleToUse} - Jiapixel Portfolio`;
 
-  const plainTextDescription = portfolio.metaDescription || portfolio.description;
+  const plainTextDescription = portfolio.metaDescription || extractTextFromProjectDescription(portfolio.content).substring(0, 160);
 
   return {
     title: plainTextTitle,
     description: plainTextDescription,
-    keywords: `${portfolio.category}, ${portfolio.technologies?.join(', ')}, web development, portfolio`,
+    keywords: `web development, portfolio, case studies`,
 
     // Canonical URL
     alternates: {
@@ -132,10 +129,10 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
     '@context': 'https://schema.org',
     '@type': 'CreativeWork',
     name: portfolio.title,
-    description: portfolio.description,
+    description: extractTextFromProjectDescription(portfolio.content).substring(0, 160),
     url: `https://www.jiapixel.com/portfolios/${portfolio.slug}`,
     image: portfolio.featuredImage,
-    dateCreated: portfolio.projectDate,
+    dateCreated: portfolio.createdAt,
     author: {
       '@type': 'Organization',
       name: 'Jiapixel',
@@ -166,33 +163,40 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
 
       <div className="min-h-screen bg-background pt-20">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 to-secondary/10 py-16">
-          <div className="container mx-auto px-4">
+        <section className="relative bg-slate-900 overflow-hidden py-20">
+          {/* Background Image */}
+          <div className="absolute inset-0">
+            <Image
+              src="/Assets/banner/portfolio_bg.webp"
+              alt={portfolio.title}
+              fill
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-black/60"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+          </div>
+
+          <div className="container relative mx-auto px-4">
             <Link
               href="/portfolios"
-              className="inline-flex items-center text-primary hover:text-primary/80 mb-6 transition-colors"
+              className="inline-flex items-center text-primary hover:text-primary/80 mb-8 transition-colors"
             >
               ← Back to Portfolio
             </Link>
 
             <div className="max-w-4xl mx-auto text-center">
-              <span className="text-primary font-medium mb-4 block">
-                {portfolio.category}
-              </span>
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
                 {portfolio.title}
               </h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                {portfolio.description}
+              <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+                {extractTextFromProjectDescription(portfolio.content).substring(0, 200)}
               </p>
 
-              <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+              <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-400">
                 <div>
-                  <strong className="text-foreground">Client:</strong> {portfolio.client}
-                </div>
-                <div>
-                  <strong className="text-foreground">Date:</strong>{' '}
-                  {new Date(portfolio.projectDate).toLocaleDateString('en-US', {
+                  <strong className="text-white">Published:</strong>{' '}
+                  {new Date(portfolio.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
@@ -220,51 +224,19 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                     />
                   </div>
 
-                  {/* Additional Images */}
-                  {portfolio.images && portfolio.images.length > 0 && (
-                    <div className="grid grid-cols-2 gap-4 mb-8">
-                      {portfolio.images.map((image, index) => (
-                        <div key={index} className="bg-card rounded-lg overflow-hidden shadow">
-                          <Image
-                            src={image}
-                            alt={`${portfolio.title} - Image ${index + 1}`}
-                            width={400}
-                            height={300}
-                            className="w-full h-48 object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
                   {/* Content */}
-                  <div
-                    className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-li:text-foreground"
-                    dangerouslySetInnerHTML={{ __html: portfolio.content }}
-                  />
+                  <div className="prose max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-li:text-foreground font-sans leading-normal">
+                    <div
+                      className="ProseMirror p-0"
+                      dangerouslySetInnerHTML={{ __html: generateHtml(portfolio.content) }}
+                    />
+                  </div>
                 </div>
 
                 {/* Sidebar */}
                 <div className="lg:col-span-1">
                   <div className="bg-card rounded-lg shadow-lg p-6 sticky top-24">
                     <h3 className="text-xl font-bold text-foreground mb-4">Project Details</h3>
-
-                    {/* Technologies */}
-                    {portfolio.technologies && portfolio.technologies.length > 0 && (
-                      <div className="mb-6">
-                        <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {portfolio.technologies.map((tech, index) => (
-                            <span
-                              key={index}
-                              className="px-3 py-1 bg-accent text-accent-foreground rounded-full text-sm"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
 
                     {/* Project Links */}
                     <div className="space-y-3">

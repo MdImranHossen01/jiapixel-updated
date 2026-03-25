@@ -4,17 +4,16 @@ import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PortfolioHero from "./PortfolioHero";
+import { extractTextFromProjectDescription } from "@/lib/utils";
 
 interface Portfolio {
     _id: string;
     title: string;
     slug: string;
-    description: string;
+    content: string;
     featuredImage: string;
-    technologies: string[];
-    category: string;
-    projectDate: string;
     featured: boolean;
+    createdAt: string;
 }
 
 interface PortfoliosClientProps {
@@ -41,9 +40,7 @@ const PortfoliosClient: React.FC<PortfoliosClientProps> = ({ initialPortfolios, 
             filtered = filtered.filter((portfolio) => {
                 return (
                     portfolio.title?.toLowerCase().includes(query) ||
-                    portfolio.description?.toLowerCase().includes(query) ||
-                    portfolio.technologies?.some((tech: string) => tech.toLowerCase().includes(query)) ||
-                    portfolio.category?.toLowerCase().includes(query)
+                    portfolio.content?.toLowerCase().includes(query)
                 );
             });
         }
@@ -146,38 +143,16 @@ function PortfolioCard({ portfolio }: { portfolio: any }) {
                 </div>
 
                 <div className="p-6 flex-grow flex flex-col">
-                    <span className="text-sm text-primary font-medium mb-2 block">
-                        {portfolio.category}
-                    </span>
-
                     <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2">
                         {portfolio.title}
                     </h3>
 
                     <p className="text-muted-foreground mb-4 line-clamp-3 flex-grow">
-                        {portfolio.description}
+                        {extractTextFromProjectDescription(portfolio.content)}
                     </p>
 
-                    {portfolio.technologies && portfolio.technologies.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                            {portfolio.technologies.slice(0, 3).map((tech: string, index: number) => (
-                                <span
-                                    key={index}
-                                    className="px-2 py-1 bg-accent text-accent-foreground rounded text-xs"
-                                >
-                                    {tech}
-                                </span>
-                            ))}
-                            {portfolio.technologies.length > 3 && (
-                                <span className="px-2 py-1 bg-accent text-accent-foreground rounded text-xs">
-                                    +{portfolio.technologies.length - 3} more
-                                </span>
-                            )}
-                        </div>
-                    )}
-
                     <div className="text-sm text-muted-foreground mt-auto">
-                        {new Date(portfolio.projectDate).toLocaleDateString('en-US', {
+                        {new Date(portfolio.createdAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'

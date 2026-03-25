@@ -17,17 +17,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
-    const category = searchParams.get('category');
     const featured = searchParams.get('featured');
-    // Removed status and showAll parameters
 
     const skip = (page - 1) * limit;
 
-    // Build filter - NO status filtering
+    // Build filter
     const filter: any = {};
-    if (category) filter.category = category;
     if (featured) filter.featured = featured === 'true';
-    // No status filter applied - shows all portfolios
 
     const portfolios = await Portfolio.find(filter)
       .sort({ featured: -1, createdAt: -1 })
@@ -78,23 +74,18 @@ export async function POST(request: NextRequest) {
     const {
       title,
       slug,
-      description,
       content,
       featuredImage,
-      images,
-      technologies,
-      category,
-      client,
-      projectDate,
-      projectUrl,
-      githubUrl,
       featured,
+      isIndexedInGoogle,
       metaTitle,
-      metaDescription
+      metaDescription,
+      projectUrl,
+      githubUrl
     } = body;
 
     // Validate required fields
-    if (!title || !slug || !description || !content || !featuredImage || !category || !client || !projectDate) {
+    if (!title || !slug || !content || !featuredImage) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -113,19 +104,14 @@ export async function POST(request: NextRequest) {
     const portfolio = new Portfolio({
       title,
       slug,
-      description,
       content,
       featuredImage,
-      images: images || [],
-      technologies: technologies || [],
-      category,
-      client,
-      projectDate: new Date(projectDate),
-      projectUrl,
-      githubUrl,
       featured: featured || false,
+      isIndexedInGoogle: isIndexedInGoogle || false,
       metaTitle: metaTitle || title,
-      metaDescription: metaDescription || description.substring(0, 160)
+      metaDescription: metaDescription || (content ? content.substring(0, 160) : ''),
+      projectUrl: projectUrl || '',
+      githubUrl: githubUrl || ''
     });
 
     await portfolio.save();
