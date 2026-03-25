@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Portfolio from '@/models/Portfolios';
 import { getServerSession } from 'next-auth';
@@ -115,6 +115,10 @@ export async function POST(request: NextRequest) {
     });
 
     await portfolio.save();
+
+    revalidatePath('/portfolios');
+    revalidatePath(`/portfolios/${portfolio.slug}`);
+    revalidateTag('portfolios', 'default');
 
     return NextResponse.json(
       { message: 'Portfolio created successfully', portfolio },

@@ -42,7 +42,8 @@ async function getPortfolios(): Promise<PortfoliosResponse> {
         'Content-Type': 'application/json',
       },
       next: {
-        revalidate: 86400
+        revalidate: 86400,
+        tags: ['portfolios']
       }
     });
 

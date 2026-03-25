@@ -17,7 +17,7 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
     setSearchQuery
 }) => {
     return (
-        <div className="relative bg-slate-900 overflow-hidden py-20 mb-12">
+        <div className="relative bg-slate-900 overflow-hidden py-20">
             {/* Background Image */}
             <div className="absolute inset-0">
                 <Image

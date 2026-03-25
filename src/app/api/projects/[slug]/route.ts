@@ -197,9 +197,10 @@ export async function PUT(
         await project.save();
 
         // Revalidate the project details page to show updates instantly
+        revalidatePath('/projects');
         revalidatePath(`/projects/${project.slug}`);
-        revalidateTag(`project-${project.slug}`, 'default');
         revalidateTag('projects', 'default');
+        revalidateTag(`project-${project.slug}`, 'default');
 
         return NextResponse.json({
             success: true,

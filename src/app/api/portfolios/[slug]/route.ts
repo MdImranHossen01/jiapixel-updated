@@ -1,36 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Portfolio from '@/models/Portfolios';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-// This is required for dynamic routes
-export async function generateStaticParams() {
-  return []; // Return empty array for fully dynamic routes
-}
 
 // GET single portfolio by slug
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     // Await the params
-    const params = await context.params;
-    const slug = params.slug;
-    
+    const { slug } = await params;
+
     console.log('🔍 Fetching portfolio with slug:', slug);
-    
+
     await connectDB();
-    
+
     const decodedSlug = decodeURIComponent(slug);
-    
-    const portfolio = await Portfolio.findOne({ 
+
+    const portfolio = await Portfolio.findOne({
       slug: decodedSlug
     });
-    
+
     console.log('📊 Found portfolio:', portfolio ? 'Yes' : 'No');
-    
+
     if (!portfolio) {
       console.log('❌ Portfolio not found for slug:', decodedSlug);
       return NextResponse.json(
@@ -38,7 +34,7 @@ export async function GET(
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json({ portfolio });
   } catch (error) {
     console.error('❌ Get portfolio error:', error);
@@ -52,35 +48,34 @@ export async function GET(
 // UPDATE portfolio by slug (admin only)
 export async function PUT(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const params = await context.params;
-    const slug = params.slug;
-    
+    const { slug } = await params;
+
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
-    
+
     await connectDB();
-    
+
     const decodedSlug = decodeURIComponent(slug);
     const portfolio = await Portfolio.findOne({ slug: decodedSlug });
-    
+
     if (!portfolio) {
       return NextResponse.json(
         { error: 'Portfolio not found' },
         { status: 404 }
       );
     }
-    
+
     const body = await request.json();
-    
+
     // Update portfolio fields
     Object.keys(body).forEach(key => {
       if (key in portfolio && body[key] !== undefined) {
@@ -88,9 +83,14 @@ export async function PUT(
         portfolio[key] = body[key];
       }
     });
-    
+
     await portfolio.save();
-    
+
+    revalidatePath('/portfolios');
+    revalidatePath(`/portfolios/${portfolio.slug}`);
+    revalidateTag('portfolios', 'default');
+    revalidateTag(`portfolio-${portfolio.slug}`, 'default');
+
     return NextResponse.json({
       message: 'Portfolio updated successfully',
       portfolio
@@ -107,35 +107,39 @@ export async function PUT(
 // DELETE portfolio by slug (admin only)
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const params = await context.params;
-    const slug = params.slug;
-    
+    const { slug } = await params;
+
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
-    
+
     await connectDB();
-    
+
     const decodedSlug = decodeURIComponent(slug);
     const portfolio = await Portfolio.findOne({ slug: decodedSlug });
-    
+
     if (!portfolio) {
       return NextResponse.json(
         { error: 'Portfolio not found' },
         { status: 404 }
       );
     }
-    
+
     await Portfolio.deleteOne({ slug: decodedSlug });
-    
+
+    revalidatePath('/portfolios');
+    revalidatePath(`/portfolios/${decodedSlug}`);
+    revalidateTag('portfolios', 'default');
+    revalidateTag(`portfolio-${decodedSlug}`, 'default');
+
     return NextResponse.json({
       message: 'Portfolio deleted successfully'
     });

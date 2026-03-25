@@ -1,6 +1,6 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
-import CreatePortfolioForm from './CreatePortfolioForm';
+import PortfolioForm from '../components/PortfolioForm';
 import { getCurrentUser } from '@/lib/auth-utils';
 
 async function CreatePortfolioPage() {
@@ -11,7 +11,7 @@ async function CreatePortfolioPage() {
     redirect('/login');
   }
 
-  return <CreatePortfolioForm />;
+  return <PortfolioForm />;
 }
 
 export default CreatePortfolioPage;

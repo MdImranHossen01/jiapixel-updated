@@ -2,7 +2,7 @@
 import mongoose from 'mongoose';
 // src/app/api/projects/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import connectDB from '../../../lib/db';
 import Project from '../../../models/Project';
 import { uploadMultipleToImgBB } from '../../../lib/imgbb';
@@ -121,7 +121,10 @@ export async function POST(request: NextRequest) {
             }
         }
 
+        revalidatePath('/projects');
+        revalidatePath(`/projects/${project.slug}`);
         revalidateTag('projects', 'default');
+        revalidateTag(`project-${project.slug}`, 'default');
 
         return NextResponse.json(
             {

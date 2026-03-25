@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ShareButtons from './ShareButtons';
 import type { Metadata } from 'next';
+import PortfolioAdminActions from '@/components/PortfolioAdminActions';
 import { generateHtml } from '@/lib/server-html';
 import { extractTextFromProjectDescription } from '@/lib/utils';
 
@@ -35,7 +36,10 @@ async function getPortfolio(slug: string): Promise<Portfolio | null> {
       : 'http://localhost:3000';
 
     const response = await fetch(`${baseUrl}/api/portfolios/${slug}`, {
-      cache: 'force-cache'
+      next: {
+        tags: ['portfolios', `portfolio-${slug}`],
+        revalidate: 86400 // fallback
+      }
     });
 
     if (!response.ok) {
@@ -161,7 +165,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData).replace(/<\/script>/g, '<\\/script>') }}
       />
 
-      <div className="min-h-screen bg-background pt-20">
+      <div className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="relative bg-slate-900 overflow-hidden py-20">
           {/* Background Image */}
@@ -178,6 +182,14 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
           </div>
 
           <div className="container relative mx-auto px-4">
+            {/* Admin Actions Overlay */}
+            <div className="absolute top-0 right-4 z-20">
+              <PortfolioAdminActions
+                portfolioSlug={portfolio.slug}
+                portfolioTitle={portfolio.title}
+              />
+            </div>
+
             <Link
               href="/portfolios"
               className="inline-flex items-center text-primary hover:text-primary/80 mb-8 transition-colors"
@@ -189,20 +201,6 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
                 {portfolio.title}
               </h1>
-              <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-                {extractTextFromProjectDescription(portfolio.content).substring(0, 200)}
-              </p>
-
-              <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-400">
-                <div>
-                  <strong className="text-white">Published:</strong>{' '}
-                  {new Date(portfolio.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </div>
-              </div>
             </div>
           </div>
         </section>
@@ -210,11 +208,11 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
         {/* Project Details */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 {/* Main Content */}
-                <div className="lg:col-span-2">
-                  <div className="bg-card rounded-lg overflow-hidden shadow-lg mb-8">
+                <div className="lg:col-span-2 p-6 border border-primary/50 rounded-xl bg-card">
+                  <div className="rounded-sm overflow-hidden shadow-lg mb-6">
                     <Image
                       src={portfolio.featuredImage}
                       alt={portfolio.title}
