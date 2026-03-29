@@ -4,13 +4,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Refund Policy | JIA Pixel - Clear & Transparent Guidelines',
-  description: 'JIA Pixel refund policy. Learn about our refund eligibility, process, and terms for digital design and development services. Clear, fair guidelines.',
-  keywords: 'refund policy, money back guarantee, digital agency refund, web design refund, service cancellation',
+  title: 'রিফান্ড পলিসি | JIA Pixel - স্বচ্ছ ও স্পষ্ট নির্দেশিকা',
+  description: 'জিয়া পিক্সেল (JIA Pixel) এর রিফান্ড পলিসি। আমাদের রিফান্ড যোগ্যতা, প্রক্রিয়া এবং ডিজিটাল ডিজাইন ও ডেভেলপমেন্ট পরিষেবার শর্তাবলী সম্পর্কে জানুন। স্বচ্ছ এবং ন্যায্য নির্দেশিকা।',
+  keywords: 'refund policy, রিফান্ড পলিসি, টাকা ফেরত গ্যারান্টি, ডিজিটাল এজেন্সি রিফান্ড, ওয়েব ডিজাইন রিফান্ড, সার্ভিস বাতিল',
 
   openGraph: {
-    title: 'Refund Policy | JIA Pixel',
-    description: 'Clear and transparent refund guidelines for JIA Pixel digital services',
+    title: 'রিফান্ড পলিসি | JIA Pixel',
+    description: 'জিয়া পিক্সেল ডিজিটাল পরিষেবার জন্য স্বচ্ছ এবং স্পষ্ট রিফান্ড নির্দেশিকা',
     type: 'website',
     url: 'https://www.jiapixel.com/refund-policy',
     siteName: 'JIA Pixel',
@@ -19,15 +19,15 @@ export const metadata: Metadata = {
         url: '/og-refund.jpg',
         width: 1200,
         height: 630,
-        alt: 'JIA Pixel Refund Policy',
+        alt: 'JIA Pixel রিফান্ড পলিসি',
       },
     ],
   },
 
   twitter: {
     card: 'summary_large_image',
-    title: 'Refund Policy | JIA Pixel',
-    description: 'Clear and transparent refund guidelines for JIA Pixel digital services',
+    title: 'রিফান্ড পলিসি | JIA Pixel',
+    description: 'জিয়া পিক্সেল ডিজিটাল পরিষেবার জন্য স্বচ্ছ এবং স্পষ্ট রিফান্ড নির্দেশিকা',
     images: ['/og-refund.jpg'],
   },
 
@@ -51,18 +51,18 @@ export const metadata: Metadata = {
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: 'Refund Policy',
-  description: 'Refund policy and guidelines for JIA Pixel digital agency services',
+  name: 'রিফান্ড পলিসি',
+  description: 'জিয়া পিক্সেল ডিজিটাল এজেন্সি পরিষেবার জন্য রিফান্ড পলিসি এবং নির্দেশিকা',
   url: 'https://www.jiapixel.com/refund-policy',
   mainEntity: {
     '@type': 'FAQPage',
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'What is your refund policy?',
+        name: 'রিফান্ড পলিসি কী?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'We offer full refunds for projects cancelled before work begins, and pro-rated refunds for work in progress. No refunds for completed projects.',
+          text: 'কাজ শুরু হওয়ার আগে বাতিল করা প্রকল্পের জন্য আমরা সম্পূর্ণ রিফান্ড প্রদান করি এবং চলমান কাজের জন্য আনুপাতিক রিফান্ড প্রদান করি। সম্পন্ন প্রকল্পের জন্য কোনো রিফান্ড নেই।',
         },
       },
     ],
@@ -74,60 +74,60 @@ const LAST_UPDATED = '2025-01-01';
 const RefundPolicyPage = () => {
   const refundScenarios = [
     {
-      scenario: "Project cancellation before work begins",
-      refund: "Full refund of deposit",
+      scenario: "কাজ শুরু হওয়ার আগে প্রকল্প বাতিল",
+      refund: "ডিপোজিটের সম্পূর্ণ রিফান্ড",
       icon: <CheckCircle className="w-5 h-5 text-green-500" />,
-      notes: "Must be requested within 24 hours of payment"
+      notes: "পেমেন্টের ২৪ ঘন্টার মধ্যে অনুরোধ করতে হবে"
     },
     {
-      scenario: "Project cancellation after work has started",
-      refund: "Pro-rated refund for work not completed",
+      scenario: "কাজ শুরু হওয়ার পর প্রকল্প বাতিল",
+      refund: "অসমাপ্ত কাজের জন্য আনুপাতিক রিফান্ড",
       icon: <Clock className="w-5 h-5 text-amber-500" />,
-      notes: "Based on hours worked and materials used"
+      notes: "কাজের ঘন্টা এবং ব্যবহৃত উপকরণের ওপর ভিত্তি করে"
     },
     {
-      scenario: "Project completed and delivered",
-      refund: "No refund available",
+      scenario: "প্রকল্প সম্পন্ন এবং ডেলিভারি করা হয়েছে",
+      refund: "কোনো রিফান্ড পাওয়া যাবে না",
       icon: <XCircle className="w-5 h-5 text-red-500" />,
-      notes: "All sales are final after project completion"
+      notes: "প্রকল্প সম্পন্ন হওয়ার পর সমস্ত বিক্রয় চূড়ান্ত বলে গণ্য হবে"
     },
     {
-      scenario: "Client fails to provide required materials",
-      refund: "No refund - project may be paused",
+      scenario: "ক্লায়েন্ট প্রয়োজনীয় উপকরণ প্রদানে ব্যর্থ হলে",
+      refund: "কোনো রিফান্ড নেই - প্রকল্প স্থগিত করা হতে পারে",
       icon: <AlertCircle className="w-5 h-5 text-blue-500" />,
-      notes: "After 30 days of inactivity, project may be terminated"
+      notes: "৩০ দিন নিষ্ক্রিয় থাকার পর, প্রকল্প বন্ধ করা হতে পারে"
     }
   ];
 
   const nonRefundableItems = [
-    "Initial consultation and strategy sessions",
-    "Research and discovery phase work",
-    "Stock photography and font licenses",
-    "Third-party plugin and software purchases",
-    "Domain registration and hosting fees",
-    "Rush service fees"
+    "প্রাথমিক পরামর্শ এবং কৌশল সেশন",
+    "গবেষণা এবং ডিসকভারি পর্বের কাজ",
+    "স্টক ফটোগ্রাফি এবং ফন্ট লাইসেন্স",
+    "তৃতীয় পক্ষের প্লাগইন এবং সফটওয়্যার ক্রয়",
+    "ডোমেইন রেজিস্ট্রেশন এবং হোস্টিং ফি",
+    "জরুরী (Rush) সার্ভিস ফি"
   ];
 
   const refundProcess = [
     {
-      step: "1",
-      title: "Submit Refund Request",
-      description: "Contact us at refunds@jiapixel.com with your project details and reason for refund request"
+      step: "১",
+      title: "রিফান্ড অনুরোধ জমা দিন",
+      description: "আপনার প্রকল্পের বিবরণ এবং রিফান্ডের কারণসহ refunds@jiapixel.com এ আমাদের সাথে যোগাযোগ করুন"
     },
     {
-      step: "2",
-      title: "Review Period",
-      description: "We'll review your request within 3-5 business days and assess eligibility"
+      step: "২",
+      title: "পর্যালোচনা সময়কাল",
+      description: "আমরা ৩-৫ কার্যদিবসের মধ্যে আপনার অনুরোধ পর্যালোচনা করব এবং যোগ্যতা যাচাই করব"
     },
     {
-      step: "3",
-      title: "Decision & Processing",
-      description: "If approved, refunds are processed within 10 business days to the original payment method"
+      step: "৩",
+      title: "সিদ্ধান্ত এবং প্রক্রিয়াকরণ",
+      description: "অনুমোদিত হলে, ১০ কার্যদিবসের মধ্যে মূল পেমেন্ট পদ্ধতিতে রিফান্ড প্রসেস করা হয়"
     },
     {
-      step: "4",
-      title: "Confirmation",
-      description: "You'll receive email confirmation once the refund has been processed"
+      step: "৪",
+      title: "নিশ্চিতকরণ",
+      description: "রিফান্ড প্রসেস হয়ে গেলে আপনি ইমেলের মাধ্যমে নিশ্চিতকরণ পাবেন"
     }
   ];
 
@@ -137,17 +137,17 @@ const RefundPolicyPage = () => {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/<\/script>/g, '<\\/script>') }}
       />
-      <div className="min-h-screen py-20">
+      <div className="min-h-screen py-20 font-bengali">
         <div className="container mx-auto px-4 max-w-4xl">
 
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Refund Policy</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">রিফান্ড পলিসি</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Clear and transparent refund guidelines for our digital services
+              আমাদের ডিজিটাল পরিষেবার জন্য স্বচ্ছ এবং স্পষ্ট রিফান্ড নির্দেশিকা
             </p>
             <div className="mt-6 text-sm text-muted-foreground">
-              Last updated: {new Date(LAST_UPDATED).toLocaleDateString('en-US', {
+              সর্বশেষ আপডেট: {new Date(LAST_UPDATED).toLocaleDateString('bn-BD', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
@@ -158,11 +158,9 @@ const RefundPolicyPage = () => {
           {/* Overview Card */}
           <Card className="shadow-lg mb-12 border-l-4 border-l-primary">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold mb-4">Policy Overview</h2>
+              <h2 className="text-2xl font-bold mb-4">নীতিমালার সংক্ষিপ্ত বিবরণ</h2>
               <p className="text-lg leading-relaxed text-muted-foreground">
-                At JIA Pixel, we strive to deliver exceptional value and quality in all our projects.
-                This refund policy outlines the circumstances under which refunds may be granted and
-                our commitment to fair treatment for both our clients and our team.
+                জিয়া পিক্সেলে (JIA Pixel), আমরা আমাদের সমস্ত প্রকল্পে ব্যতিক্রমী মূল্য এবং গুণমান প্রদান করার চেষ্টা করি। এই রিফান্ড পলিসিটি সেই পরিস্থিতিগুলো রূপরেখা দেয় যার অধীনে রিফান্ড মঞ্জুর করা যেতে পারে এবং আমাদের ক্লায়েন্ট ও আমাদের টিমের প্রতি ন্যায্য আচরণের প্রতিশ্রুতি নিশ্চিত করে।
               </p>
             </CardContent>
           </Card>
@@ -172,7 +170,7 @@ const RefundPolicyPage = () => {
             {/* Refund Eligibility */}
             <Card className="lg:col-span-2">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold mb-6">Refund Eligibility</h2>
+                <h2 className="text-2xl font-bold mb-6">রিফান্ড যোগ্যতা</h2>
                 <div className="space-y-4">
                   {refundScenarios.map((item, index) => (
                     <div key={index} className="flex items-start space-x-4 p-4 border rounded-lg">
@@ -199,23 +197,23 @@ const RefundPolicyPage = () => {
             {/* Quick Info Sidebar */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold mb-4">Key Points</h3>
+                <h3 className="text-xl font-bold mb-4">মূল বিষয়সমূহ</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-start space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>24-hour cooling off period for new projects</span>
+                    <span>নতুন প্রকল্পের জন্য ২৪ ঘন্টা কুলিং-অফ পিরিয়ড</span>
                   </div>
                   <div className="flex items-start space-x-2">
                     <Clock className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <span>10 business days for refund processing</span>
+                    <span>রিফান্ড প্রসেস করার জন্য ১০ কার্যদিবস</span>
                   </div>
                   <div className="flex items-start space-x-2">
                     <AlertCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                    <span>Contact us before disputing with payment processor</span>
+                    <span>পেমেন্ট প্রসেসরের কাছে বিবাদ করার আগে আমাদের সাথে যোগাযোগ করুন</span>
                   </div>
                   <div className="flex items-start space-x-2">
                     <XCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-                    <span>No refunds for completed work</span>
+                    <span>সম্পন্ন কাজের জন্য কোনো রিফান্ড নেই</span>
                   </div>
                 </div>
               </CardContent>
@@ -225,7 +223,7 @@ const RefundPolicyPage = () => {
           {/* Non-Refundable Items */}
           <Card className="mb-12">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold mb-6">Non-Refundable Items & Services</h2>
+              <h2 className="text-2xl font-bold mb-6">অফেরতযোগ্য আইটেম এবং পরিষেবাসমূহ</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {nonRefundableItems.map((item, index) => (
                   <div key={index} className="flex items-center space-x-3">
@@ -235,7 +233,7 @@ const RefundPolicyPage = () => {
                 ))}
               </div>
               <p className="mt-6 text-sm text-muted-foreground">
-                * These items represent costs we incur on your behalf and cannot recover once purchased.
+                * এই আইটেমগুলো আপনার পক্ষে আমাদের বহন করা খরচ যা একবার কেনা হলে ফেরতযোগ্য নয়।
               </p>
             </CardContent>
           </Card>
@@ -243,7 +241,7 @@ const RefundPolicyPage = () => {
           {/* Refund Process */}
           <Card className="mb-12">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold mb-8">Refund Request Process</h2>
+              <h2 className="text-2xl font-bold mb-8">রিফান্ড অনুরোধ প্রক্রিয়া</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {refundProcess.map((step, index) => (
                   <div key={index} className="text-center">
@@ -261,27 +259,24 @@ const RefundPolicyPage = () => {
           {/* Special Circumstances */}
           <Card className="mb-12">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold mb-6">Special Circumstances</h2>
+              <h2 className="text-2xl font-bold mb-6">বিশেষ পরিস্থিতি</h2>
               <div className="space-y-4">
                 <div className="border-l-4 border-l-green-500 pl-4 py-2">
-                  <h3 className="font-semibold text-foreground mb-1">Service Quality Issues</h3>
+                  <h3 className="font-semibold text-foreground mb-1">পরিষেবার মান সংক্রান্ত সমস্যা</h3>
                   <p className="text-muted-foreground">
-                    If you&apos;re unsatisfied with the quality of our work, we&apos;ll make every reasonable effort
-                    to correct the issues before considering a refund. Your satisfaction is our priority.
+                    আপনি যদি আমাদের কাজের মান নিয়ে অসন্তুষ্ট হন, তবে আমরা রিফান্ড বিবেচনা করার আগে সমস্যাগুলো সমাধানের জন্য সর্বোচ্চ চেষ্টা করব। আপনার সন্তুষ্টি আমাদের অগ্রাধিকার।
                   </p>
                 </div>
                 <div className="border-l-4 border-l-amber-500 pl-4 py-2">
-                  <h3 className="font-semibold text-foreground mb-1">Project Delays</h3>
+                  <h3 className="font-semibold text-foreground mb-1">প্রকল্পে বিলম্ব</h3>
                   <p className="text-muted-foreground">
-                    Delays caused by circumstances beyond our control (client responsiveness, third-party
-                    dependencies, etc.) are not grounds for refunds.
+                    আমাদের নিয়ন্ত্রণের বাইরের পরিস্থিতির কারণে (ক্লায়েন্টের প্রতিক্রিয়া, তৃতীয় পক্ষের ওপর নির্ভরতা ইত্যাদি) বিলম্ব রিফান্ডের ভিত্তি হিসেবে গণ্য হবে না।
                   </p>
                 </div>
                 <div className="border-l-4 border-l-blue-500 pl-4 py-2">
-                  <h3 className="font-semibold text-foreground mb-1">Change of Mind</h3>
+                  <h3 className="font-semibold text-foreground mb-1">সিদ্ধান্ত পরিবর্তন</h3>
                   <p className="text-muted-foreground">
-                    We understand that requirements can change. Contact us as soon as possible to discuss
-                    project adjustments rather than cancellation.
+                    আমরা বুঝি যে প্রয়োজনীয়তা পরিবর্তন হতে পারে। বাতিলের পরিবর্তে প্রকল্প সমন্বয় নিয়ে আলোচনা করতে আমাদের সাথে যত দ্রুত সম্ভব যোগাযোগ করুন।
                   </p>
                 </div>
               </div>
@@ -291,23 +286,22 @@ const RefundPolicyPage = () => {
           {/* Contact Information */}
           <Card>
             <CardContent className="p-8 text-center">
-              <h2 className="text-2xl font-bold mb-4">Need Help?</h2>
+              <h2 className="text-2xl font-bold mb-4">সাহায্য প্রয়োজন?</h2>
               <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                If you have questions about our refund policy or need to request a refund,
-                please contact our support team. We&apos;re here to help.
+                আপনার যদি আমাদের রিফান্ড পলিসি সম্পর্কে কোনো প্রশ্ন থাকে বা রিফান্ডের অনুরোধ করতে হয়, তবে আমাদের সাপোর্ট টিমের সাথে যোগাযোগ করুন। আমরা আপনাকে সাহায্য করতে এখানে আছি।
               </p>
               <div className="grid md:grid-cols-3 gap-6 max-w-2xl mx-auto">
                 <div>
-                  <h3 className="font-semibold mb-2">Email</h3>
+                  <h3 className="font-semibold mb-2">ইমেইল</h3>
                   <p className="text-primary">refunds@jiapixel.com</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Response Time</h3>
-                  <p className="text-muted-foreground">Within 24 hours</p>
+                  <h3 className="font-semibold mb-2">প্রতিক্রিয়ার সময়</h3>
+                  <p className="text-muted-foreground">২৪ ঘন্টার মধ্যে</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Phone</h3>
-                  <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                  <h3 className="font-semibold mb-2">ফোন</h3>
+                  <p className="text-muted-foreground">+১ (৫৫৫) ১২৩-৪৫৬৭</p>
                 </div>
               </div>
             </CardContent>
@@ -316,8 +310,7 @@ const RefundPolicyPage = () => {
           {/* Policy Footer */}
           <div className="text-center mt-12 text-sm text-muted-foreground">
             <p>
-              This refund policy is subject to change without notice. Please check this page periodically
-              for updates. By using our services, you acknowledge and agree to this refund policy.
+              এই রিফান্ড পলিসিটি কোনো নোটিশ ছাড়াই পরিবর্তন করা হতে পারে। আপডেটের জন্য পর্যায়ক্রমে এই পেজটি চেক করুন। আমাদের পরিষেবা ব্যবহার করার মাধ্যমে, আপনি এই রিফান্ড পলিসি স্বীকার এবং এর সাথে একমত পোষণ করছেন।
             </p>
           </div>
 
@@ -327,4 +320,4 @@ const RefundPolicyPage = () => {
   );
 };
 
-export default RefundPolicyPage;
+export default RefundPolicyPage;
