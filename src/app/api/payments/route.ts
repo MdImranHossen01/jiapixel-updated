@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        if (paymentMethod !== "Bank App" && !transactionId && !senderNumber) {
+        if (paymentMethod !== "Scan QR" && !transactionId && !senderNumber) {
             return NextResponse.json(
                 { message: "Either Transaction ID or Sender Number must be provided for mobile banking." },
                 { status: 400 }

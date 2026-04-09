@@ -16,12 +16,12 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 
-type PaymentMethod = "bKash" | "Nagad" | "Rocket" | "Bank App";
+type PaymentMethod = "bKash" | "Nagad" | "Rocket" | "Scan QR";
 
 const PayPage = () => {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [method, setMethod] = useState<PaymentMethod>("bKash");
+    const [method, setMethod] = useState<PaymentMethod>("Scan QR");
     const [amount, setAmount] = useState("");
     const [transactionId, setTransactionId] = useState("");
     const [senderNumber, setSenderNumber] = useState("");
@@ -95,7 +95,7 @@ const PayPage = () => {
             return;
         }
 
-        if (method !== "Bank App") {
+        if (method !== "Scan QR") {
             if (verifyBy === "txid" && !transactionId.trim()) {
                 toast.error("Please provide your Transaction ID.");
                 return;
@@ -140,7 +140,7 @@ const PayPage = () => {
         { id: "bKash", label: "bKash", color: "bg-[#e2136e]", icon: Smartphone, image: "/icons/bkashlogo.webp" },
         { id: "Nagad", label: "Nagad", color: "bg-[#f58220]", icon: Smartphone, image: "/icons/nagadlogo.webp" },
         { id: "Rocket", label: "Rocket", color: "bg-[#8c3494]", icon: Smartphone, image: "/icons/rocketlogo.webp" },
-        { id: "Bank App", label: "Bank App", color: "bg-blue-600", icon: CreditCard },
+        { id: "Scan QR", label: "Scan QR to Pay", color: "bg-blue-600", icon: CreditCard, image: "/icons/qrlogo.jpg" },
     ];
 
     return (
@@ -159,9 +159,9 @@ const PayPage = () => {
                             How to Pay
                         </h2>
                         
-                        {method === "Bank App" ? (
+                        {method === "Scan QR" ? (
                             <div className="space-y-4">
-                                <p className="text-muted-foreground">Scan the QR code below using your Bank App to complete the payment.</p>
+                                <p className="text-muted-foreground">Scan the QR code below using your mobile banking app to complete the payment.</p>
                                 <div className="relative aspect-square w-full max-w-[250px] mx-auto bg-white p-2 rounded-xl shadow-inner border border-border">
                                     <Image 
                                         src="/PaymentQr.jpg" 
@@ -173,7 +173,7 @@ const PayPage = () => {
                                 </div>
                                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
                                     <p className="text-sm text-blue-700 dark:text-blue-300 font-medium text-center">
-                                        Scan and Pay smoothly via your Bank App
+                                        Scan and Pay smoothly via QR Code
                                     </p>
                                 </div>
                             </div>
@@ -287,7 +287,7 @@ const PayPage = () => {
                             </div>
                         </div>
 
-                        {method !== "Bank App" && (
+                        {method !== "Scan QR" && (
                             <div className="space-y-4">
                                 <div className="space-y-3">
                                     <label className="text-sm font-medium text-muted-foreground">Verify By</label>
