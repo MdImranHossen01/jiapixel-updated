@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { 
-    Smartphone, 
-    CreditCard, 
-    CheckCircle2, 
-    AlertCircle, 
-    QrCode, 
+import {
+    Smartphone,
+    CreditCard,
+    CheckCircle2,
+    AlertCircle,
+    QrCode,
     ArrowRight,
     Send,
     Loader2
@@ -134,10 +134,10 @@ const PayPage = () => {
     };
 
     const methods: { id: PaymentMethod; label: string; color: string; icon: any; image?: string }[] = [
+        { id: "Scan QR", label: "Scan QR", color: "bg-blue-600", icon: CreditCard, image: "/icons/qrlogo.jpg" },
         { id: "bKash", label: "bKash", color: "bg-[#e2136e]", icon: Smartphone, image: "/icons/bkashlogo.webp" },
         { id: "Nagad", label: "Nagad", color: "bg-[#f58220]", icon: Smartphone, image: "/icons/nagadlogo.webp" },
         { id: "Rocket", label: "Rocket", color: "bg-[#8c3494]", icon: Smartphone, image: "/icons/rocketlogo.webp" },
-        { id: "Scan QR", label: "Scan QR to Pay", color: "bg-blue-600", icon: CreditCard, image: "/icons/qrlogo.jpg" },
     ];
 
     return (
@@ -155,15 +155,15 @@ const PayPage = () => {
                             <AlertCircle className="text-primary w-5 h-5" />
                             How to Pay
                         </h2>
-                        
+
                         {method === "Scan QR" ? (
                             <div className="space-y-4">
                                 <p className="text-muted-foreground">Scan the QR code below using your mobile banking app to complete the payment.</p>
                                 <div className="relative aspect-square w-full max-w-[250px] mx-auto bg-white p-2 rounded-xl shadow-inner border border-border">
-                                    <Image 
-                                        src="/PaymentQr.jpg" 
-                                        alt="Payment QR Code" 
-                                        fill 
+                                    <Image
+                                        src="/PaymentQr.jpg"
+                                        alt="Payment QR Code"
+                                        fill
                                         className="object-contain"
                                         priority
                                     />
@@ -198,7 +198,7 @@ const PayPage = () => {
                                     </div>
                                     <div className="space-y-2">
                                         <p className="text-muted-foreground">Send total amount to this personal account:</p>
-                                        <button 
+                                        <button
                                             type="button"
                                             aria-label="Copy account number"
                                             className="w-full bg-muted p-3 rounded-lg flex items-center justify-between border border-border group cursor-pointer active:scale-[0.98] transition-all hover:bg-muted/80 focus:ring-2 focus:ring-primary focus:outline-none"
@@ -241,18 +241,18 @@ const PayPage = () => {
                                         onClick={() => setMethod(m.id)}
                                         className={`
                                             flex flex-col items-center justify-center py-4 px-2 rounded-2xl border-2 transition-all duration-300
-                                            ${method === m.id 
-                                                ? "border-primary bg-primary/5 shadow-md shadow-primary/10 scale-[1.05]" 
+                                            ${method === m.id
+                                                ? "border-primary bg-primary/5 shadow-md shadow-primary/10 scale-[1.05]"
                                                 : "bg-background border-border text-muted-foreground hover:border-primary/30 hover:bg-muted/30"
                                             }
                                         `}
                                     >
                                         <div className="relative w-10 h-10 mb-2 flex items-center justify-center">
                                             {m.image ? (
-                                                <Image 
-                                                    src={m.image} 
-                                                    alt={m.label} 
-                                                    fill 
+                                                <Image
+                                                    src={m.image}
+                                                    alt={m.label}
+                                                    fill
                                                     className="object-contain transition-transform duration-300 group-hover:scale-110"
                                                 />
                                             ) : (
