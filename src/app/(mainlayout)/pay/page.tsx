@@ -136,10 +136,10 @@ const PayPage = () => {
         }
     };
 
-    const methods: { id: PaymentMethod; label: string; color: string; icon: any }[] = [
-        { id: "bKash", label: "bKash", color: "bg-[#e2136e]", icon: Smartphone },
-        { id: "Nagad", label: "Nagad", color: "bg-[#f58220]", icon: Smartphone },
-        { id: "Rocket", label: "Rocket", color: "bg-[#8c3494]", icon: Smartphone },
+    const methods: { id: PaymentMethod; label: string; color: string; icon: any; image?: string }[] = [
+        { id: "bKash", label: "bKash", color: "bg-[#e2136e]", icon: Smartphone, image: "/icons/bkashlogo.webp" },
+        { id: "Nagad", label: "Nagad", color: "bg-[#f58220]", icon: Smartphone, image: "/icons/nagadlogo.webp" },
+        { id: "Rocket", label: "Rocket", color: "bg-[#8c3494]", icon: Smartphone, image: "/icons/rocketlogo.webp" },
         { id: "Bank App", label: "Bank App", color: "bg-blue-600", icon: CreditCard },
     ];
 
@@ -235,23 +235,36 @@ const PayPage = () => {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Method Selection */}
                         <div className="space-y-3">
-                            <label className="text-sm font-medium text-muted-foreground">Select Payment Method</label>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <label className="text-sm font-medium text-muted-foreground text-center block w-full">Select Payment Method</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {methods.map((m) => (
                                     <button
                                         key={m.id}
                                         type="button"
                                         onClick={() => setMethod(m.id)}
                                         className={`
-                                            flex flex-col items-center justify-center py-3 px-2 rounded-xl border-2 transition-all duration-200
+                                            flex flex-col items-center justify-center py-4 px-2 rounded-2xl border-2 transition-all duration-300
                                             ${method === m.id 
-                                                ? `${m.color} border-transparent text-white shadow-lg scale-[1.05]` 
-                                                : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                                                ? "border-primary bg-primary/5 shadow-md shadow-primary/10 scale-[1.05]" 
+                                                : "bg-background border-border text-muted-foreground hover:border-primary/30 hover:bg-muted/30"
                                             }
                                         `}
                                     >
-                                        <m.icon className="w-6 h-6 mb-1" />
-                                        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-tighter">{m.label}</span>
+                                        <div className="relative w-10 h-10 mb-2 flex items-center justify-center">
+                                            {m.image ? (
+                                                <Image 
+                                                    src={m.image} 
+                                                    alt={m.label} 
+                                                    fill 
+                                                    className="object-contain transition-transform duration-300 group-hover:scale-110"
+                                                />
+                                            ) : (
+                                                <m.icon className={`w-8 h-8 ${method === m.id ? 'text-primary' : 'text-muted-foreground'}`} />
+                                            )}
+                                        </div>
+                                        <span className={`text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-colors ${method === m.id ? 'text-primary' : 'text-muted-foreground'}`}>
+                                            {m.label}
+                                        </span>
                                     </button>
                                 ))}
                             </div>
