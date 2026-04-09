@@ -17,7 +17,8 @@ import {
   Folder,
   MapPin,
   Mail,
-  PenTool
+  PenTool,
+  CreditCard
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 import Logo from '@/app/(mainlayout)/components/Logo';
@@ -58,6 +59,13 @@ const LeftSideNav = () => {
       href: '/dashboard/client',
       icon: Folder,
       current: pathname.startsWith('/dashboard/client'),
+      adminOnly: false,
+    },
+    {
+      name: 'My Transactions',
+      href: '/dashboard/client/transactions',
+      icon: CreditCard,
+      current: pathname.startsWith('/dashboard/client/transactions'),
       adminOnly: false,
     },
     {
@@ -170,6 +178,13 @@ const LeftSideNav = () => {
       href: '/dashboard/admin/cost',
       icon: ShoppingBag, // Using ShoppingBag for Cost as a placeholder or import a DollarSign icon
       current: pathname.startsWith('/dashboard/admin/cost'),
+      adminOnly: true,
+    },
+    {
+      name: 'Manage Payments',
+      href: '/dashboard/admin/manage-payments',
+      icon: CreditCard,
+      current: pathname.startsWith('/dashboard/admin/manage-payments'),
       adminOnly: true,
     },
   ];
