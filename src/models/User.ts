@@ -46,7 +46,6 @@ const UserSchema = new mongoose.Schema(
 );
 
 // Performance indexes for user queries
-UserSchema.index({ email: 1 }); // Email is already unique, but explicit index
 UserSchema.index({ role: 1 }); // For role-based filtering
 UserSchema.index({ name: 'text', email: 'text' }); // For text search
 

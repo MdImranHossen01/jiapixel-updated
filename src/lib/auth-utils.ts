@@ -55,9 +55,17 @@ export async function generateTokens(user: any): Promise<Tokens> {
     refreshOptions
   );
 
-  // Store refresh token in DB
+  // Store refresh token in DB and clean up expired ones
   await connectDB();
-  await User.findByIdAndUpdate(user._id?.toString() || user.id, {
+  const userId = user._id?.toString() || user.id;
+
+  // First, remove any expired tokens to prevent document bloating
+  await User.findByIdAndUpdate(userId, {
+    $pull: { refreshTokens: { expiresAt: { $lt: new Date() } } }
+  });
+
+  // Then add the new one
+  await User.findByIdAndUpdate(userId, {
     $push: {
       refreshTokens: {
         token: refreshToken,

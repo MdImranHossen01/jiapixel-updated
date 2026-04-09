@@ -6,13 +6,13 @@ import { getToken } from "next-auth/jwt";
 // GET /api/payments - Fetch user's own payment history
 export async function GET(req: NextRequest) {
     const token = await getToken({ req });
-    if (!token || !token.sub) {
+    if (!token || !token.id) {
         return NextResponse.json({ message: "Not authorized" }, { status: 401 });
     }
 
     try {
         await dbConnect();
-        const payments = await Payment.find({ user: token.sub })
+        const payments = await Payment.find({ user: token.id })
             .sort({ createdAt: -1 })
             .lean();
         return NextResponse.json(payments);
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 // POST /api/payments - Submit a new payment
 export async function POST(req: NextRequest) {
     const token = await getToken({ req });
-    if (!token || !token.sub) {
+    if (!token || !token.id) {
         return NextResponse.json({ message: "Not authorized" }, { status: 401 });
     }
 
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         }
 
         const newPayment = new Payment({
-            user: token.sub,
+            user: token.id,
             amount,
             paymentMethod,
             transactionId,

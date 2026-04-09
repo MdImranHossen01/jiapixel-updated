@@ -6,15 +6,14 @@ import Order from "@/models/Order";
 export async function GET(req: NextRequest) {
   const token = await getToken({ req });
 
-  if (!token || !token.sub) {
+  if (!token || !token.id) {
     return NextResponse.json({ message: "Not authorized" }, { status: 401 });
   }
 
   await dbConnect();
 
   try {
-    // Use string ID directly for querying
-    const orders = await Order.find({ user: token.sub })
+    const orders = await Order.find({ user: token.id })
       .sort({ createdAt: -1 })
       .lean();
 

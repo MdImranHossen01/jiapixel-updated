@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IOrder extends Document {
-  user: string;
+  user: mongoose.Types.ObjectId;
   service: mongoose.Types.ObjectId;
   tier: {
     title: string;
@@ -21,7 +21,8 @@ export interface IOrder extends Document {
 const OrderSchema = new Schema<IOrder>(
   {
     user: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     service: {

@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const token = await getToken({ req });
-  if (!token || !token.sub) {
+  if (!token || !token.id) {
     return NextResponse.json({ message: "Not authorized" }, { status: 401 });
   }
 
@@ -41,11 +41,20 @@ export async function POST(req: NextRequest) {
     const { service, tier, requirements } = body;
 
     console.log("Creating order with data:", {
-      user: token.sub,
+      user: token.id,
       service,
       tier,
       requirements
     });
+
+    // Basic Validation
+    if (!service || !mongoose.isValidObjectId(service)) {
+      return NextResponse.json({ message: "Invalid Service ID provided" }, { status: 400 });
+    }
+
+    if (!tier || typeof tier.price !== "number") {
+      return NextResponse.json({ message: "Invalid tier information provided" }, { status: 400 });
+    }
 
     // Generate order number manually
     const generateOrderNumber = () => {
@@ -55,10 +64,10 @@ export async function POST(req: NextRequest) {
       return `ORD-${timestamp}-${random}`;
     };
 
-    // Use string ID directly for user, convert only service ID to ObjectId
+    // Create new order with normalized IDs
     const newOrder = new Order({
-      user: token.sub, // Use string ID directly
-      service: new mongoose.Types.ObjectId(service), // Convert service ID to ObjectId
+      user: token.id, 
+      service: new mongoose.Types.ObjectId(service), 
       tier,
       total: tier.price,
       orderNumber: generateOrderNumber(), // Generate order number manually
