@@ -35,9 +35,16 @@ export async function POST(req: NextRequest) {
                 txDateEnd.setHours(23, 59, 59, 999);
 
                 const existingCost = costs.find(c => {
+                    // Primary check: Accurate matching via cashflowId
+                    if (c.cashflowId && String(c.cashflowId) === String(transaction._id)) {
+                        return true;
+                    }
+
+                    // Fallback check: Legacy fuzzy matching for records without cashflowId
                     const cDate = new Date(c.date);
-                    return c.category === transaction.category &&
-                        Math.abs(c.amount - transaction.amount) < 0.01 && // Float tolerance
+                    return !c.cashflowId && // Only fallback if record has no cashflowId
+                        c.category === transaction.category &&
+                        Math.abs(c.amount - transaction.amount) < 0.01 &&
                         cDate >= txDateStart && cDate <= txDateEnd;
                 });
 
@@ -47,7 +54,8 @@ export async function POST(req: NextRequest) {
                             date: transaction.date,
                             category: transaction.category,
                             amount: transaction.amount,
-                            description: transaction.description || 'Synced from Cashflow'
+                            description: transaction.description || 'Synced from Cashflow',
+                            cashflowId: transaction._id
                         });
                         createdCount++;
                     } catch (err: any) {

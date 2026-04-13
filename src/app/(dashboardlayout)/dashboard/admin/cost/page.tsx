@@ -953,13 +953,14 @@ export default function CostPage() {
                                                 <th className="p-2 sm:p-4 font-medium">Category</th>
                                                 <th className="p-2 sm:p-4 font-medium">Description</th>
                                                 <th className="p-2 sm:p-4 font-medium text-right">Amount</th>
+                                                <th className="p-2 sm:p-4 font-medium text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                             {loadingCosts ? (
-                                                <tr><td colSpan={4} className="p-4 sm:p-8 text-center text-gray-500">Loading costs...</td></tr>
+                                                <tr><td colSpan={5} className="p-4 sm:p-8 text-center text-gray-500">Loading costs...</td></tr>
                                             ) : costs.length === 0 ? (
-                                                <tr><td colSpan={4} className="p-4 sm:p-8 text-center text-gray-500">No costs found for this date.</td></tr>
+                                                <tr><td colSpan={5} className="p-4 sm:p-8 text-center text-gray-500">No costs found for this date.</td></tr>
                                             ) : (
                                                 costs
                                                     .filter(cost =>
@@ -972,6 +973,31 @@ export default function CostPage() {
                                                             <td className="p-2 sm:p-4 font-medium text-gray-800 text-xs sm:text-sm">{cost.category}</td>
                                                             <td className="p-2 sm:p-4 text-gray-600 text-xs sm:text-sm">{cost.description || '-'}</td>
                                                             <td className="p-2 sm:p-4 text-right font-bold text-gray-800 text-xs sm:text-sm">{formatBDT(cost.amount)}</td>
+                                                            <td className="p-2 sm:p-4 text-center">
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                                                                            <MoreVertical size={16} className="text-gray-500" />
+                                                                        </button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent align="end" className="bg-white">
+                                                                        <DropdownMenuItem 
+                                                                            onClick={() => handleEdit(cost)}
+                                                                            className="flex items-center gap-2 cursor-pointer"
+                                                                        >
+                                                                            <Edit2 size={14} className="text-blue-500" />
+                                                                            <span>Edit</span>
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem 
+                                                                            onClick={() => handleDelete(cost._id)}
+                                                                            className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                                                                        >
+                                                                            <Trash2 size={14} />
+                                                                            <span>Delete</span>
+                                                                        </DropdownMenuItem>
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
+                                                            </td>
                                                         </tr>
                                                     ))
                                             )}
