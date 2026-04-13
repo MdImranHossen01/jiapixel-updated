@@ -7,7 +7,6 @@ import { generateHtml } from '@/lib/server-html';
 import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import NewsletterAdminActions from '@/components/NewsletterAdminActions';
-import CompactBlogCard from '@/components/CompactBlogCard';
 
 
 const extractText = (content: any): string => {
