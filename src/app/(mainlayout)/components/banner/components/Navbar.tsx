@@ -8,11 +8,14 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import Image from "next/image";
-import { QuickTransactionModal } from '@/components/dashboard/QuickTransactionModal';
+
+const QuickTransactionModal = dynamic(() => import('@/components/dashboard/QuickTransactionModal').then(mod => mod.QuickTransactionModal), { ssr: false });
+const AuthModal = dynamic(() => import("@/components/AuthModal"), { ssr: false });
+
 import { PlusCircle, Calendar } from 'lucide-react';
 import { useBooking } from "@/components/booking-provider";
-import AuthModal from "@/components/AuthModal";
 
 interface NavbarProps {
   onSearchClick: () => void;

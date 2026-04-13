@@ -26,7 +26,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     return (
         <BookingContext.Provider value={{ openBooking, closeBooking, isBookingOpen: isOpen }}>
             {children}
-            {mounted && (
+            {mounted && isOpen && (
                 <PopupModal
                     url={CONTACT_INFO.calendlyUrl}
                     onModalClose={() => setIsOpen(false)}

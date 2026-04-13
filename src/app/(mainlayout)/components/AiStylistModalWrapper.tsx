@@ -1,8 +1,12 @@
 "use client";
 import React, { useState } from 'react';
 
-import { AiStylistModal } from './banner/components/AiStylistModal';
+import dynamic from 'next/dynamic';
 import { Navbar } from './banner/components/Navbar';
+
+const AiStylistModal = dynamic(() => import('./banner/components/AiStylistModal').then(mod => mod.AiStylistModal), {
+  ssr: false,
+});
 
 
 const AiStylistModalWrapper: React.FC = () => {

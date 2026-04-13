@@ -1,7 +1,11 @@
 import React from 'react';
-import Footer from "./components/Footer";
+import dynamic from 'next/dynamic';
 import AiStylistModalWrapper from './components/AiStylistModalWrapper';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
+
+const Footer = dynamic(() => import("./components/Footer"), {
+  ssr: true, // We want Footer to be pre-rendered but code-split
+});
 
 const Mainlayout = ({ children }: { children: React.ReactNode }) => {
   return (

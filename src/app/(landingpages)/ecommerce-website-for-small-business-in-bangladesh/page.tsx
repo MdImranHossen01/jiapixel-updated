@@ -16,18 +16,19 @@ import {
     Sparkles,
     Heart
 } from "lucide-react";
-import { BackgroundLines } from "@/components/ui/background-lines";
-import { HoverEffect } from "@/components/ui/card-hover-effect";
 import { Button } from "@/components/ui/button";
 import { WhatsappIcon } from "@/components/CustomIcons";
-import { LandingCheckoutSheet } from "@/components/landing/LandingCheckoutSheet";
-import { FloatingCTAs } from "@/components/landing/FloatingCTAs";
+import dynamic from "next/dynamic";
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+
+// Dynamic imports for performance optimization
+const LandingCheckoutSheet = dynamic(() => import("@/components/landing/LandingCheckoutSheet").then(mod => mod.LandingCheckoutSheet));
+const FloatingCTAs = dynamic(() => import("@/components/landing/FloatingCTAs").then(mod => mod.FloatingCTAs));
 
 export const metadata: Metadata = {
     title: "ক্ষুদ্র ব্যবসার জন্য প্রিমিয়াম ই-কমার্স ওয়েবসাইট | মাত্র ৩৫০০ টাকা",
@@ -147,7 +148,7 @@ const EcommerceLandingPage = () => {
 
             {/* Hero Section */}
             <section className="relative overflow-hidden pt-10 pb-20">
-                <BackgroundLines className="w-full px-4">
+                <div className="relative w-full overflow-hidden px-4">
                     <div className="container mx-auto z-20 flex flex-col lg:flex-row items-center gap-12 py-20">
                         {/* Left Column: Banner Image */}
                         <div className="flex-1 order-2 lg:order-1 relative">
@@ -157,6 +158,8 @@ const EcommerceLandingPage = () => {
                                     alt="Ecommerce UI Preview"
                                     width={1200}
                                     height={675}
+                                    priority={true}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
                                     className="w-full h-auto"
                                 />
                             </div>
@@ -195,7 +198,7 @@ const EcommerceLandingPage = () => {
                             </div>
                         </div>
                     </div>
-                </BackgroundLines>
+                </div>
             </section>
 
             {/* Trust & Pricing Banner */}
@@ -226,7 +229,14 @@ const EcommerceLandingPage = () => {
                         </p>
                     </div>
 
-                    <HoverEffect items={features} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-10">
+                        {features.map((item, idx) => (
+                            <div key={idx} className="p-8 rounded-3xl border border-border bg-card/50 hover:border-primary/50 transition-colors flex flex-col gap-4">
+                                <h3 className="text-xl font-bold">{item.title}</h3>
+                                <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+                            </div>
+                        ))}
+                    </div>
 
                     <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-card rounded-3xl border border-border overflow-hidden">
                         <div className="p-8 lg:p-16 space-y-6">
