@@ -1,0 +1,222 @@
+"use client";
+
+import React, { useState, useRef, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Send,
+  Loader2,
+  CreditCard,
+  ShieldCheck,
+  PartyPopper,
+  ArrowRight
+} from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+
+// Zod Schema for validation
+const formSchema = z.object({
+  name: z.string().min(2, "কমপক্ষে ২ অক্ষরের নাম দিন"),
+  email: z.string().email("সঠিক ইমেইল এড্রেস দিন"),
+  phone: z.string().regex(/^01[3-9]\d{8}$/, "সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (উদা: 01XXXXXXXXX)"),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+interface LandingCheckoutSheetProps {
+  children: React.ReactNode;
+  source: string;
+  price: number;
+}
+
+export function LandingCheckoutSheet({ children, source, price }: LandingCheckoutSheetProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    reset
+  } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
+  });
+
+  const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/landing-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...data,
+          source,
+          price
+        }),
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        toast.success("অর্ডার রিকোয়েস্ট সফল হয়েছে!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "সাবমিট করতে সমস্যা হয়েছে।");
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast.error("একটি ত্রুটি ঘটেছে। অনুগ্রহ করে পরে চেষ্টা করুন।");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    if (!open) {
+      // Small delay to reset success state after animation finishes
+      timeoutRef.current = setTimeout(() => {
+        setIsSuccess(false);
+        reset();
+        timeoutRef.current = null;
+      }, 500);
+    }
+  };
+
+  return (
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+      <SheetTrigger asChild>
+        {children}
+      </SheetTrigger>
+      <SheetContent side="top" className="h-auto max-h-[95vh] overflow-y-auto p-0 border-b-primary/20 rounded-b-3xl">
+        <div className="container max-w-2xl mx-auto py-12 px-6">
+          {!isSuccess ? (
+            <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-1000">
+              {/* Centered Header */}
+              <div className="text-center mb-10 space-y-2">
+                <SheetHeader className="p-0">
+                  <SheetTitle className="text-3xl md:text-5xl font-black leading-tight">
+                    <span className="text-primary uppercase italic">Submit Order Request</span>
+                  </SheetTitle>
+                </SheetHeader>
+                <p className="text-muted-foreground font-medium italic">
+                  অনুগ্রহ করে নিচের তথ্যগুলো দিয়ে অর্ডারটি কনফার্ম করুন
+                </p>
+              </div>
+
+              {/* Centered Form */}
+              <div className="w-full bg-card border border-border rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-sm font-black uppercase tracking-wider text-muted-foreground">পুরো নাম (Full Name)</Label>
+                    <Input
+                      id="name"
+                      {...register("name")}
+                      placeholder="your name"
+                      className={`h-14 text-lg bg-background/50 transition-all border-border/50 ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
+                    />
+                    {errors.name && <p className="text-xs text-destructive font-bold">{errors.name.message}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-black uppercase tracking-wider text-muted-foreground">ইমেইল (Email)</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      {...register("email")}
+                      placeholder="email@example.com"
+                      className={`h-14 text-lg bg-background/50 transition-all border-border/50 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
+                    />
+                    {errors.email && <p className="text-xs text-destructive font-bold">{errors.email.message}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-black uppercase tracking-wider text-muted-foreground">মোবাইল নম্বর (Mobile Number)</Label>
+                    <Input
+                      id="phone"
+                      {...register("phone")}
+                      placeholder="01XXXXXXXXX"
+                      className={`h-14 text-lg bg-background/50 transition-all border-border/50 ${errors.phone ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
+                    />
+                    {errors.phone && <p className="text-xs text-destructive font-bold">{errors.phone.message}</p>}
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting || !isValid}
+                    className="w-full h-16 rounded-[1.25rem] text-xl font-black shadow-xl shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all mt-6"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-6 h-6 animate-spin mr-3" />
+                        প্রসেসিং হচ্ছে...
+                      </>
+                    ) : (
+                      <>
+                        Confirm Order
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </div>
+
+              <p className="mt-8 text-sm text-muted-foreground font-medium italic">
+                * কোনো অগ্রিম পেমেন্টের প্রয়োজন নেই। আমাদের টিম আপনার সাথে সরাসরি যোগাযোগ করবে।
+              </p>
+            </div>
+          ) : (
+            /* Success View */
+            <div className="text-center py-16 space-y-8 animate-in zoom-in-95 duration-700">
+              <div className="w-28 h-28 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/20 shadow-2xl shadow-green-500/10">
+                <PartyPopper className="w-14 h-14 text-green-500" />
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-5xl font-black tracking-tight">অর্ডার রিকোয়েস্ট সফল!</h2>
+                <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
+                  ধন্যবাদ! আমরা আপনার রিকোয়েস্টটি পেয়েছি। আমাদের একজন স্পেশালিস্ট খুব শীঘ্রই আপনার মোবাইল নম্বরে যোগাযোগ করবেন।
+                </p>
+              </div>
+              <div className="pt-8">
+                <Button
+                  onClick={() => setIsOpen(false)}
+                  variant="outline"
+                  className="rounded-full px-12 h-14 text-lg font-black bg-primary/5 hover:bg-primary hover:text-primary-foreground transition-all shadow-xl shadow-primary/10"
+                >
+                  ফিরে যান (Got it!)
+                  <ArrowRight className="ml-3 w-6 h-6" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}

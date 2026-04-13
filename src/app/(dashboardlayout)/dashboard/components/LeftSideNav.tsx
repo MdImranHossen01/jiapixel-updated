@@ -18,7 +18,8 @@ import {
   MapPin,
   Mail,
   PenTool,
-  CreditCard
+  CreditCard,
+  Zap
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 import Logo from '@/app/(mainlayout)/components/Logo';
@@ -32,12 +33,11 @@ const LeftSideNav = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const initializeMounted = async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+    const timer = setTimeout(() => {
       setMounted(true);
-    };
+    }, 0);
 
-    initializeMounted();
+    return () => clearTimeout(timer);
   }, []);
 
   const navigation = [
@@ -143,6 +143,13 @@ const LeftSideNav = () => {
       href: '/dashboard/admin/manage-orders',
       icon: ShoppingBag,
       current: pathname.startsWith('/dashboard/admin/manage-orders'),
+      adminOnly: true,
+    },
+    {
+      name: 'Landing Requests',
+      href: '/dashboard/admin/manage-requests',
+      icon: Zap,
+      current: pathname.startsWith('/dashboard/admin/manage-requests'),
       adminOnly: true,
     },
     {

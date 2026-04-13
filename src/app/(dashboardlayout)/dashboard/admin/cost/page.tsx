@@ -184,6 +184,13 @@ export default function CostPage() {
     const cashflowCategoryRef = useRef<HTMLSelectElement>(null);
     const cashflowDescriptionRef = useRef<HTMLInputElement>(null);
     const [syncing, setSyncing] = useState(false);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, []);
 
     const handleSyncCosts = async () => {
         setSyncing(true);
@@ -391,8 +398,10 @@ export default function CostPage() {
                 
                 // Focus amount field for next entry only if we weren't just editing
                 if (!prevEditing) {
-                    setTimeout(() => {
+                    if (timerRef.current) clearTimeout(timerRef.current);
+                    timerRef.current = setTimeout(() => {
                         cashflowAmountRef.current?.focus();
+                        timerRef.current = null;
                     }, 0);
                 }
             } else {
@@ -582,7 +591,11 @@ export default function CostPage() {
             console.error("Failed to update target via projection", e);
         }
         setEditingMonthlyProjection(null);
-        setTimeout(() => fetchPerformanceStats(selectedYear, performanceMonth), 500);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
+            fetchPerformanceStats(selectedYear, performanceMonth);
+            timerRef.current = null;
+        }, 500);
     };
 
     // --- Asset Functions ---

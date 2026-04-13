@@ -37,43 +37,43 @@ export const ScrollToTop = () => {
     };
 
     // SVG Cylinder configuration
-    const radius = 18;
+    const radius = 14;
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (progress / 100) * circumference;
 
     return (
         <div
             className={cn(
-                "fixed bottom-8 right-8 z-50 transition-all duration-300 transform",
+                "fixed bottom-2 right-2 md:right-4 z-50 transition-all duration-300 transform",
                 isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none"
             )}
         >
             <button
                 onClick={scrollToTop}
-                className="relative flex items-center justify-center w-12 h-12 bg-background rounded-full shadow-lg hover:shadow-xl transition-shadow group"
+                className="relative flex items-center justify-center w-9 h-9 bg-background rounded-full shadow-lg hover:shadow-xl transition-shadow group"
                 aria-label="Scroll to top"
             >
                 {/* Progress Circle Background */}
-                <svg className="absolute inset-0 w-full h-full -rotate-90 text-muted-foreground/20">
+                <svg viewBox="0 0 36 36" className="absolute inset-0 w-full h-full -rotate-90 text-muted-foreground/15">
                     <circle
-                        cx="24"
-                        cy="24"
+                        cx="18"
+                        cy="18"
                         r={radius}
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="3"
+                        strokeWidth="2.5"
                     />
                 </svg>
 
                 {/* Progress Circle Indicator */}
-                <svg className="absolute inset-0 w-full h-full -rotate-90 text-primary">
+                <svg viewBox="0 0 36 36" className="absolute inset-0 w-full h-full -rotate-90 text-primary">
                     <circle
-                        cx="24"
-                        cy="24"
+                        cx="18"
+                        cy="18"
                         r={radius}
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="3"
+                        strokeWidth="2.5"
                         strokeDasharray={circumference}
                         strokeDashoffset={strokeDashoffset}
                         className="transition-all duration-100 ease-out"
@@ -83,7 +83,7 @@ export const ScrollToTop = () => {
 
                 {/* Arrow Icon */}
                 <ArrowUp
-                    size={20}
+                    size={14}
                     className="text-foreground group-hover:text-primary transition-colors z-10"
                 />
             </button>
