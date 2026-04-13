@@ -10,29 +10,10 @@ import BlogAdminActions from '@/components/BlogAdminActions';
 
 
 
+import { getBlogBySlug, getBlogs } from '@/lib/db-utils';
+
 async function getBlog(slug: string) {
-  try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/blogs/${slug}`, {
-      cache: 'force-cache',
-      next: { tags: [`blog-${slug}`, 'blogs'] }
-    } as RequestInit);
-
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      console.error('Error fetching blog:', response.status);
-      return null;
-    }
-
-    const data = await response.json();
-    return data.blog || null;
-  } catch (error) {
-    console.error('Error fetching blog:', error);
-    return null;
-  }
+  return await getBlogBySlug(slug);
 }
 
 interface PageProps {
@@ -249,25 +230,12 @@ export default async function BlogPostPage({ params }: PageProps) {
   );
 }
 
-// Generate static params for better performance
 export async function generateStaticParams() {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/blogs`, {
-      cache: 'force-cache'
-    } as RequestInit);
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    return data.blogs?.map((blog: any) => ({
+    const blogs = await getBlogs();
+    return blogs.map((blog: any) => ({
       slug: blog.slug,
-    })) || [];
+    }));
   } catch (error) {
     return [];
   }

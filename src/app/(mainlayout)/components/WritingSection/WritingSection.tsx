@@ -14,43 +14,10 @@ interface Writing {
     createdAt?: string;
 }
 
-// Helper to get base URL
-function getBaseUrl() {
-    if (typeof window !== 'undefined') {
-        return window.location.origin;
-    }
-    if (process.env.NODE_ENV === 'production') {
-        return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
-    }
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-}
-
-async function getRecentWritings() {
-    try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/writings?limit=4`, {
-            cache: 'force-cache',
-            next: { tags: ['writings'] }
-        });
-
-        if (!response.ok) {
-            console.error(`Failed to fetch recent writings: ${response.status}`);
-            return [];
-        }
-
-        const data = await response.json();
-        if (data.success && Array.isArray(data.writings)) {
-            return data.writings;
-        }
-        return [];
-    } catch (error) {
-        console.error('Error fetching recent writings:', error);
-        return [];
-    }
-}
+import { getWritings } from '@/lib/db-utils';
 
 export default async function WritingSection() {
-    const writings = await getRecentWritings();
+    const writings = await getWritings(4);
 
     if (writings.length === 0) {
         return null;

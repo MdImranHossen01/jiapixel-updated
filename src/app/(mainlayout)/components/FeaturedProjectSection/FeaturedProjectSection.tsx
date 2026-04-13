@@ -1,43 +1,10 @@
 import ProjectCard from "@/components/ProjectCard";
 import React from "react";
 
-// Helper to get base URL
-function getBaseUrl() {
-    if (typeof window !== 'undefined') {
-        return window.location.origin;
-    }
-    if (process.env.NODE_ENV === 'production') {
-        return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
-    }
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-}
-
-async function getFeaturedProjects() {
-    try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/projects?limit=8`, {
-            cache: 'force-cache',
-            next: { tags: ['projects'] }
-        });
-
-        if (!response.ok) {
-            console.error(`Failed to fetch projects: ${response.status}`);
-            return [];
-        }
-
-        const data = await response.json();
-        if (data.success && Array.isArray(data.projects)) {
-            return data.projects;
-        }
-        return [];
-    } catch (error) {
-        console.error("Error fetching projects:", error);
-        return [];
-    }
-}
+import { getProjects } from "@/lib/db-utils";
 
 export default async function FeaturedProjectSection() {
-    const projects = await getFeaturedProjects();
+    const projects = await getProjects(8);
 
     console.log(`[FeaturedProjectSection] Fetched ${projects?.length || 0} projects`);
 

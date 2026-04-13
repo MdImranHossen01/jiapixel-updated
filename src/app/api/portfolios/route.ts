@@ -5,9 +5,8 @@ import Portfolio from '@/models/Portfolios';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth'; // Fixed import path
 
-// Enable route caching - revalidate every 60 seconds
-export const revalidate = 60;
-
+// Enable route caching - revalidate every 3600 seconds (1 hour)
+export const revalidate = 3600;
 // GET all portfolios (public)
 
 export async function GET(request: NextRequest) {

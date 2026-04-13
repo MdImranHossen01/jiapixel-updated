@@ -93,20 +93,36 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
     }
   }, []);
 
-  // Fetch unread message count
-  // Fetch unread message count - optimized to run only once per session change
+  // Fetch unread message count - optimized with session storage caching
   useEffect(() => {
     if (session?.user?.id) {
       const updateUnreadCount = async () => {
         try {
-          // Add simple cache busting or check if we already have data to avoid spamming
-          const response = await fetch('/api/messages/unread-count', {
-            next: { revalidate: 60 } // Cache for 60 seconds client-side if supported, else relies on browser cache
-          });
+          // Check if we fetched recently (within last 2 minutes)
+          const lastFetch = sessionStorage.getItem(`unreadFetch_${session.user.id}`);
+          const now = Date.now();
+          
+          if (lastFetch && now - parseInt(lastFetch) < 120000) {
+            const cachedCount = sessionStorage.getItem(`unreadCount_${session.user.id}`);
+            if (cachedCount !== null) {
+              setUnreadCount(parseInt(cachedCount));
+              return;
+            }
+          }
+
+          const response = await fetch('/api/messages/unread-count');
 
           if (response.ok) {
             const data = await response.json();
-            setUnreadCount(data.count);
+            const count = Number.isFinite(data.count) ? data.count : 0;
+            
+            setUnreadCount(count);
+            
+            // Cache the result only if it's a valid count
+            if (Number.isFinite(data.count)) {
+              sessionStorage.setItem(`unreadCount_${session.user.id}`, count.toString());
+              sessionStorage.setItem(`unreadFetch_${session.user.id}`, now.toString());
+            }
           }
         } catch (error) {
           console.error('Error fetching unread count:', error);
@@ -114,8 +130,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
       };
 
       updateUnreadCount();
+      
+      // Optional: Set up an interval for background updates (e.g., every 5 minutes)
+      const interval = setInterval(updateUnreadCount, 300000);
+      return () => clearInterval(interval);
     }
-  }, [session?.user?.id]); // Only re-run if the specific user ID changes, not the entire session object
+  }, [session?.user?.id]);
 
   // ✅ Close dropdown and mobile menu when clicking outside
   useEffect(() => {

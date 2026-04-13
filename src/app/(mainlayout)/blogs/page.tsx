@@ -1,36 +1,12 @@
 import type { Metadata } from 'next';
 import BlogsClient from './components/BlogsClient';
 
-// Helper function to get base URL
-function getBaseUrl() {
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
-  }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-}
+import { getBlogs as fetchBlogs } from '@/lib/db-utils';
 
-async function getBlogs() {
+async function getBlogsData() {
   try {
-    const baseUrl = getBaseUrl();
-
-    const response = await fetch(`${baseUrl}/api/blogs?limit=1000`, {
-      next: { revalidate: 86400 }
-    });
-
-    if (!response.ok) {
-      return { blogs: [], error: `Failed to fetch blogs: ${response.status}` };
-    }
-
-    const data = await response.json();
-
-    if (!data.success) {
-      return { blogs: [], error: data.error };
-    }
-
-    return data;
+    const blogs = await fetchBlogs(1000);
+    return { success: true, blogs };
   } catch (error) {
     return {
       blogs: [],
@@ -92,7 +68,7 @@ function createPlainTextExcerpt(html: string, maxLength: number = 150): string {
 }
 
 export default async function BlogsPage() {
-  const data = await getBlogs();
+  const data = await getBlogsData();
   const blogs = data.blogs || [];
 
   // Generate structured data for blog listing

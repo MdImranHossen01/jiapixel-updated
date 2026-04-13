@@ -6,9 +6,8 @@ import Service from '../../../models/Service';
 import { uploadMultipleToImgBB } from '../../../lib/imgbb';
 import { generateSlug } from '../../../lib/slug';
 
-// Enable route caching - revalidate every 60 seconds
-export const revalidate = 60;
-
+// Enable route caching - revalidate every 3600 seconds (1 hour)
+export const revalidate = 3600;
 export async function POST(request: NextRequest) {
   try {
     await connectDB();

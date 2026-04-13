@@ -6,7 +6,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
 // Enable route caching - revalidate every 60 seconds
-export const revalidate = 60;
+export const revalidate = 3600;
 
 // GET all products (public)
 export async function GET(request: NextRequest) {
