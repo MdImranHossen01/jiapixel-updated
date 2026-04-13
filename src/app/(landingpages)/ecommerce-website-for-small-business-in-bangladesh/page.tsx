@@ -25,6 +25,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+import { BannerSlider } from "@/components/landing/BannerSlider";
 
 // Dynamic imports for performance optimization
 const LandingCheckoutSheet = dynamic(() => import("@/components/landing/LandingCheckoutSheet").then(mod => mod.LandingCheckoutSheet));
@@ -42,6 +43,14 @@ export const metadata: Metadata = {
 };
 
 const EcommerceLandingPage = () => {
+    const bannerImages = [
+        "/images/landing-pages/ecommerce-promo/banner1.webp",
+        "/images/landing-pages/ecommerce-promo/banner2.webp",
+        "/images/landing-pages/ecommerce-promo/banner3.webp",
+        "/images/landing-pages/ecommerce-promo/banner4.webp",
+        "/images/landing-pages/ecommerce-promo/banner5.webp",
+    ];
+
     const features = [
         {
             title: "ফ্রি ক্লাউড হোস্টিং",
@@ -144,36 +153,28 @@ const EcommerceLandingPage = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
+        <div className="min-h-screen bg-background text-foreground container mx-auto selection:bg-primary/30">
 
             {/* Hero Section */}
-            <section className="relative overflow-hidden pt-10 pb-20">
+            <section className="relative overflow-hidden mt-10 pb-20">
                 <div className="relative w-full overflow-hidden px-4">
-                    <div className="container mx-auto z-20 flex flex-col lg:flex-row items-center gap-12 py-20">
-                        {/* Left Column: Banner Image */}
-                        <div className="flex-1 order-2 lg:order-1 relative">
-                            <div className="rounded-2xl overflow-hidden border border-border bg-card shadow-2xl transform hover:scale-[1.01] transition-transform duration-500 relative z-20">
-                                <Image
-                                    src="/images/landing-pages/ecommerce-promo/hero.png"
-                                    alt="Ecommerce UI Preview"
-                                    width={1200}
-                                    height={675}
-                                    priority={true}
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-                                    className="w-full h-auto"
-                                />
+                    <div className="container mx-auto z-20 flex flex-col lg:flex-row items-center gap-12">
+                        {/* Left Column: Banner Slider */}
+                        <div className="lg:w-[60%] order-2 lg:order-1 relative">
+                            <div className="relative z-20">
+                                <BannerSlider images={bannerImages} />
                             </div>
                             <div className="absolute -bottom-6 -right-6 -z-10 w-full h-full bg-primary/20 rounded-2xl blur-3xl opacity-50"></div>
                         </div>
 
                         {/* Right Column: Title and Attributes */}
-                        <div className="flex-1 order-1 lg:order-2 text-center lg:text-left space-y-8">
+                        <div className="lg:w-[40%] order-1 lg:order-2 text-center lg:text-left space-y-8 lg:pl-8">
                             <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-primary/10 text-primary border border-primary/20 animate-in fade-in slide-in-from-bottom-3 duration-1000">
                                 <Sparkles className="w-4 h-4 mr-2" />
                                 <span>শুরু মাত্র ৩৫০০ টাকা থেকে</span>
                             </div>
 
-                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70 leading-tight">
+                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70 leading-tight">
                                 বাংলাদেশে গড়ে তুলুন আপনার <br /> ই-কমার্স সাম্রাজ্য
                             </h1>
 
@@ -185,14 +186,12 @@ const EcommerceLandingPage = () => {
                             <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4">
                                 <LandingCheckoutSheet source="ecommerce-small-business" price={3500}>
                                     <Button size="lg" className="rounded-full px-8 h-12 text-base font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/25 cursor-pointer">
-                                        <ShoppingCart className="mr-2 h-5 w-5" />
-                                        অর্ডার রিকোয়েস্ট করুন
+                                        Request Order
                                     </Button>
                                 </LandingCheckoutSheet>
                                 <Button asChild variant="outline" size="lg" className="rounded-full px-8 h-12 text-base font-semibold transition-all hover:bg-accent">
                                     <Link href="https://wa.me/8801919011101">
-                                        <WhatsappIcon className="mr-2 h-5 w-5" />
-                                        হোয়াটসঅ্যাপে যোগাযোগ
+                                        WhatsApp
                                     </Link>
                                 </Button>
                             </div>
@@ -329,7 +328,7 @@ const EcommerceLandingPage = () => {
                         <h2 className="text-3xl md:text-5xl font-black mb-6">সাধারণ কিছু <span className="text-primary">প্রশ্ন (FAQs)</span></h2>
                         <p className="text-muted-foreground text-lg italic">আপনার মনে থাকা সাধারণ কিছু প্রশ্নের উত্তর এখানে পাওয়া যাবে।</p>
                     </div>
-                    
+
                     <Accordion type="single" collapsible className="w-full space-y-4">
                         <AccordionItem value="item-1" className="border border-border/50 rounded-2xl px-6 bg-accent/10 dark:bg-accent/5 overflow-hidden transition-all hover:border-primary/30">
                             <AccordionTrigger className="text-lg md:text-xl font-bold py-6 hover:no-underline hover:text-primary transition-colors text-left uppercase">How long it will take build?</AccordionTrigger>
