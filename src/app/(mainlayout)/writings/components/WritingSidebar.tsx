@@ -77,6 +77,7 @@ const WritingSidebar: React.FC<WritingSidebarProps> = ({
                         <Link
                             key={writing._id}
                             href={`/writings/${writing.slug}`}
+                            prefetch={false}
                             className="group flex gap-4 items-start"
                         >
                             {writing.featuredImage && (
@@ -127,7 +128,7 @@ const WritingSidebar: React.FC<WritingSidebarProps> = ({
                 <p className="text-sm text-muted-foreground mb-4">
                     Get the latest updates directly to your inbox.
                 </p>
-                <Link href="/contact">
+                <Link href="/contact" prefetch={false}>
                     <Button className="w-full">Contact Us</Button>
                 </Link>
             </div>

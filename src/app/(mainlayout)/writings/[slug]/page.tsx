@@ -142,6 +142,7 @@ export default async function WritingPage({ params }: PageProps) {
                     <nav>
                         <Link
                             href="/writings"
+                            prefetch={false}
                             className="text-primary hover:text-primary/80 font-medium transition-colors inline-flex items-center space-x-2"
                         >
                             <span>←</span>
@@ -213,7 +214,7 @@ export default async function WritingPage({ params }: PageProps) {
                                 <div className="flex flex-col gap-4">
                                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                     {relatedWritings.map((item: any) => (
-                                        <Link key={item._id} href={`/writings/${item.slug}`} className="group flex gap-3 items-start">
+                                        <Link key={item._id} href={`/writings/${item.slug}`} prefetch={false} className="group flex gap-3 items-start">
                                             {item.featuredImage && (
                                                 <div className="relative w-16 h-12 shrink-0 rounded overflow-hidden bg-muted">
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}

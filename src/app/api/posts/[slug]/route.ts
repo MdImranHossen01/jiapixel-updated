@@ -143,7 +143,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
         // Revalidate the post details page to show updates instantly
         revalidatePath(`/posts/${slug}`);
-        revalidateTag(`post-${slug}`, 'default');
+        revalidateTag(`post-${slug}`, 'max');
 
         return NextResponse.json({
             success: true,

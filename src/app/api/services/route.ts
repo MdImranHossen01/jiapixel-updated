@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/api/services/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import connectDB from '../../../lib/db';
 import Service from '../../../models/Service';
 import { uploadMultipleToImgBB } from '../../../lib/imgbb';
 import { generateSlug } from '../../../lib/slug';
 
-// Enable route caching - revalidate every 3600 seconds (1 hour)
-export const revalidate = 3600;
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
@@ -120,6 +120,8 @@ export async function POST(request: NextRequest) {
     });
 
     await service.save();
+    revalidateTag('services', 'max');
+    revalidateTag(`service-${uniqueSlug}`, 'max');
 
     return NextResponse.json(
       {

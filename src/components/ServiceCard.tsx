@@ -52,7 +52,7 @@ export default function ServiceCard({ service }: any) {
 
   return (
     <div className="group relative">
-      <Link href={`/services/${service.slug}`} className="block">
+      <Link href={`/services/${service.slug}`} className="block" prefetch={false}>
         <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/50 transition-all duration-300 h-full flex flex-col">
           {/* IMAGE */}
           <div className="relative h-48 overflow-hidden">

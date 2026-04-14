@@ -89,6 +89,7 @@ const WritingCard: React.FC<WritingCardProps> = ({ writing }) => {
                 <h2 className="font-bold text-card-foreground mb-2 line-clamp-2">                    <Link
                     href={`/writings/${writing.slug}`}
                     className="hover:text-primary transition-colors"
+                    prefetch={false}
                 >
                     {writing.title || 'Untitled Writing'}
                 </Link>
@@ -101,6 +102,7 @@ const WritingCard: React.FC<WritingCardProps> = ({ writing }) => {
                     <Link
                         href={`/writings/${writing.slug}`}
                         className="text-primary hover:text-primary/80 font-medium text-sm transition-colors"
+                        prefetch={false}
                     >
                         Read More →
                     </Link>

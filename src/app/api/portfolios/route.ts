@@ -5,8 +5,7 @@ import Portfolio from '@/models/Portfolios';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth'; // Fixed import path
 
-// Enable route caching - revalidate every 3600 seconds (1 hour)
-export const revalidate = 3600;
+
 // GET all portfolios (public)
 
 export async function GET(request: NextRequest) {
@@ -117,7 +116,8 @@ export async function POST(request: NextRequest) {
 
     revalidatePath('/portfolios');
     revalidatePath(`/portfolios/${portfolio.slug}`);
-    revalidateTag('portfolios', 'default');
+    revalidateTag('portfolios', 'max');
+    revalidateTag(`portfolio-${portfolio.slug}`, 'max');
 
     return NextResponse.json(
       { message: 'Portfolio created successfully', portfolio },

@@ -26,6 +26,8 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { BannerSlider } from "@/components/landing/BannerSlider";
+import { FeaturesGrid } from "@/components/landing/FeaturesGrid";
+import { StackingHighlights, type Highlight } from "@/components/landing/StackingHighlights";
 
 // Dynamic imports for performance optimization
 const LandingCheckoutSheet = dynamic(() => import("@/components/landing/LandingCheckoutSheet").then(mod => mod.LandingCheckoutSheet));
@@ -132,6 +134,145 @@ const EcommerceLandingPage = () => {
             description: "অ্যাডমিন এবং কাস্টমারদের জন্য আলাদা আলাদা ড্যাশবোর্ড সুবিধা।",
             link: "#",
         },
+        {
+            title: "ইনভেন্টরি ম্যানেজমেন্ট",
+            description: "আপনার পণ্যের স্টক ট্র্যাক করুন এবং স্টক ফুরিয়ে গেলে অটোমেটেড এলার্ট পান।",
+            link: "#",
+        },
+        {
+            title: "উইশলিস্ট বা প্রিয় তালিকা",
+            description: "উন্নত কেনাকাটার অভিজ্ঞতার জন্য কাস্টমাররা তাদের প্রিয় পণ্যগুলো আলাদা করে রাখতে পারবে।",
+            link: "#",
+        },
+        {
+            title: "কুপন এবং ডিসকাউন্ট কোড",
+            description: "আপনার বিক্রি বাড়িয়ে নিতে কাস্টমারদের জন্য আকর্ষণীয় ডিসকাউন্ট এবং কুপন সিস্টেম।",
+            link: "#",
+        },
+        {
+            title: "রিয়েল-টাইম কুরিয়ার ট্র্যাকিং",
+            description: "কাস্টমাররা তাদের অর্ডারের বর্তমান অবস্থা সরাসরি ওয়েবসাইট থেকেই ট্র্যাক করতে পারবে।",
+            link: "#",
+        },
+        {
+            title: "অটোমেটেড ইনভয়েস জেনারেশন",
+            description: "অর্ডার কনফার্ম হওয়ার সাথে সাথেই কাস্টমারের জন্য প্রফেশনাল পিডিএফ ইনভয়েস তৈরি হবে।",
+            link: "#",
+        },
+        {
+            title: "বাল্ক প্রোডাক্ট আপলোড",
+            description: "এক ক্লিকে শত শত প্রোডাক্ট এক্সেল বা সিএসভি ফাইলের মাধ্যমে স্টোরে আপলোড করার সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "কাস্টমার রিভিউ এবং রেটিং",
+            description: "পণ্যের উপর কাস্টমারদের মতামত এবং রেটিং যা আপনার ব্র্যান্ডের বিশ্বস্ততা বাড়িয়ে দিবে।",
+            link: "#",
+        },
+        {
+            title: "নিরাপদ চেকআউট প্রসেস",
+            description: "অত্যাধুনিক সিকিউরিটি লেয়ার ব্যবহারের মাধ্যমে কাস্টমারের যাবতীয় তথ্য সুরক্ষিত রাখা।",
+            link: "#",
+        },
+        {
+            title: "অ্যাডভান্সড রিচ-টেক্সট এডিটর",
+            description: "ব্লগিং এবং কন্টেন্ট রাইটিং এর জন্য থাকছে টিপট্যাপ (Tiptap) ভিত্তিক অত্যাধুনিক রিচ-টেক্সট এডিটর সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "সোশ্যাল মিডিয়া ইন্টিগ্রেশন",
+            description: "ফেসবুক, ইনস্টাগ্রাম এবং অন্যান্য সোশ্যাল মিডিয়ার সাথে সরাসরি কানেক্ট করার সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "উন্নত প্রোডাক্ট ফিল্টারিং",
+            description: "কাস্টমাররা সহজেই ক্যাটাগরি, মূল্য এবং বৈশিষ্ট্য অনুযায়ী তাদের পছন্দের পণ্য খুঁজে পাবে।",
+            link: "#",
+        },
+        {
+            title: "ব্লগ এবং কনটেন্ট ম্যানেজমেন্ট",
+            description: "অর্গানিক ট্রাফিক বাড়াতে আপনার স্টোরে নিয়মিত নতুন ব্লগ পোস্ট করার জন্য ডায়নামিক এডমিন প্যানেল।",
+            link: "#",
+        },
+        {
+            title: "এসএসএল সার্টিফিকেট",
+            description: "আপনার স্টোরের ডাটা ইনক্রিপ্ট রাখতে আমরা দিচ্ছি প্রথম বছরের জন্য ফ্রি এসএসএল সার্টিফিকেট।",
+            link: "#",
+        },
+        {
+            title: "লাইফ-টাইম টেকনিক্যাল সাপোর্ট",
+            description: "সাইট লঞ্চের পর যেকোনো যান্ত্রিক গোলযোগে আমাদের পক্ষ থেকে থাকছে সার্বক্ষণিক সাপোর্ট।",
+            link: "#",
+        },
+    ];
+
+    const highlightData: Highlight[] = [
+        {
+            id: "courier",
+            header: "লাইভ ট্র্যাকিং",
+            title: "কুরিয়ার এবং ডেলিভারি অটোমেশন",
+            description: "অটোমেটিক অর্ডার পাঠান পাঠাও, রেডাক্স অথবা স্টিডফাস্টে। এক ক্লিকে শিপিং লেবেল প্রিন্ট করুন এবং ড্যাশবোর্ড থেকেই পার্সেল ট্র্যাক করুন।",
+            image: "/images/landing-pages/ecommerce-promo/courier.png",
+            icon: <CheckCircle2 className="w-4 h-4" />,
+            bullets: [
+                "এক ক্লিকে পার্সেল বুকিং",
+                "কাস্টমারদের জন্য রিয়েল-টাইম ট্র্যাকিং",
+                "ইন্টিগ্রেটেড ডেলিভারি চার্জ"
+            ],
+            headerBgCls: "bg-green-500/10",
+            headerTextCls: "text-green-500 border-green-500/20",
+            imageBgColor: "bg-accent/20"
+        },
+        {
+            id: "ai",
+            header: "অত্যাধুনিক এআই প্রযুক্তি",
+            title: "বিজনেস বাড়াতে ইন্টেলিজেন্ট এআই সলিউশন",
+            description: "আপনার কাস্টমারদের সাথে অটোমেটেড চ্যাট এবং পার্সোনালাইজড অফারের জন্য থাকছে অ্যাডভান্সড এআই (AI) ইন্টিগ্রেশন সুবিধা।",
+            image: "/ai_highlight_illustration.png",
+            icon: <Sparkles className="w-4 h-4" />,
+            bullets: [
+                "অটোমেটেড এআই চ্যাটবট সাপোর্ট",
+                "স্মার্ট প্রোডাক্ট রিকমেন্ডেশন",
+                "সেলস প্রেডিকশন এবং অ্যানালিটিক্স"
+            ],
+            headerBgCls: "bg-primary/10",
+            headerTextCls: "text-primary border-primary/20",
+            imageBgColor: "bg-primary/5",
+            reverse: true
+        },
+        {
+            id: "pwa",
+            header: "অ্যাপের মত অভিজ্ঞতা",
+            title: "পিবিউএ (PWA) এবং অফলাইন শপিং",
+            description: "কোনো অ্যাপ স্টোর ছাড়াই আপনার ওয়েবসাইট সরাসরি মোবাইল বা ডেস্কটপে অ্যাপের মত ইন্সটল করুন। ইন্টারনেট ছাড়াও সাইট ব্রাউজ করার সুবিধা।",
+            image: "/pwa_highlight_illustration.png",
+            icon: <Smartphone className="w-4 h-4" />,
+            bullets: [
+                "এক ক্লিকে অ্যাপ ইন্সটলেশন",
+                "অফলাইন ব্রাউজিং এবং শপিং",
+                "সুপার ফাস্ট মোবাইল অ্যাপ লাইক ইউআই"
+            ],
+            headerBgCls: "bg-blue-500/10",
+            headerTextCls: "text-blue-500 border-blue-500/20",
+            imageBgColor: "bg-blue-500/5"
+        },
+        {
+            id: "cms",
+            header: "সহজ কন্টেন্ট ম্যানেজমেন্ট",
+            title: "অ্যাডভান্সড ব্লগ এবং কন্টেন্ট এডিটর",
+            description: "ব্লগ বা প্রোডাক্ট ডেসক্রিপশন লিখুন একদম প্রফেশনালি। টিপট্যাপ (Tiptap) ভিত্তিক রিচ-টেক্সট এডিটরের মাধ্যমে সাজান আপনার মনের মত করে।",
+            image: "/cms_highlight_illustration.png",
+            icon: <Zap className="w-4 h-4" />,
+            bullets: [
+                "টিপট্যাপ ভিত্তিক শক্তিশালী এডিটর",
+                "ব্লগ ও কন্টেন্ট ম্যানেজমেন্ট সিস্টেম",
+                "সরাসরি ড্যাশবোর্ড থেকে এসইও কন্ট্রোল"
+            ],
+            headerBgCls: "bg-orange-500/10",
+            headerTextCls: "text-orange-500 border-orange-500/20",
+            imageBgColor: "bg-accent/20",
+            reverse: true
+        }
     ];
 
     const valueProps = [
@@ -228,50 +369,9 @@ const EcommerceLandingPage = () => {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-10">
-                        {features.map((item, idx) => (
-                            <div key={idx} className="p-8 rounded-3xl border border-border bg-card/50 hover:border-primary/50 transition-colors flex flex-col gap-4">
-                                <h3 className="text-xl font-bold">{item.title}</h3>
-                                <p className="text-muted-foreground leading-relaxed">{item.description}</p>
-                            </div>
-                        ))}
-                    </div>
+                    <FeaturesGrid features={features} />
 
-                    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-card rounded-3xl border border-border overflow-hidden">
-                        <div className="p-8 lg:p-16 space-y-6">
-                            <div className="inline-flex items-center rounded-lg bg-green-500/10 text-green-500 px-3 py-1 text-sm font-medium border border-green-500/20">
-                                <CheckCircle2 className="w-4 h-4 mr-2" />
-                                <span>লাইভ ট্র্যাকিং</span>
-                            </div>
-                            <h3 className="text-3xl font-bold">কুরিয়ার এবং ডেলিভারি অটোমেশন</h3>
-                            <p className="text-muted-foreground text-lg">
-                                অটোমেটিক অর্ডার পাঠান পাঠাও, রেডাক্স অথবা স্টিডফাস্টে। এক ক্লিকে শিপিং লেবেল প্রিন্ট করুন এবং ড্যাশবোর্ড থেকেই পার্সেল ট্র্যাক করুন।
-                            </p>
-                            <ul className="space-y-4">
-                                <li className="flex items-center gap-3">
-                                    <CheckCircle2 className="w-5 h-5 text-primary" />
-                                    <span>এক ক্লিকে পার্সেল বুকিং</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <CheckCircle2 className="w-5 h-5 text-primary" />
-                                    <span>কাস্টমারদের জন্য রিয়েল-টাইম ট্র্যাকিং</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <CheckCircle2 className="w-5 h-5 text-primary" />
-                                    <span>ইন্টিগ্রেটেড ডেলিভারি চার্জ</span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div className="h-full min-h-[400px] bg-accent/20 flex items-center justify-center p-4">
-                            <Image
-                                src="/images/landing-pages/ecommerce-promo/courier.png"
-                                alt="Courier Integration Illustration"
-                                width={600}
-                                height={400}
-                                className="rounded-xl shadow-lg"
-                            />
-                        </div>
-                    </div>
+                    <StackingHighlights highlights={highlightData} />
                 </div>
             </section>
 

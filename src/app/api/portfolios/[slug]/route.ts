@@ -87,9 +87,15 @@ export async function PUT(
     await portfolio.save();
 
     revalidatePath('/portfolios');
-    revalidatePath(`/portfolios/${portfolio.slug}`);
-    revalidateTag('portfolios', 'default');
-    revalidateTag(`portfolio-${portfolio.slug}`, 'default');
+    revalidatePath(`/portfolios/${decodedSlug}`);
+    revalidateTag('portfolios', 'max');
+    revalidateTag(`portfolio-${decodedSlug}`, 'max');
+
+    // If slug changed, revalidate the new slug as well
+    if (portfolio.slug !== decodedSlug) {
+      revalidatePath(`/portfolios/${portfolio.slug}`);
+      revalidateTag(`portfolio-${portfolio.slug}`, 'max');
+    }
 
     return NextResponse.json({
       message: 'Portfolio updated successfully',
@@ -137,8 +143,8 @@ export async function DELETE(
 
     revalidatePath('/portfolios');
     revalidatePath(`/portfolios/${decodedSlug}`);
-    revalidateTag('portfolios', 'default');
-    revalidateTag(`portfolio-${decodedSlug}`, 'default');
+    revalidateTag('portfolios', 'max');
+    revalidateTag(`portfolio-${decodedSlug}`, 'max');
 
     return NextResponse.json({
       message: 'Portfolio deleted successfully'

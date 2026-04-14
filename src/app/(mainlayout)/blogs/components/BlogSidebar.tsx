@@ -46,6 +46,7 @@ const BlogSidebar: React.FC<BlogSidebarProps> = ({
                         <Link
                             key={article._id}
                             href={`/blogs/${article.slug}`}
+                            prefetch={false}
                             className="group flex gap-4 items-start"
                         >
                             {article.featuredImage && (
@@ -94,7 +95,7 @@ const BlogSidebar: React.FC<BlogSidebarProps> = ({
                 <p className="text-sm text-muted-foreground mb-4">
                     Get a custom quote for your next project in seconds.
                 </p>
-                <Link href="/estimate">
+                <Link href="/estimate" prefetch={false}>
                     <Button className="w-full">Get Estimate</Button>
                 </Link>
             </div>

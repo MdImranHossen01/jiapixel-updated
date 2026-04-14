@@ -136,8 +136,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
         // Revalidate the writing details page to show updates instantly
         revalidatePath(`/writings/${slug}`);
-        revalidateTag(`writing-${slug}`, 'default');
-        revalidateTag('writings', 'default');
+        revalidateTag(`writing-${slug}`, 'max');
+        revalidateTag('writings', 'max');
+
+        // If slug changed, revalidate the new slug as well
+        if (writing.slug !== slug) {
+            revalidatePath(`/writings/${writing.slug}`);
+            revalidateTag(`writing-${writing.slug}`, 'max');
+        }
 
         return NextResponse.json({
             success: true,
@@ -190,7 +196,8 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         }
 
         await Writing.findByIdAndDelete(writing._id);
-        revalidateTag('writings', 'default');
+        revalidateTag(`writing-${slug}`, 'max');
+        revalidateTag('writings', 'max');
 
         return NextResponse.json({
             success: true,

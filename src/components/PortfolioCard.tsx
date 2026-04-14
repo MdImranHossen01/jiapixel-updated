@@ -96,6 +96,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
                 <Link
                     href={`/portfolios/${portfolio.slug}`}
                     className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    prefetch={false}
                 />
             </div>
 
@@ -103,7 +104,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
             <div className="px-2 py-4 flex flex-col flex-grow">
                 <div className="flex-grow">
                     <h3 className="text-lg font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                        <Link href={`/portfolios/${portfolio.slug}`}>
+                        <Link href={`/portfolios/${portfolio.slug}`} prefetch={false}>
                             {portfolio.title}
                         </Link>
                     </h3>
@@ -123,6 +124,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
                             ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                             : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                             }`}
+                        prefetch={false}
                     >
                         {portfolio.projectUrl ? (
                             <>

@@ -198,9 +198,15 @@ export async function PUT(
 
         // Revalidate the project details page to show updates instantly
         revalidatePath('/projects');
-        revalidatePath(`/projects/${project.slug}`);
-        revalidateTag('projects', 'default');
-        revalidateTag(`project-${project.slug}`, 'default');
+        revalidatePath(`/projects/${slug}`);
+        revalidateTag('projects', 'max');
+        revalidateTag(`project-${slug}`, 'max');
+
+        // If slug changed, revalidate the new slug as well
+        if (project.slug !== slug) {
+            revalidatePath(`/projects/${project.slug}`);
+            revalidateTag(`project-${project.slug}`, 'max');
+        }
 
         return NextResponse.json({
             success: true,
@@ -237,7 +243,8 @@ export async function DELETE(
             );
         }
 
-        revalidateTag('projects', 'default');
+        revalidateTag('projects', 'max');
+        revalidateTag(`project-${slug}`, 'max');
 
         return NextResponse.json({
             success: true,

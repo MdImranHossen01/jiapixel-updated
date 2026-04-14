@@ -15,7 +15,7 @@ export default function CompactServiceCard({ service }: { service: any }) {
     const slug = service?.slug || '#';
 
     return (
-        <Link href={`/services/${slug}`} className="group block">
+        <Link href={`/services/${slug}`} className="group block" prefetch={false}>
             <div className="flex items-center gap-4 py-3 hover:bg-accent/50 rounded-lg transition-colors">
                 {/* IMAGE */}
                 <div className="relative w-20 h-20 shrink-0 overflow-hidden rounded-md border border-border bg-muted">

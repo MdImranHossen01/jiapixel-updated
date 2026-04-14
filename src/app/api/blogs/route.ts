@@ -5,8 +5,7 @@ import { revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Blog from '@/models/Blog';
 
-// Enable route caching - revalidate every 3600 seconds (1 hour)
-export const revalidate = 3600;
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -104,7 +103,8 @@ export async function POST(request: NextRequest) {
 
 
     await blog.save();
-    revalidateTag('blogs', 'default');
+    revalidateTag('blogs', 'max');
+    revalidateTag(`blog-${blog.slug}`, 'max');
 
     return NextResponse.json(
       {

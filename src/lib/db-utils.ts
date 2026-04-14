@@ -8,8 +8,8 @@ import Portfolio from '@/models/Portfolios';
 import Post from '@/models/Post';
 import Service from '@/models/Service';
 
-// Revalidate time in seconds (1 hour)
-export const DEFAULT_REVALIDATE = 3600;
+// Revalidate time in seconds (1 year) - Using on-demand revalidation instead
+export const DEFAULT_REVALIDATE = 31536000;
 
 export const getWritings = cache(async (limit?: number) => {
   return unstable_cache(

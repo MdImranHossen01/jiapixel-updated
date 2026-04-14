@@ -93,8 +93,15 @@ export async function PUT(
 
         // Revalidate cache
         if (category.slug) {
-            revalidatePath(`/${category.slug}`); // Update the page
-            revalidateTag(`category-${category.slug}`, 'default'); // Update the data cache
+            // Revalidate current/new slug
+            revalidatePath(`/${category.slug}`);
+            revalidateTag(`category-${category.slug}`, 'max');
+            
+            // If slug changed, revalidate the old slug cache too
+            if (!isObjectId && id !== category.slug) {
+                revalidatePath(`/${id}`);
+                revalidateTag(`category-${id}`, 'max');
+            }
         }
 
         // Also revalidate the tag with the ID if possible, but slug is the main key used in the page
@@ -114,7 +121,12 @@ export async function DELETE(
     const { id } = await params;
 
     try {
-        let category = await Category.findByIdAndDelete(id);
+        const isObjectId = id.match(/^[0-9a-fA-F]{24}$/);
+        let category;
+
+        if (isObjectId) {
+            category = await Category.findByIdAndDelete(id);
+        }
 
         if (!category) {
             category = await Category.findOneAndDelete({ slug: id });

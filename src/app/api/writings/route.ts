@@ -9,8 +9,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { extractTextFromProjectDescription } from '@/lib/utils';
 
-// Enable route caching - revalidate every 3600 seconds (1 hour)
-export const revalidate = 3600;
+
 export async function GET(request: NextRequest) {
     try {
         await connectDB();
@@ -150,7 +149,8 @@ export async function POST(request: NextRequest) {
             throw error;
         }
 
-        revalidateTag('writings', 'default');
+        revalidateTag('writings', 'max');
+        revalidateTag(`writing-${slug}`, 'max');
 
         return NextResponse.json(
             {

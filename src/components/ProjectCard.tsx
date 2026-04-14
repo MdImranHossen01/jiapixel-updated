@@ -107,7 +107,7 @@ export default function ProjectCard({ project, clientMode = false }: ProjectCard
     return (
         <div className="group relative flex flex-col h-full">
             <div className="flex-grow space-y-4">
-                <Link href={projectUrl} className={clientMode ? "cursor-default" : "block"}>
+                <Link href={projectUrl} className={clientMode ? "cursor-default" : "block"} prefetch={false}>
                     <div className="relative aspect-[1024/570] rounded-xl overflow-hidden bg-muted shadow-sm group-hover:shadow-md transition-shadow duration-300">
                         <Image
                             src={featuredImage}

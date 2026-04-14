@@ -110,15 +110,17 @@ export async function PUT(
         }
 
         // Handle Tiers (reusing logic from POST)
-        const cleanedTiers: any = { starter: updateData.tiers.starter };
-        if (updateData.pricingTiers === '3') {
-          cleanedTiers.standard = updateData.tiers.standard;
-          cleanedTiers.advanced = updateData.tiers.advanced;
-        } else {
-          cleanedTiers.standard = undefined;
-          cleanedTiers.advanced = undefined;
+        if (updateData.tiers) {
+          const cleanedTiers: any = { starter: updateData.tiers.starter || {} };
+          if (updateData.pricingTiers === '3') {
+            cleanedTiers.standard = updateData.tiers.standard || {};
+            cleanedTiers.advanced = updateData.tiers.advanced || {};
+          } else {
+            cleanedTiers.standard = undefined;
+            cleanedTiers.advanced = undefined;
+          }
+          updateData.tiers = cleanedTiers;
         }
-        updateData.tiers = cleanedTiers;
 
         // Merge Images and Documents
         // updateData.images contains existing URLs (strings)
@@ -177,8 +179,15 @@ export async function PUT(
     }
 
     // Revalidate the service page and cache tag
-    revalidateTag(`service-${slug}`, 'default');
+    revalidateTag('services', 'max');
+    revalidateTag(`service-${slug}`, 'max');
     revalidatePath(`/services/${slug}`);
+
+    // If slug changed, revalidate the new slug as well
+    if (service.slug !== slug) {
+      revalidateTag(`service-${service.slug}`, 'max');
+      revalidatePath(`/services/${service.slug}`);
+    }
 
     return NextResponse.json({
       success: true,
@@ -210,7 +219,6 @@ export async function DELETE(
     console.log('Deleting service with slug:', slug);
 
     const service = await Service.findOneAndDelete({ slug: slug });
-
     if (!service) {
       return NextResponse.json(
         {
@@ -220,6 +228,9 @@ export async function DELETE(
         { status: 404 }
       );
     }
+
+    revalidateTag('services', 'max');
+    revalidateTag(`service-${slug}`, 'max');
 
     return NextResponse.json({
       success: true,

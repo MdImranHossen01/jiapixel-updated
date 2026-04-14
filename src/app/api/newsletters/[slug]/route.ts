@@ -130,7 +130,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
         // Revalidate the newsletter details page to show updates instantly
         revalidatePath(`/newsletters/${slug}`);
-        revalidateTag(`newsletter-${slug}`, 'default');
+        revalidateTag(`newsletter-${slug}`, 'max');
 
         return NextResponse.json({
             success: true,

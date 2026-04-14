@@ -146,6 +146,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             <nav>
               <Link
                 href="/blogs"
+                prefetch={false}
                 className="text-primary hover:text-primary/80 font-medium transition-colors inline-flex items-center space-x-2"
               >
                 <span>←</span>

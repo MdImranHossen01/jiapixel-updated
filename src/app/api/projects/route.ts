@@ -10,8 +10,7 @@ import { generateSlug } from '../../../lib/slug';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-// Enable route caching - revalidate every hour (3600 seconds)
-export const revalidate = 3600;
+
 export async function POST(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -122,8 +121,8 @@ export async function POST(request: NextRequest) {
 
         revalidatePath('/projects');
         revalidatePath(`/projects/${project.slug}`);
-        revalidateTag('projects', 'default');
-        revalidateTag(`project-${project.slug}`, 'default');
+        revalidateTag('projects', 'max');
+        revalidateTag(`project-${project.slug}`, 'max');
 
         return NextResponse.json(
             {

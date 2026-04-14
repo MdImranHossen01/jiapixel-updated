@@ -132,8 +132,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
     // Revalidate the blog details page to show updates instantly
     revalidatePath(`/blogs/${slug}`);
-    revalidateTag(`blog-${slug}`, 'default');
-    revalidateTag('blogs', 'default');
+    revalidateTag(`blog-${slug}`, 'max');
+    revalidateTag('blogs', 'max');
+
+    // If slug changed, revalidate the new slug as well
+    if (blog.slug !== slug) {
+      revalidatePath(`/blogs/${blog.slug}`);
+      revalidateTag(`blog-${blog.slug}`, 'max');
+    }
 
     return NextResponse.json({
       success: true,
@@ -182,7 +188,8 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     }
 
     await Blog.findByIdAndDelete(blog._id);
-    revalidateTag('blogs', 'default');
+    revalidateTag(`blog-${slug}`, 'max');
+    revalidateTag('blogs', 'max');
 
     return NextResponse.json({
       success: true,

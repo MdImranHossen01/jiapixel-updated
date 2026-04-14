@@ -7,7 +7,7 @@ export default function GoogleTagManager() {
   if (!GTM_ID) {
     return null;
   }
-  
+
   return (
     <>
       <noscript>
