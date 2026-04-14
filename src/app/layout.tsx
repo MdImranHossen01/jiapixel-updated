@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     google: "JWpS0CTCZQueL8zbGQi3mvgV7kUrk2HDkB73M1B_aAM",
   },
   alternates: {
-    canonical: "https://www.jiapixel.com",
+    canonical: "/",
   },
   robots: {
     index: true,
@@ -73,7 +73,6 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://www.jiapixel.com",
     title: "Jia Pixel | Leading Digital Agency in Bangladesh",
     description:
       "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
