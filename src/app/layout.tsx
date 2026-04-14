@@ -56,6 +56,9 @@ export const metadata: Metadata = {
   verification: {
     google: "JWpS0CTCZQueL8zbGQi3mvgV7kUrk2HDkB73M1B_aAM",
   },
+  other: {
+    "facebook-domain-verification": "ooj5dfcwu2fuvyjntb6l60b9zdz41u",
+  },
   // Alternates removed to allow page-level dynamic overrides
   robots: {
     index: true,
