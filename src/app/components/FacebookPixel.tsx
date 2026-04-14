@@ -1,9 +1,26 @@
-// src/app/components/FacebookPixel.tsx
 "use client";
 
+import { useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
+declare global {
+  interface Window {
+    fbq: any;
+  }
+}
+
 export default function FacebookPixel() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // This will run on every route change
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'PageView');
+    }
+  }, [pathname, searchParams]);
+
   return (
     <>
       <Script
@@ -20,7 +37,6 @@ export default function FacebookPixel() {
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '1198458982177067');
-            fbq('track', 'PageView');
           `,
         }}
       />
