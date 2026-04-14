@@ -30,7 +30,6 @@ import { FeaturesGrid } from "@/components/landing/FeaturesGrid";
 import { StackingHighlights, type Highlight } from "@/components/landing/StackingHighlights";
 
 // Dynamic imports for performance optimization
-const LandingCheckoutSheet = dynamic(() => import("@/components/landing/LandingCheckoutSheet").then(mod => mod.LandingCheckoutSheet));
 const FloatingCTAs = dynamic(() => import("@/components/landing/FloatingCTAs").then(mod => mod.FloatingCTAs));
 
 export const metadata: Metadata = {
@@ -325,11 +324,11 @@ const EcommerceLandingPage = () => {
                             </p>
 
                             <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4">
-                                <LandingCheckoutSheet source="ecommerce-small-business" price={3500}>
-                                    <Button size="lg" className="rounded-full px-8 h-12 text-base font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/25 cursor-pointer">
+                                <Button asChild size="lg" className="rounded-full px-8 h-12 text-base font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/25 cursor-pointer">
+                                    <Link prefetch={false} href="/checkout/ecommerce-small-business?price=3500">
                                         Request Order
-                                    </Button>
-                                </LandingCheckoutSheet>
+                                    </Link>
+                                </Button>
                                 <Button asChild variant="outline" size="lg" className="rounded-full px-8 h-12 text-base font-semibold transition-all hover:bg-accent">
                                     <Link href="https://wa.me/8801919011101">
                                         WhatsApp
@@ -415,7 +414,7 @@ const EcommerceLandingPage = () => {
                             </div>
 
                             <Button asChild className="rounded-full shadow-lg shadow-primary/20">
-                                <Link href="https://wa.me/8801919011101">ডেমো দেখুন <ArrowRight className="ml-2 w-5 h-5" /></Link>
+                                <Link prefetch={false} href="https://wa.me/8801919011101">ডেমো দেখুন <ArrowRight className="ml-2 w-5 h-5" /></Link>
                             </Button>
                         </div>
                     </div>
@@ -483,14 +482,14 @@ const EcommerceLandingPage = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row justify-center gap-6">
-                            <LandingCheckoutSheet source="ecommerce-small-business" price={3500}>
-                                <Button size="lg" className="h-14 px-10 rounded-full text-lg shadow-xl shadow-primary/25 hover:scale-105 transition-all cursor-pointer">
+                            <Button asChild size="lg" className="h-14 px-10 rounded-full text-lg shadow-xl shadow-primary/25 hover:scale-105 transition-all cursor-pointer">
+                                <Link href="/checkout/ecommerce-small-business?price=3500">
                                     <ShoppingCart className="mr-2 h-6 w-6" />
                                     অর্ডার রিকোয়েস্ট করুন
-                                </Button>
-                            </LandingCheckoutSheet>
+                                </Link>
+                            </Button>
                             <Button asChild variant="secondary" size="lg" className="h-14 px-10 rounded-full text-lg">
-                                <Link href="https://calendly.com/jiapixel/30min">ফ্রি পরামর্শ বুক করুন</Link>
+                                <Link prefetch={false} href="https://calendly.com/jiapixel/30min">ফ্রি পরামর্শ বুক করুন</Link>
                             </Button>
                         </div>
 
