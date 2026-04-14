@@ -7,6 +7,7 @@ import Script from "next/script";
 declare global {
   interface Window {
     fbq: any;
+    _fbq: any;
   }
 }
 
@@ -15,10 +16,10 @@ export default function FacebookPixel() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // This will run on every route change
-    if (typeof window.fbq === 'function') {
-      // Explicitly track PageView on every route change
-      window.fbq('track', 'PageView');
+    // Skip first render — the inline script already fires the initial PageView
+    // This only fires on subsequent SPA route changes
+    if (typeof window.fbq === "function") {
+      window.fbq("track", "PageView");
     }
   }, [pathname, searchParams]);
 
@@ -38,7 +39,7 @@ export default function FacebookPixel() {
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '1198458982177067');
-            fbq('set', 'autoConfig', false, '1198458982177067');
+            fbq('track', 'PageView');
           `,
         }}
       />
