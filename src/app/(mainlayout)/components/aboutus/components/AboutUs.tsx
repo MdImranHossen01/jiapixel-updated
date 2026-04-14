@@ -30,6 +30,7 @@ const AboutUs: React.FC = () => {
             alt="Web Development"
             fill
             className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 ease-in-out"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 20vw"
           />
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-500 flex flex-col justify-center p-6">
             <h3 className="text-2xl font-bold text-white mb-3">Web Development</h3>
@@ -46,6 +47,7 @@ const AboutUs: React.FC = () => {
             alt="SEO Optimization"
             fill
             className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 ease-in-out"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 20vw"
           />
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-500 flex flex-col justify-center p-6">
             <h3 className="text-2xl font-bold text-white mb-3">SEO Optimization</h3>
@@ -62,6 +64,7 @@ const AboutUs: React.FC = () => {
             alt="Digital Marketing"
             fill
             className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 ease-in-out"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 20vw"
           />
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-500 flex flex-col justify-center p-6">
             <h3 className="text-2xl font-bold text-white mb-3">Digital Marketing</h3>
@@ -80,6 +83,7 @@ const AboutUs: React.FC = () => {
             alt="Full Stack Solutions"
             fill
             className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 ease-in-out"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 60vw"
           />
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-500 flex flex-col justify-center p-8">
             <h3 className="text-3xl font-bold text-white mb-4">Full Stack Solutions</h3>
@@ -96,6 +100,7 @@ const AboutUs: React.FC = () => {
             alt="UI/UX Design"
             fill
             className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 ease-in-out"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 20vw"
           />
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-500 flex flex-col justify-center p-6">
             <h3 className="text-2xl font-bold text-white mb-3">UI/UX Design</h3>
@@ -112,6 +117,7 @@ const AboutUs: React.FC = () => {
             alt="Analytics & Insights"
             fill
             className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 ease-in-out"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 20vw"
           />
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-500 flex flex-col justify-center p-6">
             <h3 className="text-2xl font-bold text-white mb-3">Analytics & Insights</h3>

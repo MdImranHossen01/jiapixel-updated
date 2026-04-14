@@ -6,6 +6,7 @@ import { SessionProvider } from "@/components/session-provider"; // Changed to n
 import { Suspense } from "react";
 import StructuredData from "./components/StructuredData";
 import GoogleTagManager from "./components/GoogleTagManager";
+import FacebookPixel from "./components/FacebookPixel";
 import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 import { BookingProvider } from "@/components/booking-provider";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
@@ -109,6 +110,8 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
 };
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -144,6 +147,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GoogleTagManager />
         </Suspense>
+        <FacebookPixel />
         <SessionProvider>
           <SmoothScrollProvider>
             <BookingProvider>
