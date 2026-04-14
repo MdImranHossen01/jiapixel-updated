@@ -102,7 +102,7 @@ const PostsClient: React.FC<PostsClientProps> = ({ initialPosts }) => {
                                                     ))}
                                                 </div>
                                                 <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-                                                    <Link href={`/posts/${post.slug}`}>
+                                                    <Link href={`/posts/${post.slug}`} prefetch={false}>
                                                         {post.title}
                                                     </Link>
                                                 </h3>
@@ -113,7 +113,7 @@ const PostsClient: React.FC<PostsClientProps> = ({ initialPosts }) => {
                                                     <span className="text-xs text-muted-foreground">
                                                         {new Date(post.createdAt).toLocaleDateString()}
                                                     </span>
-                                                    <Link href={`/posts/${post.slug}`} className="text-primary text-sm font-medium hover:underline">
+                                                    <Link href={`/posts/${post.slug}`} className="text-primary text-sm font-medium hover:underline" prefetch={false}>
                                                         Read More &rarr;
                                                     </Link>
                                                 </div>

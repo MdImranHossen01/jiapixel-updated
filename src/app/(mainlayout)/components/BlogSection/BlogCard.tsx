@@ -90,6 +90,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
                     <Link
                         href={`/blogs/${blog.slug}`}
                         className="hover:text-primary transition-colors"
+                        prefetch={false}
                     >
                         {blog.title || 'Untitled Blog Post'}
                     </Link>
@@ -102,6 +103,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
                     <Link
                         href={`/blogs/${blog.slug}`}
                         className="text-primary hover:text-primary/80 font-medium text-sm transition-colors"
+                        prefetch={false}
                     >
                         Read More →
                     </Link>

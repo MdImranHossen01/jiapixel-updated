@@ -45,6 +45,7 @@ export default async function WritingSection() {
                     <Link
                         href="/writings"
                         className="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-lg transition-colors duration-300 font-medium"
+                        prefetch={false}
                     >
                         View All Posts
                     </Link>

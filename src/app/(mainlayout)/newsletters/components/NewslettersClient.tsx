@@ -102,7 +102,7 @@ const NewslettersClient: React.FC<NewslettersClientProps> = ({ initialNewsletter
                                                     ))}
                                                 </div>
                                                 <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-                                                    <Link href={`/newsletters/${newsletter.slug}`}>
+                                                    <Link href={`/newsletters/${newsletter.slug}`} prefetch={false}>
                                                         {newsletter.title}
                                                     </Link>
                                                 </h3>
@@ -113,7 +113,7 @@ const NewslettersClient: React.FC<NewslettersClientProps> = ({ initialNewsletter
                                                     <span className="text-xs text-muted-foreground">
                                                         {new Date(newsletter.createdAt).toLocaleDateString()}
                                                     </span>
-                                                    <Link href={`/newsletters/${newsletter.slug}`} className="text-primary text-sm font-medium hover:underline">
+                                                    <Link href={`/newsletters/${newsletter.slug}`} className="text-primary text-sm font-medium hover:underline" prefetch={false}>
                                                         Read More &rarr;
                                                     </Link>
                                                 </div>

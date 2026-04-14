@@ -64,6 +64,7 @@ const PostSidebar: React.FC<PostSidebarProps> = ({
                         <Link
                             key={post._id}
                             href={`/posts/${post.slug}`}
+                            prefetch={false}
                             className="group flex gap-4 items-start"
                         >
                             {post.featuredImage && (
@@ -143,7 +144,7 @@ const PostSidebar: React.FC<PostSidebarProps> = ({
                 <p className="text-sm text-muted-foreground mb-4">
                     Get the latest updates directly to your inbox.
                 </p>
-                <Link href="/contact">
+                <Link href="/contact" prefetch={false}>
                     <Button className="w-full">Contact Us</Button>
                 </Link>
             </div>
