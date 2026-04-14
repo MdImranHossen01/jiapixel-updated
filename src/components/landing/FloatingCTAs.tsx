@@ -50,15 +50,14 @@ export function FloatingCTAs() {
           className="fixed bottom-2 left-1/2 z-50 w-full max-w-fit px-1 md:px-4"
         >
           <div className="bg-background/60 backdrop-blur-2xl border border-primary/20 p-1 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center gap-1.5">
-            <Button
-              asChild
-              size="sm"
-              className="rounded-full px-4 h-9 text-[10px] md:text-xs font-bold cursor-pointer hover:scale-105 active:scale-95 transition-all"
-            >
-              <Link href="/checkout/ecommerce-sticky-cta?price=3500">
+            <LandingCheckoutSheet source="ecommerce-sticky-cta" price={3500}>
+              <Button
+                size="sm"
+                className="rounded-full px-4 h-9 text-[10px] md:text-xs font-bold cursor-pointer hover:scale-105 active:scale-95 transition-all"
+              >
                 Request Order
-              </Link>
-            </Button>
+              </Button>
+            </LandingCheckoutSheet>
 
             <Button
               asChild
