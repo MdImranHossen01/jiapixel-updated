@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
@@ -14,13 +14,31 @@ declare global {
 export default function FacebookPixel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  // Shared eventId across browser pixel and CAPI for deduplication
+  const currentEventId = useRef<string>(crypto.randomUUID());
+
+  const trackPageView = (eventId: string) => {
+    // 1. Browser-side tracking with explicit eventID
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'PageView', {}, { eventID: eventId });
+    }
+    // 2. Server-side (CAPI) tracking with same eventID
+    fetch('/api/facebook/event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventName: 'PageView',
+        eventUrl: window.location.href,
+        userAgent: navigator.userAgent,
+        eventId,
+      }),
+    }).catch(() => { /* fail silently — browser pixel is the fallback */ });
+  };
 
   useEffect(() => {
-    // Skip first render — the inline script already fires the initial PageView
-    // This only fires on subsequent SPA route changes
-    if (typeof window.fbq === "function") {
-      window.fbq("track", "PageView");
-    }
+    // Generate new eventId on every route change
+    currentEventId.current = crypto.randomUUID();
+    trackPageView(currentEventId.current);
   }, [pathname, searchParams]);
 
   return (
@@ -39,7 +57,6 @@ export default function FacebookPixel() {
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '1198458982177067');
-            fbq('track', 'PageView');
           `,
         }}
       />
