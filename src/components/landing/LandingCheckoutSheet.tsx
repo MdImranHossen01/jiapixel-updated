@@ -64,6 +64,29 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
     mode: "onChange",
   });
 
+  // Helper: fire Facebook event via browser pixel + CAPI
+  const trackFbEvent = (eventName: string, data?: Record<string, unknown>) => {
+    const eventId = crypto.randomUUID();
+
+    // 1. Client-side track
+    if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
+      (window as any).fbq("track", eventName, data || {}, { eventID: eventId });
+    }
+
+    // 2. Server-side (CAPI) track
+    fetch("/api/facebook/event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eventName,
+        eventUrl: window.location.href,
+        userAgent: navigator.userAgent,
+        eventId,
+        customData: data,
+      }),
+    }).catch(err => console.error("CAPI Error:", err));
+  };
+
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
@@ -78,6 +101,13 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
       });
 
       if (response.ok) {
+        // Track Purchase event
+        trackFbEvent("Purchase", {
+          content_name: source,
+          currency: "BDT",
+          value: 3500,
+        });
+
         setIsSuccess(true);
         toast.success("অর্ডার রিকোয়েস্ট সফল হয়েছে!");
       } else {
@@ -94,6 +124,15 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
+
+    if (open) {
+      // Track InitiateCheckout when sheet opens
+      trackFbEvent("InitiateCheckout", {
+        content_name: source,
+        currency: "BDT",
+        value: 3500,
+      });
+    }
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
