@@ -4,6 +4,8 @@ import crypto from 'crypto';
 const PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
 const ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN;
 
+export const runtime = 'edge';
+
 export async function POST(request: NextRequest) {
   try {
     if (!PIXEL_ID || !ACCESS_TOKEN) {
@@ -11,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { eventName = 'PageView', eventUrl, userAgent } = body;
+    const { eventName = 'PageView', eventUrl, userAgent, testEventCode } = body;
 
     // Get real client IP
     const ipAddress =
@@ -22,7 +24,7 @@ export async function POST(request: NextRequest) {
     // Generate unique event ID for deduplication with browser pixel
     const eventId = body.eventId || crypto.randomUUID();
 
-    const payload = {
+    const payload: any = {
       data: [
         {
           event_name: eventName,
@@ -37,6 +39,12 @@ export async function POST(request: NextRequest) {
         },
       ],
     };
+
+    // Add Test Event Code (only if provided for testing)
+    const activeTestCode = testEventCode || process.env.FACEBOOK_TEST_EVENT_CODE;
+    if (activeTestCode) {
+      payload.test_event_code = activeTestCode;
+    }
 
     const fbResponse = await fetch(
       `https://graph.facebook.com/v19.0/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`,

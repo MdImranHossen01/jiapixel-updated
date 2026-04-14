@@ -83,6 +83,7 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
         userAgent: navigator.userAgent,
         eventId,
         customData: data,
+        testEventCode: process.env.NEXT_PUBLIC_FACEBOOK_TEST_EVENT_CODE,
       }),
     }).catch(err => console.error("CAPI Error:", err));
   };
