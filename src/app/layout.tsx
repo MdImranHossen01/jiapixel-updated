@@ -56,9 +56,7 @@ export const metadata: Metadata = {
   verification: {
     google: "JWpS0CTCZQueL8zbGQi3mvgV7kUrk2HDkB73M1B_aAM",
   },
-  alternates: {
-    canonical: "/",
-  },
+  // Alternates removed to allow page-level dynamic overrides
   robots: {
     index: true,
     follow: true,

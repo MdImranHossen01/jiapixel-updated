@@ -17,6 +17,7 @@ export default function FacebookPixel() {
   useEffect(() => {
     // This will run on every route change
     if (typeof window.fbq === 'function') {
+      // Explicitly track PageView with current URL for better accuracy in SPAs
       window.fbq('track', 'PageView');
     }
   }, [pathname, searchParams]);
