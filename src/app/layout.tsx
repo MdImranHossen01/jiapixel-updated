@@ -147,7 +147,9 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GoogleTagManager />
         </Suspense>
-        <FacebookPixel />
+        <Suspense fallback={null}>
+          <FacebookPixel />
+        </Suspense>
         <SessionProvider>
           <SmoothScrollProvider>
             <BookingProvider>
