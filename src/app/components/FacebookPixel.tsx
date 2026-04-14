@@ -17,7 +17,7 @@ export default function FacebookPixel() {
   useEffect(() => {
     // This will run on every route change
     if (typeof window.fbq === 'function') {
-      // Explicitly track PageView with current URL for better accuracy in SPAs
+      // Explicitly track PageView on every route change
       window.fbq('track', 'PageView');
     }
   }, [pathname, searchParams]);
@@ -38,6 +38,7 @@ export default function FacebookPixel() {
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '1198458982177067');
+            fbq('set', 'autoConfig', false, '1198458982177067');
           `,
         }}
       />

@@ -98,12 +98,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         description: description,
         keywords: category.tags || [],
         alternates: {
-            canonical: canonicalUrl,
+            canonical: `/${category.slug}`,
         },
         openGraph: {
             title: title,
             description: description,
-            url: canonicalUrl,
+            url: `/${category.slug}`,
             images: [
                 {
                     url: imageUrl,
