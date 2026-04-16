@@ -30,7 +30,9 @@ export default function FacebookPixel({
       if (!pixelId) return;
       // 1. Browser-side tracking with explicit eventID
       if (typeof window.fbq === "function") {
-        window.fbq("track", "PageView", {}, { eventID: eventId });
+        window.fbq("track", "PageView", {
+          page_url: window.location.href,
+        }, { eventID: eventId });
       }
       // 2. Server-side (CAPI) tracking with same eventID
       fetch("/api/facebook/event", {
