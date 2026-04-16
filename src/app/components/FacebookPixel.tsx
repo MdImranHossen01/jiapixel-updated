@@ -26,14 +26,11 @@ export default function FacebookPixel({
   const currentEventId = useRef<string>("");
 
   const trackPageView = useCallback(
-    (eventId: string, url: string) => {
+    (eventId: string) => {
       if (!pixelId) return;
       // 1. Browser-side tracking with explicit eventID
       if (typeof window.fbq === "function") {
-        window.fbq("track", "PageView", {
-          page_url: url,
-          page_title: document.title,
-        }, { eventID: eventId });
+        window.fbq("track", "PageView", {}, { eventID: eventId });
       }
       // 2. Server-side (CAPI) tracking with same eventID
       fetch("/api/facebook/event", {
@@ -41,7 +38,7 @@ export default function FacebookPixel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           eventName: "PageView",
-          eventUrl: url,
+          eventUrl: window.location.href,
           userAgent: navigator.userAgent,
           eventId,
         }),
@@ -54,17 +51,9 @@ export default function FacebookPixel({
 
   useEffect(() => {
     if (!pixelId) return;
-
-    // Construct the full URL using reactive state from Next.js hooks
-    // to ensure it's always current during client-side navigation.
-    const url =
-      window.location.origin +
-      pathname +
-      (searchParams.toString() ? `?${searchParams.toString()}` : "");
-
     // Generate new eventId on every route change
     currentEventId.current = crypto.randomUUID();
-    trackPageView(currentEventId.current, url);
+    trackPageView(currentEventId.current);
   }, [pathname, searchParams, trackPageView, pixelId]);
 
   if (!pixelId) {
@@ -103,4 +92,3 @@ export default function FacebookPixel({
     </>
   );
 }
-
