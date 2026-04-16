@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { eventName = 'PageView', eventUrl, userAgent, testEventCode } = body;
+    const { eventName = 'PageView', eventUrl, userAgent } = body;
 
     // Get real client IP
     const ipAddress =
@@ -22,6 +22,10 @@ export async function POST(request: NextRequest) {
 
     // Generate unique event ID for deduplication with browser pixel
     const eventId = body.eventId || crypto.randomUUID();
+
+    // Get browser identifiers for better matching
+    const fbp = request.cookies.get('_fbp')?.value;
+    const fbc = request.cookies.get('_fbc')?.value;
 
     const payload: any = {
       data: [
@@ -34,16 +38,12 @@ export async function POST(request: NextRequest) {
           user_data: {
             client_ip_address: ipAddress,
             client_user_agent: userAgent,
+            fbp,
+            fbc,
           },
         },
       ],
     };
-
-    // Add Test Event Code (only if provided for testing)
-    const activeTestCode = testEventCode || process.env.FACEBOOK_TEST_EVENT_CODE;
-    if (activeTestCode) {
-      payload.test_event_code = activeTestCode;
-    }
 
     const fbResponse = await fetch(
       `https://graph.facebook.com/v19.0/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`,

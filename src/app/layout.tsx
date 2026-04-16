@@ -148,7 +148,9 @@ export default function RootLayout({
           <GoogleTagManager />
         </Suspense>
         <Suspense fallback={null}>
-          <FacebookPixel />
+          <FacebookPixel
+            pixelId={process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}
+          />
         </Suspense>
         <SessionProvider>
           <SmoothScrollProvider>
