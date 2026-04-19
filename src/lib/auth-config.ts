@@ -56,32 +56,38 @@ export const authOptions: NextAuthOptions = {
       console.log('🔐 JWT CALLBACK - User present:', !!user);
       console.log('🔐 JWT CALLBACK - Account provider:', account?.provider);
 
-      // Initial sign in
-      if (user && account) {
-        console.log('🔐 JWT CALLBACK - Generating tokens');
-
+      // Always sync user data from DB — role, id, name, and image are all refreshed
+      // on every request so they're never stale.
+      const emailToLookup = user?.email || token?.email;
+      if (emailToLookup) {
         try {
           await connectDB();
-          const dbUser = await User.findOne({ email: user.email });
-          console.log('🔐 JWT CALLBACK - Database user found:', !!dbUser);
+          const dbUser = await User.findOne({ email: emailToLookup }).select('_id role name image');
+          console.log('🔐 JWT CALLBACK - DB user found:', !!dbUser, '| Role:', dbUser?.role, '| Image:', !!dbUser?.image);
 
           if (dbUser) {
-            // Generate custom JWT tokens using the simple function
-            console.log('🔐 JWT CALLBACK - Generating JWT tokens...');
-            const tokens = await generateTokens(dbUser);
-            console.log('🔐 JWT CALLBACK - Tokens generated:', {
-              accessToken: tokens.accessToken ? `Present (${tokens.accessToken.length} chars)` : 'Missing',
-              refreshToken: tokens.refreshToken ? `Present (${tokens.refreshToken.length} chars)` : 'Missing'
-            });
-
             token.id = dbUser._id.toString();
             token.role = dbUser.role;
             token.name = dbUser.name;
-            token.image = dbUser.image;
+            // Use DB image if available, otherwise fall back to Google's OAuth picture
+            token.image = dbUser.image || token.picture || null;
+          }
+        } catch (error: any) {
+          console.error('🔐 JWT CALLBACK - Error fetching user from DB:', error);
+        }
+      }
+
+
+      // Generate/refresh custom JWT tokens only on initial sign-in
+      if (user && account) {
+        try {
+          await connectDB();
+          const dbUser = await User.findOne({ email: user.email });
+          if (dbUser) {
+            const tokens = await generateTokens(dbUser);
             token.accessToken = tokens.accessToken;
             token.refreshToken = tokens.refreshToken;
-
-            console.log('🔐 JWT CALLBACK - Final token with JWT');
+            console.log('🔐 JWT CALLBACK - Custom tokens generated on sign-in');
           }
         } catch (error: any) {
           console.error('🔐 JWT CALLBACK - Error generating tokens:', error);
@@ -89,6 +95,7 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
+      console.log('🔐 JWT CALLBACK - Final token role:', token.role);
       return token;
     },
 
@@ -114,11 +121,14 @@ export const authOptions: NextAuthOptions = {
         // Performance Optimization: Populate session user from the JWT token
         // This avoids calling User.findOne on every request
         if (token.id) {
-          session.user.id = token.id as string;
-          session.user.role = token.role as string;
-          session.user.name = token.name as string;
-          session.user.image = token.image as string;
-          console.log('🔐 SESSION CALLBACK - User data populated from JWT');
+          session.user = {
+            ...session.user,
+            id: typeof token.id === 'string' ? token.id : String(token.id),
+            role: typeof token.role === 'string' ? token.role : undefined,
+            name: typeof token.name === 'string' ? token.name : undefined,
+            image: typeof token.image === 'string' ? token.image : undefined,
+          };
+          console.log('🔐 SESSION CALLBACK - User data populated from JWT - Role:', token.role);
         }
 
         console.log('🔐 SESSION CALLBACK - Final session keys:', Object.keys(session));

@@ -43,9 +43,9 @@ const LeftSideNav = () => {
   const navigation = [
     {
       name: 'Dashboard',
-      href: '/dashboard',
+      href: '/dashboard/client',
       icon: LayoutDashboard,
-      current: pathname === '/dashboard',
+      current: pathname === '/dashboard' || pathname === '/dashboard/client',
     },
     {
       name: 'My Orders',
@@ -203,7 +203,7 @@ const LeftSideNav = () => {
   };
 
   const handleViewProfile = () => {
-    router.push('/dashboard');
+    router.push(isAdmin ? '/dashboard/admin' : '/dashboard/client');
   };
 
   if (!mounted || status === 'loading') {

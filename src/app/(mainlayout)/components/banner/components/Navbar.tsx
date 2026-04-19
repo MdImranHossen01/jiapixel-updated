@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Menu, X, User, LogOut, Settings, Mail } from 'lucide-react';
+import { Search, Menu, X, User, LogOut, Settings, Mail, Shield } from 'lucide-react';
 import { WhatsappIcon } from '@/components/CustomIcons';
 import Logo from '../../Logo';
 import Link from 'next/link';
@@ -176,11 +176,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
   // ✅ Handlers
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
-    setIsDropdownOpen(false);
-  };
-
-  const handleDashboard = () => {
-    router.push("/dashboard");
     setIsDropdownOpen(false);
   };
 
@@ -364,11 +359,23 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                         </>
                       )}
 
+                      {session.user?.role === 'admin' && (
+                        <Link
+                          href="/dashboard/admin"
+                          onClick={() => setIsDropdownOpen(false)}
+                          className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
+                          aria-label="Open admin panel"
+                        >
+                          <Shield className="w-4 h-4" />
+                          <span>Admin</span>
+                        </Link>
+                      )}
+
                       <Link
-                        href={session.user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/client'}
+                        href="/dashboard/client"
                         onClick={() => setIsDropdownOpen(false)}
                         className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
-                        aria-label="Go to Dashboard"
+                        aria-label="Go to dashboard"
                       >
                         <Settings className="w-4 h-4" />
                         <span>Dashboard</span>

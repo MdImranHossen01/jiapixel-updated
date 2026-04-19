@@ -47,13 +47,6 @@ const getRouteOwner = (
   return "null";
 };
 
-const getDefaultDashboardRoute = (role: UserRole): string => {
-  if (role === "admin") {
-    return "/dashboard/admin";
-  }
-  return "/dashboard";
-};
-
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   console.log(`🛡️ PROXY [Next.js 16]: Processing ${pathname}`);
@@ -77,7 +70,6 @@ export async function proxy(request: NextRequest) {
 
   const isAuthenticated = !!token;
   const userRole = token?.role as UserRole || null;
-  const hasAccessToken = !!token?.accessToken;
 
   // If route is protected and user is not authenticated, redirect to login
   if (!isAuthenticated) {
@@ -91,12 +83,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Check if tokens are present for protected routes
-  if (isAuthenticated && !hasAccessToken) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
+  // Do not require custom API accessToken here: NextAuth session is sufficient for
+  // dashboard layout. Requiring token.accessToken sent logged-in users to /login
+  // when the JWT field was missing or not decoded the same as on the client.
 
   // Allow the request to proceed
   return NextResponse.next();
