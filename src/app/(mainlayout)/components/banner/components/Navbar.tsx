@@ -364,14 +364,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearchClick }) => {
                         </>
                       )}
 
-                      <button
-                        onClick={handleDashboard}
+                      <Link
+                        href={session.user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/client'}
+                        onClick={() => setIsDropdownOpen(false)}
                         className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
                         aria-label="Go to Dashboard"
                       >
                         <Settings className="w-4 h-4" />
                         <span>Dashboard</span>
-                      </button>
+                      </Link>
+
 
                       <button
                         onClick={handleMessages}

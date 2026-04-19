@@ -56,6 +56,8 @@ const getDefaultDashboardRoute = (role: UserRole): string => {
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  console.log(`🛡️ PROXY [Next.js 16]: Processing ${pathname}`);
+
 
   // Check if route requires authentication
   const routeOwner = getRouteOwner(pathname);
@@ -104,6 +106,7 @@ export const config = {
   matcher: [
     // Only run proxy on dashboard routes where authentication is needed
     // This reduces unnecessary proxy calls for all public pages (home, blogs, portfolios, etc.)
-    '/dashboard/:path*',
+    '/dashboard(.*)',
+
   ],
 };
