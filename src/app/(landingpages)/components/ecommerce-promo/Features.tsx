@@ -236,6 +236,11 @@ export const Features = () => {
             link: "#",
         },
         {
+            title: "Secure MongoDB Database",
+            description: "আপনার স্টোরের ডাটা নিরাপদে সংরক্ষণ করতে আমরা ব্যবহার করছি অত্যাধুনিক নো-এসকিউএল (MongoDB) ডাটাবেস।",
+            link: "#",
+        },
+        {
             title: "Secure Checkout Process",
             description: "অত্যাধুনিক সিকিউরিটি লেয়ার ব্যবহারের মাধ্যমে কাস্টমারের যাবতীয় তথ্য সুরক্ষিত রাখা।",
             link: "#",
@@ -373,9 +378,9 @@ export const Features = () => {
         <section id="features" className="pt-12 lg:pt-16 ">
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto mb-10">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6">We offer Upto <span className="text-primary italic">43 Features</span></h2>
+                    <h2 className="text-3xl md:text-5xl font-bold mb-6">We offer Upto <span className="text-primary italic">44 Features</span></h2>
                     <p className="text-lg text-muted-foreground">
-                        আপনার অনলাইন ব্যবসাকে অটোমেটেড এবং প্রফেশনাল করতে আমরা দিচ্ছি ৪৩টিরও বেশি অ্যাডভান্সড ফিচার ও ইন্টিগ্রেশন সুবিধা।
+                        আপনার অনলাইন ব্যবসাকে অটোমেটেড এবং প্রফেশনাল করতে আমরা দিচ্ছি ৪৪টিরও বেশি অ্যাডভান্সড ফিচার ও ইন্টিগ্রেশন সুবিধা।
                     </p>
                 </div>
 

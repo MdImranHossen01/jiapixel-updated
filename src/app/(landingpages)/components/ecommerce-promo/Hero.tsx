@@ -51,7 +51,7 @@ export const Hero = () => {
                                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                                     <Sparkles className="w-3 h-3 text-primary" />
                                 </div>
-                                <span>আমরা দিচ্ছি ৪৩টিরও বেশি <Link href="#features" className="text-primary hover:underline font-bold">অ্যাডভান্সড ফিচার</Link></span>
+                                <span>আমরা দিচ্ছি ৪৪টিরও বেশি <Link href="#features" className="text-primary hover:underline font-bold">অ্যাডভান্সড ফিচার</Link></span>
                             </li>
                             <li className="flex items-center gap-2 lg:justify-start justify-center">
                                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
