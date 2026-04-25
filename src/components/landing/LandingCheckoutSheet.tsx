@@ -160,76 +160,69 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
           {!isSuccess ? (
             <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-1000">
               {/* Centered Header */}
-              <div className="text-center mb-10 space-y-2">
-                <SheetHeader className="p-0">
-                  <SheetTitle className="text-3xl md:text-5xl font-black leading-tight">
-                    <span className="text-primary uppercase italic">Submit Order Request</span>
-                  </SheetTitle>
-                </SheetHeader>
-                <p className="text-muted-foreground font-medium italic">
+              <div className="text-center mb-8 space-y-3">
+                <p className="text-muted-foreground font-medium text-sm md:text-base italic">
                   অনুগ্রহ করে নিচের তথ্যগুলো দিয়ে অর্ডারটি কনফার্ম করুন
                 </p>
               </div>
 
               {/* Centered Form */}
-              <div className="w-full bg-card border border-border rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-black uppercase tracking-wider text-muted-foreground">পুরো নাম (Full Name)</Label>
+              <div className="w-full bg-card border border-border rounded-3xl p-6 md:p-10 shadow-2xl relative">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-wider text-muted-foreground ml-1">পুরো নাম (Full Name)</Label>
                     <Input
                       id="name"
                       {...register("name")}
                       placeholder="your name"
-                      className={`h-14 text-lg bg-background/50 transition-all border-border/50 ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
+                      className={`h-11 text-base bg-background/50 transition-all border-border/50 rounded-xl ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
                     />
-                    {errors.name && <p className="text-xs text-destructive font-bold">{errors.name.message}</p>}
+                    {errors.name && <p className="text-[10px] text-destructive font-bold ml-1">{errors.name.message}</p>}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-black uppercase tracking-wider text-muted-foreground">ইমেইল (Email)</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-wider text-muted-foreground ml-1">ইমেইল (Email)</Label>
                     <Input
                       id="email"
                       type="email"
                       {...register("email")}
                       placeholder="email@example.com"
-                      className={`h-14 text-lg bg-background/50 transition-all border-border/50 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
+                      className={`h-11 text-base bg-background/50 transition-all border-border/50 rounded-xl ${errors.email ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
                     />
-                    {errors.email && <p className="text-xs text-destructive font-bold">{errors.email.message}</p>}
+                    {errors.email && <p className="text-[10px] text-destructive font-bold ml-1">{errors.email.message}</p>}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-black uppercase tracking-wider text-muted-foreground">মোবাইল নম্বর (Mobile Number)</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-wider text-muted-foreground ml-1">মোবাইল নম্বর (Mobile Number)</Label>
                     <Input
                       id="phone"
                       {...register("phone")}
                       placeholder="01XXXXXXXXX"
-                      className={`h-14 text-lg bg-background/50 transition-all border-border/50 ${errors.phone ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
+                      className={`h-11 text-base bg-background/50 transition-all border-border/50 rounded-xl ${errors.phone ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
                     />
-                    {errors.phone && <p className="text-xs text-destructive font-bold">{errors.phone.message}</p>}
+                    {errors.phone && <p className="text-[10px] text-destructive font-bold ml-1">{errors.phone.message}</p>}
                   </div>
 
                   <Button
                     type="submit"
                     disabled={isSubmitting || !isValid}
-                    className="w-full h-16 rounded-[1.25rem] text-xl font-black shadow-xl shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all mt-6"
+                    className="w-full h-14 rounded-xl text-lg font-black shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all mt-4"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-6 h-6 animate-spin mr-3" />
+                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
                         প্রসেসিং হচ্ছে...
                       </>
                     ) : (
                       <>
-                        Confirm Order
+                        Confirm
                       </>
                     )}
                   </Button>
                 </form>
               </div>
 
-              <p className="mt-8 text-sm text-muted-foreground font-medium italic">
-                * কোনো অগ্রিম পেমেন্টের প্রয়োজন নেই। আমাদের টিম আপনার সাথে সরাসরি যোগাযোগ করবে।
-              </p>
+
             </div>
           ) : (
             /* Success View */
@@ -240,7 +233,7 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
               <div className="space-y-3">
                 <h2 className="text-5xl font-black tracking-tight">অর্ডার রিকোয়েস্ট সফল!</h2>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
-                  ধন্যবাদ! আমরা আপনার রিকোয়েস্টটি পেয়েছি। আমাদের একজন স্পেশালিস্ট খুব শীঘ্রই আপনার মোবাইল নম্বরে যোগাযোগ করবেন।
+                  ধন্যবাদ! আমরা আপনার রিকোয়েস্টটি পেয়েছি। খুব শীঘ্রই আপনার সাথে যোগাযোগ করবো।
                 </p>
               </div>
               <div className="pt-8">
