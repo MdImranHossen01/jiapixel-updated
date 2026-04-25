@@ -2,15 +2,16 @@ import React from "react";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 
+import { preload } from "react-dom";
+
 // Local components
 import { Hero } from "../components/ecommerce-promo/Hero";
 import { DemoBanner } from "../components/ecommerce-promo/DemoBanner";
-import { Features } from "../components/ecommerce-promo/Features";
-import { Steps } from "../components/ecommerce-promo/Steps";
-import { FAQs } from "../components/ecommerce-promo/FAQs";
 
-
-// Dynamic components
+// Dynamic components (Lazy Loaded)
+const Steps = dynamic(() => import("../components/ecommerce-promo/Steps").then(mod => mod.Steps));
+const Features = dynamic(() => import("../components/ecommerce-promo/Features").then(mod => mod.Features));
+const FAQs = dynamic(() => import("../components/ecommerce-promo/FAQs").then(mod => mod.FAQs));
 const FloatingCTAs = dynamic(() => import("@/components/landing/FloatingCTAs").then(mod => mod.FloatingCTAs));
 
 export const metadata: Metadata = {
@@ -25,6 +26,9 @@ export const metadata: Metadata = {
 };
 
 const EcommerceLandingPage = () => {
+    // Preload the first banner image
+    preload('/images/landing-pages/ecommerce-promo/banner1.webp', { as: 'image' });
+
     return (
         <div className="min-h-screen w-full relative">
             {/* Content Layer */}

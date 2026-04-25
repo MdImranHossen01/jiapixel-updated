@@ -1,7 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { PopupModal } from "react-calendly";
+import dynamic from "next/dynamic";
+
+const PopupModal = dynamic(() => import("react-calendly").then((mod) => mod.PopupModal), { ssr: false });
 import { CONTACT_INFO } from "@/constants/contact";
 
 interface BookingContextType {

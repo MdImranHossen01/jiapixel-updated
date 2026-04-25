@@ -56,7 +56,7 @@ const nextConfig = {
 
   // Add these for better performance and security
   experimental: {
-    optimizeCss: false,
+    optimizeCss: true,
   },
 
 

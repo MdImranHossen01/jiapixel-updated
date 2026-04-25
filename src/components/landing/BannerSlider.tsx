@@ -35,7 +35,7 @@ export const BannerSlider = ({ images, interval = 5000 }: BannerSliderProps) => 
                         initial={{ scale: 1 }}
                         animate={{ scale: 1.15 }}
                         transition={{ duration: interval / 1000 + 1.5, ease: "linear" }}
-                        className="w-full h-full"
+                        className="relative w-full h-full"
                     >
                         <Image
                             src={images[currentIndex]}
