@@ -22,7 +22,7 @@ export const Hero = () => {
             <div className="relative w-full overflow-hidden px-4">
                 <div className="container mx-auto z-20 flex flex-col lg:flex-row items-center gap-12">
                     {/* Left Column: Banner Slider */}
-                    <div className="lg:w-[60%] order-2 lg:order-1 relative">
+                    <div className="w-full lg:w-[60%] order-1 relative">
                         <div className="relative z-20">
                             <BannerSlider images={bannerImages} />
                         </div>
@@ -30,7 +30,7 @@ export const Hero = () => {
                     </div>
 
                     {/* Right Column: Title and Attributes */}
-                    <div className="lg:w-[40%] order-1 lg:order-2 text-center lg:text-left space-y-6 lg:pl-8">
+                    <div className="lg:w-[40%] order-2 text-center lg:text-left space-y-6 lg:pl-8">
                         <div className="inline-flex items-center rounded-full px-4 py-1.5 text-base font-bold bg-primary/10 text-primary border border-primary/20 animate-in fade-in slide-in-from-bottom-3 duration-1000">
                             <Sparkles className="w-5 h-5 mr-2" />
                             <span>মাত্র ৩৫০০ টাকায়</span>
