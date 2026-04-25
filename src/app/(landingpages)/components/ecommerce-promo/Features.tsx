@@ -338,7 +338,7 @@ export const Features = () => {
     ];
 
     return (
-        <section id="features" className="pt-12 pb-6 lg:pt-16 lg:pb-8">
+        <section id="features" className="pt-12 lg:pt-16 ">
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto mb-10">
                     <h2 className="text-3xl md:text-5xl font-bold mb-6">We offer Upto <span className="text-primary italic">40 Features</span></h2>

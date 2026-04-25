@@ -9,7 +9,7 @@ import {
 
 export const FAQs = () => {
     return (
-        <section className="lg:pb-6 relative overflow-hidden">
+        <section className="lg:py-6 relative overflow-hidden">
             {/* Background Decorations */}
 
             <div className="container px-4 mx-auto max-w-4xl">
@@ -17,7 +17,7 @@ export const FAQs = () => {
                     <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
                         Frequently Asked <span className="text-primary">Questions</span>
                     </h2>
-                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                    <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto">
                         আপনার মনে থাকা সাধারণ কিছু প্রশ্নের সহজ উত্তর এখানে পাওয়া যাবে। আরও কিছু জানার থাকলে আমাদের সরাসরি মেসেজ দিন।
                     </p>
                 </div>
