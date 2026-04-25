@@ -31,7 +31,7 @@ const LandingFooter = () => {
   ];
 
   return (
-    <footer className="text-foreground border-t border-border bg-background py-12">
+    <footer className="text-foreground border-t border-primary  pt-6 pb-0">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between text-center md:text-left space-y-8 md:space-y-0">
           {/* Logo & Meta Section */}
@@ -61,7 +61,7 @@ const LandingFooter = () => {
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-border text-center text-muted-foreground text-sm">
+        <div className="mt-8 pt-8 border-t border-border text-center md:text-right text-muted-foreground text-sm">
           <p>&copy; {currentYear} Jiapixel. All rights reserved.</p>
         </div>
       </div>
