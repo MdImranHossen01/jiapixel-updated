@@ -15,11 +15,11 @@ const FAQs = dynamic(() => import("../components/ecommerce-promo/FAQs").then(mod
 const FloatingCTAs = dynamic(() => import("@/components/landing/FloatingCTAs").then(mod => mod.FloatingCTAs));
 
 export const metadata: Metadata = {
-    title: "ক্ষুদ্র ব্যবসার জন্য প্রিমিয়াম ই-কমার্স ওয়েবসাইট | মাত্র ৩৫০০ টাকা",
-    description: "আপনার ক্ষুদ্র ব্যবসার জন্য পান সুপার-ফাস্ট এবং রেসপনসিভ ই-কমার্স ওয়েবসাইট। সাথে থাকছে কুরিয়ার এবং পেমেন্ট গেটওয়ে ইন্টিগ্রেশন। কোনো অগ্রিম পেমেন্টের প্রয়োজন নেই। পছন্দ হলে তারপর পেমেন্ট করুন।",
+    title: "ব্যবসার জন্য প্রিমিয়াম ই-কমার্স ওয়েবসাইট | মাত্র ৩৫০০ টাকা",
+    description: "আপনার ব্যবসার জন্য পান সুপার-ফাস্ট এবং রেসপনসিভ ই-কমার্স ওয়েবসাইট। সাথে থাকছে কুরিয়ার এবং পেমেন্ট গেটওয়ে ইন্টিগ্রেশন। কোনো অগ্রিম পেমেন্টের প্রয়োজন নেই। পছন্দ হলে তারপর পেমেন্ট করুন।",
     keywords: ["ecommerce website bangladesh", "small business website", "web design bangladesh", "jiapixel ecommerce", "cheap ecommerce website bangladesh", "ই-কমার্স ওয়েবসাইট বাংলাদেশ"],
     openGraph: {
-        title: "ক্ষুদ্র ব্যবসার জন্য প্রিমিয়াম ই-কমার্স ওয়েবসাইট",
+        title: "ব্যবসার জন্য প্রিমিয়াম ই-কমার্স ওয়েবসাইট",
         description: "মাত্র ৩৫০০ টাকায় আপনার অনলাইন স্টোর শুরু করুন। কোনো অগ্রিম পেমেন্ট ছাড়াই অর্ডার করুন।",
         images: [{ url: "/images/landing-pages/ecommerce-promo/hero.png" }],
     }

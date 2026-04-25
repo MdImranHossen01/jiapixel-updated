@@ -45,7 +45,7 @@ export const Hero = () => {
                                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                                     <Sparkles className="w-3 h-3 text-primary" />
                                 </div>
-                                <span>ক্ষুদ্র ব্যবসার জন্য প্রিমিয়াম ওয়েব অ্যাপ্লিকেশন</span>
+                                <span>ব্যবসার জন্য প্রিমিয়াম ই-কমার্স ওয়েব অ্যাপ্লিকেশন</span>
                             </li>
                             <li className="flex items-center gap-2 lg:justify-start justify-center">
                                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -74,16 +74,16 @@ export const Hero = () => {
                                     Request Order
                                 </Button>
                             </LandingCheckoutSheet>
-                             <Button asChild variant="outline" size="lg" className="rounded-full px-5 h-12 text-base font-semibold transition-all hover:bg-accent">
-                                 <Link 
-                                    href="https://wa.me/8801919011101" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
+                            <Button asChild variant="outline" size="lg" className="rounded-full px-5 h-12 text-base font-semibold transition-all hover:bg-accent">
+                                <Link
+                                    href="https://wa.me/8801919011101"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     aria-label="Open WhatsApp in a new tab (external)"
-                                 >
-                                     WhatsApp
-                                 </Link>
-                             </Button>
+                                >
+                                    WhatsApp
+                                </Link>
+                            </Button>
                         </div>
                     </div>
                 </div>
