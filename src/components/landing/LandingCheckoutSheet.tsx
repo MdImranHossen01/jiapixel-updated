@@ -156,49 +156,44 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
         {children}
       </SheetTrigger>
       <SheetContent side="top" className="h-auto max-h-[95vh] overflow-y-auto p-0 border-b-primary/20 rounded-b-3xl">
-        <div className="container max-w-2xl mx-auto py-12 px-6">
+        <div className="container max-w-2xl mx-auto py-4 px-6">
           {!isSuccess ? (
             <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-1000">
-              {/* Centered Header */}
-              <div className="text-center mb-8 space-y-3">
-                <p className="text-muted-foreground font-medium text-sm md:text-base italic">
-                  অনুগ্রহ করে নিচের তথ্যগুলো দিয়ে অর্ডারটি কনফার্ম করুন
-                </p>
-              </div>
+
 
               {/* Centered Form */}
-              <div className="w-full bg-card border border-border rounded-3xl p-6 md:p-10 shadow-2xl relative">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                  <div className="space-y-1.5">
+              <div className="w-full bg-card rounded-sm p-4 md:p-10 shadow-xl relative">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="space-y-1">
                     <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-wider text-muted-foreground ml-1">পুরো নাম (Full Name)</Label>
                     <Input
                       id="name"
                       {...register("name")}
                       placeholder="your name"
-                      className={`h-11 text-base bg-background/50 transition-all border-border/50 rounded-xl ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
+                      className={`h-11 text-base bg-background/50 transition-all border border-border/40 focus:border-primary/50 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-sm ${errors.name ? 'border-destructive' : ''}`}
                     />
                     {errors.name && <p className="text-[10px] text-destructive font-bold ml-1">{errors.name.message}</p>}
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-wider text-muted-foreground ml-1">ইমেইল (Email)</Label>
                     <Input
                       id="email"
                       type="email"
                       {...register("email")}
                       placeholder="email@example.com"
-                      className={`h-11 text-base bg-background/50 transition-all border-border/50 rounded-xl ${errors.email ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
+                      className={`h-11 text-base bg-background/50 transition-all border border-border/40 focus:border-primary/50 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-sm ${errors.email ? 'border-destructive' : ''}`}
                     />
                     {errors.email && <p className="text-[10px] text-destructive font-bold ml-1">{errors.email.message}</p>}
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-wider text-muted-foreground ml-1">মোবাইল নম্বর (Mobile Number)</Label>
                     <Input
                       id="phone"
                       {...register("phone")}
                       placeholder="01XXXXXXXXX"
-                      className={`h-11 text-base bg-background/50 transition-all border-border/50 rounded-xl ${errors.phone ? 'border-destructive focus-visible:ring-destructive' : 'focus:border-primary'}`}
+                      className={`h-11 text-base bg-background/50 transition-all border border-border/40 focus:border-primary/50 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-sm ${errors.phone ? 'border-destructive' : ''}`}
                     />
                     {errors.phone && <p className="text-[10px] text-destructive font-bold ml-1">{errors.phone.message}</p>}
                   </div>
@@ -206,16 +201,16 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
                   <Button
                     type="submit"
                     disabled={isSubmitting || !isValid}
-                    className="w-full h-14 rounded-xl text-lg font-black shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all mt-4"
+                    className="w-full h-10 rounded-sm text-[10px] font-bold shadow-md shadow-primary/10 hover:scale-[1.01] active:scale-[0.99] transition-all mt-2"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
                         প্রসেসিং হচ্ছে...
                       </>
                     ) : (
                       <>
-                        Confirm
+                        CONFIRM ORDER
                       </>
                     )}
                   </Button>
