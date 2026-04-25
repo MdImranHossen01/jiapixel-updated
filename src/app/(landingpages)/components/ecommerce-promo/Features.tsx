@@ -13,6 +13,8 @@ import { StackingHighlights, type Highlight } from "@/components/landing/Stackin
 
 export const Features = () => {
     const features = [
+
+        // --- Core Tech & Performance ---
         {
             title: "Free Cloud Hosting",
             description: "সার্ভার খরচ নিয়ে চিন্তা করবেন না। আমরা আপনার স্টোরের জন্য হাই-পারফরম্যান্স ক্লাউড হোস্টিং দিচ্ছি একদম ফ্রি।",
@@ -24,10 +26,55 @@ export const Features = () => {
             link: "#",
         },
         {
+            title: "Advanced Technology Stack",
+            description: "Next.js, React এবং সর্বাধুনিক ডেভেলপমেন্ট স্ট্যাক ব্যবহারের মাধ্যমে সেরা পারফরম্যান্স।",
+            link: "#",
+        },
+        {
+            title: "Free SSL Certificate",
+            description: "আপনার স্টোরের ডাটা ইনক্রিপ্ট রাখতে আমরা দিচ্ছি প্রথম বছরের জন্য ফ্রি এসএসএল সার্টিফিকেট।",
+            link: "#",
+        },
+        {
             title: "Fully Responsive Design",
             description: "আপনার ওয়েবসাইট স্মার্টফোন, ট্যাবলেট এবং ডেস্কটপ সব ডিভাইসেই চমৎকার দেখাবে।",
             link: "#",
         },
+        {
+            title: "PWA (Offline Support)",
+            description: "মোবাইল এবং ডেস্কটপে সরাসরি অ্যাপের মত ইন্সটল করার সুবিধা।",
+            link: "#",
+        },
+
+
+        // --- Advanced Technical Features (New) ---
+        {
+            title: "Structured Data Markup",
+            description: "সার্চ ইঞ্জিনে আপনার ওয়েবসাইটকে আরও সুন্দরভাবে উপস্থাপনের জন্য অ্যাডভান্সড স্কিমা মার্কআপ সেটআপ।",
+            link: "#",
+        },
+        {
+            title: "Open Graph Setup",
+            description: "সোশ্যাল মিডিয়ায় শেয়ার করার সময় আপনার ওয়েবসাইটের আকর্ষণীয় প্রিভিউ নিশ্চিত করতে ওপেন গ্রাফ সেটআপ।",
+            link: "#",
+        },
+        {
+            title: "Twitter Card Setup",
+            description: "টুইটার বা এক্স-এ আপনার ওয়েবসাইটের প্রফেশনাল কার্ড প্রিভিউ এবং এনগেজমেন্ট বৃদ্ধির জন্য স্পেশাল সেটআপ।",
+            link: "#",
+        },
+        {
+            title: "Customized Theme & Fonts",
+            description: "আপনার ব্র্যান্ডের সাথে সামঞ্জস্য রেখে কাস্টমাইজড থিম কালার এবং প্রিমিয়াম ফন্ট ব্যবহারের সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "Advanced Security & Hardening",
+            description: "ওয়েবসাইটকে হ্যাকিং এবং ম্যালওয়্যার থেকে সুরক্ষিত রাখতে লেটেস্ট সিকিউরিটি প্রোটোকল ও হার্ডেনিং।",
+            link: "#",
+        },
+
+        // --- E-commerce & Management ---
         {
             title: "Courier Integration",
             description: "পাঠাও, রেডাক্স, স্টিডফাস্ট এবং আরও অনেক সার্ভিসের সাথে অটোমেটেড শিপিং ম্যানেজমেন্ট।",
@@ -39,6 +86,39 @@ export const Features = () => {
             link: "#",
         },
         {
+            title: "Real-time Courier Tracking",
+            description: "কাস্টমাররা তাদের অর্ডারের বর্তমান অবস্থা সরাসরি ওয়েবসাইট থেকেই ট্র্যাক করতে পারবে।",
+            link: "#",
+        },
+        {
+            title: "Live Order Tracking",
+            description: "অর্ডার কনফার্ম হওয়া থেকে ডেলিভারি পর্যন্ত প্রতিটি ধাপের লাইভ স্ট্যাটাস কাস্টমারকে জানানোর সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "Dynamic Delivery Charge Setup",
+            description: "কাস্টমারের লোকেশন এবং অর্ডার মূল্যের উপর ভিত্তি করে অটোমেটিক ডেলিভারি চার্জ ক্যালকুলেশন।",
+            link: "#",
+        },
+
+        {
+            title: "Short Product Alert",
+            description: "কোনো পণ্যের স্টক ফুরিয়ে যাওয়ার আগেই অটোমেটেড নোটিফিকেশনের মাধ্যমে সতর্ক করার সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "Bulk Product Upload",
+            description: "এক ক্লিকে শত শত প্রোডাক্ট এক্সেল বা সিএসভি ফাইলের মাধ্যমে স্টোরে আপলোড করার সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "Automated Invoice Generation",
+            description: "অর্ডার কনফার্ম হওয়ার সাথে সাথেই কাস্টমারের জন্য প্রফেশনাল পিডিএফ ইনভয়েস তৈরি হবে।",
+            link: "#",
+        },
+
+        // --- Marketing & Sales Boosters ---
+        {
             title: "SEO Friendly Structure",
             description: "সার্চ ইঞ্জিনে আপনার বিজনেস সবার উপরে রাখার জন্য সকল প্রকার টেকনিক্যাল এসইও সাপোর্ট।",
             link: "#",
@@ -49,118 +129,14 @@ export const Features = () => {
             link: "#",
         },
         {
-            title: "Search Console & Analytics",
-            description: "গুগল সার্চ কনসোল এবং অ্যানালিটিক্স ইন্টিগ্রেশন যার মাধ্যমে আপনি ভিজিটর ট্র্যাক করতে পারবেন।",
-            link: "#",
-        },
-        {
             title: "Facebook Pixel Setup",
             description: "আপনার সোশ্যাল মিডিয়া মার্কেটিং আরও কার্যকর করতে প্রফেশনাল ফেসবুক পিক্সেল সেটআপ।",
             link: "#",
         },
+
         {
-            title: "Smooth Scrolling & UX",
-            description: "ওয়েবসাইটে থাকছে প্রিমিয়াম স্মুথ স্ক্রলিং ইফেক্ট যা ইউজার এক্সপিরিয়েন্সকে করবে আরও আকর্ষণীয়।",
-            link: "#",
-        },
-        {
-            title: "AI Integration",
-            description: "আপনার স্টোরকে আরও স্মার্ট করতে এআই (Chatbot/Automation) ইন্টিগ্রেশন সুবিধা।",
-            link: "#",
-        },
-        {
-            title: "Voice Search Functionality",
-            description: "স্মার্ট ইউজারদের জন্য ভয়েস সার্চ সহ অ্যাডভান্সড সার্চ ফিচার।",
-            link: "#",
-        },
-        {
-            title: "PWA (Offline Support)",
-            description: "মোবাইল এবং ডেস্কটপে সরাসরি অ্যাপের মত ইন্সটল করার সুবিধা।",
-            link: "#",
-        },
-        {
-            title: "Advanced Technology Stack",
-            description: "Next.js, React এবং সর্বাধুনিক ডেভেলপমেন্ট স্ট্যাক ব্যবহারের মাধ্যমে সেরা পারফরম্যান্স।",
-            link: "#",
-        },
-        {
-            title: "Premium Animations",
-            description: "সাইটে থাকছে আকর্ষণীয় এবং আধুনিক লোডিং অ্যানিমেশন ও ইউজার ইন্টারঅ্যাকশন ইফেক্ট।",
-            link: "#",
-        },
-        {
-            title: "Role-Based Authentication",
-            description: "অ্যাডমিন এবং কাস্টমারদের জন্য আলাদা আলাদা ড্যাশবোর্ড সুবিধা।",
-            link: "#",
-        },
-        {
-            title: "Inventory Management",
-            description: "আপনার পণ্যের স্টক ট্র্যাক করুন এবং স্টক ফুরিয়ে গেলে অটোমেটেড এলার্ট পান।",
-            link: "#",
-        },
-        {
-            title: "Wishlist Functionality",
-            description: "উন্নত কেনাকাটার অভিজ্ঞতার জন্য কাস্টমাররা তাদের প্রিয় পণ্যগুলো আলাদা করে রাখতে পারবে।",
-            link: "#",
-        },
-        {
-            title: "Coupons & Discounts",
-            description: "আপনার বিক্রি বাড়িয়ে নিতে কাস্টমারদের জন্য আকর্ষণীয় ডিসকাউন্ট এবং কুপন সিস্টেম।",
-            link: "#",
-        },
-        {
-            title: "Real-time Courier Tracking",
-            description: "কাস্টমাররা তাদের অর্ডারের বর্তমান অবস্থা সরাসরি ওয়েবসাইট থেকেই ট্র্যাক করতে পারবে।",
-            link: "#",
-        },
-        {
-            title: "Automated Invoice Generation",
-            description: "অর্ডার কনফার্ম হওয়ার সাথে সাথেই কাস্টমারের জন্য প্রফেশনাল পিডিএফ ইনভয়েস তৈরি হবে।",
-            link: "#",
-        },
-        {
-            title: "Bulk Product Upload",
-            description: "এক ক্লিকে শত শত প্রোডাক্ট এক্সেল বা সিএসভি ফাইলের মাধ্যমে স্টোরে আপলোড করার সুবিধা।",
-            link: "#",
-        },
-        {
-            title: "Customer Reviews & Ratings",
-            description: "পণ্যের উপর কাস্টমারদের মতামত এবং রেটিং যা আপনার ব্র্যান্ডের বিশ্বস্ততা বাড়িয়ে দিবে।",
-            link: "#",
-        },
-        {
-            title: "Secure Checkout Process",
-            description: "অত্যাধুনিক সিকিউরিটি লেয়ার ব্যবহারের মাধ্যমে কাস্টমারের যাবতীয় তথ্য সুরক্ষিত রাখা।",
-            link: "#",
-        },
-        {
-            title: "Advanced Rich-Text Editor",
-            description: "ব্লগিং এবং কন্টেন্ট রাইটিং এর জন্য থাকছে টিপট্যাপ (Tiptap) ভিত্তিক অত্যাধুনিক রিচ-টেক্সট এডিটর সুবিধা।",
-            link: "#",
-        },
-        {
-            title: "Social Media Integration",
-            description: "ফেসবুক, ইনস্টাগ্রাম এবং অন্যান্য সোশ্যাল মিডিয়ার সাথে সরাসরি কানেক্ট করার সুবিধা।",
-            link: "#",
-        },
-        {
-            title: "Advanced Product Filtering",
-            description: "কাস্টমাররা সহজেই ক্যাটাগরি, মূল্য এবং বৈশিষ্ট্য অনুযায়ী তাদের পছন্দের পণ্য খুঁজে পাবে।",
-            link: "#",
-        },
-        {
-            title: "Blog & CMS Support",
-            description: "অর্গানিক ট্রাফিক বাড়াতে আপনার স্টোরে নিয়মিত নতুন ব্লগ পোস্ট করার জন্য ডায়নামিক এডমিন প্যানেল।",
-            link: "#",
-        },
-        {
-            title: "Free SSL Certificate",
-            description: "আপনার স্টোরের ডাটা ইনক্রিপ্ট রাখতে আমরা দিচ্ছি প্রথম বছরের জন্য ফ্রি এসএসএল সার্টিফিকেট।",
-            link: "#",
-        },
-        {
-            title: "Lifetime Technical Support",
-            description: "সাইট লঞ্চের পর যেকোনো যান্ত্রিক গোলযোগে আমাদের পক্ষ থেকে থাকছে সার্বক্ষণিক সাপোর্ট।",
+            title: "Dynamic Discount Coupons",
+            description: "বিভিন্ন উৎসব বা ক্যাম্পেইনের জন্য অটোমেটিক এবং ডায়নামিক ডিসকাউন্ট কুপন তৈরির সুবিধা।",
             link: "#",
         },
         {
@@ -169,8 +145,15 @@ export const Features = () => {
             link: "#",
         },
         {
-            title: "Social & Email Login",
-            description: "গুগল এবং ইমেইল ব্যবহারের মাধ্যমে কাস্টমারদের দ্রুত এবং নিরাপদ লগইন সুবিধা।",
+            title: "Social Media Integration",
+            description: "ফেসবুক, ইনস্টাগ্রাম এবং অন্যান্য সোশ্যাল মিডিয়ার সাথে সরাসরি কানেক্ট করার সুবিধা।",
+            link: "#",
+        },
+
+        // --- Analytics & Insights ---
+        {
+            title: "Search Console & Analytics",
+            description: "গুগল সার্চ কনসোল এবং অ্যানালিটিক্স ইন্টিগ্রেশন যার মাধ্যমে আপনি ভিজিটর ট্র্যাক করতে পারবেন।",
             link: "#",
         },
         {
@@ -193,24 +176,73 @@ export const Features = () => {
             description: "সেলস ট্রেন্ড, কাস্টমার বিহেভিয়ার এবং গ্রোথ বুঝতে অত্যাধুনিক গ্রাফিক্যাল অ্যানালিটিক্স।",
             link: "#",
         },
+
+        // --- UX & Modern Features ---
         {
-            title: "Short Product Alert",
-            description: "কোনো পণ্যের স্টক ফুরিয়ে যাওয়ার আগেই অটোমেটেড নোটিফিকেশনের মাধ্যমে সতর্ক করার সুবিধা।",
+            title: "Smooth Scrolling & UX",
+            description: "ওয়েবসাইটে থাকছে প্রিমিয়াম স্মুথ স্ক্রলিং ইফেক্ট যা ইউজার এক্সপিরিয়েন্সকে করবে আরও আকর্ষণীয়।",
             link: "#",
         },
         {
-            title: "Dynamic Discount Coupons",
-            description: "বিভিন্ন উৎসব বা ক্যাম্পেইনের জন্য অটোমেটিক এবং ডায়নামিক ডিসকাউন্ট কুপন তৈরির সুবিধা।",
+            title: "Premium Animations",
+            description: "সাইটে থাকছে আকর্ষণীয় এবং আধুনিক লোডিং অ্যানিমেশন ও ইউজার ইন্টারঅ্যাকশন ইফেক্ট।",
             link: "#",
         },
         {
-            title: "Dynamic Delivery Charge Setup",
-            description: "কাস্টমারের লোকেশন এবং অর্ডার মূল্যের উপর ভিত্তি করে অটোমেটিক ডেলিভারি চার্জ ক্যালকুলেশন।",
+            title: "AI Integration",
+            description: "আপনার স্টোরকে আরও স্মার্ট করতে এআই (Chatbot/Automation) ইন্টিগ্রেশন সুবিধা।",
             link: "#",
         },
         {
-            title: "Live Order Tracking",
-            description: "অর্ডার কনফার্ম হওয়া থেকে ডেলিভারি পর্যন্ত প্রতিটি ধাপের লাইভ স্ট্যাটাস কাস্টমারকে জানানোর সুবিধা।",
+            title: "Voice Search Functionality",
+            description: "স্মার্ট ইউজারদের জন্য ভয়েস সার্চ সহ অ্যাডভান্সড সার্চ ফিচার।",
+            link: "#",
+        },
+        {
+            title: "Advanced Product Filtering",
+            description: "কাস্টমাররা সহজেই ক্যাটাগরি, মূল্য এবং বৈশিষ্ট্য অনুযায়ী তাদের পছন্দের পণ্য খুঁজে পাবে।",
+            link: "#",
+        },
+        {
+            title: "Wishlist Functionality",
+            description: "উন্নত কেনাকাটার অভিজ্ঞতার জন্য কাস্টমাররা তাদের প্রিয় পণ্যগুলো আলাদা করে রাখতে পারবে।",
+            link: "#",
+        },
+        {
+            title: "Customer Reviews & Ratings",
+            description: "পণ্যের উপর কাস্টমারদের মতামত এবং রেটিং যা আপনার ব্র্যান্ডের বিশ্বস্ততা বাড়িয়ে দিবে।",
+            link: "#",
+        },
+
+        // --- CMS & Security ---
+        {
+            title: "Blog & CMS Support",
+            description: "অর্গানিক ট্রাফিক বাড়াতে আপনার স্টোরে নিয়মিত নতুন ব্লগ পোস্ট করার জন্য ডায়নামিক এডমিন প্যানেল।",
+            link: "#",
+        },
+        {
+            title: "Advanced Rich-Text Editor",
+            description: "ব্লগিং এবং কন্টেন্ট রাইটিং এর জন্য থাকছে টিপট্যাপ (Tiptap) ভিত্তিক অত্যাধুনিক রিচ-টেক্সট এডিটর সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "Role-Based Authentication",
+            description: "অ্যাডমিন এবং কাস্টমারদের জন্য আলাদা আলাদা ড্যাশবোর্ড সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "Social & Email Login",
+            description: "গুগল এবং ইমেইল ব্যবহারের মাধ্যমে কাস্টমারদের দ্রুত এবং নিরাপদ লগইন সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "Secure Checkout Process",
+            description: "অত্যাধুনিক সিকিউরিটি লেয়ার ব্যবহারের মাধ্যমে কাস্টমারের যাবতীয় তথ্য সুরক্ষিত রাখা।",
+            link: "#",
+        },
+        {
+            title: "Lifetime Technical Support",
+            description: "সাইট লঞ্চের পর যেকোনো যান্ত্রিক গোলযোগে আমাদের পক্ষ থেকে থাকছে সার্বক্ষণিক সাপোর্ট।",
             link: "#",
         },
     ];
@@ -341,9 +373,9 @@ export const Features = () => {
         <section id="features" className="pt-12 lg:pt-16 ">
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto mb-10">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6">We offer Upto <span className="text-primary italic">40 Features</span></h2>
+                    <h2 className="text-3xl md:text-5xl font-bold mb-6">We offer Upto <span className="text-primary italic">43 Features</span></h2>
                     <p className="text-lg text-muted-foreground">
-                        আপনার অনলাইন ব্যবসাকে অটোমেটেড এবং প্রফেশনাল করতে আমরা দিচ্ছি ৪০টিরও বেশি অ্যাডভান্সড ফিচার ও ইন্টিগ্রেশন সুবিধা।
+                        আপনার অনলাইন ব্যবসাকে অটোমেটেড এবং প্রফেশনাল করতে আমরা দিচ্ছি ৪৩টিরও বেশি অ্যাডভান্সড ফিচার ও ইন্টিগ্রেশন সুবিধা।
                     </p>
                 </div>
 
