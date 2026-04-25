@@ -26,7 +26,7 @@ interface StackingHighlightsProps {
 
 export function StackingHighlights({ highlights }: StackingHighlightsProps) {
     return (
-        <div className="flex flex-col gap-12 py-12">
+        <div className="flex flex-col gap-0 md:gap-12 py-12">
             {highlights.map((highlight, index) => (
                 <Card
                     key={highlight.id}
@@ -61,9 +61,9 @@ function Card({ highlight, index, total }: { highlight: Highlight; index: number
             <motion.div
                 style={{
                     scale,
-                    boxShadow: "0 -20px 50px -20px rgba(0,0,0,0.15)"
+                    boxShadow: "0 -10px 40px -15px rgba(0,0,0,0.1)"
                 }}
-                className={`w-full h-full md:h-auto overflow-hidden bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl md:rounded-[2.5rem] shadow-2xl relative transition-all duration-500 hover:shadow-primary/10 hover:border-primary/20`}
+                className={`w-full h-full md:h-auto overflow-hidden bg-card md:bg-card/80 md:backdrop-blur-xl border border-border/50 rounded-2xl md:rounded-[2.5rem] shadow-2xl relative transition-all duration-500 hover:shadow-primary/10 hover:border-primary/20`}
             >
                 <div className={`flex flex-col md:flex-row items-stretch h-full`}>
                     {/* Image Column - Top on mobile */}
