@@ -9,7 +9,7 @@ import {
 
 export const FAQs = () => {
     return (
-        <section className="lg:py-6 relative overflow-hidden">
+        <section className="-mt-20 md:mt-0 pb-6 relative overflow-hidden">
             {/* Background Decorations */}
 
             <div className="container px-4 mx-auto max-w-4xl">
