@@ -1,14 +1,41 @@
+"use client";
+
 import ProjectCard from "@/components/ProjectCard";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { GridSkeleton } from "@/components/CardSkeleton";
 
-import { getProjects } from "@/lib/db-utils";
+export default function FeaturedProjectSection() {
+    const [projects, setProjects] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-export default async function FeaturedProjectSection() {
-    const projects = await getProjects(8);
+    useEffect(() => {
+        const fetchProjects = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const response = await fetch("/api/projects?limit=8");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.success) {
+                    setProjects(data.projects);
+                } else {
+                    throw new Error(data.message || "Failed to load projects");
+                }
+            } catch (err: any) {
+                console.error("Error fetching featured projects:", err);
+                setError(err.message || "Could not load featured projects.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    console.log(`[FeaturedProjectSection] Fetched ${projects?.length || 0} projects`);
+        fetchProjects();
+    }, []);
 
-    if (!projects || projects.length === 0) {
+    if (!isLoading && projects.length === 0) {
         return null;
     }
 
@@ -24,12 +51,26 @@ export default async function FeaturedProjectSection() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {projects.map((project: any) => (
-                        <ProjectCard key={project._id} project={project} />
-                    ))}
-                </div>
+                {isLoading ? (
+                    <GridSkeleton count={8} />
+                ) : error ? (
+                    <div className="text-center py-10 bg-red-50/30 rounded-xl border border-red-100/50 border-dashed">
+                        <p className="text-red-600 text-sm mb-4">{error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="text-xs font-medium text-red-700 underline hover:no-underline"
+                        >
+                            Try again
+                        </button>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {projects.map((project: any) => (
+                            <ProjectCard key={project._id} project={project} />
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     );

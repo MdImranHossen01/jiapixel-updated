@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
@@ -13,22 +12,47 @@ import { Breadcrumb } from "@/components/ui/breadcrumb-custom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { extractTextFromProjectDescription } from "@/lib/utils";
-
-interface NewslettersClientProps {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    initialNewsletters: any[];
-}
+import { GridSkeleton } from "@/components/CardSkeleton";
 
 const ITEMS_PER_PAGE = 12;
 
-const NewslettersClient: React.FC<NewslettersClientProps> = ({ initialNewsletters }) => {
+const NewslettersClient: React.FC = () => {
+    const [newsletters, setNewsletters] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTag, setSelectedTag] = useState<string>("All");
     const [currentPage, setCurrentPage] = useState(1);
 
+    useEffect(() => {
+        const fetchNewsletters = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const response = await fetch("/api/newsletters?limit=100");
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+                }
+                const data = await response.json();
+                if (data.success) {
+                    setNewsletters(data.newsletters);
+                } else {
+                    throw new Error(data.message || "Failed to load newsletters");
+                }
+            } catch (err: any) {
+                console.error("Error fetching newsletters:", err);
+                setError(err.message || "An unexpected error occurred while fetching newsletters.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchNewsletters();
+    }, []);
+
     // Filter newsletters based on search and tag
     const filteredNewsletters = useMemo(() => {
-        return initialNewsletters.filter((newsletter) => {
+        return newsletters.filter((newsletter) => {
             const matchesSearch = searchQuery.trim()
                 ? newsletter.title?.toLowerCase().includes(searchQuery.toLowerCase().trim())
                 : true;
@@ -37,7 +61,7 @@ const NewslettersClient: React.FC<NewslettersClientProps> = ({ initialNewsletter
 
             return matchesSearch && matchesTag;
         });
-    }, [initialNewsletters, searchQuery, selectedTag]);
+    }, [newsletters, searchQuery, selectedTag]);
 
     // Pagination Logic
     const totalPages = Math.ceil(filteredNewsletters.length / ITEMS_PER_PAGE);
@@ -71,12 +95,35 @@ const NewslettersClient: React.FC<NewslettersClientProps> = ({ initialNewsletter
                             <h2 className="text-2xl font-bold">
                                 {selectedTag === "All" ? "Latest Newsletters" : `${selectedTag} Newsletters`}
                             </h2>
-                            <span className="text-muted-foreground text-sm">
-                                Showing {paginatedNewsletters.length} of {filteredNewsletters.length} result{filteredNewsletters.length !== 1 && 's'}
-                            </span>
+                            {!isLoading && (
+                                <span className="text-muted-foreground text-sm">
+                                    Showing {paginatedNewsletters.length} of {filteredNewsletters.length} result{filteredNewsletters.length !== 1 && 's'}
+                                </span>
+                            )}
                         </div>
 
-                        {paginatedNewsletters.length > 0 ? (
+                        {isLoading ? (
+                            <GridSkeleton count={6} />
+                        ) : error ? (
+                            /* Error State */
+                            <div className="text-center py-16 bg-red-50/50 rounded-xl border border-red-100 border-dashed">
+                                <div className="max-w-md mx-auto">
+                                    <div className="text-6xl mb-4">⚠️</div>
+                                    <h3 className="text-2xl font-bold text-red-900 mb-2">
+                                        Something went wrong
+                                    </h3>
+                                    <p className="text-red-700/80 mb-6">
+                                        {error}
+                                    </p>
+                                    <Button
+                                        onClick={() => window.location.reload()}
+                                        className="bg-red-600 text-white hover:bg-red-700"
+                                    >
+                                        Try again
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : paginatedNewsletters.length > 0 ? (
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -186,7 +233,7 @@ const NewslettersClient: React.FC<NewslettersClientProps> = ({ initialNewsletter
                     {/* Sidebar */}
                     <aside className="lg:col-span-4">
                         <NewsletterSidebar
-                            newsletters={initialNewsletters}
+                            newsletters={newsletters}
                             selectedTag={selectedTag}
                             onSelectTag={setSelectedTag}
                         />

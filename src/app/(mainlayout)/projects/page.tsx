@@ -6,24 +6,6 @@ import ProjectModel from "@/models/Project";
 import ProjectsClient from "./components/ProjectsClient";
 import Link from 'next/link';
 
-// Fetch all projects directly from DB for initial render + search pool
-async function getProjects() {
-    try {
-        await connectDB();
-
-        // Fetch all projects
-        const projects = await ProjectModel.find({})
-            .sort({ createdAt: -1 })
-            .lean();
-
-        // Serialize for Client Component
-        return JSON.parse(JSON.stringify(projects));
-    } catch (error) {
-        console.error("Error fetching projects:", error);
-        return [];
-    }
-}
-
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
     const baseUrl = "https://www.jiapixel.com";
@@ -75,27 +57,16 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-const ProjectsPage = async () => {
-    const projects = await getProjects();
-
-    // Generate structured data for projects listing
+const ProjectsPage = () => {
+    // Basic structured data for static shell
     const projectsStructuredData = {
         "@context": "https://schema.org",
         "@type": "ItemList",
         name: "Jiapixel Projects",
         description: "Portfolio of web development and digital marketing projects",
         url: "https://www.jiapixel.com/projects",
-        numberOfItems: projects.length,
-        itemListElement: projects.map((project: any, index: number) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            item: {
-                "@type": "CreativeWork",
-                name: project.title,
-                description: project.metaDescription || project.description?.replace(/<[^>]*>/g, "").substring(0, 200),
-                url: `https://www.jiapixel.com/projects/${project.slug}`,
-            },
-        })),
+        numberOfItems: 0,
+        itemListElement: [],
     };
 
     return (
@@ -107,7 +78,7 @@ const ProjectsPage = async () => {
 
             <div className="min-h-screen">
                 {/* Projects Client Component (Search, Filter, Grid) */}
-                <ProjectsClient initialProjects={projects} />
+                <ProjectsClient />
 
                 {/* SEO Content Section */}
                 <section className="py-12 bg-muted/30">

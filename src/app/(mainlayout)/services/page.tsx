@@ -7,24 +7,6 @@ import Project from "@/models/Service";
 import ServicesClient from "./components/ServicesClient";
 import Link from 'next/link';
 
-// Fetch all services directly from DB for initial render + search pool
-async function getServices() {
-  try {
-    await connectDB();
-
-    // Fetch all published services
-    const services = await Project.find({ status: { $ne: 'draft' } }) // Assuming we show published and archived? Or just published.
-      .sort({ createdAt: -1 })
-      .lean();
-
-    // Serialize for Client Component
-    return JSON.parse(JSON.stringify(services));
-  } catch (error) {
-    console.error("Error fetching services:", error);
-    return [];
-  }
-}
-
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = "https://www.jiapixel.com";
@@ -76,35 +58,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const ServicesPage = async () => {
-  const services = await getServices();
-
-  // Generate structured data for services listing
+const ServicesPage = () => {
+  // Basic structured data for services listing
   const servicesStructuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Jiapixel Services",
     description: "Professional web development and digital marketing services",
     url: "https://www.jiapixel.com/services",
-    numberOfItems: services.length,
-    itemListElement: services.map((service: any, index: number) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@type": "Service",
-        name: service.title,
-        description:
-          service.projectSummary?.replace(/<[^>]*>/g, "").substring(0, 200) ||
-          service.tiers?.starter?.description,
-        url: `https://www.jiapixel.com/services/${service.slug}`,
-        offers: Object.values(service.tiers || {}).map((tier: any) => ({
-          "@type": "Offer",
-          name: tier.title,
-          price: tier.price,
-          priceCurrency: "USD",
-        })),
-      },
-    })),
+    numberOfItems: 0,
+    itemListElement: [],
   };
 
   return (
@@ -115,7 +78,7 @@ const ServicesPage = async () => {
 
 
         {/* Services Client Component (Search, Filter, Grid) */}
-        <ServicesClient initialServices={services} />
+        <ServicesClient />
 
         {/* SEO Content Section */}
         <section className="py-12 bg-muted/30">

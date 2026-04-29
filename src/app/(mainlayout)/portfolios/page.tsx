@@ -30,44 +30,6 @@ interface PortfoliosResponse {
   };
 }
 
-async function getPortfolios(): Promise<PortfoliosResponse> {
-  try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/portfolios?status=published&limit=50`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      next: {
-        revalidate: 86400,
-        tags: ['portfolios']
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch portfolios');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching portfolios:', error);
-    return {
-      portfolios: [],
-      pagination: {
-        page: 1,
-        limit: 50,
-        total: 0,
-        totalPages: 0,
-        hasNext: false,
-        hasPrev: false
-      }
-    };
-  }
-}
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
@@ -113,37 +75,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-async function PortfoliosPage() {
-  const data = await getPortfolios();
-  const portfolios = data.portfolios;
-
-  // Extract unique categories from portfolios
-  // const categories = ['All', ...new Set(portfolios.map(p => p.category))].filter(Boolean);
-
+function PortfoliosPage() {
   const portfolioStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'Jiapixel Portfolio',
     description: 'Web development projects and case studies',
     url: 'https://www.jiapixel.com/portfolios',
-    numberOfItems: portfolios.length,
-    itemListElement: portfolios.map((portfolio: Portfolio, index: number) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
-        '@type': 'CreativeWork',
-        name: portfolio.title,
-        description: extractTextFromProjectDescription(portfolio.content).substring(0, 160),
-        url: `https://www.jiapixel.com/portfolios/${portfolio.slug}`,
-        image: portfolio.featuredImage,
-        dateCreated: portfolio.createdAt,
-        author: {
-          '@type': 'Organization',
-          name: 'Jiapixel',
-          url: 'https://www.jiapixel.com'
-        }
-      },
-    })),
+    numberOfItems: 0,
+    itemListElement: [],
   };
 
   return (
@@ -153,10 +93,11 @@ async function PortfoliosPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData).replace(/<\/script>/g, '<\\/script>') }}
       />
       <div className="min-h-screen bg-background">
-        <PortfoliosClient initialPortfolios={portfolios} pagination={data.pagination} />
+        <PortfoliosClient />
       </div>
     </>
   );
 }
 
 export default PortfoliosPage;
+

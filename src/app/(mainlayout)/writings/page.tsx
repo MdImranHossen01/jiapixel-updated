@@ -7,10 +7,6 @@ export const metadata: Metadata = {
     description: 'Discover our latest writings, essays, and stories.',
 };
 
-import { getWritings as fetchWritings } from '@/lib/db-utils';
-
-export default async function WritingsPage() {
-    const writings = await fetchWritings(100);
-
-    return <WritingsClient initialWritings={writings} />;
+export default function WritingsPage() {
+    return <WritingsClient />;
 }
