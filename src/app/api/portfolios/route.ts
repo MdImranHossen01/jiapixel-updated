@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     const totalPages = Math.ceil(total / limit);
 
     return NextResponse.json({
+      success: true,
       portfolios,
       pagination: {
         page,
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get portfolios error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch portfolios' },
+      { success: false, error: 'Failed to fetch portfolios' },
       { status: 500 }
     );
   }
