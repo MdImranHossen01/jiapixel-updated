@@ -55,7 +55,7 @@ export const Steps = () => {
     ];
 
     return (
-        <section className="py-12 lg:py-16 relative overflow-hidden">
+        <section className="py-12 relative overflow-hidden">
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto mb-12">
                     <h2 className="text-4xl md:text-6xl font-black mb-6"><span className="text-primary italic">Order</span> Steps</h2>

@@ -31,6 +31,11 @@ export const Features = () => {
             link: "#",
         },
         {
+            title: "SSR, ISR, CSR integration",
+            description: "সাইটের গতি এবং পারফরম্যান্স সর্বোচ্চ রাখতে অত্যাধুনিক রেন্ডারিং টেকনোলজি ইন্টিগ্রেশন।",
+            link: "#",
+        },
+        {
             title: "Free SSL Certificate",
             description: "আপনার স্টোরের ডাটা ইনক্রিপ্ট রাখতে আমরা দিচ্ছি প্রথম বছরের জন্য ফ্রি এসএসএল সার্টিফিকেট।",
             link: "#",
@@ -56,6 +61,11 @@ export const Features = () => {
         {
             title: "Open Graph Setup",
             description: "সোশ্যাল মিডিয়ায় শেয়ার করার সময় আপনার ওয়েবসাইটের আকর্ষণীয় প্রিভিউ নিশ্চিত করতে ওপেন গ্রাফ সেটআপ।",
+            link: "#",
+        },
+        {
+            title: "Dynamic Sitemap Generation",
+            description: "সার্চ ইঞ্জিনে দ্রুত ইনডেক্সিং এর জন্য অটোমেটেড ডায়নামিক সাইটম্যাপ জেনারেশন সুবিধা।",
             link: "#",
         },
         {
@@ -189,8 +199,18 @@ export const Features = () => {
             link: "#",
         },
         {
+            title: "Splash screen and smart skeleton loading",
+            description: "প্রিমিয়াম ইউজার এক্সপিরিয়েন্সের জন্য আকর্ষণীয় স্প্ল্যাশ স্ক্রিন এবং স্মার্ট স্কেলিটন লোডিং ইফেক্ট।",
+            link: "#",
+        },
+        {
             title: "AI Integration",
             description: "আপনার স্টোরকে আরও স্মার্ট করতে এআই (Chatbot/Automation) ইন্টিগ্রেশন সুবিধা।",
+            link: "#",
+        },
+        {
+            title: "Map Integration",
+            description: "কাস্টমারদের জন্য আপনার অফিসের সঠিক অবস্থান খুঁজে পেতে গুগল ম্যাপ ইন্টিগ্রেশন সুবিধা।",
             link: "#",
         },
         {
@@ -378,9 +398,9 @@ export const Features = () => {
         <section id="features" className="pt-12 lg:pt-16 ">
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto mb-10">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6">We offer Upto <span className="text-primary italic">44 Features</span></h2>
+                    <h2 className="text-3xl md:text-5xl font-bold mb-6">We offer Upto <span className="text-primary italic">48 Features</span></h2>
                     <p className="text-lg text-muted-foreground">
-                        আপনার অনলাইন ব্যবসাকে অটোমেটেড এবং প্রফেশনাল করতে আমরা দিচ্ছি ৪৪টিরও বেশি অ্যাডভান্সড ফিচার ও ইন্টিগ্রেশন সুবিধা।
+                        আপনার অনলাইন ব্যবসাকে অটোমেটেড এবং প্রফেশনাল করতে আমরা দিচ্ছি ৪৮টিরও বেশি অ্যাডভান্সড ফিচার ও ইন্টিগ্রেশন সুবিধা।
                     </p>
                 </div>
 
