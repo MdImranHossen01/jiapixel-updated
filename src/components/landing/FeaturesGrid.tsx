@@ -45,7 +45,7 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
                             <div className="absolute inset-0 shadow-[inset_0_0_25px_var(--primary)] opacity-20 pointer-events-none" />
 
                             <span className="text-xs font-black tracking-widest text-primary/60 mb-2">{(idx + 1).toString().padStart(3, '0')}</span>
-                            <h3 className="text-xl font-bold group-hover:text-primary transition-colors">{item.title}</h3>
+                            <h3 className="text-xl font-bold group-hover:text-primary transition-colors min-h-[3.5rem] flex items-center">{item.title}</h3>
                             <p className="text-muted-foreground leading-relaxed">{item.description}</p>
                         </motion.div>
                     ))}

@@ -76,7 +76,7 @@ export const Steps = () => {
                                     {step.icon}
                                 </div>
                                 <div className="space-y-3">
-                                    <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors">{step.title}</h3>
+                                    <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors min-h-[3.5rem] flex items-center">{step.title}</h3>
                                     <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
                                 </div>
                             </div>
