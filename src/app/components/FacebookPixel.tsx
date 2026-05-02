@@ -41,6 +41,7 @@ export default function FacebookPixel({
           eventUrl: window.location.href,
           userAgent: navigator.userAgent,
           eventId,
+          testEventCode: process.env.NEXT_PUBLIC_FACEBOOK_TEST_EVENT_CODE,
         }),
       }).catch(() => {
         /* fail silently — browser pixel is the fallback */

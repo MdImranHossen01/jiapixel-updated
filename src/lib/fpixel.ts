@@ -1,11 +1,27 @@
 "use client";
 
-export const trackEvent = async (eventName: string, data: any = {}) => {
+export const trackEvent = async (
+  eventName: string,
+  data: any = {},
+  userData: { email?: string; phone?: string; name?: string } = {}
+) => {
   const eventId = crypto.randomUUID();
 
   // 1. Browser Pixel Tracking
   if (typeof window !== "undefined" && typeof window.fbq === "function") {
-    window.fbq("trackCustom", eventName, data, { eventID: eventId });
+    // Check if it's a standard event or custom
+    const standardEvents = [
+      "AddPaymentInfo", "AddToCart", "AddToWishlist", "CompleteRegistration",
+      "Contact", "CustomizeProduct", "Donate", "FindLocation",
+      "InitiateCheckout", "Lead", "Purchase", "Schedule",
+      "Search", "StartTrial", "SubmitApplication", "Subscribe", "ViewContent"
+    ];
+
+    if (standardEvents.includes(eventName)) {
+      window.fbq("track", eventName, data, { eventID: eventId });
+    } else {
+      window.fbq("trackCustom", eventName, data, { eventID: eventId });
+    }
   }
 
   // 2. Server-side (CAPI) Tracking
@@ -18,7 +34,9 @@ export const trackEvent = async (eventName: string, data: any = {}) => {
         eventUrl: typeof window !== "undefined" ? window.location.href : "",
         userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "Server",
         eventId,
-        ...data,
+        userData,
+        customData: data,
+        testEventCode: process.env.NEXT_PUBLIC_FACEBOOK_TEST_EVENT_CODE,
       }),
     });
   } catch (error) {

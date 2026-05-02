@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/fpixel";
 
 // Zod Schema for validation
 const formSchema = z.object({
@@ -64,35 +65,6 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
     mode: "onChange",
   });
 
-  // Helper: fire Facebook event via browser pixel + CAPI
-  const trackFbEvent = (
-    eventName: string,
-    customData?: Record<string, unknown>,
-    userData?: { email?: string; phone?: string; name?: string }
-  ) => {
-    const eventId = crypto.randomUUID();
-
-    // 1. Client-side track
-    if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
-      (window as any).fbq("track", eventName, customData || {}, { eventID: eventId });
-    }
-
-    // 2. Server-side (CAPI) track
-    fetch("/api/facebook/event", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        eventName,
-        eventUrl: window.location.href,
-        userAgent: navigator.userAgent,
-        eventId,
-        customData,
-        userData,
-        testEventCode: process.env.NEXT_PUBLIC_FACEBOOK_TEST_EVENT_CODE,
-      }),
-    }).catch(err => console.error("CAPI Error:", err));
-  };
-
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
@@ -107,8 +79,8 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
       });
 
       if (response.ok) {
-        // Track Purchase event
-        trackFbEvent("Purchase", {
+        // Track Purchase event using shared utility
+        await trackEvent("Purchase", {
           content_name: source,
           currency: "BDT",
           value: price,
@@ -136,8 +108,8 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
     setIsOpen(open);
 
     if (open) {
-      // Track InitiateCheckout when sheet opens
-      trackFbEvent("InitiateCheckout", {
+      // Track InitiateCheckout when sheet opens using shared utility
+      trackEvent("InitiateCheckout", {
         content_name: source,
         currency: "BDT",
         value: price,

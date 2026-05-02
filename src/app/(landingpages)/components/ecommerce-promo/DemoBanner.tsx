@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/lib/fpixel";
 
 export const DemoBanner = () => {
+    const lastClickTime = React.useRef(0);
+
     const handleDemoClick = () => {
+        const now = Date.now();
+        if (now - lastClickTime.current < 1000) return; // Prevent double trigger
+        lastClickTime.current = now;
+
         trackEvent("demo_viewed", {
             content_name: "Live Demo Website",
             content_category: "Landing Page Promo"

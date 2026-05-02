@@ -26,8 +26,10 @@ export async function POST(request: NextRequest) {
       eventUrl, 
       userAgent, 
       userData = {}, 
-      customData = {},
-      testEventCode 
+      customData: providedCustomData = {},
+      testEventCode,
+      eventId: providedEventId,
+      ...rest
     } = body;
 
     // Get real client IP
@@ -36,8 +38,12 @@ export async function POST(request: NextRequest) {
       request.headers.get('x-real-ip') ||
       '0.0.0.0';
 
-    // Generate unique event ID for deduplication with browser pixel
-    const eventId = body.eventId || crypto.randomUUID();
+    // Merge rest of the body into customData if not already there
+    // This handles clients that send parameters in the root instead of inside customData
+    const customData = { ...rest, ...providedCustomData };
+
+    // Use provided eventId or fallback to a new one
+    const eventId = providedEventId || body.eventId || crypto.randomUUID();
 
     // Get browser identifiers for better matching
     const fbp = request.cookies.get('_fbp')?.value;
@@ -77,8 +83,8 @@ export async function POST(request: NextRequest) {
     };
 
     // Include test_event_code if provided (for debugging in Events Manager)
-    if (testEventCode) {
-      payload.test_event_code = testEventCode;
+    if (testEventCode || process.env.NEXT_PUBLIC_FACEBOOK_TEST_EVENT_CODE) {
+      payload.test_event_code = testEventCode || process.env.NEXT_PUBLIC_FACEBOOK_TEST_EVENT_CODE;
     }
 
     const fbResponse = await fetch(
