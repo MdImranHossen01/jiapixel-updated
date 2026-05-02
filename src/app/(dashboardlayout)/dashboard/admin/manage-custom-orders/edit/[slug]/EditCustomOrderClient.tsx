@@ -34,6 +34,8 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
     const [renewDate, setRenewDate] = useState("");
     const [renewPrice, setRenewPrice] = useState("");
     const [adminNote, setAdminNote] = useState("");
+    const [paymentLink, setPaymentLink] = useState("");
+    const [requirementsLink, setRequirementsLink] = useState("");
 
     // Status Tracker
     const [currentStatus, setCurrentStatus] = useState<string>("proposed");
@@ -52,6 +54,8 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
                     setCurrentStatus(order.status);
                     setRenewPrice(order.renewPrice ? String(order.renewPrice) : "");
                     setAdminNote(order.adminNote || "");
+                    setPaymentLink(order.paymentLink || "");
+                    setRequirementsLink(order.requirementsLink || "");
 
                     if (order.dueDate) {
                         const date = new Date(order.dueDate);
@@ -104,6 +108,8 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
                 renewDate: renewDate ? new Date(renewDate).toISOString() : null,
                 renewPrice: renewPrice !== "" && renewPrice !== undefined ? Number(renewPrice) : null,
                 adminNote: adminNote || null,
+                paymentLink: paymentLink || null,
+                requirementsLink: requirementsLink || null,
             };
 
             const res = await fetch(`/api/custom-orders/${slug}`, {
@@ -247,6 +253,26 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
                                             placeholder="Private notes about this client or project..."
                                             value={adminNote}
                                             onChange={(e) => setAdminNote(e.target.value)}
+                                            className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-3 space-y-2">
+                                        <Label htmlFor="paymentLink" className="block text-sm font-medium">Payment Link (Visible to client after acceptance)</Label>
+                                        <Input
+                                            id="paymentLink"
+                                            placeholder="https://www.jiapixel.com/pay"
+                                            value={paymentLink}
+                                            onChange={(e) => setPaymentLink(e.target.value)}
+                                            className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-3 space-y-2">
+                                        <Label htmlFor="requirementsLink" className="block text-sm font-medium">Requirements Google Form Link (Visible to client after acceptance)</Label>
+                                        <Input
+                                            id="requirementsLink"
+                                            placeholder="https://forms.gle/..."
+                                            value={requirementsLink}
+                                            onChange={(e) => setRequirementsLink(e.target.value)}
                                             className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
                                         />
                                     </div>

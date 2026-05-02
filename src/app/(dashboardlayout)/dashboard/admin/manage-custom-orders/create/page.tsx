@@ -28,6 +28,8 @@ export default function CreateCustomOrderPage() {
     const [renewDate, setRenewDate] = useState("");
     const [renewPrice, setRenewPrice] = useState("");
     const [adminNote, setAdminNote] = useState("");
+    const [paymentLink, setPaymentLink] = useState("https://www.jiapixel.com/pay");
+    const [requirementsLink, setRequirementsLink] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,6 +54,8 @@ export default function CreateCustomOrderPage() {
                 renewDate: renewDate ? new Date(renewDate).toISOString() : undefined,
                 renewPrice: renewPrice !== "" && renewPrice !== undefined ? Number(renewPrice) : undefined,
                 adminNote: adminNote || undefined,
+                paymentLink: paymentLink || undefined,
+                requirementsLink: requirementsLink || undefined,
             };
 
             const res = await fetch("/api/custom-orders", {
@@ -177,6 +181,26 @@ export default function CreateCustomOrderPage() {
                                             placeholder="Private notes about this client or project..."
                                             value={adminNote}
                                             onChange={(e) => setAdminNote(e.target.value)}
+                                            className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-3 space-y-2">
+                                        <Label htmlFor="paymentLink" className="block text-sm font-medium">Payment Link (Visible to client after acceptance)</Label>
+                                        <Input
+                                            id="paymentLink"
+                                            placeholder="https://..."
+                                            value={paymentLink}
+                                            onChange={(e) => setPaymentLink(e.target.value)}
+                                            className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-3 space-y-2">
+                                        <Label htmlFor="requirementsLink" className="block text-sm font-medium">Requirements Google Form Link (Visible to client after acceptance)</Label>
+                                        <Input
+                                            id="requirementsLink"
+                                            placeholder="https://forms.gle/..."
+                                            value={requirementsLink}
+                                            onChange={(e) => setRequirementsLink(e.target.value)}
                                             className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
                                         />
                                     </div>

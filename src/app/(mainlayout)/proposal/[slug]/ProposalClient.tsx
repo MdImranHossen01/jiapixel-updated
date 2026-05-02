@@ -7,7 +7,7 @@ import NovelEditor from "@/app/components/editor/NovelEditor";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { CheckCircle2, Clock, DollarSign, Loader2, ArrowRight, User } from "lucide-react";
+import { CheckCircle2, Clock, DollarSign, Loader2, ArrowRight, User, ExternalLink, FileText } from "lucide-react";
 import Link from "next/link";
 import AuthModal from "@/components/AuthModal";
 import Image from "next/image";
@@ -224,6 +224,22 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                             <p className="text-sm text-center text-green-600/80 dark:text-green-400/80 mt-1 mb-4">
                                 Your order is now active.
                             </p>
+                            <div className="flex flex-col gap-3 w-full mb-4">
+                                {order.paymentLink && (
+                                    <a href={order.paymentLink} target="_blank" rel="noopener noreferrer" className="w-full">
+                                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12">
+                                            <DollarSign className="w-5 h-5 mr-2" /> Make Payment <ExternalLink className="w-4 h-4 ml-2 opacity-70" />
+                                        </Button>
+                                    </a>
+                                )}
+                                {order.requirementsLink && (
+                                    <a href={order.requirementsLink} target="_blank" rel="noopener noreferrer" className="w-full">
+                                        <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold h-12">
+                                            <FileText className="w-5 h-5 mr-2" /> Submit Requirements <ExternalLink className="w-4 h-4 ml-2 opacity-70" />
+                                        </Button>
+                                    </a>
+                                )}
+                            </div>
                             <Link href="/dashboard" className="w-full">
                                 <Button variant="outline" className="w-full">
                                     Go to Client Dashboard <ArrowRight className="w-4 h-4 ml-2" />

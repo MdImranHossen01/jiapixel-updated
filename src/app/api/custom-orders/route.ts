@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { title, description, client, price, dueDate, renewDate, renewPrice, adminNote } = body;
+        const { title, description, client, price, dueDate, renewDate, renewPrice, adminNote, paymentLink, requirementsLink } = body;
 
         if (!title) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
         if (renewDate !== undefined && renewDate !== null && renewDate !== "") orderData.renewDate = new Date(renewDate);
         if (renewPrice !== undefined && renewPrice !== null && renewPrice !== "") orderData.renewPrice = Number(renewPrice);
         if (adminNote !== undefined && adminNote !== null && adminNote !== "") orderData.adminNote = adminNote;
+        if (paymentLink !== undefined && paymentLink !== null && paymentLink !== "") orderData.paymentLink = paymentLink;
+        if (requirementsLink !== undefined && requirementsLink !== null && requirementsLink !== "") orderData.requirementsLink = requirementsLink;
 
         const newOrder = await CustomOrder.create(orderData);
 

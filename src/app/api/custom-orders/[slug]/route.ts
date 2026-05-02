@@ -224,6 +224,8 @@ export async function PUT(
             "renewDate",
             "renewPrice",
             "adminNote",
+            "paymentLink",
+            "requirementsLink",
         ];
 
         const sanitizedUpdate: any = {};

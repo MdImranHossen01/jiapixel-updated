@@ -14,6 +14,8 @@ export interface ICustomOrder extends Document {
     renewDate?: Date;
     renewPrice?: number;
     adminNote?: string;
+    paymentLink?: string;
+    requirementsLink?: string;
 
     createdAt: Date;
     updatedAt: Date;
@@ -67,6 +69,16 @@ const CustomOrderSchema = new Schema<ICustomOrder>(
             required: false,
         },
         adminNote: {
+            type: String,
+            required: false,
+            default: "",
+        },
+        paymentLink: {
+            type: String,
+            required: false,
+            default: "",
+        },
+        requirementsLink: {
             type: String,
             required: false,
             default: "",
