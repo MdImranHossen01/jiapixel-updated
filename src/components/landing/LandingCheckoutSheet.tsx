@@ -65,12 +65,16 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
   });
 
   // Helper: fire Facebook event via browser pixel + CAPI
-  const trackFbEvent = (eventName: string, data?: Record<string, unknown>) => {
+  const trackFbEvent = (
+    eventName: string,
+    customData?: Record<string, unknown>,
+    userData?: { email?: string; phone?: string; name?: string }
+  ) => {
     const eventId = crypto.randomUUID();
 
     // 1. Client-side track
     if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
-      (window as any).fbq("track", eventName, data || {}, { eventID: eventId });
+      (window as any).fbq("track", eventName, customData || {}, { eventID: eventId });
     }
 
     // 2. Server-side (CAPI) track
@@ -82,7 +86,8 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
         eventUrl: window.location.href,
         userAgent: navigator.userAgent,
         eventId,
-        customData: data,
+        customData,
+        userData,
         testEventCode: process.env.NEXT_PUBLIC_FACEBOOK_TEST_EVENT_CODE,
       }),
     }).catch(err => console.error("CAPI Error:", err));
@@ -106,7 +111,11 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
         trackFbEvent("Purchase", {
           content_name: source,
           currency: "BDT",
-          value: 3500,
+          value: price,
+        }, {
+          email: data.email,
+          phone: data.phone,
+          name: data.name
         });
 
         setIsSuccess(true);
@@ -131,7 +140,7 @@ export function LandingCheckoutSheet({ children, source, price }: LandingCheckou
       trackFbEvent("InitiateCheckout", {
         content_name: source,
         currency: "BDT",
-        value: 3500,
+        value: price,
       });
     }
 

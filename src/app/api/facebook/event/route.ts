@@ -5,6 +5,15 @@ const ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN;
 
 export const runtime = 'edge';
 
+async function hashData(data: string): Promise<string> {
+  if (!data) return '';
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data.trim().toLowerCase());
+  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export async function POST(request: NextRequest) {
   try {
     if (!PIXEL_ID || !ACCESS_TOKEN) {
@@ -12,7 +21,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { eventName = 'PageView', eventUrl, userAgent } = body;
+    const { 
+      eventName = 'PageView', 
+      eventUrl, 
+      userAgent, 
+      userData = {}, 
+      customData = {},
+      testEventCode 
+    } = body;
 
     // Get real client IP
     const ipAddress =
@@ -27,6 +43,17 @@ export async function POST(request: NextRequest) {
     const fbp = request.cookies.get('_fbp')?.value;
     const fbc = request.cookies.get('_fbc')?.value;
 
+    // Prepare user data for matching
+    const hashedEmail = userData.email ? await hashData(userData.email) : undefined;
+    
+    // Process phone: ensure digits only and has country code (BD: 88)
+    let phone = userData.phone ? userData.phone.replace(/\D/g, '') : '';
+    if (phone && !phone.startsWith('88')) {
+      phone = '88' + phone;
+    }
+    const hashedPhone = phone ? await hashData(phone) : undefined;
+    const hashedFirstName = userData.name ? await hashData(userData.name.split(' ')[0]) : undefined;
+
     const payload: any = {
       data: [
         {
@@ -40,10 +67,19 @@ export async function POST(request: NextRequest) {
             client_user_agent: userAgent,
             fbp,
             fbc,
+            em: hashedEmail ? [hashedEmail] : undefined,
+            ph: hashedPhone ? [hashedPhone] : undefined,
+            fn: hashedFirstName ? [hashedFirstName] : undefined,
           },
+          custom_data: customData,
         },
       ],
     };
+
+    // Include test_event_code if provided (for debugging in Events Manager)
+    if (testEventCode) {
+      payload.test_event_code = testEventCode;
+    }
 
     const fbResponse = await fetch(
       `https://graph.facebook.com/v19.0/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`,
