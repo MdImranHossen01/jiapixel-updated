@@ -22,7 +22,6 @@ interface CustomOrder {
     admin: { name: string; email: string; } | string;
     status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed";
     price?: number;
-    isSubscription: boolean;
     dueDate?: string;
     createdAt: string;
 }
@@ -102,7 +101,6 @@ export default function ClientCustomOrdersTable() {
                     <TableRow>
                         <TableHead>Project Title</TableHead>
                         <TableHead>Price</TableHead>
-                        <TableHead>Type</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -116,13 +114,6 @@ export default function ClientCustomOrdersTable() {
                             </TableCell>
                             <TableCell className="font-bold">
                                 {order.price ? `$${order.price.toLocaleString()}` : 'TBD'}
-                            </TableCell>
-                            <TableCell>
-                                {order.isSubscription ? (
-                                    <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">Recurring</Badge>
-                                ) : (
-                                    <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">One-Time</Badge>
-                                )}
                             </TableCell>
                             <TableCell>
                                 <Badge variant={getStatusVariant(order.status)} className="capitalize">

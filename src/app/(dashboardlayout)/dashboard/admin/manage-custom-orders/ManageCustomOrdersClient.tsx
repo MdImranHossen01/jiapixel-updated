@@ -39,8 +39,8 @@ interface CustomOrder {
     admin: { name: string; email: string; } | string;
     status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed" | "canceled";
     price?: number;
-    isSubscription: boolean;
     dueDate?: string;
+    renewDate?: string;
     createdAt: string;
 }
 
@@ -226,7 +226,7 @@ const ManageCustomOrdersClient = () => {
                             <TableHead>Project Title</TableHead>
                             <TableHead>Client</TableHead>
                             <TableHead>Price</TableHead>
-                            <TableHead>Type</TableHead>
+                            <TableHead>Renew Date</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Expected Delivery</TableHead>
                             <TableHead>Created</TableHead>
@@ -261,11 +261,14 @@ const ManageCustomOrdersClient = () => {
                                         <TableCell className="font-bold">
                                             {order.price ? `$${order.price.toLocaleString()}` : 'TBD'}
                                         </TableCell>
-                                        <TableCell>
-                                            {order.isSubscription ? (
-                                                <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">Recurring</Badge>
+                                        <TableCell className="text-sm">
+                                            {order.renewDate ? (
+                                                <span className="flex items-center gap-2">
+                                                    <RefreshCcw className="h-3.5 w-3.5 text-orange-500" />
+                                                    {new Date(order.renewDate).toLocaleDateString()}
+                                                </span>
                                             ) : (
-                                                <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">One-Time</Badge>
+                                                <span className="text-muted-foreground italic text-xs">-</span>
                                             )}
                                         </TableCell>
                                         <TableCell>

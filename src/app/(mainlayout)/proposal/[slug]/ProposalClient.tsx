@@ -140,8 +140,8 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
     const isAssignedClient = hasClient &&
         session?.user?.email?.toLowerCase() === order.client?.email?.toLowerCase();
 
-    // We show the button if it's still proposed AND (it has no client assigned yet OR the logged user is the assigned client)
-    const showActionButtons = isProposed && (!hasClient || isAssignedClient);
+    // We show the button if it's still proposed. If guest, clicking triggers AuthModal.
+    const showActionButtons = isProposed;
 
     // Check if the current user viewing is an admin
     const isAdmin = session?.user?.role === "admin";
@@ -191,17 +191,11 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                             <p className="text-4xl font-extrabold text-foreground">
                                 ${order.price?.toLocaleString() || "TBD"}
                             </p>
-                            {order.isSubscription && order.billingCycle && (
-                                <p className="text-sm text-muted-foreground mt-1 capitalize">
-                                    Billed {order.billingCycle}
-                                    {order.subscriptionDurationMonths && ` for ${order.subscriptionDurationMonths} months`}
-                                </p>
-                            )}
                         </div>
 
                         <div className="h-px w-full bg-border my-4" />
 
-                        {!order.isSubscription && order.dueDate && (
+                        {order.dueDate && (
                             <div className="flex items-start gap-3">
                                 <Clock className="w-5 h-5 text-blue-500 mt-0.5" />
                                 <div>
