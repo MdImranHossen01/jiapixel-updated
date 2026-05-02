@@ -9,65 +9,25 @@ import ProjectInquiryButton from "./components/ProjectInquiryButton";
 import ProjectAdminActions from "@/components/ProjectAdminActions";
 import ProjectCard from "@/components/ProjectCard";
 
+import { getProjectBySlug, getProjects } from "@/lib/db-utils";
+
 interface PageProps {
     params: Promise<{
         slug: string;
     }>;
 }
 
-// Fetch project via API for better caching control
-async function getProject(slug: string) {
-    try {
-        const baseUrl = process.env.NODE_ENV === 'production'
-            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-            : 'http://localhost:3000';
-
-        const response = await fetch(`${baseUrl}/api/projects/${slug}`, {
-            cache: 'force-cache'
-        } as RequestInit);
-
-        if (!response.ok) {
-            if (response.status === 404) return null;
-            console.error('Error fetching project:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        return data.project || null;
-    } catch (error) {
-        console.error("Error fetching project:", error);
-        return null;
-    }
-}
-
 // Generate static params for all projects (SSG)
 export async function generateStaticParams() {
-    try {
-        const baseUrl = process.env.NODE_ENV === 'production'
-            ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-            : 'http://localhost:3000';
-
-        const response = await fetch(`${baseUrl}/api/projects?limit=1000`, {
-            cache: 'force-cache'
-        } as RequestInit);
-
-        if (!response.ok) {
-            return [];
-        }
-
-        const data = await response.json();
-        return data.projects?.map((project: any) => ({
-            slug: project.slug,
-        })) || [];
-    } catch (error) {
-        console.error("Error generating static params:", error);
-        return [];
-    }
+    const projects = await getProjects();
+    return projects.map((project: any) => ({
+        slug: project.slug,
+    }));
 }
 
 export async function generateMetadata({ params }: PageProps) {
     const { slug } = await params;
-    const project = await getProject(slug);
+    const project = await getProjectBySlug(slug);
 
     if (!project) {
         return {
@@ -123,7 +83,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ProjectDetailsPage({ params }: PageProps) {
     const { slug } = await params;
-    const project = await getProject(slug);
+    const project = await getProjectBySlug(slug);
 
     if (!project) {
         notFound();

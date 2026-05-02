@@ -12,38 +12,16 @@ import { GridSkeleton } from "@/components/CardSkeleton";
 
 const ITEMS_PER_PAGE = 12;
 
-const BlogsClient: React.FC = () => {
-    const [blogs, setBlogs] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+interface BlogsClientProps {
+    initialBlogs: any[];
+}
+
+const BlogsClient: React.FC<BlogsClientProps> = ({ initialBlogs }) => {
+    const [blogs, setBlogs] = useState<any[]>(initialBlogs);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-
-    useEffect(() => {
-        const fetchBlogs = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const response = await fetch("/api/blogs?limit=1000");
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.success) {
-                    setBlogs(data.blogs);
-                } else {
-                    throw new Error(data.message || "Failed to load blogs");
-                }
-            } catch (err: any) {
-                console.error("Error fetching blogs:", err);
-                setError(err.message || "An unexpected error occurred while fetching blogs.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchBlogs();
-    }, []);
 
     // Filter blogs based on search
     const filteredBlogs = useMemo(() => {

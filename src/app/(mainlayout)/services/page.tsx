@@ -2,10 +2,9 @@
 import React from 'react';
 import type { Metadata } from "next";
 import ServicesStructuredData from "@/components/ServicesStructuredData";
-import connectDB from "@/lib/db";
-import Project from "@/models/Service";
 import ServicesClient from "./components/ServicesClient";
 import Link from 'next/link';
+import { getServices } from '@/lib/db-utils';
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
@@ -58,7 +57,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const ServicesPage = () => {
+const ServicesPage = async () => {
+  let initialServices = [];
+  try {
+    initialServices = await getServices() || [];
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    initialServices = [];
+  }
+
   // Basic structured data for services listing
   const servicesStructuredData = {
     "@context": "https://schema.org",
@@ -66,8 +73,12 @@ const ServicesPage = () => {
     name: "Jiapixel Services",
     description: "Professional web development and digital marketing services",
     url: "https://www.jiapixel.com/services",
-    numberOfItems: 0,
-    itemListElement: [],
+    numberOfItems: initialServices?.length || 0,
+    itemListElement: initialServices?.map((service: any, index: number) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `https://www.jiapixel.com/services/${service.slug}`,
+    })) || [],
   };
 
   return (
@@ -78,7 +89,7 @@ const ServicesPage = () => {
 
 
         {/* Services Client Component (Search, Filter, Grid) */}
-        <ServicesClient />
+        <ServicesClient initialServices={initialServices || []} />
 
         {/* SEO Content Section */}
         <section className="py-12 bg-muted/30">

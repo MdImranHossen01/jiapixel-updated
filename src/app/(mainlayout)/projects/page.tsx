@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import type { Metadata } from "next";
-import connectDB from "@/lib/db";
-import ProjectModel from "@/models/Project";
 import ProjectsClient from "./components/ProjectsClient";
 import Link from 'next/link';
+import { getProjects } from '@/lib/db-utils';
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
@@ -57,7 +56,15 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-const ProjectsPage = () => {
+const ProjectsPage = async () => {
+    let initialProjects = [];
+    try {
+        initialProjects = await getProjects() || [];
+    } catch (error) {
+        console.error("Error fetching projects:", error);
+        initialProjects = [];
+    }
+
     // Basic structured data for static shell
     const projectsStructuredData = {
         "@context": "https://schema.org",
@@ -65,20 +72,24 @@ const ProjectsPage = () => {
         name: "Jiapixel Projects",
         description: "Portfolio of web development and digital marketing projects",
         url: "https://www.jiapixel.com/projects",
-        numberOfItems: 0,
-        itemListElement: [],
+        numberOfItems: initialProjects?.length || 0,
+        itemListElement: initialProjects?.map((project: any, index: number) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            url: `https://www.jiapixel.com/projects/${project.slug}`,
+        })) || [],
     };
 
     return (
         <>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(projectsStructuredData) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(projectsStructuredData).replace(/</g, '\\u003c') }}
             />
 
             <div className="min-h-screen">
                 {/* Projects Client Component (Search, Filter, Grid) */}
-                <ProjectsClient />
+                <ProjectsClient initialProjects={initialProjects || []} />
 
                 {/* SEO Content Section */}
                 <section className="py-12 bg-muted/30">

@@ -7,6 +7,7 @@ import { generateHtml } from '@/lib/server-html';
 import { SocialShare } from '@/components/blog/SocialShare';
 import ProjectCard from '@/components/ProjectCard';
 import NewsletterAdminActions from '@/components/NewsletterAdminActions';
+import { getNewsletterBySlug, getNewsletters } from '@/lib/db-utils';
 
 
 const extractText = (content: any): string => {
@@ -34,35 +35,6 @@ const extractTextFromJSON = (json: any): string => {
     return '';
 };
 
-// Helper function to get base URL
-function getBaseUrl() {
-    if (process.env.NODE_ENV === 'production') {
-        return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
-    }
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-}
-
-async function getNewsletter(slug: string) {
-    try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/newsletters/${slug}`, {
-            cache: 'force-cache',
-            next: { tags: [`newsletter-${slug}`] }
-        });
-
-        if (!response.ok) {
-            if (response.status === 404) return null;
-            console.error('Error fetching newsletter:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        return data.newsletter || null;
-    } catch (error) {
-        console.error('Error fetching newsletter:', error);
-        return null;
-    }
-}
 
 interface PageProps {
     params: Promise<{
@@ -81,7 +53,7 @@ const isJsonString = (str: string) => {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const newsletter = await getNewsletter(slug);
+    const newsletter = await getNewsletterBySlug(slug);
 
     if (!newsletter) {
         return {
@@ -129,7 +101,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function NewsletterPage({ params }: PageProps) {
     const { slug } = await params;
-    const newsletter = await getNewsletter(slug);
+    const newsletter = await getNewsletterBySlug(slug);
 
     if (!newsletter) {
         notFound();
@@ -245,22 +217,8 @@ export default async function NewsletterPage({ params }: PageProps) {
 
 // Generate static params
 export async function generateStaticParams() {
-    try {
-        const baseUrl = getBaseUrl();
-
-        const response = await fetch(`${baseUrl}/api/newsletters`, {
-            cache: 'force-cache'
-        });
-
-        if (!response.ok) {
-            return [];
-        }
-
-        const data = await response.json();
-        return data.newsletters?.map((newsletter: any) => ({
-            slug: newsletter.slug
-        })) || [];
-    } catch (error) {
-        return [];
-    }
+    const newsletters = await getNewsletters();
+    return newsletters.map((newsletter: any) => ({
+        slug: newsletter.slug
+    }));
 }

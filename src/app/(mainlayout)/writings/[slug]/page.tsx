@@ -10,13 +10,7 @@ import { generateHtml } from '@/lib/server-html';
 
 
 
-// Helper function to get base URL
-function getBaseUrl() {
-    if (process.env.NODE_ENV === 'production') {
-        return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
-    }
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-}
+import { getWritingBySlug, getWritings } from '@/lib/db-utils';
 
 // Helper to check if string is JSON
 const isJsonString = (str: string) => {
@@ -39,29 +33,6 @@ const extractText = (content: any): string => {
     return '';
 };
 
-async function getWriting(slug: string) {
-    try {
-        const baseUrl = getBaseUrl();
-
-        const response = await fetch(`${baseUrl}/api/writings/${slug}`, {
-            cache: 'force-cache',
-            next: { tags: [`writing-${slug}`] }
-        });
-
-        if (!response.ok) {
-            if (response.status === 404) return null;
-            console.error('Error fetching writing:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        return data.writing || null;
-    } catch (error) {
-        console.error('Error fetching writing:', error);
-        return null;
-    }
-}
-
 
 
 interface PageProps {
@@ -72,7 +43,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const writing = await getWriting(slug);
+    const writing = await getWritingBySlug(slug);
 
     if (!writing) {
         return {
@@ -120,7 +91,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function WritingPage({ params }: PageProps) {
     const { slug } = await params;
-    const writing = await getWriting(slug);
+    const writing = await getWritingBySlug(slug);
 
     if (!writing) {
         notFound();
@@ -240,22 +211,8 @@ export default async function WritingPage({ params }: PageProps) {
 
 // Generate static params
 export async function generateStaticParams() {
-    try {
-        const baseUrl = getBaseUrl();
-
-        const response = await fetch(`${baseUrl}/api/writings`, {
-            cache: 'force-cache'
-        });
-
-        if (!response.ok) {
-            return [];
-        }
-
-        const data = await response.json();
-        return data.writings?.map((writing: any) => ({
-            slug: writing.slug
-        })) || [];
-    } catch (error) {
-        return [];
-    }
+    const writings = await getWritings();
+    return writings.map((writing: any) => ({
+        slug: writing.slug
+    }));
 }

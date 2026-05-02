@@ -9,65 +9,25 @@ import ServiceAdminActions from "@/components/ServiceAdminActions";
 import { extractTextFromProjectDescription } from "@/lib/utils";
 import { generateHtml } from "@/lib/server-html";
 
+import { getServiceBySlug, getServices } from "@/lib/db-utils";
+
 interface PageProps {
   params: Promise<{
     slug: string;
   }>;
 }
 
-// Fetch service via API for better caching control
-async function getService(slug: string) {
-  try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/services/${slug}`, {
-      cache: 'force-cache'
-    } as RequestInit);
-
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      console.error('Error fetching service:', response.status);
-      return null;
-    }
-
-    const data = await response.json();
-    return data.service || null;
-  } catch (error) {
-    console.error("Error fetching service:", error);
-    return null;
-  }
-}
-
 // Generate static params for all services (SSG)
 export async function generateStaticParams() {
-  try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/services?limit=1000`, {
-      cache: 'force-cache'
-    } as RequestInit);
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    return data.services?.map((service: any) => ({
-      slug: service.slug,
-    })) || [];
-  } catch (error) {
-    console.error("Error generating static params:", error);
-    return [];
-  }
+  const services = await getServices();
+  return services.map((service: any) => ({
+    slug: service.slug,
+  }));
 }
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const service = await getService(slug);
+  const service = await getServiceBySlug(slug);
 
   if (!service) {
     return {
@@ -140,7 +100,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ServiceDetailsPage({ params }: PageProps) {
   const { slug } = await params;
-  const service = await getService(slug);
+  const service = await getServiceBySlug(slug);
 
   if (!service) {
     notFound();

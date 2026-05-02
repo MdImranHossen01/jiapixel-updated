@@ -10,47 +10,21 @@ import WritingHero from "./WritingHero";
 import WritingSidebar from "./WritingSidebar";
 import WritingCard from "./WritingCard";
 import { Breadcrumb } from "@/components/ui/breadcrumb-custom";
-import { GridSkeleton } from "@/components/CardSkeleton";
 
 const ITEMS_PER_PAGE = 12;
 
-const WritingsClient: React.FC = () => {
-    const [writings, setWritings] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+interface WritingsClientProps {
+    initialWritings: any[];
+}
+
+const WritingsClient: React.FC<WritingsClientProps> = ({ initialWritings }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTag, setSelectedTag] = useState<string>("All");
     const [currentPage, setCurrentPage] = useState(1);
 
-    useEffect(() => {
-        const fetchWritings = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const response = await fetch("/api/writings?limit=100");
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.success) {
-                    setWritings(data.writings);
-                } else {
-                    throw new Error(data.message || "Failed to load writings");
-                }
-            } catch (err: any) {
-                console.error("Error fetching writings:", err);
-                setError(err.message || "An unexpected error occurred while fetching writings.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchWritings();
-    }, []);
-
     // Filter writings based on search and tag
     const filteredWritings = useMemo(() => {
-        return writings.filter((writing) => {
+        return initialWritings.filter((writing) => {
             const matchesSearch = searchQuery.trim()
                 ? writing.title?.toLowerCase().includes(searchQuery.toLowerCase().trim())
                 : true;
@@ -59,7 +33,7 @@ const WritingsClient: React.FC = () => {
 
             return matchesSearch && matchesTag;
         });
-    }, [writings, searchQuery, selectedTag]);
+    }, [initialWritings, searchQuery, selectedTag]);
 
     // Pagination Logic
     const totalPages = Math.ceil(filteredWritings.length / ITEMS_PER_PAGE);
@@ -93,35 +67,12 @@ const WritingsClient: React.FC = () => {
                             <h2 className="text-2xl font-bold">
                                 Latest Writings
                             </h2>
-                            {!isLoading && (
                                 <span className="text-muted-foreground text-sm">
                                     Showing {paginatedWritings.length} of {filteredWritings.length} result{filteredWritings.length !== 1 && 's'}
                                 </span>
-                            )}
-                        </div>
-
-                        {isLoading ? (
-                            <GridSkeleton count={6} />
-                        ) : error ? (
-                            /* Error State */
-                            <div className="text-center py-16 bg-red-50/50 rounded-xl border border-red-100 border-dashed">
-                                <div className="max-w-md mx-auto">
-                                    <div className="text-6xl mb-4">⚠️</div>
-                                    <h3 className="text-2xl font-bold text-red-900 mb-2">
-                                        Something went wrong
-                                    </h3>
-                                    <p className="text-red-700/80 mb-6">
-                                        {error}
-                                    </p>
-                                    <Button
-                                        onClick={() => window.location.reload()}
-                                        className="bg-red-600 text-white hover:bg-red-700"
-                                    >
-                                        Try again
-                                    </Button>
-                                </div>
                             </div>
-                        ) : paginatedWritings.length > 0 ? (
+
+                        {paginatedWritings.length > 0 ? (
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -194,7 +145,7 @@ const WritingsClient: React.FC = () => {
                     {/* Sidebar */}
                     <aside className="lg:col-span-4">
                         <WritingSidebar
-                            writings={writings}
+                            writings={initialWritings}
                             selectedTag={selectedTag}
                             onSelectTag={setSelectedTag}
                         />

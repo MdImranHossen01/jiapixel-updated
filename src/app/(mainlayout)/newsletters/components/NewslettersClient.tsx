@@ -16,39 +16,17 @@ import { GridSkeleton } from "@/components/CardSkeleton";
 
 const ITEMS_PER_PAGE = 12;
 
-const NewslettersClient: React.FC = () => {
-    const [newsletters, setNewsletters] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+interface NewslettersClientProps {
+    initialNewsletters: any[];
+}
+
+const NewslettersClient: React.FC<NewslettersClientProps> = ({ initialNewsletters }) => {
+    const [newsletters, setNewsletters] = useState<any[]>(initialNewsletters);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTag, setSelectedTag] = useState<string>("All");
     const [currentPage, setCurrentPage] = useState(1);
-
-    useEffect(() => {
-        const fetchNewsletters = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const response = await fetch("/api/newsletters?limit=100");
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.success) {
-                    setNewsletters(data.newsletters);
-                } else {
-                    throw new Error(data.message || "Failed to load newsletters");
-                }
-            } catch (err: any) {
-                console.error("Error fetching newsletters:", err);
-                setError(err.message || "An unexpected error occurred while fetching newsletters.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchNewsletters();
-    }, []);
 
     // Filter newsletters based on search and tag
     const filteredNewsletters = useMemo(() => {

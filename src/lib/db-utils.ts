@@ -7,6 +7,8 @@ import Blog from '@/models/Blog';
 import Portfolio from '@/models/Portfolios';
 import Post from '@/models/Post';
 import Service from '@/models/Service';
+import Product from '@/models/Product';
+import Newsletter from '@/models/Newsletter';
 
 // Revalidate time in seconds (1 year) - Using on-demand revalidation instead
 export const DEFAULT_REVALIDATE = 31536000;
@@ -122,6 +124,19 @@ export const getPosts = cache(async (limit?: number) => {
   )();
 });
 
+export const getPostBySlug = cache(async (slug: string) => {
+  return unstable_cache(
+    async () => {
+      await connectDB();
+      return JSON.parse(JSON.stringify(await Post.findOne({ slug })
+        .populate('relatedPosts')
+        .populate('relatedProjects')));
+    },
+    ['post', slug],
+    { revalidate: DEFAULT_REVALIDATE, tags: [`post-${slug}`, 'posts'] }
+  )();
+});
+
 export const getServices = cache(async (limit?: number) => {
   return unstable_cache(
     async () => {
@@ -132,5 +147,64 @@ export const getServices = cache(async (limit?: number) => {
     },
     ['services', limit?.toString() || 'all'],
     { revalidate: DEFAULT_REVALIDATE, tags: ['services'] }
+  )();
+});
+
+export const getServiceBySlug = cache(async (slug: string) => {
+  return unstable_cache(
+    async () => {
+      await connectDB();
+      return JSON.parse(JSON.stringify(await Service.findOne({ slug })));
+    },
+    ['service', slug],
+    { revalidate: DEFAULT_REVALIDATE, tags: [`service-${slug}`, 'services'] }
+  )();
+});
+
+export const getProducts = cache(async (limit?: number) => {
+  return unstable_cache(
+    async () => {
+      await connectDB();
+      const query = Product.find({ status: 'published' }).sort({ featured: -1, createdAt: -1 });
+      if (limit) query.limit(limit);
+      return JSON.parse(JSON.stringify(await query));
+    },
+    ['products', limit?.toString() || 'all'],
+    { revalidate: DEFAULT_REVALIDATE, tags: ['products'] }
+  )();
+});
+
+export const getProductBySlug = cache(async (slug: string) => {
+  return unstable_cache(
+    async () => {
+      await connectDB();
+      return JSON.parse(JSON.stringify(await Product.findOne({ slug, status: 'published' })));
+    },
+    ['product', slug],
+    { revalidate: DEFAULT_REVALIDATE, tags: [`product-${slug}`, 'products'] }
+  )();
+});
+
+export const getNewsletters = cache(async (limit?: number) => {
+  return unstable_cache(
+    async () => {
+      await connectDB();
+      const query = Newsletter.find().sort({ createdAt: -1 });
+      if (limit) query.limit(limit);
+      return JSON.parse(JSON.stringify(await query));
+    },
+    ['newsletters', limit?.toString() || 'all'],
+    { revalidate: DEFAULT_REVALIDATE, tags: ['newsletters'] }
+  )();
+});
+
+export const getNewsletterBySlug = cache(async (slug: string) => {
+  return unstable_cache(
+    async () => {
+      await connectDB();
+      return JSON.parse(JSON.stringify(await Newsletter.findOne({ slug })));
+    },
+    ['newsletter', slug],
+    { revalidate: DEFAULT_REVALIDATE, tags: [`newsletter-${slug}`, 'newsletters'] }
   )();
 });

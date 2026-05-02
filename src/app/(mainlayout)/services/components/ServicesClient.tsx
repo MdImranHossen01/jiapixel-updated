@@ -7,37 +7,15 @@ import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GridSkeleton } from "@/components/CardSkeleton";
 
-const ServicesClient: React.FC = () => {
-    const [services, setServices] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+interface ServicesClientProps {
+    initialServices: any[];
+}
+
+const ServicesClient: React.FC<ServicesClientProps> = ({ initialServices }) => {
+    const [services, setServices] = useState<any[]>(initialServices);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
-
-    useEffect(() => {
-        const fetchServices = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const response = await fetch("/api/services?limit=100");
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.success) {
-                    setServices(data.services);
-                } else {
-                    throw new Error(data.message || "Failed to load services");
-                }
-            } catch (err: any) {
-                console.error("Error fetching services:", err);
-                setError(err.message || "An unexpected error occurred while fetching services.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchServices();
-    }, []);
 
     // Filter services based on search
     const filteredServices = useMemo(() => {

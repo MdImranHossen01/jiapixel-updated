@@ -7,37 +7,15 @@ import PortfolioHero from "./PortfolioHero";
 import PortfolioCard from "@/components/PortfolioCard";
 import { GridSkeleton } from "@/components/CardSkeleton";
 
-const PortfoliosClient: React.FC = () => {
-    const [portfolios, setPortfolios] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+interface PortfoliosClientProps {
+    initialPortfolios: any[];
+}
+
+const PortfoliosClient: React.FC<PortfoliosClientProps> = ({ initialPortfolios }) => {
+    const [portfolios, setPortfolios] = useState<any[]>(initialPortfolios);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
-
-    useEffect(() => {
-        const fetchPortfolios = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const response = await fetch("/api/portfolios?status=published&limit=50");
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.success) {
-                    setPortfolios(data.portfolios);
-                } else {
-                    throw new Error(data.message || "Failed to load portfolios");
-                }
-            } catch (err: any) {
-                console.error("Error fetching portfolios:", err);
-                setError(err.message || "An unexpected error occurred while fetching portfolios.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchPortfolios();
-    }, []);
 
     // Filter portfolios based on search
     const filteredPortfolios = useMemo(() => {

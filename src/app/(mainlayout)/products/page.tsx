@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getProducts } from '@/lib/db-utils';
 
 interface Product {
   _id: string;
@@ -19,29 +20,6 @@ interface Product {
   featured: boolean;
 }
 
-async function getProducts(): Promise<Product[]> {
-  try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/products`, {
-      cache: 'force-cache',
-      next: { revalidate: 86400 } // Revalidate every hour
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    return data.products || [];
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    return [];
-  }
-}
-
 export const metadata: Metadata = {
   title: 'Digital Products - Jiapixel',
   description: 'Discover our collection of digital products, SaaS solutions, and subscription services with flexible pricing plans.',
@@ -49,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage() {
-  const products = await getProducts();
+  const products: Product[] = await getProducts();
 
   const calculateSavings = (monthly: number, yearly: number) => {
     const yearlyCostMonthly = yearly / 12;

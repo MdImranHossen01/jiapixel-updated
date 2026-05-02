@@ -3,33 +3,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import PortfoliosClient from './components/PortfoliosClient';
 import { extractTextFromProjectDescription } from '@/lib/utils';
-
-interface Portfolio {
-  _id: string;
-  title: string;
-  slug: string;
-  content: string;
-  featuredImage: string;
-  featured: boolean;
-  isIndexedInGoogle: boolean;
-  metaTitle?: string;
-  metaDescription?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface PortfoliosResponse {
-  portfolios: Portfolio[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
-
+import { getPortfolios } from '@/lib/db-utils';
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
@@ -75,25 +49,37 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function PortfoliosPage() {
+async function PortfoliosPage() {
+  let initialPortfolios = [];
+  try {
+    initialPortfolios = await getPortfolios() || [];
+  } catch (error) {
+    console.error("Error fetching portfolios:", error);
+    initialPortfolios = [];
+  }
+
   const portfolioStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'Jiapixel Portfolio',
     description: 'Web development projects and case studies',
     url: 'https://www.jiapixel.com/portfolios',
-    numberOfItems: 0,
-    itemListElement: [],
+    numberOfItems: initialPortfolios?.length || 0,
+    itemListElement: initialPortfolios?.map((item: any, index: number) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `https://www.jiapixel.com/portfolios/${item.slug}`,
+    })) || [],
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData).replace(/<\/script>/g, '<\\/script>') }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioStructuredData).replace(/</g, '\\u003c') }}
       />
       <div className="min-h-screen bg-background">
-        <PortfoliosClient />
+        <PortfoliosClient initialPortfolios={initialPortfolios || []} />
       </div>
     </>
   );

@@ -33,38 +33,17 @@ interface Product {
   updatedAt: string;
 }
 
+import { getProductBySlug, getProducts } from '@/lib/db-utils';
+
 interface PageProps {
   params: Promise<{
     slug: string;
   }>;
 }
 
-async function getProduct(slug: string): Promise<Product | null> {
-  try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/products/${slug}`, {
-      cache: 'force-cache'
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      return null;
-    }
-
-    const data = await response.json();
-    return data.product;
-  } catch (error) {
-    console.error('Error fetching product:', error);
-    return null;
-  }
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const product = await getProductBySlug(slug) as Product;
 
   if (!product) {
     return {
@@ -113,13 +92,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const product = await getProductBySlug(slug) as Product;
 
   if (!product) {
     notFound();
   }
 
   const calculateSavings = (monthly: number, yearly: number) => {
+    if (!monthly || monthly <= 0) return 0;
     const yearlyCostMonthly = yearly / 12;
     const savings = ((monthly - yearlyCostMonthly) / monthly) * 100;
     return Math.round(savings);
@@ -402,23 +382,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
 export async function generateStaticParams() {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/products`, {
-      cache: 'force-cache'
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    return data.products?.map((product: Product) => ({
+    const products = await getProducts();
+    return products.map((product: any) => ({
       slug: product.slug,
-    })) || [];
+    }));
   } catch (error) {
     return [];
   }
-}
+}

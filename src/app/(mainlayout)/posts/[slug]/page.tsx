@@ -9,13 +9,7 @@ import PostAdminActions from '@/components/PostAdminActions';
 import { generateHtml } from '@/lib/server-html';
 
 
-// Helper function to get base URL
-function getBaseUrl() {
-    if (process.env.NODE_ENV === 'production') {
-        return process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com';
-    }
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-}
+import { getPostBySlug, getPosts } from '@/lib/db-utils';
 
 // Helper to check if string is JSON
 const isJsonString = (str: string) => {
@@ -37,28 +31,6 @@ const extractText = (content: any): string => {
     return '';
 };
 
-async function getPost(slug: string) {
-    try {
-        const baseUrl = getBaseUrl();
-        const response = await fetch(`${baseUrl}/api/posts/${slug}`, {
-            cache: 'force-cache',
-            next: { tags: [`post-${slug}`] }
-        });
-
-        if (!response.ok) {
-            if (response.status === 404) return null;
-            console.error('Error fetching post:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        return data.post || null;
-    } catch (error) {
-        console.error('Error fetching post:', error);
-        return null;
-    }
-}
-
 interface PageProps {
     params: Promise<{
         slug: string;
@@ -67,7 +39,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const post = await getPost(slug);
+    const post = await getPostBySlug(slug);
 
     if (!post) {
         return {
@@ -122,7 +94,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PostPage({ params }: PageProps) {
     const { slug } = await params;
-    const post = await getPost(slug);
+    const post = await getPostBySlug(slug);
 
     if (!post) {
         notFound();
@@ -238,23 +210,10 @@ export default async function PostPage({ params }: PageProps) {
     );
 }
 
+// Generate static params
 export async function generateStaticParams() {
-    try {
-        const baseUrl = getBaseUrl();
-
-        const response = await fetch(`${baseUrl}/api/posts`, {
-            cache: 'force-cache'
-        });
-
-        if (!response.ok) {
-            return [];
-        }
-
-        const data = await response.json();
-        return data.posts?.map((post: any) => ({
-            slug: post.slug
-        })) || [];
-    } catch (error) {
-        return [];
-    }
+    const posts = await getPosts();
+    return posts.map((post: any) => ({
+        slug: post.slug
+    }));
 }

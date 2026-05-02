@@ -23,47 +23,17 @@ interface Portfolio {
   githubUrl?: string;
 }
 
+import { getPortfolioBySlug } from '@/lib/db-utils';
+
 interface PageProps {
   params: Promise<{
     slug: string;
   }>;
 }
 
-async function getPortfolio(slug: string): Promise<Portfolio | null> {
-  try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'https://www.jiapixel.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${baseUrl}/api/portfolios/${slug}`, {
-      next: {
-        tags: ['portfolios', `portfolio-${slug}`],
-        revalidate: 86400 // fallback
-      }
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      throw new Error(`Failed to fetch portfolio: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    // REMOVE THIS STATUS CHECK - show all portfolios regardless of status
-    // if (data.portfolio.status !== 'published') {
-    //   return null;
-    // }
-
-    return data.portfolio;
-  } catch (error) {
-    console.error('Error fetching portfolio:', error);
-    return null;
-  }
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const portfolio = await getPortfolio(slug);
+  const portfolio = await getPortfolioBySlug(slug);
 
   if (!portfolio) {
     return {
@@ -122,7 +92,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PortfolioDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const portfolio = await getPortfolio(slug);
+  const portfolio = await getPortfolioBySlug(slug);
 
   if (!portfolio) {
     notFound();

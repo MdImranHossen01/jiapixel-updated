@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import BlogsClient from './components/BlogsClient';
+import { getBlogs } from '@/lib/db-utils';
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
@@ -46,15 +47,27 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 
-export default function BlogsPage() {
+export default async function BlogsPage() {
+  let initialBlogs = [];
+  try {
+    initialBlogs = await getBlogs() || [];
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    initialBlogs = [];
+  }
+
   const blogStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'Jiapixel Blog',
     description: 'Web development insights and digital marketing tips',
     url: 'https://www.jiapixel.com/blogs',
-    numberOfItems: 0,
-    itemListElement: [],
+    numberOfItems: initialBlogs?.length || 0,
+    itemListElement: initialBlogs?.map((blog: any, index: number) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `https://www.jiapixel.com/blogs/${blog.slug}`,
+    })) || [],
   };
 
   return (
@@ -63,7 +76,7 @@ export default function BlogsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData).replace(/</g, '\\u003c') }}
       />
-      <BlogsClient />
+      <BlogsClient initialBlogs={initialBlogs || []} />
     </>
   );
 }

@@ -6,37 +6,15 @@ import ProjectHero from "./ProjectHero";
 import { Button } from "@/components/ui/button";
 import { GridSkeleton } from "@/components/CardSkeleton";
 
-const ProjectsClient: React.FC = () => {
-    const [projects, setProjects] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+interface ProjectsClientProps {
+    initialProjects: any[];
+}
+
+const ProjectsClient: React.FC<ProjectsClientProps> = ({ initialProjects }) => {
+    const [projects, setProjects] = useState<any[]>(initialProjects);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
-
-    useEffect(() => {
-        const fetchProjects = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const response = await fetch("/api/projects?limit=100");
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.success) {
-                    setProjects(data.projects);
-                } else {
-                    throw new Error(data.message || "Failed to load projects");
-                }
-            } catch (err: any) {
-                console.error("Error fetching projects:", err);
-                setError(err.message || "An unexpected error occurred while fetching projects.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchProjects();
-    }, []);
 
     // Filter projects based on search
     const filteredProjects = useMemo(() => {
