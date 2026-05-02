@@ -61,8 +61,21 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
             });
 
             if (res.ok) {
+                const data = await res.json();
                 toast.success("Proposal accepted successfully!");
-                setOrder((prev: any) => prev ? { ...prev, status: "accepted" } : null);
+                // Update local state with the updated order. 
+                // We also manually set the client data from session to ensure isAssignedClient becomes true instantly.
+                if (data.order) {
+                    setOrder({
+                        ...data.order,
+                        client: {
+                            id: session?.user?.id,
+                            name: session?.user?.name,
+                            email: session?.user?.email,
+                            image: session?.user?.image
+                        }
+                    });
+                }
             } else {
                 const errorData = await res.json();
                 toast.error(errorData.error || "Failed to accept proposal.");
