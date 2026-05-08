@@ -83,6 +83,11 @@ export const Features = () => {
             description: "ওয়েবসাইটকে হ্যাকিং এবং ম্যালওয়্যার থেকে সুরক্ষিত রাখতে লেটেস্ট সিকিউরিটি প্রোটোকল ও হার্ডেনিং।",
             link: "#",
         },
+        {
+            title: "Domain Management",
+            description: "আপনার পছন্দের ডোমেইন কানেক্টিং, ডিএনএস সেটআপ এবং রিনিউয়াল ম্যানেজমেন্টে আমাদের প্রফেশনাল সাপোর্ট।",
+            link: "#",
+        },
 
         // --- E-commerce & Management ---
         {
@@ -186,6 +191,26 @@ export const Features = () => {
             description: "সেলস ট্রেন্ড, কাস্টমার বিহেভিয়ার এবং গ্রোথ বুঝতে অত্যাধুনিক গ্রাফিক্যাল অ্যানালিটিক্স।",
             link: "#",
         },
+        {
+            title: "Top Selling Products",
+            description: "আপনার স্টোরের সবচেয়ে জনপ্রিয় পণ্যগুলোর অটোমেটেড ট্র্যাকিং এবং বিস্তারিত সেলস রিপোর্ট।",
+            link: "#",
+        },
+        {
+            title: "Customer Insights",
+            description: "টার্গেট অডিয়েন্সের শপিং বিহেভিয়ার এবং প্রোফাইল অ্যানালিসিসের মাধ্যমে ব্যবসার সঠিক সিদ্ধান্ত নিন।",
+            link: "#",
+        },
+        {
+            title: "ROAS Reporting",
+            description: "আপনার মার্কেটিং খরচ কতটা লাভজনক হচ্ছে তা মাপার জন্য অ্যাডভান্সড রিটার্ন অন অ্যাড স্পেন্ড রিপোর্ট।",
+            link: "#",
+        },
+        {
+            title: "Sales Forecasting",
+            description: "ভবিষ্যতে আপনার কেমন সেল হতে পারে তার জন্য এআই-ভিত্তিক সেলস প্রেডিকশন এবং ইনভেন্টরি প্ল্যানিং।",
+            link: "#",
+        },
 
         // --- UX & Modern Features ---
         {
@@ -235,6 +260,11 @@ export const Features = () => {
         },
 
         // --- CMS & Security ---
+        {
+            title: "Dynamic Admin Panel",
+            description: "আপনার স্টোরের প্রোডাক্ট, অর্ডার এবং ইনভেন্টরি কন্ট্রোল করার জন্য একটি শক্তিশালী ও ইউজার-ফ্রেন্ডলি ড্যাশবোর্ড।",
+            link: "#",
+        },
         {
             title: "Blog & CMS Support",
             description: "অর্গানিক ট্রাফিক বাড়াতে আপনার স্টোরে নিয়মিত নতুন ব্লগ পোস্ট করার জন্য ডায়নামিক এডমিন প্যানেল।",
@@ -398,9 +428,9 @@ export const Features = () => {
         <section id="features" className="pt-12 lg:pt-16 ">
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto mb-10">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6">We offer Upto <span className="text-primary italic">48 Features</span></h2>
+                    <h2 className="text-3xl md:text-5xl font-bold mb-6">We offer Upto <span className="text-primary italic">54 Features</span></h2>
                     <p className="text-lg text-muted-foreground">
-                        আপনার অনলাইন ব্যবসাকে অটোমেটেড এবং প্রফেশনাল করতে আমরা দিচ্ছি ৪৮টিরও বেশি অ্যাডভান্সড ফিচার ও ইন্টিগ্রেশন সুবিধা।
+                        আপনার অনলাইন ব্যবসাকে অটোমেটেড এবং প্রফেশনাল করতে আমরা দিচ্ছি ৫৪টিরও বেশি অ্যাডভান্সড ফিচার ও ইন্টিগ্রেশন সুবিধা।
                     </p>
                 </div>
 

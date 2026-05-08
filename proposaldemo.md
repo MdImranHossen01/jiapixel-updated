@@ -10,7 +10,7 @@
 ## 1. Executive Summary
 Empower your business with a state-of-the-art E-commerce platform. Our solution is built using the latest technology stack (Next.js, React, and MongoDB) to ensure unmatched speed, security, and scalability. We follow a "Trust First" policy—we build your store demo without any advance payment, and you only pay when you are satisfied with the results.
 
-## 2. Comprehensive Feature List (53+ Features)
+## 2. Comprehensive Feature List (54+ Features)
 Every store we build comes packed with these professional features, organized for your business growth:
 
 ### Core Technology & Performance
@@ -38,7 +38,7 @@ Every store we build comes packed with these professional features, organized fo
 18. **Live Order Tracking:** Step-by-step status updates from confirmation to delivery.
 19. **Dynamic Delivery Charge:** Automatic calculation based on location and order value.
 20. **Short Product Alert:** Automated notifications before any product goes out of stock.
-21. **Bulk Product Upload:** Upload hundreds of products at once via Excel/CSV.
+21. **Day and Night Mode:** Switch between dark and light themes for better accessibility and style.
 22. **Automated Invoice Generation:** Instant professional PDF invoices for every order.
 
 ### Marketing & Sales Optimization
@@ -78,7 +78,8 @@ Every store we build comes packed with these professional features, organized fo
 50. **Role-Based Authentication:** Separate dashboards for Admin and Customers.
 51. **Social & Email Login:** Quick and secure login via Google or Email.
 52. **Secure MongoDB Database:** Modern NoSQL database for data integrity.
-53. **Lifetime Technical Support:** Ongoing support for any technical issues or bugs.
+53. **Secure Checkout Process:** Multi-layer security to protect customer information during checkout.
+54. **Lifetime Technical Support:** Ongoing support for any technical issues or bugs.
 
 ---
 
