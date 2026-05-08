@@ -117,8 +117,8 @@ export const Features = () => {
             link: "#",
         },
         {
-            title: "Bulk Product Upload",
-            description: "এক ক্লিকে শত শত প্রোডাক্ট এক্সেল বা সিএসভি ফাইলের মাধ্যমে স্টোরে আপলোড করার সুবিধা।",
+            title: "Day and Night Mode",
+            description: "কাস্টমারের চোখের আরাম এবং স্টোরের প্রিমিয়াম লুকের জন্য ডার্ক এবং লাইট মোড সুইচ করার সুবিধা।",
             link: "#",
         },
         {
