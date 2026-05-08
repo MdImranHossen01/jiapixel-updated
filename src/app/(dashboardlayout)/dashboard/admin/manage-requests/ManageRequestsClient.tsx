@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Mail, Phone, ExternalLink, Trash2, CheckCircle2, Clock, MessageCircle, Zap, XCircle } from "lucide-react";
+import { MoreHorizontal, Mail, Phone, ExternalLink, Trash2, CheckCircle2, Clock, MessageCircle, Zap, XCircle, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 interface LandingRequest {
@@ -57,6 +57,14 @@ const ManageRequestsClient = () => {
   const [projectTitle, setProjectTitle] = useState("");
   const [proposalUrl, setProposalUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`${label} copied to clipboard!`);
+    }).catch(() => {
+      toast.error("Failed to copy text");
+    });
+  };
 
   const fetchRequests = async () => {
     try {
@@ -215,14 +223,24 @@ const ManageRequestsClient = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1">
-                    <a href={`mailto:${request.email}`} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+                    <div 
+                      onClick={() => copyToClipboard(request.email, "Email")}
+                      className="flex items-center gap-2 text-sm hover:text-primary transition-colors cursor-pointer group"
+                      title="Click to copy email"
+                    >
                       <Mail className="w-3.5 h-3.5" />
                       {request.email}
-                    </a>
-                    <a href={`tel:${request.phone}`} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+                      <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div 
+                      onClick={() => copyToClipboard(request.phone, "Phone number")}
+                      className="flex items-center gap-2 text-sm hover:text-primary transition-colors cursor-pointer group"
+                      title="Click to copy phone number"
+                    >
                       <Phone className="w-3.5 h-3.5" />
                       {request.phone}
-                    </a>
+                      <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>

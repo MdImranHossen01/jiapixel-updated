@@ -103,7 +103,16 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
             if (!jsonString) return undefined;
             return JSON.parse(jsonString);
         } catch (e) {
-            return undefined;
+            // Fallback for plain text
+            return {
+                type: "doc",
+                content: [
+                    {
+                        type: "paragraph",
+                        content: [{ type: "text", text: jsonString }]
+                    }
+                ]
+            };
         }
     };
 

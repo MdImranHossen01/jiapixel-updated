@@ -176,13 +176,17 @@ export default function CreateCustomOrderPage() {
                                     </div>
                                     <div className="md:col-span-3 space-y-2">
                                         <Label htmlFor="adminNote" className="block text-sm font-medium">Admin Notes</Label>
-                                        <Input
-                                            id="adminNote"
-                                            placeholder="Private notes about this client or project..."
-                                            value={adminNote}
-                                            onChange={(e) => setAdminNote(e.target.value)}
-                                            className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
-                                        />
+                                        <div className="bg-background rounded-lg">
+                                            <NovelEditor
+                                                onChange={(val) => {
+                                                    if (typeof val === 'string') {
+                                                        setAdminNote(val);
+                                                    } else {
+                                                        setAdminNote(JSON.stringify(val));
+                                                    }
+                                                }}
+                                            />
+                                        </div>
                                     </div>
                                     <div className="md:col-span-3 space-y-2">
                                         <Label htmlFor="paymentLink" className="block text-sm font-medium">Payment Link (Visible to client after acceptance)</Label>
