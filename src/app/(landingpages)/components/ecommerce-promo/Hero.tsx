@@ -1,14 +1,26 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BannerSlider } from "@/components/landing/BannerSlider";
 import dynamic from "next/dynamic";
+import { trackEvent } from "@/lib/fpixel";
 
 const LandingCheckoutSheet = dynamic(() => import("@/components/landing/LandingCheckoutSheet").then(mod => mod.LandingCheckoutSheet));
 
 export const Hero = () => {
+    useEffect(() => {
+        trackEvent("ViewContent", {
+            content_name: "Ecommerce Landing Page",
+            content_category: "Service Promotion",
+            value: 3500,
+            currency: "BDT"
+        });
+    }, []);
+
     const bannerImages = [
         "/images/landing-pages/ecommerce-promo/banner1.webp",
         "/images/landing-pages/ecommerce-promo/banner2.webp",
