@@ -363,7 +363,7 @@ const ManageRequestsClient = () => {
       window.removeEventListener('mousemove', onMouseMove);
       el.removeEventListener('dragstart', onDragStart);
     };
-  }, []);
+  }, [loading]);
 
   const handleAddRequest = async (e: React.FormEvent) => {
     e.preventDefault();
