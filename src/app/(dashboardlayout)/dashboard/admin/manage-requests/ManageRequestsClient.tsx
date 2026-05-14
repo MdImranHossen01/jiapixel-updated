@@ -438,23 +438,19 @@ const ManageRequestsClient = () => {
 
       <div 
         ref={tableRef}
-        className="bg-card rounded-2xl border border-border overflow-auto shadow-sm scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+        className="-mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
         style={{ maxHeight: 'calc(100vh - 350px)' }}
       >
-        <Table className="min-w-[1200px] relative">
+        <Table className="relative w-full">
             <TableHeader className="bg-muted/50 sticky top-0 z-30 shadow-sm">
               <TableRow>
-                <TableHead className="w-[180px] sticky left-0 top-0 z-40 bg-muted/95 backdrop-blur-sm border-r border-border">Customer</TableHead>
-                <TableHead className="bg-muted/95 backdrop-blur-sm">Email</TableHead>
-                <TableHead className="bg-muted/95 backdrop-blur-sm">Phone</TableHead>
+                <TableHead className="w-[280px] sticky left-0 top-0 z-40 bg-muted/95 backdrop-blur-sm border-r border-border">Customer Info</TableHead>
                 <TableHead className="bg-muted/95 backdrop-blur-sm">WhatsApp</TableHead>
                 <TableHead className="bg-muted/95 backdrop-blur-sm">Source</TableHead>
                 <TableHead className="bg-muted/95 backdrop-blur-sm">Status</TableHead>
-                <TableHead className="bg-muted/95 backdrop-blur-sm">Free Offered</TableHead>
-                <TableHead className="bg-muted/95 backdrop-blur-sm">Contacted Today</TableHead>
-                <TableHead className="min-w-[150px] bg-muted/95 backdrop-blur-sm">Quick Note</TableHead>
-                <TableHead className="min-w-[150px] bg-muted/95 backdrop-blur-sm">Credential</TableHead>
-                <TableHead className="bg-muted/95 backdrop-blur-sm">Last Contacted</TableHead>
+                <TableHead className="bg-muted/95 backdrop-blur-sm text-center">Toggles</TableHead>
+                <TableHead className="w-[80px] bg-muted/95 backdrop-blur-sm text-center">Note</TableHead>
+                <TableHead className="w-[80px] bg-muted/95 backdrop-blur-sm text-center">Cred.</TableHead>
                 <TableHead className="text-right bg-muted/95 backdrop-blur-sm">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -471,8 +467,8 @@ const ManageRequestsClient = () => {
               ) : (
                 requests.map((request) => (
                   <TableRow key={request._id} className="hover:bg-muted/30 transition-colors">
-                    <TableCell className="sticky left-0 z-10 bg-card border-r border-border shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
-                      <div className="flex flex-col">
+                    <TableCell className="sticky left-0 z-10 bg-card border-r border-border shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] py-2">
+                      <div className="flex flex-col gap-1">
                         {request.proposalUrl ? (
                           <a
                             href={request.proposalUrl.startsWith('http') ? request.proposalUrl : `https://${request.proposalUrl}`}
@@ -486,35 +482,46 @@ const ManageRequestsClient = () => {
                         ) : (
                           <div className="font-bold text-sm">{request.name}</div>
                         )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div 
-                        onClick={() => copyToClipboard(request.email, "Email")}
-                        className="flex items-center gap-1.5 text-xs hover:text-primary transition-colors cursor-pointer group"
-                      >
-                        <Mail className="w-3 h-3 shrink-0" />
-                        <span className="truncate max-w-[150px]">{request.email || "N/A"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div 
-                        onClick={() => copyToClipboard(request.phone, "Phone number")}
-                        className="flex items-center gap-1.5 text-xs hover:text-primary transition-colors cursor-pointer"
-                      >
-                        <Phone className="w-3 h-3 shrink-0" />
-                        {request.phone}
+                        <div className="flex flex-col gap-0.5 text-xs text-muted-foreground mt-1">
+                          {request.email && (
+                            <div 
+                              onClick={() => copyToClipboard(request.email, "Email")}
+                              className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer group"
+                            >
+                              <Mail className="w-3 h-3 shrink-0" />
+                              <span className="truncate max-w-[200px]">{request.email}</span>
+                            </div>
+                          )}
+                          <div 
+                            onClick={() => copyToClipboard(request.phone, "Phone number")}
+                            className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
+                          >
+                            <Phone className="w-3 h-3 shrink-0" />
+                            {request.phone}
+                          </div>
+                          <div className={`flex items-center gap-1 mt-0.5 ${isOldContact(request.lastContacted) ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+                            <Clock className="w-3 h-3 shrink-0" />
+                            {request.lastContacted ? (
+                              <>
+                                <span>{new Date(request.lastContacted).toLocaleDateString("en-GB")}</span>
+                                {isOldContact(request.lastContacted) && <span className="text-[9px] uppercase font-bold ml-1 bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Needs Contact!</span>}
+                              </>
+                            ) : (
+                              <span className="italic opacity-50">Never contacted</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="text-green-600 hover:text-green-700 hover:bg-green-50 gap-1 h-8"
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50 gap-1 h-8 px-2"
                         onClick={() => window.open(`https://wa.me/${request.phone.replace(/[^0-9]/g, '')}`, '_blank')}
                       >
                         <MessageCircle className="w-4 h-4" />
-                        WA
+                        <span className="hidden sm:inline">WA</span>
                       </Button>
                     </TableCell>
                     <TableCell>
@@ -522,8 +529,8 @@ const ManageRequestsClient = () => {
                         value={request.source} 
                         onValueChange={(val) => handleUpdateField(request._id, { source: val })}
                       >
-                        <SelectTrigger className="h-8 w-fit min-w-[100px] text-xs px-2 bg-transparent border-none focus:ring-0 opacity-80">
-                          <SelectValue />
+                        <SelectTrigger className="h-8 w-[120px] text-xs px-2 bg-transparent border-border focus:ring-0">
+                          <SelectValue className="truncate" />
                         </SelectTrigger>
                         <SelectContent>
                           {sourceOptions.map(opt => (
@@ -547,7 +554,7 @@ const ManageRequestsClient = () => {
                           else handleStatusChange(request._id, val);
                         }}
                       >
-                        <SelectTrigger className={`h-8 w-[140px] text-xs font-semibold ${statusOptions.find(o => o.value === request.status)?.color} text-white border-none`}>
+                        <SelectTrigger className={`h-8 w-[120px] text-xs font-semibold ${statusOptions.find(o => o.value === request.status)?.color} text-white border-none`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -560,82 +567,74 @@ const ManageRequestsClient = () => {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Switch 
-                          checked={request.freeOffered} 
-                          onCheckedChange={(val) => handleUpdateField(request._id, { freeOffered: val })}
-                          className="scale-75 origin-left"
-                        />
-                        <span className="text-[10px] font-medium whitespace-nowrap">{request.freeOffered ? "Yes" : "No"}</span>
+                      <div className="flex flex-col gap-2 min-w-[100px]">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-medium text-muted-foreground">Free:</span>
+                          <Switch 
+                            checked={request.freeOffered} 
+                            onCheckedChange={(val) => handleUpdateField(request._id, { freeOffered: val })}
+                            className="scale-75 origin-right m-0"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-medium text-muted-foreground">Today:</span>
+                          <Switch 
+                            checked={request.contactedToday} 
+                            onCheckedChange={(val) => {
+                              const updates: any = { contactedToday: val };
+                              if (val) updates.lastContacted = new Date().toISOString();
+                              handleUpdateField(request._id, updates);
+                            }}
+                            className="scale-75 origin-right m-0"
+                          />
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Switch 
-                          checked={request.contactedToday} 
-                          onCheckedChange={(val) => {
-                            const updates: any = { contactedToday: val };
-                            if (val) updates.lastContacted = new Date().toISOString();
-                            handleUpdateField(request._id, updates);
-                          }}
-                          className="scale-75 origin-left"
-                        />
-                        <span className="text-[10px] font-medium whitespace-nowrap">{request.contactedToday ? "Yes" : "No"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       {request.quickNote ? (
                         <Button 
                           variant="ghost" 
-                          size="sm" 
-                          className="h-8 gap-2 text-xs font-normal"
+                          size="icon" 
+                          className="h-8 w-8 text-primary"
                           onClick={() => openNoteModal(request, "quickNote")}
+                          title="View Note"
                         >
-                          <Eye className="w-3 h-3" /> View Note
+                          <Eye className="w-4 h-4" />
                         </Button>
                       ) : (
                         <Button 
                           variant="outline" 
-                          size="sm" 
-                          className="h-8 gap-2 text-xs border-dashed"
+                          size="icon" 
+                          className="h-8 w-8 border-dashed"
                           onClick={() => openNoteModal(request, "quickNote")}
+                          title="Add Note"
                         >
-                          <Plus className="w-3 h-3" /> Add Note
+                          <Plus className="w-4 h-4" />
                         </Button>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       {request.credential ? (
                         <Button 
                           variant="ghost" 
-                          size="sm" 
-                          className="h-8 gap-2 text-xs font-normal text-primary"
+                          size="icon" 
+                          className="h-8 w-8 text-primary"
                           onClick={() => openNoteModal(request, "credential")}
+                          title="View Credential"
                         >
-                          <Eye className="w-3 h-3" /> View Cred.
+                          <Eye className="w-4 h-4" />
                         </Button>
                       ) : (
                         <Button 
                           variant="outline" 
-                          size="sm" 
-                          className="h-8 gap-2 text-xs border-dashed"
+                          size="icon" 
+                          className="h-8 w-8 border-dashed"
                           onClick={() => openNoteModal(request, "credential")}
+                          title="Add Credential"
                         >
-                          <Plus className="w-3 h-3" /> Add Cred.
+                          <Plus className="w-4 h-4" />
                         </Button>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <div className={`text-xs font-medium ${isOldContact(request.lastContacted) ? 'text-red-500 flex flex-col' : 'text-muted-foreground'}`}>
-                        {request.lastContacted ? (
-                          <>
-                            <span>{new Date(request.lastContacted).toLocaleDateString("en-GB")}</span>
-                            {isOldContact(request.lastContacted) && <span className="text-[9px] uppercase font-bold">Needs Contact!</span>}
-                          </>
-                        ) : (
-                          <span className="italic opacity-50">Never</span>
-                        )}
-                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
