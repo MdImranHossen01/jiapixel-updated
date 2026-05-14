@@ -12,13 +12,78 @@ export async function GET(req: NextRequest) {
 
   await dbConnect();
 
+  const { searchParams } = new URL(req.url);
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = 20;
+  const skip = (page - 1) * limit;
+  const search = searchParams.get("search") || "";
+  const status = searchParams.get("status") || "";
+  const source = searchParams.get("source") || "";
+  const filterLastContacted = searchParams.get("filterLastContacted") === "true";
+
+  // Reset contactedToday if it's a new day
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  
   try {
-    const requests = await LandingRequest.find({})
-      .select("name email phone status source price details projectTitle proposalUrl createdAt")
+    // Perform the auto-reset
+    await LandingRequest.updateMany(
+      { contactedToday: true, updatedAt: { $lt: todayStart } },
+      { contactedToday: false }
+    );
+
+    let query: any = {};
+    let andConditions: any[] = [];
+
+    if (search) {
+      andConditions.push({
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
+        ]
+      });
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (source) {
+      query.source = source;
+    }
+
+    if (filterLastContacted) {
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      andConditions.push({
+        $or: [
+          { lastContacted: { $lt: ninetyDaysAgo } },
+          { lastContacted: { $exists: false } },
+          { lastContacted: null }
+        ]
+      });
+    }
+
+    if (andConditions.length > 0) {
+      query.$and = andConditions;
+    }
+
+    const total = await LandingRequest.countDocuments(query);
+    const requests = await LandingRequest.find(query)
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .lean();
 
-    return NextResponse.json(requests);
+    return NextResponse.json({
+      requests,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     console.error("Error fetching landing requests:", error);
     return NextResponse.json(
@@ -28,23 +93,29 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST for user submissions
+// POST for user submissions & manual admin insertion
 export async function POST(req: NextRequest) {
   await dbConnect();
 
   try {
     const body = await req.json();
-    const { name, email, phone, details, source, price } = body;
+    const { 
+      name, 
+      email, 
+      phone, 
+      details, 
+      source, 
+      price, 
+      status,
+      freeOffered,
+      quickNote,
+      credential,
+      lastContacted
+    } = body;
 
     // Basic Validation
-    if (!name || !email || !phone) {
-      return NextResponse.json({ message: "Name, email and phone are required" }, { status: 400 });
-    }
-
-    // Email format check
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ message: "Invalid email format" }, { status: 400 });
+    if (!name || !phone) {
+      return NextResponse.json({ message: "Name and phone are required" }, { status: 400 });
     }
 
     const newRequest = new LandingRequest({
@@ -54,26 +125,30 @@ export async function POST(req: NextRequest) {
       details,
       source: source || "ecommerce-landing-page",
       price: price || 3500,
-      status: "requested"
+      status: status || "requested",
+      freeOffered: freeOffered || false,
+      quickNote: quickNote || "",
+      credential: credential || "",
+      lastContacted: lastContacted || null
     });
 
     await newRequest.save();
 
     return NextResponse.json(
-      { message: "Request submitted successfully", id: newRequest._id },
+      { message: "Request created successfully", id: newRequest._id },
       { status: 201 }
     );
   } catch (error) {
     console.error("Error creating landing request:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { message: "Error submitting request", error: errorMessage },
+      { message: "Error creating request", error: errorMessage },
       { status: 500 }
     );
   }
 }
 
-// PUT to update status (admin only)
+// PUT to update status and other fields (admin only)
 export async function PUT(req: NextRequest) {
     const token = await getToken({ req });
     if (!token || token.role !== "admin") {
@@ -84,24 +159,41 @@ export async function PUT(req: NextRequest) {
   
     try {
       const body = await req.json();
-      const { id, status, projectTitle, proposalUrl } = body;
+      const { 
+        id, 
+        status, 
+        projectTitle, 
+        proposalUrl, 
+        freeOffered, 
+        contactedToday, 
+        quickNote, 
+        credential, 
+        lastContacted,
+        source,
+        price
+      } = body;
   
-      if (!id || !status) {
-        return NextResponse.json({ message: "ID and status are required" }, { status: 400 });
+      if (!id) {
+        return NextResponse.json({ message: "ID is required" }, { status: 400 });
       }
 
       // Status Whitelist Check
-      const allowedStatuses = ["requested", "contacted", "confirm", "cancel", "completed"];
-      if (!allowedStatuses.includes(status)) {
-        return NextResponse.json(
-          { message: `Invalid status. Must be one of: ${allowedStatuses.join(", ")}` },
-          { status: 400 }
-        );
+      const allowedStatuses = ["requested", "need contact", "contacted", "confirm", "need to contact again", "ordered", "processing", "delivered", "paid", "canceled", "fake"];
+      if (status !== undefined && !allowedStatuses.includes(status)) {
+        return NextResponse.json({ message: "Invalid status" }, { status: 400 });
       }
 
-      const updateData: any = { status };
-      if (projectTitle) updateData.projectTitle = projectTitle;
-      if (proposalUrl) updateData.proposalUrl = proposalUrl;
+      const updateData: any = {};
+      if (status !== undefined) updateData.status = status;
+      if (projectTitle !== undefined) updateData.projectTitle = projectTitle;
+      if (proposalUrl !== undefined) updateData.proposalUrl = proposalUrl;
+      if (freeOffered !== undefined) updateData.freeOffered = freeOffered;
+      if (contactedToday !== undefined) updateData.contactedToday = contactedToday;
+      if (quickNote !== undefined) updateData.quickNote = quickNote;
+      if (credential !== undefined) updateData.credential = credential;
+      if (lastContacted !== undefined) updateData.lastContacted = lastContacted;
+      if (source !== undefined) updateData.source = source;
+      if (price !== undefined) updateData.price = price;
   
       const updatedRequest = await LandingRequest.findByIdAndUpdate(
         id,

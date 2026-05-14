@@ -4,12 +4,17 @@ export interface ILandingRequest extends Document {
   name: string;
   email: string;
   phone: string;
-  status: "requested" | "contacted" | "confirm" | "cancel" | "completed";
+  status: "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "delivered" | "paid" | "canceled" | "fake";
   source: string;
   price: number;
   details?: string;
   projectTitle?: string;
   proposalUrl?: string;
+  freeOffered: boolean;
+  contactedToday: boolean;
+  quickNote?: string;
+  credential?: string;
+  lastContacted?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,7 +39,7 @@ const LandingRequestSchema = new Schema<ILandingRequest>(
     },
     status: {
       type: String,
-      enum: ["requested", "contacted", "confirm", "cancel", "completed"],
+      enum: ["requested", "need contact", "contacted", "confirm", "need to contact again", "ordered", "processing", "delivered", "paid", "canceled", "fake"],
       default: "requested",
     },
     source: {
@@ -55,6 +60,25 @@ const LandingRequestSchema = new Schema<ILandingRequest>(
     proposalUrl: {
       type: String,
       trim: true,
+    },
+    freeOffered: {
+      type: Boolean,
+      default: false,
+    },
+    contactedToday: {
+      type: Boolean,
+      default: false,
+    },
+    quickNote: {
+      type: String,
+      trim: true,
+    },
+    credential: {
+      type: String,
+      trim: true,
+    },
+    lastContacted: {
+      type: Date,
     },
   },
   {
