@@ -510,7 +510,7 @@ const ManageRequestsClient = () => {
                               <span className="italic opacity-50">Never contacted</span>
                             )}
                           </div>
-                          <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
+                          <div className="flex items-center gap-1 mt-0.5 text-emerald-600 dark:text-emerald-500 font-medium">
                             <Calendar className="w-3 h-3 shrink-0" />
                             <span>Added: {new Date(request.createdAt).toLocaleDateString("en-GB")}</span>
                           </div>
