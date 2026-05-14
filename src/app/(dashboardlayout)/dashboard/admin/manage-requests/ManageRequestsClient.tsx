@@ -438,20 +438,19 @@ const ManageRequestsClient = () => {
 
       <div 
         ref={tableRef}
-        className="-mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
-        style={{ maxHeight: 'calc(100vh - 350px)' }}
+        className="-mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
       >
-        <Table className="relative w-full">
-            <TableHeader className="bg-muted/50 sticky top-0 z-30 shadow-sm">
+        <Table className="w-full">
+            <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead className="w-[280px] sticky left-0 top-0 z-40 bg-muted/95 backdrop-blur-sm border-r border-border">Customer Info</TableHead>
-                <TableHead className="bg-muted/95 backdrop-blur-sm">WhatsApp</TableHead>
-                <TableHead className="bg-muted/95 backdrop-blur-sm">Source</TableHead>
-                <TableHead className="bg-muted/95 backdrop-blur-sm">Status</TableHead>
-                <TableHead className="bg-muted/95 backdrop-blur-sm text-center">Toggles</TableHead>
-                <TableHead className="w-[80px] bg-muted/95 backdrop-blur-sm text-center">Note</TableHead>
-                <TableHead className="w-[80px] bg-muted/95 backdrop-blur-sm text-center">Cred.</TableHead>
-                <TableHead className="text-right bg-muted/95 backdrop-blur-sm">Actions</TableHead>
+                <TableHead className="w-[280px] border-r border-border">Customer Info</TableHead>
+                <TableHead>WhatsApp</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-center">Toggles</TableHead>
+                <TableHead className="w-[80px] text-center">Note</TableHead>
+                <TableHead className="w-[80px] text-center">Cred.</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -467,7 +466,7 @@ const ManageRequestsClient = () => {
               ) : (
                 requests.map((request) => (
                   <TableRow key={request._id} className="hover:bg-muted/30 transition-colors">
-                    <TableCell className="sticky left-0 z-10 bg-card border-r border-border shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] py-2">
+                    <TableCell className="bg-card border-r border-border py-2">
                       <div className="flex flex-col gap-1">
                         {request.proposalUrl ? (
                           <a
