@@ -58,7 +58,8 @@ import {
   RefreshCw,
   MessageSquare,
   Eye,
-  Plus
+  Plus,
+  Calendar
 } from "lucide-react";
 import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination";
@@ -508,6 +509,10 @@ const ManageRequestsClient = () => {
                             ) : (
                               <span className="italic opacity-50">Never contacted</span>
                             )}
+                          </div>
+                          <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
+                            <Calendar className="w-3 h-3 shrink-0" />
+                            <span>Added: {new Date(request.createdAt).toLocaleDateString("en-GB")}</span>
                           </div>
                         </div>
                       </div>
