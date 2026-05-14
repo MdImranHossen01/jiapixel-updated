@@ -139,9 +139,6 @@ const ManageRequestsClient = () => {
   } | null>(null);
 
   const tableRef = useRef<HTMLDivElement>(null);
-  const isDraggingRef = useRef(false);
-  const startXRef = useRef(0);
-  const scrollLeftRef = useRef(0);
 
   const currentPage = parseInt(searchParams.get("page") || "1");
   const [totalPages, setTotalPages] = useState(1);
@@ -306,64 +303,7 @@ const ManageRequestsClient = () => {
     setIsSubmitting(false);
   };
 
-  useEffect(() => {
-    const el = tableRef.current;
-    if (!el) return;
 
-    const onMouseDown = (e: MouseEvent) => {
-      // Allow clicking on interactive elements
-      const target = e.target as HTMLElement;
-      if (target.closest('button, a, input, select, textarea, [role="switch"], [role="menuitem"], [role="combobox"]')) {
-        return;
-      }
-      
-      // Prevent browser default behavior (like text selection or native drag)
-      e.preventDefault();
-
-      isDraggingRef.current = true;
-      startXRef.current = e.pageX - el.offsetLeft;
-      scrollLeftRef.current = el.scrollLeft;
-      el.style.cursor = 'grabbing';
-    };
-
-    const onMouseUp = () => {
-      isDraggingRef.current = false;
-      el.style.cursor = 'grab';
-    };
-
-    const onMouseLeave = () => {
-      isDraggingRef.current = false;
-      el.style.cursor = 'grab';
-    };
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
-      e.preventDefault();
-      const x = e.pageX - el.offsetLeft;
-      const walk = (x - startXRef.current) * 1.5;
-      el.scrollLeft = scrollLeftRef.current - walk;
-    };
-
-    // Prevent native drag start on the table
-    const onDragStart = (e: DragEvent) => {
-      e.preventDefault();
-    };
-
-    el.addEventListener('mousedown', onMouseDown);
-    // Bind mouseup and leave to window for better reliability if mouse goes outside
-    window.addEventListener('mouseup', onMouseUp);
-    el.addEventListener('mouseleave', onMouseLeave);
-    window.addEventListener('mousemove', onMouseMove);
-    el.addEventListener('dragstart', onDragStart);
-
-    return () => {
-      el.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mouseup', onMouseUp);
-      el.removeEventListener('mouseleave', onMouseLeave);
-      window.removeEventListener('mousemove', onMouseMove);
-      el.removeEventListener('dragstart', onDragStart);
-    };
-  }, [loading]);
 
   const handleAddRequest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -498,14 +438,12 @@ const ManageRequestsClient = () => {
 
       <div 
         ref={tableRef}
-        data-lenis-prevent
-        style={{ cursor: 'grab', userSelect: 'none' }}
-        className="bg-card rounded-2xl border border-border overflow-x-auto shadow-sm"
+        className="bg-card rounded-2xl border border-border overflow-x-auto shadow-sm pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
       >
         <Table className="min-w-[1200px]">
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead className="w-[180px]">Customer</TableHead>
+                <TableHead className="w-[180px] sticky left-0 z-20 bg-muted/90 backdrop-blur-sm border-r border-border">Customer</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>WhatsApp</TableHead>
@@ -532,7 +470,7 @@ const ManageRequestsClient = () => {
               ) : (
                 requests.map((request) => (
                   <TableRow key={request._id} className="hover:bg-muted/30 transition-colors">
-                    <TableCell>
+                    <TableCell className="sticky left-0 z-10 bg-card border-r border-border shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                       <div className="flex flex-col">
                         {request.proposalUrl ? (
                           <a
