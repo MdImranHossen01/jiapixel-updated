@@ -581,7 +581,7 @@ const ManageRequestsClient = () => {
                           <Switch 
                             checked={request.freeOffered} 
                             onCheckedChange={(val) => handleUpdateField(request._id, { freeOffered: val })}
-                            className="scale-75 origin-right m-0"
+                            className="scale-75 origin-right m-0 !bg-red-500 peer-checked:!bg-green-500"
                           />
                         </div>
                         <div className="flex items-center justify-between gap-2">
@@ -593,7 +593,7 @@ const ManageRequestsClient = () => {
                               if (val) updates.lastContacted = new Date().toISOString();
                               handleUpdateField(request._id, updates);
                             }}
-                            className="scale-75 origin-right m-0"
+                            className="scale-75 origin-right m-0 !bg-red-500 peer-checked:!bg-green-500"
                           />
                         </div>
                       </div>
