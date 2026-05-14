@@ -306,32 +306,47 @@ const ManageRequestsClient = () => {
     setIsSubmitting(false);
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!tableRef.current) return;
-    isDraggingRef.current = true;
-    startXRef.current = e.pageX - tableRef.current.offsetLeft;
-    scrollLeftRef.current = tableRef.current.scrollLeft;
-    tableRef.current.style.cursor = 'grabbing';
-  };
+  useEffect(() => {
+    const el = tableRef.current;
+    if (!el) return;
 
-  const handleMouseLeave = () => {
-    isDraggingRef.current = false;
-    if (tableRef.current) tableRef.current.style.cursor = 'grab';
-  };
+    const onMouseDown = (e: MouseEvent) => {
+      isDraggingRef.current = true;
+      startXRef.current = e.pageX - el.offsetLeft;
+      scrollLeftRef.current = el.scrollLeft;
+      el.style.cursor = 'grabbing';
+    };
 
-  const handleMouseUp = () => {
-    isDraggingRef.current = false;
-    if (tableRef.current) tableRef.current.style.cursor = 'grab';
-  };
+    const onMouseUp = () => {
+      isDraggingRef.current = false;
+      el.style.cursor = 'grab';
+    };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDraggingRef.current || !tableRef.current) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const x = e.pageX - tableRef.current.offsetLeft;
-    const walk = (x - startXRef.current) * 1.5;
-    tableRef.current.scrollLeft = scrollLeftRef.current - walk;
-  };
+    const onMouseLeave = () => {
+      isDraggingRef.current = false;
+      el.style.cursor = 'grab';
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      const walk = (x - startXRef.current) * 1.5;
+      el.scrollLeft = scrollLeftRef.current - walk;
+    };
+
+    el.addEventListener('mousedown', onMouseDown);
+    el.addEventListener('mouseup', onMouseUp);
+    el.addEventListener('mouseleave', onMouseLeave);
+    el.addEventListener('mousemove', onMouseMove);
+
+    return () => {
+      el.removeEventListener('mousedown', onMouseDown);
+      el.removeEventListener('mouseup', onMouseUp);
+      el.removeEventListener('mouseleave', onMouseLeave);
+      el.removeEventListener('mousemove', onMouseMove);
+    };
+  }, []);
 
   const handleAddRequest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -466,10 +481,6 @@ const ManageRequestsClient = () => {
 
       <div 
         ref={tableRef}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
         data-lenis-prevent
         style={{ cursor: 'grab', userSelect: 'none' }}
         className="bg-card rounded-2xl border border-border overflow-x-auto shadow-sm"
