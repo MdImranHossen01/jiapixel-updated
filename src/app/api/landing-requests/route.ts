@@ -114,8 +114,8 @@ export async function POST(req: NextRequest) {
     } = body;
 
     // Basic Validation
-    if (!name || !phone) {
-      return NextResponse.json({ message: "Name and phone are required" }, { status: 400 });
+    if (!phone) {
+      return NextResponse.json({ message: "Phone number is required" }, { status: 400 });
     }
 
     const newRequest = new LandingRequest({

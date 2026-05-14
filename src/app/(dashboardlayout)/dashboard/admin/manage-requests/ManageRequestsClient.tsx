@@ -276,8 +276,8 @@ const ManageRequestsClient = () => {
 
   const handleAddRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRequestData.name || !newRequestData.phone) {
-      toast.error("Name and Phone are required");
+    if (!newRequestData.phone) {
+      toast.error("Phone number is required");
       return;
     }
     setIsSubmitting(true);
@@ -673,13 +673,12 @@ const ManageRequestsClient = () => {
           <form onSubmit={handleAddRequest} className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="add-name">Customer Name *</Label>
+                <Label htmlFor="add-name">Customer Name</Label>
                 <Input
                   id="add-name"
                   value={newRequestData.name}
                   onChange={(e) => setNewRequestData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Full Name"
-                  required
+                  placeholder="Full Name (Optional)"
                 />
               </div>
               <div className="space-y-2">

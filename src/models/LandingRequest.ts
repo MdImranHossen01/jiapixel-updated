@@ -23,12 +23,11 @@ const LandingRequestSchema = new Schema<ILandingRequest>(
   {
     name: {
       type: String,
-      required: [true, "Name is required"],
       trim: true,
+      default: "New Lead",
     },
     email: {
       type: String,
-      required: [true, "Email is required"],
       trim: true,
       lowercase: true,
     },
