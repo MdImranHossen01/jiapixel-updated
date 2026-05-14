@@ -438,23 +438,24 @@ const ManageRequestsClient = () => {
 
       <div 
         ref={tableRef}
-        className="bg-card rounded-2xl border border-border overflow-x-auto shadow-sm pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+        className="bg-card rounded-2xl border border-border overflow-auto shadow-sm pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+        style={{ maxHeight: 'calc(100vh - 280px)' }}
       >
-        <Table className="min-w-[1200px]">
-            <TableHeader className="bg-muted/50">
+        <Table className="min-w-[1200px] relative">
+            <TableHeader className="bg-muted/50 sticky top-0 z-30 shadow-sm">
               <TableRow>
-                <TableHead className="w-[180px] sticky left-0 z-20 bg-muted/90 backdrop-blur-sm border-r border-border">Customer</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>WhatsApp</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Free Offered</TableHead>
-                <TableHead>Contacted Today</TableHead>
-                <TableHead className="min-w-[150px]">Quick Note</TableHead>
-                <TableHead className="min-w-[150px]">Credential</TableHead>
-                <TableHead>Last Contacted</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[180px] sticky left-0 top-0 z-40 bg-muted/95 backdrop-blur-sm border-r border-border">Customer</TableHead>
+                <TableHead className="bg-muted/95 backdrop-blur-sm">Email</TableHead>
+                <TableHead className="bg-muted/95 backdrop-blur-sm">Phone</TableHead>
+                <TableHead className="bg-muted/95 backdrop-blur-sm">WhatsApp</TableHead>
+                <TableHead className="bg-muted/95 backdrop-blur-sm">Source</TableHead>
+                <TableHead className="bg-muted/95 backdrop-blur-sm">Status</TableHead>
+                <TableHead className="bg-muted/95 backdrop-blur-sm">Free Offered</TableHead>
+                <TableHead className="bg-muted/95 backdrop-blur-sm">Contacted Today</TableHead>
+                <TableHead className="min-w-[150px] bg-muted/95 backdrop-blur-sm">Quick Note</TableHead>
+                <TableHead className="min-w-[150px] bg-muted/95 backdrop-blur-sm">Credential</TableHead>
+                <TableHead className="bg-muted/95 backdrop-blur-sm">Last Contacted</TableHead>
+                <TableHead className="text-right bg-muted/95 backdrop-blur-sm">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
