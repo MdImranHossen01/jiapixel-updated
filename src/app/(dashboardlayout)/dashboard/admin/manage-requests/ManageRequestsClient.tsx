@@ -438,8 +438,8 @@ const ManageRequestsClient = () => {
 
       <div 
         ref={tableRef}
-        className="bg-card rounded-2xl border border-border overflow-auto shadow-sm pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
-        style={{ maxHeight: 'calc(100vh - 280px)' }}
+        className="bg-card rounded-2xl border border-border overflow-auto shadow-sm scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+        style={{ maxHeight: 'calc(100vh - 350px)' }}
       >
         <Table className="min-w-[1200px] relative">
             <TableHeader className="bg-muted/50 sticky top-0 z-30 shadow-sm">
