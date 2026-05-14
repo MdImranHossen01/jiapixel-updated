@@ -139,9 +139,9 @@ const ManageRequestsClient = () => {
   } | null>(null);
 
   const tableRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
 
   const currentPage = parseInt(searchParams.get("page") || "1");
   const [totalPages, setTotalPages] = useState(1);
@@ -308,25 +308,29 @@ const ManageRequestsClient = () => {
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!tableRef.current) return;
-    setIsDragging(true);
-    setStartX(e.pageX - tableRef.current.offsetLeft);
-    setScrollLeft(tableRef.current.scrollLeft);
+    isDraggingRef.current = true;
+    startXRef.current = e.pageX - tableRef.current.offsetLeft;
+    scrollLeftRef.current = tableRef.current.scrollLeft;
+    tableRef.current.style.cursor = 'grabbing';
   };
 
   const handleMouseLeave = () => {
-    setIsDragging(false);
+    isDraggingRef.current = false;
+    if (tableRef.current) tableRef.current.style.cursor = 'grab';
   };
 
   const handleMouseUp = () => {
-    setIsDragging(false);
+    isDraggingRef.current = false;
+    if (tableRef.current) tableRef.current.style.cursor = 'grab';
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !tableRef.current) return;
+    if (!isDraggingRef.current || !tableRef.current) return;
     e.preventDefault();
+    e.stopPropagation();
     const x = e.pageX - tableRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    tableRef.current.scrollLeft = scrollLeft - walk;
+    const walk = (x - startXRef.current) * 1.5;
+    tableRef.current.scrollLeft = scrollLeftRef.current - walk;
   };
 
   const handleAddRequest = async (e: React.FormEvent) => {
@@ -467,7 +471,8 @@ const ManageRequestsClient = () => {
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
         data-lenis-prevent
-        className={`bg-card rounded-2xl border border-border overflow-x-auto shadow-sm select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ cursor: 'grab', userSelect: 'none' }}
+        className="bg-card rounded-2xl border border-border overflow-x-auto shadow-sm"
       >
         <Table className="min-w-[1200px]">
             <TableHeader className="bg-muted/50">
