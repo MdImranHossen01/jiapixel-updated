@@ -466,6 +466,7 @@ const ManageRequestsClient = () => {
         onMouseLeave={handleMouseLeave}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
+        data-lenis-prevent
         className={`bg-card rounded-2xl border border-border overflow-x-auto shadow-sm select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       >
         <Table className="min-w-[1200px]">
