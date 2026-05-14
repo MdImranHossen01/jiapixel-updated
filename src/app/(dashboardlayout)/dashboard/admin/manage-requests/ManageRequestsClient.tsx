@@ -311,6 +311,15 @@ const ManageRequestsClient = () => {
     if (!el) return;
 
     const onMouseDown = (e: MouseEvent) => {
+      // Allow clicking on interactive elements
+      const target = e.target as HTMLElement;
+      if (target.closest('button, a, input, select, textarea, [role="switch"], [role="menuitem"], [role="combobox"]')) {
+        return;
+      }
+      
+      // Prevent browser default behavior (like text selection or native drag)
+      e.preventDefault();
+
       isDraggingRef.current = true;
       startXRef.current = e.pageX - el.offsetLeft;
       scrollLeftRef.current = el.scrollLeft;
@@ -335,16 +344,24 @@ const ManageRequestsClient = () => {
       el.scrollLeft = scrollLeftRef.current - walk;
     };
 
+    // Prevent native drag start on the table
+    const onDragStart = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
     el.addEventListener('mousedown', onMouseDown);
-    el.addEventListener('mouseup', onMouseUp);
+    // Bind mouseup and leave to window for better reliability if mouse goes outside
+    window.addEventListener('mouseup', onMouseUp);
     el.addEventListener('mouseleave', onMouseLeave);
-    el.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousemove', onMouseMove);
+    el.addEventListener('dragstart', onDragStart);
 
     return () => {
       el.removeEventListener('mousedown', onMouseDown);
-      el.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('mouseup', onMouseUp);
       el.removeEventListener('mouseleave', onMouseLeave);
-      el.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mousemove', onMouseMove);
+      el.removeEventListener('dragstart', onDragStart);
     };
   }, []);
 
