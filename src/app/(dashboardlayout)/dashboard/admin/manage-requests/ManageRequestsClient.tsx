@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -40,6 +40,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   MoreHorizontal, 
   Mail, 
@@ -55,7 +56,9 @@ import {
   Search,
   Filter,
   RefreshCw,
-  MessageSquare
+  MessageSquare,
+  Eye,
+  Plus
 } from "lucide-react";
 import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination";
@@ -117,7 +120,6 @@ const ManageRequestsClient = () => {
   const [proposalUrl, setProposalUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // New Request Form state
   const [newRequestData, setNewRequestData] = useState({
     name: "",
     email: "",
@@ -128,7 +130,19 @@ const ManageRequestsClient = () => {
     status: "need contact" as RequestStatus
   });
 
-  // Pagination & Filtering state
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [noteModalConfig, setNoteModalConfig] = useState<{
+    id: string;
+    type: "quickNote" | "credential";
+    value: string;
+    title: string;
+  } | null>(null);
+
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
   const currentPage = parseInt(searchParams.get("page") || "1");
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
@@ -274,6 +288,47 @@ const ManageRequestsClient = () => {
     });
   };
 
+  const openNoteModal = (request: LandingRequest, type: "quickNote" | "credential") => {
+    setNoteModalConfig({
+      id: request._id,
+      type,
+      value: (request as any)[type] || "",
+      title: type === "quickNote" ? "Quick Note" : "Credential"
+    });
+    setIsNoteModalOpen(true);
+  };
+
+  const handleSaveNote = async () => {
+    if (!noteModalConfig) return;
+    setIsSubmitting(true);
+    await handleUpdateField(noteModalConfig.id, { [noteModalConfig.type]: noteModalConfig.value });
+    setIsNoteModalOpen(false);
+    setIsSubmitting(false);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!tableRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - tableRef.current.offsetLeft);
+    setScrollLeft(tableRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !tableRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - tableRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    tableRef.current.scrollLeft = scrollLeft - walk;
+  };
+
   const handleAddRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRequestData.phone) {
@@ -405,16 +460,25 @@ const ManageRequestsClient = () => {
         </Button>
       </div>
 
-      <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <Table>
+      <div 
+        ref={tableRef}
+        onMouseDown={handleMouseDown}
+        onMouseLeave={handleMouseLeave}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        className={`bg-card rounded-2xl border border-border overflow-x-auto shadow-sm select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      >
+        <Table className="min-w-[1200px]">
             <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead className="w-[180px]">Customer</TableHead>
-                <TableHead className="w-[150px]">Contact Info</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
                 <TableHead>WhatsApp</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Toggles</TableHead>
+                <TableHead>Free Offered</TableHead>
+                <TableHead>Contacted Today</TableHead>
                 <TableHead className="min-w-[150px]">Quick Note</TableHead>
                 <TableHead className="min-w-[150px]">Credential</TableHead>
                 <TableHead>Last Contacted</TableHead>
@@ -424,7 +488,7 @@ const ManageRequestsClient = () => {
             <TableBody>
               {requests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-20 text-muted-foreground">
+                  <TableCell colSpan={12} className="text-center py-20 text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                       <Clock className="w-10 h-10 opacity-20" />
                       <p>No requests found matching your criteria.</p>
@@ -449,39 +513,24 @@ const ManageRequestsClient = () => {
                         ) : (
                           <div className="font-bold text-sm">{request.name}</div>
                         )}
-                        <Select 
-                          value={request.source} 
-                          onValueChange={(val) => handleUpdateField(request._id, { source: val })}
-                        >
-                          <SelectTrigger className="h-6 w-fit text-[10px] py-0 px-1 opacity-70 bg-transparent border-none focus:ring-0">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {sourceOptions.map(opt => (
-                              <SelectItem key={opt.value} value={opt.value} className="text-[10px]">
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <div 
-                          onClick={() => copyToClipboard(request.email, "Email")}
-                          className="flex items-center gap-1.5 text-xs hover:text-primary transition-colors cursor-pointer group"
-                        >
-                          <Mail className="w-3 h-3 shrink-0" />
-                          <span className="truncate max-w-[120px]">{request.email}</span>
-                        </div>
-                        <div 
-                          onClick={() => copyToClipboard(request.phone, "Phone number")}
-                          className="flex items-center gap-1.5 text-xs hover:text-primary transition-colors cursor-pointer"
-                        >
-                          <Phone className="w-3 h-3 shrink-0" />
-                          {request.phone}
-                        </div>
+                      <div 
+                        onClick={() => copyToClipboard(request.email, "Email")}
+                        className="flex items-center gap-1.5 text-xs hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <Mail className="w-3 h-3 shrink-0" />
+                        <span className="truncate max-w-[150px]">{request.email || "N/A"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div 
+                        onClick={() => copyToClipboard(request.phone, "Phone number")}
+                        className="flex items-center gap-1.5 text-xs hover:text-primary transition-colors cursor-pointer"
+                      >
+                        <Phone className="w-3 h-3 shrink-0" />
+                        {request.phone}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -494,6 +543,28 @@ const ManageRequestsClient = () => {
                         <MessageCircle className="w-4 h-4" />
                         WA
                       </Button>
+                    </TableCell>
+                    <TableCell>
+                      <Select 
+                        value={request.source} 
+                        onValueChange={(val) => handleUpdateField(request._id, { source: val })}
+                      >
+                        <SelectTrigger className="h-8 w-fit min-w-[100px] text-xs px-2 bg-transparent border-none focus:ring-0 opacity-80">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {sourceOptions.map(opt => (
+                            <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                          {!sourceOptions.find(opt => opt.value === request.source) && (
+                            <SelectItem value={request.source} className="text-xs">
+                              {request.source.replace(/-/g, ' ')}
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <Select 
@@ -516,52 +587,70 @@ const ManageRequestsClient = () => {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <Switch 
-                            checked={request.freeOffered} 
-                            onCheckedChange={(val) => handleUpdateField(request._id, { freeOffered: val })}
-                            className="scale-75 origin-left"
-                          />
-                          <span className="text-[10px] font-medium whitespace-nowrap">Free Off.</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Switch 
-                            checked={request.contactedToday} 
-                            onCheckedChange={(val) => {
-                              const updates: any = { contactedToday: val };
-                              if (val) updates.lastContacted = new Date().toISOString();
-                              handleUpdateField(request._id, updates);
-                            }}
-                            className="scale-75 origin-left"
-                          />
-                          <span className="text-[10px] font-medium whitespace-nowrap">Contacted</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Switch 
+                          checked={request.freeOffered} 
+                          onCheckedChange={(val) => handleUpdateField(request._id, { freeOffered: val })}
+                          className="scale-75 origin-left"
+                        />
+                        <span className="text-[10px] font-medium whitespace-nowrap">{request.freeOffered ? "Yes" : "No"}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Input 
-                        defaultValue={request.quickNote}
-                        onBlur={(e) => {
-                          if (e.target.value !== request.quickNote) {
-                            handleUpdateField(request._id, { quickNote: e.target.value });
-                          }
-                        }}
-                        placeholder="Add note..."
-                        className="h-8 text-xs min-w-[120px]"
-                      />
+                      <div className="flex items-center gap-2">
+                        <Switch 
+                          checked={request.contactedToday} 
+                          onCheckedChange={(val) => {
+                            const updates: any = { contactedToday: val };
+                            if (val) updates.lastContacted = new Date().toISOString();
+                            handleUpdateField(request._id, updates);
+                          }}
+                          className="scale-75 origin-left"
+                        />
+                        <span className="text-[10px] font-medium whitespace-nowrap">{request.contactedToday ? "Yes" : "No"}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <Input 
-                        defaultValue={request.credential}
-                        onBlur={(e) => {
-                          if (e.target.value !== request.credential) {
-                            handleUpdateField(request._id, { credential: e.target.value });
-                          }
-                        }}
-                        placeholder="Credentials..."
-                        className="h-8 text-xs min-w-[120px]"
-                      />
+                      {request.quickNote ? (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 gap-2 text-xs font-normal"
+                          onClick={() => openNoteModal(request, "quickNote")}
+                        >
+                          <Eye className="w-3 h-3" /> View Note
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 gap-2 text-xs border-dashed"
+                          onClick={() => openNoteModal(request, "quickNote")}
+                        >
+                          <Plus className="w-3 h-3" /> Add Note
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {request.credential ? (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 gap-2 text-xs font-normal text-primary"
+                          onClick={() => openNoteModal(request, "credential")}
+                        >
+                          <Eye className="w-3 h-3" /> View Cred.
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 gap-2 text-xs border-dashed"
+                          onClick={() => openNoteModal(request, "credential")}
+                        >
+                          <Plus className="w-3 h-3" /> Add Cred.
+                        </Button>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className={`text-xs font-medium ${isOldContact(request.lastContacted) ? 'text-red-500 flex flex-col' : 'text-muted-foreground'}`}>
@@ -612,7 +701,6 @@ const ManageRequestsClient = () => {
             </TableBody>
           </Table>
         </div>
-      </div>
 
       {/* Pagination */}
       <div className="py-4">
@@ -770,6 +858,32 @@ const ManageRequestsClient = () => {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Note/Credential Modal */}
+      <Dialog open={isNoteModalOpen} onOpenChange={setIsNoteModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{noteModalConfig?.title}</DialogTitle>
+            <DialogDescription>
+              View or edit the {noteModalConfig?.title.toLowerCase()} for this customer.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              className="min-h-[150px] resize-none"
+              value={noteModalConfig?.value || ""}
+              onChange={(e) => setNoteModalConfig(prev => prev ? { ...prev, value: e.target.value } : null)}
+              placeholder={`Enter ${noteModalConfig?.title.toLowerCase()} here...`}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNoteModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveNote} disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
