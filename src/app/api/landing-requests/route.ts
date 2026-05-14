@@ -45,11 +45,19 @@ export async function GET(req: NextRequest) {
     }
 
     if (status) {
-      query.status = status;
+      if (status.includes(',')) {
+        query.status = { $in: status.split(',').map(s => s.trim()) };
+      } else {
+        query.status = status;
+      }
     }
 
     if (source) {
-      query.source = source;
+      if (source.includes(',')) {
+        query.source = { $in: source.split(',').map(s => s.trim()) };
+      } else {
+        query.source = source;
+      }
     }
 
     if (filterLastContacted) {

@@ -29,6 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import {
   Select,
@@ -59,7 +60,8 @@ import {
   MessageSquare,
   Eye,
   Plus,
-  Calendar
+  Calendar,
+  ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination";
@@ -376,44 +378,110 @@ const ManageRequestsClient = () => {
         
         <div className="flex items-center gap-2">
           <Label htmlFor="status-filter" className="whitespace-nowrap">Status:</Label>
-          <Select 
-            value={statusFilter} 
-            onValueChange={(val) => {
-              setStatusFilter(val);
-              updateQueryParams({ status: val, page: "1" });
-            }}
-          >
-            <SelectTrigger id="status-filter" className="w-[150px]">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              {statusOptions.map(opt => (
-                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[150px] justify-between bg-card border-border h-9 px-3 font-normal">
+                <span className="truncate">
+                  {statusFilter === "all" || statusFilter === "" 
+                    ? "All Statuses" 
+                    : statusFilter.split(',').length === 1 
+                      ? statusOptions.find(o => o.value === statusFilter)?.label || "Selected"
+                      : `${statusFilter.split(',').length} selected`}
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[200px] p-2">
+              <DropdownMenuCheckboxItem
+                checked={statusFilter === "all" || statusFilter === ""}
+                onCheckedChange={() => {
+                  setStatusFilter("all");
+                  updateQueryParams({ status: "all", page: "1" });
+                }}
+              >
+                All Statuses
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuSeparator />
+              {statusOptions.map((opt) => {
+                const currentStatuses = statusFilter === "all" || statusFilter === "" ? [] : statusFilter.split(',');
+                const isChecked = currentStatuses.includes(opt.value);
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={opt.value}
+                    checked={isChecked}
+                    onCheckedChange={(checked) => {
+                      let newStatuses = [...currentStatuses];
+                      if (checked) {
+                        newStatuses.push(opt.value);
+                      } else {
+                        newStatuses = newStatuses.filter(s => s !== opt.value);
+                      }
+                      
+                      const newVal = newStatuses.length === 0 ? "all" : newStatuses.join(',');
+                      setStatusFilter(newVal);
+                      updateQueryParams({ status: newVal, page: "1" });
+                    }}
+                  >
+                    {opt.label}
+                  </DropdownMenuCheckboxItem>
+                )
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="flex items-center gap-2">
           <Label htmlFor="source-filter" className="whitespace-nowrap">Source:</Label>
-          <Select 
-            value={sourceFilter} 
-            onValueChange={(val) => {
-              setSourceFilter(val);
-              updateQueryParams({ source: val, page: "1" });
-            }}
-          >
-            <SelectTrigger id="source-filter" className="w-[150px]">
-              <SelectValue placeholder="Filter by source" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Sources</SelectItem>
-              {sourceOptions.map(opt => (
-                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[150px] justify-between bg-card border-border h-9 px-3 font-normal">
+                <span className="truncate">
+                  {sourceFilter === "all" || sourceFilter === "" 
+                    ? "All Sources" 
+                    : sourceFilter.split(',').length === 1 
+                      ? sourceOptions.find(o => o.value === sourceFilter)?.label || "Selected"
+                      : `${sourceFilter.split(',').length} selected`}
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[200px] p-2">
+              <DropdownMenuCheckboxItem
+                checked={sourceFilter === "all" || sourceFilter === ""}
+                onCheckedChange={() => {
+                  setSourceFilter("all");
+                  updateQueryParams({ source: "all", page: "1" });
+                }}
+              >
+                All Sources
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuSeparator />
+              {sourceOptions.map((opt) => {
+                const currentSources = sourceFilter === "all" || sourceFilter === "" ? [] : sourceFilter.split(',');
+                const isChecked = currentSources.includes(opt.value);
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={opt.value}
+                    checked={isChecked}
+                    onCheckedChange={(checked) => {
+                      let newSources = [...currentSources];
+                      if (checked) {
+                        newSources.push(opt.value);
+                      } else {
+                        newSources = newSources.filter(s => s !== opt.value);
+                      }
+                      
+                      const newVal = newSources.length === 0 ? "all" : newSources.join(',');
+                      setSourceFilter(newVal);
+                      updateQueryParams({ source: newVal, page: "1" });
+                    }}
+                  >
+                    {opt.label}
+                  </DropdownMenuCheckboxItem>
+                )
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-muted/30">
