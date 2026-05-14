@@ -394,6 +394,7 @@ const ManageRequestsClient = () => {
             <DropdownMenuContent className="w-[200px] p-2">
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "all" || statusFilter === ""}
+                onSelect={(e) => e.preventDefault()}
                 onCheckedChange={() => {
                   setStatusFilter("all");
                   updateQueryParams({ status: "all", page: "1" });
@@ -402,30 +403,39 @@ const ManageRequestsClient = () => {
                 All Statuses
               </DropdownMenuCheckboxItem>
               <DropdownMenuSeparator />
-              {statusOptions.map((opt) => {
-                const currentStatuses = statusFilter === "all" || statusFilter === "" ? [] : statusFilter.split(',');
-                const isChecked = currentStatuses.includes(opt.value);
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={opt.value}
-                    checked={isChecked}
-                    onCheckedChange={(checked) => {
-                      let newStatuses = [...currentStatuses];
-                      if (checked) {
-                        newStatuses.push(opt.value);
-                      } else {
-                        newStatuses = newStatuses.filter(s => s !== opt.value);
-                      }
-                      
-                      const newVal = newStatuses.length === 0 ? "all" : newStatuses.join(',');
-                      setStatusFilter(newVal);
-                      updateQueryParams({ status: newVal, page: "1" });
-                    }}
-                  >
-                    {opt.label}
-                  </DropdownMenuCheckboxItem>
-                )
-              })}
+              <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
+                {statusOptions.map((opt) => {
+                  const currentStatuses = statusFilter === "all" || statusFilter === "" ? [] : statusFilter.split(',');
+                  const isChecked = currentStatuses.includes(opt.value);
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={opt.value}
+                      checked={isChecked}
+                      onSelect={(e) => e.preventDefault()}
+                      onCheckedChange={(checked) => {
+                        let newStatuses = [...currentStatuses];
+                        if (checked) {
+                          newStatuses.push(opt.value);
+                        } else {
+                          newStatuses = newStatuses.filter(s => s !== opt.value);
+                        }
+                        
+                        const newVal = newStatuses.length === 0 ? "all" : newStatuses.join(',');
+                        setStatusFilter(newVal);
+                        updateQueryParams({ status: newVal, page: "1" });
+                      }}
+                    >
+                      {opt.label}
+                    </DropdownMenuCheckboxItem>
+                  )
+                })}
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Button className="w-full h-8 mt-1 cursor-pointer" variant="default" size="sm">
+                  OK
+                </Button>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -448,6 +458,7 @@ const ManageRequestsClient = () => {
             <DropdownMenuContent className="w-[200px] p-2">
               <DropdownMenuCheckboxItem
                 checked={sourceFilter === "all" || sourceFilter === ""}
+                onSelect={(e) => e.preventDefault()}
                 onCheckedChange={() => {
                   setSourceFilter("all");
                   updateQueryParams({ source: "all", page: "1" });
@@ -456,30 +467,39 @@ const ManageRequestsClient = () => {
                 All Sources
               </DropdownMenuCheckboxItem>
               <DropdownMenuSeparator />
-              {sourceOptions.map((opt) => {
-                const currentSources = sourceFilter === "all" || sourceFilter === "" ? [] : sourceFilter.split(',');
-                const isChecked = currentSources.includes(opt.value);
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={opt.value}
-                    checked={isChecked}
-                    onCheckedChange={(checked) => {
-                      let newSources = [...currentSources];
-                      if (checked) {
-                        newSources.push(opt.value);
-                      } else {
-                        newSources = newSources.filter(s => s !== opt.value);
-                      }
-                      
-                      const newVal = newSources.length === 0 ? "all" : newSources.join(',');
-                      setSourceFilter(newVal);
-                      updateQueryParams({ source: newVal, page: "1" });
-                    }}
-                  >
-                    {opt.label}
-                  </DropdownMenuCheckboxItem>
-                )
-              })}
+              <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
+                {sourceOptions.map((opt) => {
+                  const currentSources = sourceFilter === "all" || sourceFilter === "" ? [] : sourceFilter.split(',');
+                  const isChecked = currentSources.includes(opt.value);
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={opt.value}
+                      checked={isChecked}
+                      onSelect={(e) => e.preventDefault()}
+                      onCheckedChange={(checked) => {
+                        let newSources = [...currentSources];
+                        if (checked) {
+                          newSources.push(opt.value);
+                        } else {
+                          newSources = newSources.filter(s => s !== opt.value);
+                        }
+                        
+                        const newVal = newSources.length === 0 ? "all" : newSources.join(',');
+                        setSourceFilter(newVal);
+                        updateQueryParams({ source: newVal, page: "1" });
+                      }}
+                    >
+                      {opt.label}
+                    </DropdownMenuCheckboxItem>
+                  )
+                })}
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Button className="w-full h-8 mt-1 cursor-pointer" variant="default" size="sm">
+                  OK
+                </Button>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
