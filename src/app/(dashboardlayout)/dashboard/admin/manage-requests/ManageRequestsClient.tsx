@@ -522,7 +522,11 @@ const ManageRequestsClient = () => {
                         variant="ghost" 
                         size="sm" 
                         className="text-green-600 hover:text-green-700 hover:bg-green-50 gap-1 h-8 px-2"
-                        onClick={() => window.open(`https://wa.me/${request.phone.replace(/[^0-9]/g, '')}`, '_blank')}
+                        onClick={() => {
+                          const cleanNum = request.phone.replace(/[^0-9]/g, '');
+                          const waNum = cleanNum.startsWith('0') ? `88${cleanNum}` : cleanNum;
+                          window.open(`https://wa.me/${waNum}`, '_blank');
+                        }}
                       >
                         <MessageCircle className="w-4 h-4" />
                         <span className="hidden sm:inline">WA</span>
