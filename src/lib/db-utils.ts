@@ -91,7 +91,7 @@ export const getPortfolios = cache(async (limit?: number) => {
   return unstable_cache(
     async () => {
       await connectDB();
-      const query = Portfolio.find({ status: 'published' }).sort({ createdAt: -1 });
+      const query = Portfolio.find().sort({ createdAt: -1 });
       if (limit) query.limit(limit);
       return JSON.parse(JSON.stringify(await query));
     },
@@ -104,7 +104,7 @@ export const getPortfolioBySlug = cache(async (slug: string) => {
   return unstable_cache(
     async () => {
       await connectDB();
-      return JSON.parse(JSON.stringify(await Portfolio.findOne({ slug, status: 'published' })));
+      return JSON.parse(JSON.stringify(await Portfolio.findOne({ slug })));
     },
     ['portfolio', slug],
     { revalidate: DEFAULT_REVALIDATE, tags: [`portfolio-${slug}`, 'portfolios'] }
