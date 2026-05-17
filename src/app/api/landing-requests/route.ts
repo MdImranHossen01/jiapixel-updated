@@ -186,7 +186,7 @@ export async function PUT(req: NextRequest) {
       }
 
       // Status Whitelist Check
-      const allowedStatuses = ["requested", "need contact", "contacted", "confirm", "need to contact again", "ordered", "processing", "delivered", "paid", "canceled", "fake"];
+      const allowedStatuses = ["requested", "need contact", "contacted", "confirm", "need to contact again", "ordered", "processing", "delivered", "paid", "canceled", "fake", "hot", "need followup", "a", "b", "c", "d"];
       if (status !== undefined && !allowedStatuses.includes(status)) {
         return NextResponse.json({ message: "Invalid status" }, { status: 400 });
       }

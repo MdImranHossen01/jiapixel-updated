@@ -67,7 +67,7 @@ import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-type RequestStatus = "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "delivered" | "paid" | "canceled" | "fake";
+type RequestStatus = "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "delivered" | "paid" | "canceled" | "fake" | "hot" | "need followup" | "a" | "b" | "c" | "d";
 
 interface LandingRequest {
   _id: string;
@@ -101,6 +101,12 @@ const statusOptions: { value: RequestStatus; label: string; color: string }[] = 
   { value: "paid", label: "Paid", color: "bg-green-500" },
   { value: "canceled", label: "Canceled", color: "bg-red-600" },
   { value: "fake", label: "Fake", color: "bg-red-900" },
+  { value: "hot", label: "Hot", color: "bg-rose-600" },
+  { value: "need followup", label: "Need Followup", color: "bg-amber-600" },
+  { value: "a", label: "A", color: "bg-indigo-600" },
+  { value: "b", label: "B", color: "bg-fuchsia-600" },
+  { value: "c", label: "C", color: "bg-violet-600" },
+  { value: "d", label: "D", color: "bg-teal-600" },
 ];
 
 const sourceOptions = [

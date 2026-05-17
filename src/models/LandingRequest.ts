@@ -4,7 +4,7 @@ export interface ILandingRequest extends Document {
   name: string;
   email: string;
   phone: string;
-  status: "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "delivered" | "paid" | "canceled" | "fake";
+  status: "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "delivered" | "paid" | "canceled" | "fake" | "hot" | "need followup" | "a" | "b" | "c" | "d";
   source: string;
   price: number;
   details?: string;
@@ -38,7 +38,7 @@ const LandingRequestSchema = new Schema<ILandingRequest>(
     },
     status: {
       type: String,
-      enum: ["requested", "need contact", "contacted", "confirm", "need to contact again", "ordered", "processing", "delivered", "paid", "canceled", "fake"],
+      enum: ["requested", "need contact", "contacted", "confirm", "need to contact again", "ordered", "processing", "delivered", "paid", "canceled", "fake", "hot", "need followup", "a", "b", "c", "d"],
       default: "requested",
     },
     source: {
