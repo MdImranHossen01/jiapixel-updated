@@ -39,20 +39,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  MoreHorizontal, 
-  Mail, 
-  Phone, 
-  ExternalLink, 
-  Trash2, 
-  CheckCircle2, 
-  Clock, 
-  MessageCircle, 
-  Zap, 
-  XCircle, 
+import {
+  MoreHorizontal,
+  Mail,
+  Phone,
+  ExternalLink,
+  Trash2,
+  CheckCircle2,
+  Clock,
+  MessageCircle,
+  Zap,
+  XCircle,
   Copy,
   Search,
   Filter,
@@ -61,13 +62,16 @@ import {
   Eye,
   Plus,
   Calendar,
-  ChevronDown
+  ChevronDown,
+  Wallet,
+  X,
+  Edit
 } from "lucide-react";
 import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-type RequestStatus = "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "delivered" | "paid" | "canceled" | "fake" | "hot" | "need followup" | "a" | "b" | "c" | "d";
+type RequestStatus = "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "delivered" | "paid" | "canceled" | "fake" | "hot" | "need followup" | "prebooked" | "confirmed prebooked" | "a" | "b" | "c" | "d";
 
 interface LandingRequest {
   _id: string;
@@ -85,6 +89,7 @@ interface LandingRequest {
   quickNote?: string;
   credential?: string;
   lastContacted?: string;
+  paymentNumber?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -103,6 +108,8 @@ const statusOptions: { value: RequestStatus; label: string; color: string }[] = 
   { value: "fake", label: "Fake", color: "bg-red-900" },
   { value: "hot", label: "Hot", color: "bg-rose-600" },
   { value: "need followup", label: "Need Followup", color: "bg-amber-600" },
+  { value: "prebooked", label: "Prebooked", color: "bg-indigo-600" },
+  { value: "confirmed prebooked", label: "Confirmed Prebooked", color: "bg-green-600" },
   { value: "a", label: "A", color: "bg-indigo-600" },
   { value: "b", label: "B", color: "bg-fuchsia-600" },
   { value: "c", label: "C", color: "bg-violet-600" },
@@ -113,21 +120,83 @@ const sourceOptions = [
   { value: "ecommerce-landing-page", label: "Landing Page" },
   { value: "whatsapp", label: "WhatsApp" },
   { value: "facebook", label: "Facebook" },
+  { value: "ecommerce-small-business", label: "Ecommerce Small Business" },
+  { value: "ecommerce-sticky-cta", label: "Ecommerce Sticky CTA" },
 ];
 
 const ManageRequestsClient = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   const [requests, setRequests] = useState<LandingRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    id: "",
+    name: "",
+    phone: "",
+    email: "",
+    projectTitle: "",
+    proposalUrl: "",
+  });
   const [selectedRequest, setSelectedRequest] = useState<LandingRequest | null>(null);
   const [projectTitle, setProjectTitle] = useState("");
   const [proposalUrl, setProposalUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleEditClick = (request: LandingRequest) => {
+    setEditFormData({
+      id: request._id,
+      name: request.name || "",
+      phone: request.phone || "",
+      email: request.email || "",
+      projectTitle: request.projectTitle || "",
+      proposalUrl: request.proposalUrl || "",
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/landing-requests", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editFormData.id,
+          name: editFormData.name,
+          phone: editFormData.phone,
+          email: editFormData.email,
+          projectTitle: editFormData.projectTitle,
+          proposalUrl: editFormData.proposalUrl,
+        }),
+      });
+
+      if (res.ok) {
+        toast.success("Request updated successfully");
+        setRequests(prev => prev.map(req => req._id === editFormData.id ? { 
+          ...req, 
+          name: editFormData.name, 
+          phone: editFormData.phone, 
+          email: editFormData.email,
+          projectTitle: editFormData.projectTitle,
+          proposalUrl: editFormData.proposalUrl
+        } : req));
+        setIsEditModalOpen(false);
+      } else {
+        toast.error("Failed to update request");
+      }
+    } catch (error) {
+      console.error("Error updating request:", error);
+      toast.error("An error occurred");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const [newRequestData, setNewRequestData] = useState({
     name: "",
@@ -151,14 +220,46 @@ const ManageRequestsClient = () => {
 
   const currentPage = parseInt(searchParams.get("page") || "1");
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRequests, setTotalRequests] = useState(0);
+  const [grandTotalRequests, setGrandTotalRequests] = useState(0);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
   const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
   const [sourceFilter, setSourceFilter] = useState(searchParams.get("source") || "all");
-  const [isFilterLastContacted, setIsFilterLastContacted] = useState(searchParams.get("filterLastContacted") === "true");
+  const [filterLastContacted, setFilterLastContacted] = useState(searchParams.get("filterLastContacted") || "all");
+
+  // Date range states (defaults to current month)
+  const getInitialDates = useCallback(() => {
+    const now = new Date();
+    const startYear = now.getFullYear();
+    const startMonth = String(now.getMonth() + 1).padStart(2, "0");
+    const defaultStart = `${startYear}-${startMonth}-01`;
+    
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const defaultEnd = `${startYear}-${startMonth}-${String(lastDay).padStart(2, "0")}`;
+    
+    return { defaultStart, defaultEnd };
+  }, []);
+
+  const { defaultStart, defaultEnd } = getInitialDates();
+  
+  const [startDate, setStartDate] = useState(searchParams.get("startDate") || defaultStart);
+  const [endDate, setEndDate] = useState(searchParams.get("endDate") || defaultEnd);
+
+  const [useDateRange, setUseDateRange] = useState(() => {
+    const param = searchParams.get("useDateRange");
+    if (param === "false") return false;
+    return true;
+  });
+
+  const handleUseDateRangeChange = (checked: boolean) => {
+    setUseDateRange(checked);
+    updateQueryParams({ useDateRange: checked ? null : "false", page: "1" });
+  };
 
   const updateQueryParams = useCallback((params: Record<string, string | null>) => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value === null || value === "" || value === "all") {
         current.delete(key);
@@ -169,18 +270,42 @@ const ManageRequestsClient = () => {
 
     const search = current.toString();
     const query = search ? `?${search}` : "";
-    router.push(`${pathname}${query}`);
+    if (search !== searchParams.toString()) {
+      router.push(`${pathname}${query}`);
+    }
   }, [pathname, router, searchParams]);
+
+  // Debounce search term changes
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
+
+  // Update query params when debounced search term changes (with difference guard check)
+  useEffect(() => {
+    const currentSearch = searchParams.get("search") || "";
+    if (debouncedSearch !== currentSearch) {
+      updateQueryParams({ search: debouncedSearch, page: "1" });
+    }
+  }, [debouncedSearch, searchParams, updateQueryParams]);
 
   const fetchRequests = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        search: searchTerm,
+        search: debouncedSearch,
         status: statusFilter === "all" ? "" : statusFilter,
         source: sourceFilter === "all" ? "" : sourceFilter,
-        filterLastContacted: isFilterLastContacted.toString(),
+        filterLastContacted: filterLastContacted === "all" ? "" : filterLastContacted,
+        startDate,
+        endDate,
+        filterDateRange: useDateRange ? "true" : "false",
       });
 
       const res = await fetch(`/api/landing-requests?${params.toString()}`);
@@ -188,6 +313,8 @@ const ManageRequestsClient = () => {
         const data = await res.json();
         setRequests(data.requests);
         setTotalPages(data.pagination.totalPages);
+        setTotalRequests(data.pagination.total || 0);
+        setGrandTotalRequests(data.pagination.grandTotal || 0);
       } else {
         toast.error("Failed to fetch requests");
       }
@@ -201,12 +328,12 @@ const ManageRequestsClient = () => {
 
   useEffect(() => {
     fetchRequests();
-  }, [currentPage, statusFilter, sourceFilter, isFilterLastContacted]);
+  }, [currentPage, statusFilter, sourceFilter, filterLastContacted, startDate, endDate, debouncedSearch, useDateRange]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     updateQueryParams({ search: searchTerm, page: "1" });
-    fetchRequests();
+    setDebouncedSearch(searchTerm);
   };
 
   const handleStatusChange = async (id: string, status: string, additionalData = {}) => {
@@ -258,8 +385,8 @@ const ManageRequestsClient = () => {
 
   const handleConfirmSubmit = () => {
     if (!selectedRequest) return;
-    if (!projectTitle || !proposalUrl) {
-      toast.error("Project Title and Proposal Link are required");
+    if (!projectTitle) {
+      toast.error("Project Title is required");
       return;
     }
     setIsSubmitting(true);
@@ -370,415 +497,510 @@ const ManageRequestsClient = () => {
 
   return (
     <div className="space-y-4">
-      {/* Search and Filters */}
-      <div className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-wrap items-center gap-4">
-        <form onSubmit={handleSearch} className="flex-1 min-w-[200px] relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search name or phone..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
-        </form>
-        
-        <div className="flex items-center gap-2">
-          <Label htmlFor="status-filter" className="whitespace-nowrap">Status:</Label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[150px] justify-between bg-card border-border h-9 px-3 font-normal">
-                <span className="truncate">
-                  {statusFilter === "all" || statusFilter === "" 
-                    ? "All Statuses" 
-                    : statusFilter.split(',').length === 1 
-                      ? statusOptions.find(o => o.value === statusFilter)?.label || "Selected"
-                      : `${statusFilter.split(',').length} selected`}
-                </span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[200px] p-2">
-              <DropdownMenuCheckboxItem
-                checked={statusFilter === "all" || statusFilter === ""}
-                onSelect={(e) => e.preventDefault()}
-                onCheckedChange={() => {
-                  setStatusFilter("all");
-                  updateQueryParams({ status: "all", page: "1" });
-                }}
-              >
-                All Statuses
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuSeparator />
-              <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
-                {statusOptions.map((opt) => {
-                  const currentStatuses = statusFilter === "all" || statusFilter === "" ? [] : statusFilter.split(',');
-                  const isChecked = currentStatuses.includes(opt.value);
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={opt.value}
-                      checked={isChecked}
-                      onSelect={(e) => e.preventDefault()}
-                      onCheckedChange={(checked) => {
-                        let newStatuses = [...currentStatuses];
-                        if (checked) {
-                          newStatuses.push(opt.value);
-                        } else {
-                          newStatuses = newStatuses.filter(s => s !== opt.value);
-                        }
-                        
-                        const newVal = newStatuses.length === 0 ? "all" : newStatuses.join(',');
-                        setStatusFilter(newVal);
-                        updateQueryParams({ status: newVal, page: "1" });
-                      }}
-                    >
-                      {opt.label}
-                    </DropdownMenuCheckboxItem>
-                  )
-                })}
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Button className="w-full h-8 mt-1 cursor-pointer" variant="default" size="sm">
-                  OK
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Landing Page Requests</h1>
+          <p className="text-sm text-muted-foreground font-medium mt-1">
+            Showing <span className="font-bold text-foreground">{totalRequests}</span> matching requests out of <span className="font-bold text-foreground">{grandTotalRequests}</span> total leads
+          </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Label htmlFor="source-filter" className="whitespace-nowrap">Source:</Label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[150px] justify-between bg-card border-border h-9 px-3 font-normal">
-                <span className="truncate">
-                  {sourceFilter === "all" || sourceFilter === "" 
-                    ? "All Sources" 
-                    : sourceFilter.split(',').length === 1 
-                      ? sourceOptions.find(o => o.value === sourceFilter)?.label || "Selected"
-                      : `${sourceFilter.split(',').length} selected`}
-                </span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[200px] p-2">
-              <DropdownMenuCheckboxItem
-                checked={sourceFilter === "all" || sourceFilter === ""}
-                onSelect={(e) => e.preventDefault()}
-                onCheckedChange={() => {
-                  setSourceFilter("all");
-                  updateQueryParams({ source: "all", page: "1" });
-                }}
-              >
-                All Sources
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuSeparator />
-              <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
-                {sourceOptions.map((opt) => {
-                  const currentSources = sourceFilter === "all" || sourceFilter === "" ? [] : sourceFilter.split(',');
-                  const isChecked = currentSources.includes(opt.value);
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={opt.value}
-                      checked={isChecked}
-                      onSelect={(e) => e.preventDefault()}
-                      onCheckedChange={(checked) => {
-                        let newSources = [...currentSources];
-                        if (checked) {
-                          newSources.push(opt.value);
-                        } else {
-                          newSources = newSources.filter(s => s !== opt.value);
-                        }
-                        
-                        const newVal = newSources.length === 0 ? "all" : newSources.join(',');
-                        setSourceFilter(newVal);
-                        updateQueryParams({ source: newVal, page: "1" });
-                      }}
-                    >
-                      {opt.label}
-                    </DropdownMenuCheckboxItem>
-                  )
-                })}
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Button className="w-full h-8 mt-1 cursor-pointer" variant="default" size="sm">
-                  OK
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-muted/30">
-          <Label htmlFor="last-contacted-filter" className="text-sm font-medium cursor-pointer">Need Contact (&gt;90d)</Label>
-          <Switch 
-            id="last-contacted-filter"
-            checked={isFilterLastContacted}
-            onCheckedChange={(val) => {
-              setIsFilterLastContacted(val);
-              updateQueryParams({ filterLastContacted: val ? "true" : "false", page: "1" });
-            }}
-          />
-        </div>
-
-        <Button variant="outline" size="icon" onClick={fetchRequests} title="Refresh data">
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-        </Button>
-
-        <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
-          <RefreshCw className="w-4 h-4" /> Add New Request
+        <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 self-start md:self-auto">
+          <Plus className="w-4 h-4" /> Add
         </Button>
       </div>
 
-      <div 
+      {/* Search and Filters */}
+      <div className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-3">
+        {/* Row 1: Search + Date */}
+        <div className="flex flex-wrap items-center gap-3">
+          <form onSubmit={handleSearch} className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search name, phone, email, notes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 pr-8 w-full"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm("");
+                  updateQueryParams({ search: "", page: "1" });
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </form>
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="use-date-range"
+              checked={useDateRange}
+              onCheckedChange={(checked) => handleUseDateRangeChange(!!checked)}
+            />
+            <Label htmlFor="use-date-range" className="text-sm font-medium cursor-pointer select-none">
+              Filter by Date
+            </Label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              value={startDate}
+              disabled={!useDateRange}
+              onChange={(e) => {
+                const val = e.target.value;
+                setStartDate(val);
+                updateQueryParams({ startDate: val, page: "1" });
+              }}
+              className="w-[145px] h-9 px-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+            <span className={`text-sm font-medium ${!useDateRange ? "opacity-50" : ""}`}>to</span>
+            <Input
+              type="date"
+              value={endDate}
+              disabled={!useDateRange}
+              onChange={(e) => {
+                const val = e.target.value;
+                setEndDate(val);
+                updateQueryParams({ endDate: val, page: "1" });
+              }}
+              className="w-[145px] h-9 px-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+          </div>
+        </div>
+
+        {/* Row 2: Status + Source + Need Contact + Refresh */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="status-filter" className="whitespace-nowrap">Status:</Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-[150px] justify-between bg-card border-border h-9 px-3 font-normal">
+                  <span className="truncate">
+                    {statusFilter === "all" || statusFilter === ""
+                      ? "All Statuses"
+                      : statusFilter.split(',').length === 1
+                        ? statusOptions.find(o => o.value === statusFilter)?.label || "Selected"
+                        : `${statusFilter.split(',').length} selected`}
+                  </span>
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[200px] p-2">
+                <DropdownMenuCheckboxItem
+                  checked={statusFilter === "all" || statusFilter === ""}
+                  onSelect={(e) => e.preventDefault()}
+                  onCheckedChange={() => {
+                    setStatusFilter("all");
+                    updateQueryParams({ status: "all", page: "1" });
+                  }}
+                >
+                  All Statuses
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+                <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
+                  {statusOptions.map((opt) => {
+                    const currentStatuses = statusFilter === "all" || statusFilter === "" ? [] : statusFilter.split(',');
+                    const isChecked = currentStatuses.includes(opt.value);
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={opt.value}
+                        checked={isChecked}
+                        onSelect={(e) => e.preventDefault()}
+                        onCheckedChange={(checked) => {
+                          let newStatuses = [...currentStatuses];
+                          if (checked) {
+                            newStatuses.push(opt.value);
+                          } else {
+                            newStatuses = newStatuses.filter(s => s !== opt.value);
+                          }
+
+                          const newVal = newStatuses.length === 0 ? "all" : newStatuses.join(',');
+                          setStatusFilter(newVal);
+                          updateQueryParams({ status: newVal, page: "1" });
+                        }}
+                      >
+                        {opt.label}
+                      </DropdownMenuCheckboxItem>
+                    )
+                  })}
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Button className="w-full h-8 mt-1 cursor-pointer" variant="default" size="sm">
+                    OK
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label htmlFor="source-filter" className="whitespace-nowrap">Source:</Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-[150px] justify-between bg-card border-border h-9 px-3 font-normal">
+                  <span className="truncate">
+                    {sourceFilter === "all" || sourceFilter === ""
+                      ? "All Sources"
+                      : sourceFilter.split(',').length === 1
+                        ? sourceOptions.find(o => o.value === sourceFilter)?.label || "Selected"
+                        : `${sourceFilter.split(',').length} selected`}
+                  </span>
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[200px] p-2">
+                <DropdownMenuCheckboxItem
+                  checked={sourceFilter === "all" || sourceFilter === ""}
+                  onSelect={(e) => e.preventDefault()}
+                  onCheckedChange={() => {
+                    setSourceFilter("all");
+                    updateQueryParams({ source: "all", page: "1" });
+                  }}
+                >
+                  All Sources
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+                <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
+                  {sourceOptions.map((opt) => {
+                    const currentSources = sourceFilter === "all" || sourceFilter === "" ? [] : sourceFilter.split(',');
+                    const isChecked = currentSources.includes(opt.value);
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={opt.value}
+                        checked={isChecked}
+                        onSelect={(e) => e.preventDefault()}
+                        onCheckedChange={(checked) => {
+                          let newSources = [...currentSources];
+                          if (checked) {
+                            newSources.push(opt.value);
+                          } else {
+                            newSources = newSources.filter(s => s !== opt.value);
+                          }
+
+                          const newVal = newSources.length === 0 ? "all" : newSources.join(',');
+                          setSourceFilter(newVal);
+                          updateQueryParams({ source: newVal, page: "1" });
+                        }}
+                      >
+                        {opt.label}
+                      </DropdownMenuCheckboxItem>
+                    )
+                  })}
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Button className="w-full h-8 mt-1 cursor-pointer" variant="default" size="sm">
+                    OK
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label htmlFor="last-contacted-filter" className="whitespace-nowrap">Need Contact:</Label>
+            <Select
+              value={filterLastContacted}
+              onValueChange={(val) => {
+                setFilterLastContacted(val);
+                updateQueryParams({ filterLastContacted: val === "all" ? null : val, page: "1" });
+              }}
+            >
+              <SelectTrigger id="last-contacted-filter" className="w-[200px] bg-card border-border h-9 px-3 font-normal">
+                <SelectValue placeholder="Select contact status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any last contact time</SelectItem>
+                <SelectItem value="7">Not contacted over 7 days</SelectItem>
+                <SelectItem value="30">Not contacted over 30 days</SelectItem>
+                <SelectItem value="90">Not contacted over 90 days</SelectItem>
+                <SelectItem value="never">Never contacted</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button variant="outline" size="icon" onClick={fetchRequests} title="Refresh data">
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+      </div>
+
+
+
+      <div
         ref={tableRef}
         className="-mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
       >
         <Table className="w-full">
-            <TableHeader className="bg-muted/50">
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-[280px] border-r border-border">Customer Info</TableHead>
+              <TableHead>WhatsApp</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-center">Toggles</TableHead>
+              <TableHead className="w-[80px] text-center">Note</TableHead>
+              <TableHead className="w-[80px] text-center">Cred.</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {requests.length === 0 ? (
               <TableRow>
-                <TableHead className="w-[280px] border-r border-border">Customer Info</TableHead>
-                <TableHead>WhatsApp</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-center">Toggles</TableHead>
-                <TableHead className="w-[80px] text-center">Note</TableHead>
-                <TableHead className="w-[80px] text-center">Cred.</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableCell colSpan={12} className="text-center py-20 text-muted-foreground">
+                  <div className="flex flex-col items-center gap-2">
+                    <Clock className="w-10 h-10 opacity-20" />
+                    <p>No requests found matching your criteria.</p>
+                  </div>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {requests.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={12} className="text-center py-20 text-muted-foreground">
-                    <div className="flex flex-col items-center gap-2">
-                      <Clock className="w-10 h-10 opacity-20" />
-                      <p>No requests found matching your criteria.</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                requests.map((request) => (
-                  <TableRow key={request._id} className="hover:bg-muted/30 transition-colors">
-                    <TableCell className="bg-card border-r border-border py-2">
-                      <div className="flex flex-col gap-1">
-                        {request.proposalUrl ? (
+            ) : (
+              requests.map((request) => (
+                <TableRow key={request._id} className="hover:bg-muted/30 transition-colors">
+                  <TableCell className="bg-card border-r border-border py-2">
+                    <div className="flex flex-col gap-1">
+                      <div className="font-bold text-sm">{request.name}</div>
+                      {request.projectTitle ? (
+                        <div className="text-xs font-medium">
+                          {request.proposalUrl ? (
+                            <a
+                              href={request.proposalUrl.startsWith('http') ? request.proposalUrl : `https://${request.proposalUrl}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline inline-flex items-center gap-1"
+                            >
+                              {request.projectTitle}
+                              <ExternalLink className="w-3 h-3 shrink-0" />
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground">{request.projectTitle}</span>
+                          )}
+                        </div>
+                      ) : request.proposalUrl ? (
+                        <div className="text-xs font-medium">
                           <a
                             href={request.proposalUrl.startsWith('http') ? request.proposalUrl : `https://${request.proposalUrl}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-bold text-sm text-primary hover:underline flex items-center gap-1"
+                            className="text-primary hover:underline inline-flex items-center gap-1"
                           >
-                            {request.projectTitle || request.name}
+                            Credential Link
                             <ExternalLink className="w-3 h-3 shrink-0" />
                           </a>
-                        ) : (
-                          <div className="font-bold text-sm">{request.name}</div>
+                        </div>
+                      ) : null}
+                      <div className="flex flex-col gap-0.5 text-xs text-muted-foreground mt-1">
+                        {request.email && (
+                          <div
+                            onClick={() => copyToClipboard(request.email, "Email")}
+                            className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer group"
+                          >
+                            <Mail className="w-3 h-3 shrink-0" />
+                            <span className="truncate max-w-[200px]">{request.email}</span>
+                          </div>
                         )}
-                        <div className="flex flex-col gap-0.5 text-xs text-muted-foreground mt-1">
-                          {request.email && (
-                            <div 
-                              onClick={() => copyToClipboard(request.email, "Email")}
-                              className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer group"
-                            >
-                              <Mail className="w-3 h-3 shrink-0" />
-                              <span className="truncate max-w-[200px]">{request.email}</span>
-                            </div>
-                          )}
-                          <div 
-                            onClick={() => copyToClipboard(request.phone, "Phone number")}
-                            className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
+                        <div
+                          onClick={() => copyToClipboard(request.phone, "Phone number")}
+                          className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
+                        >
+                          <Phone className="w-3 h-3 shrink-0" />
+                          {request.phone}
+                        </div>
+                        {request.paymentNumber && (
+                          <div
+                            onClick={() => copyToClipboard(request.paymentNumber!, "Payment details")}
+                            className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer font-bold text-amber-600 dark:text-amber-500"
                           >
-                            <Phone className="w-3 h-3 shrink-0" />
-                            {request.phone}
+                            <Wallet className="w-3 h-3 shrink-0" />
+                            <span className="truncate max-w-[200px]">{request.paymentNumber}</span>
                           </div>
-                          <div className={`flex items-center gap-1 mt-0.5 ${isOldContact(request.lastContacted) ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
-                            <Clock className="w-3 h-3 shrink-0" />
-                            {request.lastContacted ? (
-                              <>
-                                <span>{new Date(request.lastContacted).toLocaleDateString("en-GB")}</span>
-                                {isOldContact(request.lastContacted) && <span className="text-[9px] uppercase font-bold ml-1 bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Needs Contact!</span>}
-                              </>
-                            ) : (
-                              <span className="italic opacity-50">Never contacted</span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1 mt-0.5 text-emerald-600 dark:text-emerald-500 font-medium">
-                            <Calendar className="w-3 h-3 shrink-0" />
-                            <span>Added: {new Date(request.createdAt).toLocaleDateString("en-GB")}</span>
-                          </div>
+                        )}
+                        <div className={`flex items-center gap-1 mt-0.5 ${isOldContact(request.lastContacted) ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+                          <Clock className="w-3 h-3 shrink-0" />
+                          {request.lastContacted ? (
+                            <>
+                              <span>{new Date(request.lastContacted).toLocaleDateString("en-GB")}</span>
+                              {isOldContact(request.lastContacted) && <span className="text-[9px] uppercase font-bold ml-1 bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Needs Contact!</span>}
+                            </>
+                          ) : (
+                            <span className="italic opacity-50">Never contacted</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 mt-0.5 text-emerald-600 dark:text-emerald-500 font-medium">
+                          <Calendar className="w-3 h-3 shrink-0" />
+                          <span>Added: {new Date(request.createdAt).toLocaleDateString("en-GB")}</span>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-green-600 hover:text-green-700 hover:bg-green-50 gap-1 h-8 px-2"
-                        onClick={() => {
-                          const cleanNum = request.phone.replace(/[^0-9]/g, '');
-                          const waNum = cleanNum.startsWith('0') ? `88${cleanNum}` : cleanNum;
-                          window.open(`https://wa.me/${waNum}`, '_blank');
-                        }}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-green-600 hover:text-green-700 hover:bg-green-50 gap-1 h-8 px-2"
+                      onClick={() => {
+                        const cleanNum = request.phone.replace(/[^0-9]/g, '');
+                        const waNum = cleanNum.startsWith('0') ? `88${cleanNum}` : cleanNum;
+                        window.open(`https://wa.me/${waNum}`, '_blank');
+                      }}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="hidden sm:inline">WA</span>
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={request.source}
+                      onValueChange={(val) => handleUpdateField(request._id, { source: val })}
+                    >
+                      <SelectTrigger className="h-8 w-[120px] text-xs px-2 bg-transparent border-border focus:ring-0">
+                        <SelectValue className="truncate" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sourceOptions.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                        {!sourceOptions.find(opt => opt.value === request.source) && (
+                          <SelectItem value={request.source} className="text-xs">
+                            {request.source.replace(/-/g, ' ')}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={request.status}
+                      onValueChange={(val) => {
+                        if (val === "confirm") openConfirmModal(request);
+                        else handleStatusChange(request._id, val);
+                      }}
+                    >
+                      <SelectTrigger className={`h-8 w-[120px] text-xs font-semibold ${statusOptions.find(o => o.value === request.status)?.color} text-white border-none`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-2 min-w-[100px]">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-medium text-muted-foreground">Free:</span>
+                        <Switch
+                          checked={request.freeOffered}
+                          onCheckedChange={(val) => handleUpdateField(request._id, { freeOffered: val })}
+                          className="scale-75 origin-right m-0 !bg-red-500 peer-checked:!bg-green-500"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-medium text-muted-foreground">Today:</span>
+                        <Switch
+                          checked={request.contactedToday}
+                          onCheckedChange={(val) => {
+                            const updates: any = { contactedToday: val };
+                            if (val) updates.lastContacted = new Date().toISOString();
+                            handleUpdateField(request._id, updates);
+                          }}
+                          className="scale-75 origin-right m-0 !bg-red-500 peer-checked:!bg-green-500"
+                        />
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {request.quickNote ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-primary"
+                        onClick={() => openNoteModal(request, "quickNote")}
+                        title="View Note"
                       >
-                        <MessageCircle className="w-4 h-4" />
-                        <span className="hidden sm:inline">WA</span>
+                        <Eye className="w-4 h-4" />
                       </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Select 
-                        value={request.source} 
-                        onValueChange={(val) => handleUpdateField(request._id, { source: val })}
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 border-dashed"
+                        onClick={() => openNoteModal(request, "quickNote")}
+                        title="Add Note"
                       >
-                        <SelectTrigger className="h-8 w-[120px] text-xs px-2 bg-transparent border-border focus:ring-0">
-                          <SelectValue className="truncate" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {sourceOptions.map(opt => (
-                            <SelectItem key={opt.value} value={opt.value} className="text-xs">
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                          {!sourceOptions.find(opt => opt.value === request.source) && (
-                            <SelectItem value={request.source} className="text-xs">
-                              {request.source.replace(/-/g, ' ')}
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Select 
-                        value={request.status} 
-                        onValueChange={(val) => {
-                          if (val === "confirm") openConfirmModal(request);
-                          else handleStatusChange(request._id, val);
-                        }}
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {request.credential ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-primary"
+                        onClick={() => openNoteModal(request, "credential")}
+                        title="View Credential"
                       >
-                        <SelectTrigger className={`h-8 w-[120px] text-xs font-semibold ${statusOptions.find(o => o.value === request.status)?.color} text-white border-none`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {statusOptions.map(opt => (
-                            <SelectItem key={opt.value} value={opt.value} className="text-xs">
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-2 min-w-[100px]">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] font-medium text-muted-foreground">Free:</span>
-                          <Switch 
-                            checked={request.freeOffered} 
-                            onCheckedChange={(val) => handleUpdateField(request._id, { freeOffered: val })}
-                            className="scale-75 origin-right m-0 !bg-red-500 peer-checked:!bg-green-500"
-                          />
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] font-medium text-muted-foreground">Today:</span>
-                          <Switch 
-                            checked={request.contactedToday} 
-                            onCheckedChange={(val) => {
-                              const updates: any = { contactedToday: val };
-                              if (val) updates.lastContacted = new Date().toISOString();
-                              handleUpdateField(request._id, updates);
-                            }}
-                            className="scale-75 origin-right m-0 !bg-red-500 peer-checked:!bg-green-500"
-                          />
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {request.quickNote ? (
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-primary"
-                          onClick={() => openNoteModal(request, "quickNote")}
-                          title="View Note"
-                        >
-                          <Eye className="w-4 h-4" />
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 border-dashed"
+                        onClick={() => openNoteModal(request, "credential")}
+                        title="Add Credential"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      ) : (
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className="h-8 w-8 border-dashed"
-                          onClick={() => openNoteModal(request, "quickNote")}
-                          title="Add Note"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {request.credential ? (
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-primary"
-                          onClick={() => openNoteModal(request, "credential")}
-                          title="View Credential"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      ) : (
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className="h-8 w-8 border-dashed"
-                          onClick={() => openNoteModal(request, "credential")}
-                          title="Add Credential"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem onClick={() => window.open(`tel:${request.phone}`)} className="gap-2">
-                            <Phone className="w-4 h-4 text-green-500" /> Call
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => window.open(`mailto:${request.email}`)} className="gap-2">
-                            <Mail className="w-4 h-4 text-blue-500" /> Email
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={() => {
-                              const newDate = new Date().toISOString();
-                              handleUpdateField(request._id, { lastContacted: newDate });
-                            }} 
-                            className="gap-2"
-                          >
-                            <RefreshCw className="w-4 h-4" /> Mark as Contacted Now
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleDelete(request._id)} className="gap-2 text-destructive">
-                            <Trash2 className="w-4 h-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={() => window.open(`tel:${request.phone}`)} className="gap-2">
+                          <Phone className="w-4 h-4 text-green-500" /> Call
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => window.open(`mailto:${request.email}`)} className="gap-2">
+                          <Mail className="w-4 h-4 text-blue-500" /> Email
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleEditClick(request)} className="gap-2">
+                          <Edit className="w-4 h-4 text-amber-500" /> Edit Details
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleDelete(request._id)} className="gap-2 text-destructive">
+                          <Trash2 className="w-4 h-4" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       {/* Pagination */}
       <div className="py-4">
-        <Pagination 
+        <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={(page) => updateQueryParams({ page: page.toString() })}
@@ -791,7 +1013,7 @@ const ManageRequestsClient = () => {
           <DialogHeader>
             <DialogTitle>Confirm Project Request</DialogTitle>
             <DialogDescription>
-              Enter the project details and proposal link for <strong>{selectedRequest?.name}</strong>.
+              Enter the project details and credential link for <strong>{selectedRequest?.name}</strong>.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -805,7 +1027,7 @@ const ManageRequestsClient = () => {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="proposalUrl">Proposal Link (URL)</Label>
+              <Label htmlFor="proposalUrl">Credential Link (URL)</Label>
               <Input
                 id="proposalUrl"
                 value={proposalUrl}
@@ -854,7 +1076,7 @@ const ManageRequestsClient = () => {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="add-email">Email Address</Label>
               <Input
@@ -869,8 +1091,8 @@ const ManageRequestsClient = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="add-source">Source</Label>
-                <Select 
-                  value={newRequestData.source} 
+                <Select
+                  value={newRequestData.source}
                   onValueChange={(val) => setNewRequestData(prev => ({ ...prev, source: val }))}
                 >
                   <SelectTrigger id="add-source">
@@ -900,8 +1122,8 @@ const ManageRequestsClient = () => {
 
             <div className="space-y-2">
               <Label htmlFor="add-status">Initial Status</Label>
-              <Select 
-                value={newRequestData.status} 
+              <Select
+                value={newRequestData.status}
                 onValueChange={(val) => setNewRequestData(prev => ({ ...prev, status: val as RequestStatus }))}
               >
                 <SelectTrigger id="add-status">
@@ -958,6 +1180,79 @@ const ManageRequestsClient = () => {
               {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Request Details Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle>Edit Request Details</DialogTitle>
+            <DialogDescription>
+              Modify the customer's details, project title, and credential link.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                value={editFormData.name}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Customer Name"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Mobile Number</Label>
+              <Input
+                id="edit-phone"
+                value={editFormData.phone}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="Mobile Number"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email Address</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editFormData.email}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="email@example.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-projectTitle">Project Title</Label>
+              <Input
+                id="edit-projectTitle"
+                value={editFormData.projectTitle}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, projectTitle: e.target.value }))}
+                placeholder="Project Title"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-proposalUrl">Credential Link (URL)</Label>
+              <Input
+                id="edit-proposalUrl"
+                value={editFormData.proposalUrl}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, proposalUrl: e.target.value }))}
+                placeholder="Credential Link"
+              />
+            </div>
+
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

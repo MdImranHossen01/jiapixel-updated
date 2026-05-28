@@ -4,7 +4,7 @@ export interface ILandingRequest extends Document {
   name: string;
   email: string;
   phone: string;
-  status: "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "delivered" | "paid" | "canceled" | "fake" | "hot" | "need followup" | "a" | "b" | "c" | "d";
+  status: "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "delivered" | "paid" | "canceled" | "fake" | "hot" | "need followup" | "prebooked" | "confirmed prebooked" | "a" | "b" | "c" | "d";
   source: string;
   price: number;
   details?: string;
@@ -15,6 +15,7 @@ export interface ILandingRequest extends Document {
   quickNote?: string;
   credential?: string;
   lastContacted?: Date;
+  paymentNumber?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +39,7 @@ const LandingRequestSchema = new Schema<ILandingRequest>(
     },
     status: {
       type: String,
-      enum: ["requested", "need contact", "contacted", "confirm", "need to contact again", "ordered", "processing", "delivered", "paid", "canceled", "fake", "hot", "need followup", "a", "b", "c", "d"],
+      enum: ["requested", "need contact", "contacted", "confirm", "need to contact again", "ordered", "processing", "delivered", "paid", "canceled", "fake", "hot", "need followup", "prebooked", "confirmed prebooked", "a", "b", "c", "d"],
       default: "requested",
     },
     source: {
@@ -78,6 +79,10 @@ const LandingRequestSchema = new Schema<ILandingRequest>(
     },
     lastContacted: {
       type: Date,
+    },
+    paymentNumber: {
+      type: String,
+      trim: true,
     },
   },
   {
