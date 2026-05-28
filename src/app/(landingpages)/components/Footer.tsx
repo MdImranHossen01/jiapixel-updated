@@ -37,7 +37,7 @@ const LandingFooter = () => {
           {/* Logo & Meta Section */}
           <div className="flex flex-col items-center md:items-start space-y-4">
             <Logo showText={true} />
-            <p className="text-muted-foreground max-w-xs text-sm">
+            <p className="text-muted-foreground max-w-xs text-sm text-center md:text-left">
               Creating exceptional digital experiences that drive growth and
               innovation for businesses worldwide.
             </p>

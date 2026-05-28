@@ -77,13 +77,13 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
-          <div className="space-y-4">
+          <div className="space-y-4 flex flex-col items-center md:items-start text-center md:text-left">
             <Logo />
-            <p className="text-muted-foreground max-w-xs">
+            <p className="text-muted-foreground max-w-xs mx-auto md:mx-0">
               Creating exceptional digital experiences that drive growth and
               innovation for businesses worldwide.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex justify-center md:justify-start space-x-4">
               {socialLinks.map((social, index) => (
                 <Link
                   key={index}
@@ -99,7 +99,7 @@ const Footer = () => {
 
           {/* Footer Links */}
           {footerLinks.map((section, index) => (
-            <div key={index} className="space-y-4">
+            <div key={index} className="space-y-4 text-center md:text-left">
               <h3 className="text-lg font-semibold">{section.title}</h3>
               <ul className="space-y-2">
                 {section.links.map((link, linkIndex) => (
