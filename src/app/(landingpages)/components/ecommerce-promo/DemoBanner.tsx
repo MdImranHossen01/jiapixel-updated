@@ -42,20 +42,7 @@ export const DemoBanner = () => {
                     <p className="text-sm md:text-lg text-center text-muted-foreground leading-relaxed">
                         ডেমো ওয়েবসাইটটি শুধুমাত্র আমাদের কাজ এবং ফিচারগুলো দেখার জন্য। আপনার জন্য আমরা আপনার পছন্দমতো <span className="text-foreground font-semibold">থিম, লেআউট, সেকশন, কার্ড, ব্যানার, ফন্ট এবং কালার</span> কাস্টমাইজ করে তৈরি করে দেব। আপনার <span className="text-foreground font-semibold">শতভাগ পছন্দ না হওয়া পর্যন্ত</span> আমরা কাস্টমাইজেশন করে দেব।
                     </p>
-                    <div className="mt-4 pt-4 border-t border-primary/10 text-center">
-                        <p className="text-sm md:text-base text-muted-foreground">
-                            এই ডেমোটি শুধুমাত্র ইউজার এক্সপিরিয়েন্স দেখার জন্য। শক্তিশালী <span>
-                                <Link
-                                    href="https://wa.me/8801919011101"
-                                    target="_blank"
-                                    className="inline-flex items-center gap-2 mt-3 text-primary hover:text-primary/80 font-bold transition-colors"
-                                >
-                                    এডমিন ড্যাশবোর্ড দেখতে হোয়াটসঅ্যাপ করুন।
-                                </Link>
-                            </span>
-                        </p>
 
-                    </div>
                 </div>
             </div>
         </section>
