@@ -30,7 +30,9 @@ export const getWritingBySlug = cache(async (slug: string) => {
   return unstable_cache(
     async () => {
       await connectDB();
-      return JSON.parse(JSON.stringify(await Writing.findOne({ slug })));
+      return JSON.parse(JSON.stringify(await Writing.findOne({ slug })
+        .populate('relatedWritings')
+        .populate('relatedProjects')));
     },
     ['writing', slug],
     { revalidate: DEFAULT_REVALIDATE, tags: [`writing-${slug}`, 'writings'] }
@@ -54,7 +56,7 @@ export const getProjectBySlug = cache(async (slug: string) => {
   return unstable_cache(
     async () => {
       await connectDB();
-      return JSON.parse(JSON.stringify(await Project.findOne({ slug })));
+      return JSON.parse(JSON.stringify(await Project.findOne({ slug }).populate('relatedProjects')));
     },
     ['project', slug],
     { revalidate: DEFAULT_REVALIDATE, tags: [`project-${slug}`, 'projects'] }
