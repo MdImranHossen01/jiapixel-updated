@@ -887,15 +887,15 @@ const ManageRequestsClient = () => {
                           <Calendar className="w-3 h-3 shrink-0" />
                           <span>Added: {new Date(request.createdAt).toLocaleDateString("en-GB")}</span>
                         </div>
-                        {(request.payment !== undefined || request.renewFee !== undefined || request.renewDate) && (
+                        {( (request.payment !== undefined && request.payment !== null) || (request.renewFee !== undefined && request.renewFee !== null) || request.renewDate ) && (
                           <div className="mt-2 pt-1 border-t border-dashed border-border text-[11px] space-y-0.5">
-                            {request.payment !== undefined && (
+                            {request.payment !== undefined && request.payment !== null && (
                               <div className="flex items-center gap-1">
                                 <span className="font-semibold text-muted-foreground">Initial Fee:</span>
                                 <span className="font-bold text-foreground">৳{request.payment.toLocaleString()}</span>
                               </div>
                             )}
-                            {request.renewFee !== undefined && (
+                            {request.renewFee !== undefined && request.renewFee !== null && (
                               <div className="flex items-center gap-1">
                                 <span className="font-semibold text-muted-foreground">Renew Fee:</span>
                                 <span className="font-bold text-foreground">৳{request.renewFee.toLocaleString()}</span>
