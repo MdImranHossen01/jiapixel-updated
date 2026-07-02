@@ -90,6 +90,9 @@ interface LandingRequest {
   credential?: string;
   lastContacted?: string;
   paymentNumber?: string;
+  payment?: number;
+  renewFee?: number;
+  renewDate?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -139,10 +142,16 @@ const ManageRequestsClient = () => {
     email: "",
     projectTitle: "",
     proposalUrl: "",
+    payment: "",
+    renewFee: "",
+    renewDate: "",
   });
   const [selectedRequest, setSelectedRequest] = useState<LandingRequest | null>(null);
   const [projectTitle, setProjectTitle] = useState("");
   const [proposalUrl, setProposalUrl] = useState("");
+  const [payment, setPayment] = useState("");
+  const [renewFee, setRenewFee] = useState("");
+  const [renewDate, setRenewDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEditClick = (request: LandingRequest) => {
@@ -153,6 +162,9 @@ const ManageRequestsClient = () => {
       email: request.email || "",
       projectTitle: request.projectTitle || "",
       proposalUrl: request.proposalUrl || "",
+      payment: request.payment !== undefined ? request.payment.toString() : "",
+      renewFee: request.renewFee !== undefined ? request.renewFee.toString() : "",
+      renewDate: request.renewDate ? new Date(request.renewDate).toISOString().split('T')[0] : "",
     });
     setIsEditModalOpen(true);
   };
@@ -171,6 +183,9 @@ const ManageRequestsClient = () => {
           email: editFormData.email,
           projectTitle: editFormData.projectTitle,
           proposalUrl: editFormData.proposalUrl,
+          payment: editFormData.payment ? Number(editFormData.payment) : null,
+          renewFee: editFormData.renewFee ? Number(editFormData.renewFee) : null,
+          renewDate: editFormData.renewDate || null,
         }),
       });
 
@@ -182,7 +197,10 @@ const ManageRequestsClient = () => {
           phone: editFormData.phone, 
           email: editFormData.email,
           projectTitle: editFormData.projectTitle,
-          proposalUrl: editFormData.proposalUrl
+          proposalUrl: editFormData.proposalUrl,
+          payment: editFormData.payment ? Number(editFormData.payment) : undefined,
+          renewFee: editFormData.renewFee ? Number(editFormData.renewFee) : undefined,
+          renewDate: editFormData.renewDate || undefined,
         } : req));
         setIsEditModalOpen(false);
       } else {
@@ -225,6 +243,7 @@ const ManageRequestsClient = () => {
   const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
   const [sourceFilter, setSourceFilter] = useState(searchParams.get("source") || "all");
   const [filterLastContacted, setFilterLastContacted] = useState(searchParams.get("filterLastContacted") || "all");
+  const [filterRenew, setFilterRenew] = useState(searchParams.get("filterRenew") || "all");
 
   // Date range states (defaults to current month)
   const getInitialDates = useCallback(() => {
@@ -301,6 +320,7 @@ const ManageRequestsClient = () => {
         status: statusFilter === "all" ? "" : statusFilter,
         source: sourceFilter === "all" ? "" : sourceFilter,
         filterLastContacted: filterLastContacted === "all" ? "" : filterLastContacted,
+        filterRenew: filterRenew === "all" ? "" : filterRenew,
         startDate,
         endDate,
         filterDateRange: useDateRange ? "true" : "false",
@@ -326,7 +346,7 @@ const ManageRequestsClient = () => {
 
   useEffect(() => {
     fetchRequests();
-  }, [currentPage, statusFilter, sourceFilter, filterLastContacted, startDate, endDate, debouncedSearch, useDateRange]);
+  }, [currentPage, statusFilter, sourceFilter, filterLastContacted, filterRenew, startDate, endDate, debouncedSearch, useDateRange]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -378,6 +398,9 @@ const ManageRequestsClient = () => {
     setSelectedRequest(request);
     setProjectTitle(request.projectTitle || `Ecommerce Website - ${request.name}`);
     setProposalUrl(request.proposalUrl || "");
+    setPayment(request.payment !== undefined ? request.payment.toString() : "");
+    setRenewFee(request.renewFee !== undefined ? request.renewFee.toString() : "");
+    setRenewDate(request.renewDate ? new Date(request.renewDate).toISOString().split('T')[0] : "");
     setIsConfirmModalOpen(true);
   };
 
@@ -388,7 +411,13 @@ const ManageRequestsClient = () => {
       return;
     }
     setIsSubmitting(true);
-    handleStatusChange(selectedRequest._id, "confirm", { projectTitle, proposalUrl });
+    handleStatusChange(selectedRequest._id, "confirm", {
+      projectTitle,
+      proposalUrl,
+      payment: payment ? Number(payment) : undefined,
+      renewFee: renewFee ? Number(renewFee) : undefined,
+      renewDate: renewDate || undefined
+    });
     setIsSubmitting(false);
   };
 
@@ -508,16 +537,16 @@ const ManageRequestsClient = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-3">
-        {/* Row 1: Search + Date */}
-        <div className="flex flex-wrap items-center gap-3">
-          <form onSubmit={handleSearch} className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <div className="bg-card p-3 rounded-xl border border-border shadow-sm flex flex-col gap-2">
+        {/* Row 1: Search + Date + Status + Source */}
+        <div className="flex flex-wrap items-center gap-2">
+          <form onSubmit={handleSearch} className="w-full max-w-[190px] relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
-              placeholder="Search name, phone, email, notes..."
+              placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-8 w-full"
+              className="pl-8 pr-7 w-full h-8 text-xs"
             />
             {searchTerm && (
               <button
@@ -526,25 +555,25 @@ const ManageRequestsClient = () => {
                   setSearchTerm("");
                   updateQueryParams({ search: "", page: "1" });
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </form>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Checkbox
               id="use-date-range"
               checked={useDateRange}
               onCheckedChange={(checked) => handleUseDateRangeChange(!!checked)}
             />
-            <Label htmlFor="use-date-range" className="text-sm font-medium cursor-pointer select-none">
+            <Label htmlFor="use-date-range" className="text-xs font-medium cursor-pointer select-none">
               Filter by Date
             </Label>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Input
               type="date"
               value={startDate}
@@ -554,9 +583,9 @@ const ManageRequestsClient = () => {
                 setStartDate(val);
                 updateQueryParams({ startDate: val, page: "1" });
               }}
-              className="w-[145px] h-9 px-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-[115px] h-8 px-1.5 text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <span className={`text-sm font-medium ${!useDateRange ? "opacity-50" : ""}`}>to</span>
+            <span className={`text-xs font-medium ${!useDateRange ? "opacity-50" : ""}`}>to</span>
             <Input
               type="date"
               value={endDate}
@@ -566,18 +595,15 @@ const ManageRequestsClient = () => {
                 setEndDate(val);
                 updateQueryParams({ endDate: val, page: "1" });
               }}
-              className="w-[145px] h-9 px-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-[115px] h-8 px-1.5 text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
-        </div>
 
-        {/* Row 2: Status + Source + Need Contact + Refresh */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="status-filter" className="whitespace-nowrap">Status:</Label>
+          <div className="flex items-center gap-1.5">
+            <Label htmlFor="status-filter" className="text-xs whitespace-nowrap">Status:</Label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-[150px] justify-between bg-card border-border h-9 px-3 font-normal">
+                <Button variant="outline" className="w-[110px] justify-between bg-card border-border h-8 px-2 text-xs font-normal">
                   <span className="truncate">
                     {statusFilter === "all" || statusFilter === ""
                       ? "All Statuses"
@@ -585,10 +611,10 @@ const ManageRequestsClient = () => {
                         ? statusOptions.find(o => o.value === statusFilter)?.label || "Selected"
                         : `${statusFilter.split(',').length} selected`}
                   </span>
-                  <ChevronDown className="h-4 w-4 opacity-50" />
+                  <ChevronDown className="h-3 w-3 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[200px] p-2">
+              <DropdownMenuContent className="w-[180px] p-2">
                 <DropdownMenuCheckboxItem
                   checked={statusFilter === "all" || statusFilter === ""}
                   onSelect={(e) => e.preventDefault()}
@@ -596,11 +622,12 @@ const ManageRequestsClient = () => {
                     setStatusFilter("all");
                     updateQueryParams({ status: "all", page: "1" });
                   }}
+                  className="text-xs"
                 >
                   All Statuses
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuSeparator />
-                <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
+                <div className="max-h-[250px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
                   {statusOptions.map((opt) => {
                     const currentStatuses = statusFilter === "all" || statusFilter === "" ? [] : statusFilter.split(',');
                     const isChecked = currentStatuses.includes(opt.value);
@@ -621,6 +648,7 @@ const ManageRequestsClient = () => {
                           setStatusFilter(newVal);
                           updateQueryParams({ status: newVal, page: "1" });
                         }}
+                        className="text-xs"
                       >
                         {opt.label}
                       </DropdownMenuCheckboxItem>
@@ -629,7 +657,7 @@ const ManageRequestsClient = () => {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Button className="w-full h-8 mt-1 cursor-pointer" variant="default" size="sm">
+                  <Button className="w-full h-7 mt-1 cursor-pointer text-xs" variant="default" size="sm">
                     OK
                   </Button>
                 </DropdownMenuItem>
@@ -637,11 +665,11 @@ const ManageRequestsClient = () => {
             </DropdownMenu>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Label htmlFor="source-filter" className="whitespace-nowrap">Source:</Label>
+          <div className="flex items-center gap-1.5">
+            <Label htmlFor="source-filter" className="text-xs whitespace-nowrap">Source:</Label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-[150px] justify-between bg-card border-border h-9 px-3 font-normal">
+                <Button variant="outline" className="w-[110px] justify-between bg-card border-border h-8 px-2 text-xs font-normal">
                   <span className="truncate">
                     {sourceFilter === "all" || sourceFilter === ""
                       ? "All Sources"
@@ -649,10 +677,10 @@ const ManageRequestsClient = () => {
                         ? sourceOptions.find(o => o.value === sourceFilter)?.label || "Selected"
                         : `${sourceFilter.split(',').length} selected`}
                   </span>
-                  <ChevronDown className="h-4 w-4 opacity-50" />
+                  <ChevronDown className="h-3 w-3 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[200px] p-2">
+              <DropdownMenuContent className="w-[180px] p-2">
                 <DropdownMenuCheckboxItem
                   checked={sourceFilter === "all" || sourceFilter === ""}
                   onSelect={(e) => e.preventDefault()}
@@ -660,11 +688,12 @@ const ManageRequestsClient = () => {
                     setSourceFilter("all");
                     updateQueryParams({ source: "all", page: "1" });
                   }}
+                  className="text-xs"
                 >
                   All Sources
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuSeparator />
-                <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
+                <div className="max-h-[250px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200">
                   {sourceOptions.map((opt) => {
                     const currentSources = sourceFilter === "all" || sourceFilter === "" ? [] : sourceFilter.split(',');
                     const isChecked = currentSources.includes(opt.value);
@@ -685,6 +714,7 @@ const ManageRequestsClient = () => {
                           setSourceFilter(newVal);
                           updateQueryParams({ source: newVal, page: "1" });
                         }}
+                        className="text-xs"
                       >
                         {opt.label}
                       </DropdownMenuCheckboxItem>
@@ -693,16 +723,19 @@ const ManageRequestsClient = () => {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Button className="w-full h-8 mt-1 cursor-pointer" variant="default" size="sm">
+                  <Button className="w-full h-7 mt-1 cursor-pointer text-xs" variant="default" size="sm">
                     OK
                   </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+        </div>
 
-          <div className="flex items-center gap-2">
-            <Label htmlFor="last-contacted-filter" className="whitespace-nowrap">Need Contact:</Label>
+        {/* Row 2: Need Contact + Need Renew + Refresh */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <Label htmlFor="last-contacted-filter" className="text-xs whitespace-nowrap">Need Contact:</Label>
             <Select
               value={filterLastContacted}
               onValueChange={(val) => {
@@ -710,21 +743,41 @@ const ManageRequestsClient = () => {
                 updateQueryParams({ filterLastContacted: val === "all" ? null : val, page: "1" });
               }}
             >
-              <SelectTrigger id="last-contacted-filter" className="w-[200px] bg-card border-border h-9 px-3 font-normal">
+              <SelectTrigger id="last-contacted-filter" className="w-[150px] bg-card border-border h-8 px-2 text-xs font-normal">
                 <SelectValue placeholder="Select contact status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Any last contact time</SelectItem>
-                <SelectItem value="7">Not contacted over 7 days</SelectItem>
-                <SelectItem value="30">Not contacted over 30 days</SelectItem>
-                <SelectItem value="90">Not contacted over 90 days</SelectItem>
-                <SelectItem value="never">Never contacted</SelectItem>
+                <SelectItem value="all" className="text-xs">Any last contact time</SelectItem>
+                <SelectItem value="7" className="text-xs">Not contacted over 7 days</SelectItem>
+                <SelectItem value="30" className="text-xs">Not contacted over 30 days</SelectItem>
+                <SelectItem value="90" className="text-xs">Not contacted over 90 days</SelectItem>
+                <SelectItem value="never" className="text-xs">Never contacted</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <Button variant="outline" size="icon" onClick={fetchRequests} title="Refresh data">
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          <div className="flex items-center gap-1.5">
+            <Label htmlFor="renew-filter" className="text-xs whitespace-nowrap">Need Renew:</Label>
+            <Select
+              value={filterRenew}
+              onValueChange={(val) => {
+                setFilterRenew(val);
+                updateQueryParams({ filterRenew: val === "all" ? null : val, page: "1" });
+              }}
+            >
+              <SelectTrigger id="renew-filter" className="w-[130px] bg-card border-border h-8 px-2 text-xs font-normal">
+                <SelectValue placeholder="Select renew status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="text-xs">Any renew time</SelectItem>
+                <SelectItem value="7" className="text-xs">Renew within 7 days</SelectItem>
+                <SelectItem value="30" className="text-xs">Renew within 30 days</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button variant="outline" size="icon" onClick={fetchRequests} title="Refresh data" className="h-8 w-8">
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </div>
@@ -834,6 +887,28 @@ const ManageRequestsClient = () => {
                           <Calendar className="w-3 h-3 shrink-0" />
                           <span>Added: {new Date(request.createdAt).toLocaleDateString("en-GB")}</span>
                         </div>
+                        {(request.payment !== undefined || request.renewFee !== undefined || request.renewDate) && (
+                          <div className="mt-2 pt-1 border-t border-dashed border-border text-[11px] space-y-0.5">
+                            {request.payment !== undefined && (
+                              <div className="flex items-center gap-1">
+                                <span className="font-semibold text-muted-foreground">Initial Fee:</span>
+                                <span className="font-bold text-foreground">৳{request.payment.toLocaleString()}</span>
+                              </div>
+                            )}
+                            {request.renewFee !== undefined && (
+                              <div className="flex items-center gap-1">
+                                <span className="font-semibold text-muted-foreground">Renew Fee:</span>
+                                <span className="font-bold text-foreground">৳{request.renewFee.toLocaleString()}</span>
+                              </div>
+                            )}
+                            {request.renewDate && (
+                              <div className="flex items-center gap-1">
+                                <span className="font-semibold text-muted-foreground">Renew Date:</span>
+                                <span className="text-foreground">{new Date(request.renewDate).toLocaleDateString("en-GB")}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </TableCell>
@@ -1031,6 +1106,35 @@ const ManageRequestsClient = () => {
                 value={proposalUrl}
                 onChange={(e) => setProposalUrl(e.target.value)}
                 placeholder="e.g. /proposal/904584a84be88a27611"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="payment">Payment (Optional)</Label>
+              <Input
+                id="payment"
+                type="number"
+                value={payment}
+                onChange={(e) => setPayment(e.target.value)}
+                placeholder="e.g. 1500"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="renewFee">Renew Fee (Optional)</Label>
+              <Input
+                id="renewFee"
+                type="number"
+                value={renewFee}
+                onChange={(e) => setRenewFee(e.target.value)}
+                placeholder="e.g. 500"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="renewDate">Renew Date (Optional)</Label>
+              <Input
+                id="renewDate"
+                type="date"
+                value={renewDate}
+                onChange={(e) => setRenewDate(e.target.value)}
               />
             </div>
           </div>
@@ -1241,6 +1345,38 @@ const ManageRequestsClient = () => {
                 value={editFormData.proposalUrl}
                 onChange={(e) => setEditFormData(prev => ({ ...prev, proposalUrl: e.target.value }))}
                 placeholder="Credential Link"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-payment">Payment / Initial Fee (Optional)</Label>
+              <Input
+                id="edit-payment"
+                type="number"
+                value={editFormData.payment}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, payment: e.target.value }))}
+                placeholder="e.g. 1500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-renewFee">Renew Fee (Optional)</Label>
+              <Input
+                id="edit-renewFee"
+                type="number"
+                value={editFormData.renewFee}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, renewFee: e.target.value }))}
+                placeholder="e.g. 500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-renewDate">Renew Date (Optional)</Label>
+              <Input
+                id="edit-renewDate"
+                type="date"
+                value={editFormData.renewDate}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, renewDate: e.target.value }))}
               />
             </div>
 

@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get("status") || "";
   const source = searchParams.get("source") || "";
   const filterLastContacted = searchParams.get("filterLastContacted") || "";
+  const filterRenew = searchParams.get("filterRenew") || "";
   const startDateStr = searchParams.get("startDate");
   const endDateStr = searchParams.get("endDate");
 
@@ -126,6 +127,21 @@ export async function GET(req: NextRequest) {
             ]
           });
         }
+      }
+    }
+
+    if (filterRenew && filterRenew !== "all") {
+      const days = parseInt(filterRenew);
+      if (!isNaN(days)) {
+        const futureLimit = new Date();
+        futureLimit.setDate(futureLimit.getDate() + days);
+        andConditions.push({
+          renewDate: {
+            $exists: true,
+            $ne: null,
+            $lte: futureLimit
+          }
+        });
       }
     }
 
@@ -245,7 +261,10 @@ export async function PUT(req: NextRequest) {
       lastContacted,
       source,
       price,
-      paymentNumber
+      paymentNumber,
+      payment,
+      renewFee,
+      renewDate
     } = body;
 
     if (!id) {
@@ -273,6 +292,9 @@ export async function PUT(req: NextRequest) {
     if (source !== undefined) updateData.source = source;
     if (price !== undefined) updateData.price = price;
     if (paymentNumber !== undefined) updateData.paymentNumber = paymentNumber;
+    if (payment !== undefined) updateData.payment = payment;
+    if (renewFee !== undefined) updateData.renewFee = renewFee;
+    if (renewDate !== undefined) updateData.renewDate = renewDate;
 
     const updatedRequest = await LandingRequest.findByIdAndUpdate(
       id,

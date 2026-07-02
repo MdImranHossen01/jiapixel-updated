@@ -16,6 +16,9 @@ export interface ILandingRequest extends Document {
   credential?: string;
   lastContacted?: Date;
   paymentNumber?: string;
+  payment?: number;
+  renewFee?: number;
+  renewDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -83,6 +86,15 @@ const LandingRequestSchema = new Schema<ILandingRequest>(
     paymentNumber: {
       type: String,
       trim: true,
+    },
+    payment: {
+      type: Number,
+    },
+    renewFee: {
+      type: Number,
+    },
+    renewDate: {
+      type: Date,
     },
   },
   {
