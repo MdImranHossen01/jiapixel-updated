@@ -4,6 +4,7 @@ export interface IBillItem {
   name: string;
   quantity: number;
   price: number;
+  link?: string;
 }
 
 export interface IBill extends Document {
@@ -47,6 +48,7 @@ const BillSchema: Schema<IBill> = new Schema(
         name: { type: String, required: true },
         quantity: { type: Number, required: true, min: 1 },
         price: { type: Number, required: true, min: 0 },
+        link: { type: String },
       },
     ],
     subtotal: { type: Number, required: true, min: 0 },

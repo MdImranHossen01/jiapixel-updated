@@ -33,6 +33,7 @@ import {
   Phone,
   MapPin,
   Eye,
+  ExternalLink,
   ChevronDown,
   MoreVertical,
   X
@@ -50,6 +51,7 @@ interface BillItemInput {
   name: string;
   quantity: number;
   price: number;
+  link?: string;
 }
 
 export default function ManageBillsClient() {
@@ -178,6 +180,7 @@ export default function ManageBillsClient() {
   const [selectedProjects, setSelectedProjects] = useState<Record<string, boolean>>({});
   const [projectPickerOpen, setProjectPickerOpen] = useState(false);
   const [projectSearchTerm, setProjectSearchTerm] = useState("");
+  const [openLinkIdx, setOpenLinkIdx] = useState<number | null>(null);
 
   useEffect(() => {
     fetchBills();
@@ -282,7 +285,9 @@ export default function ManageBillsClient() {
       b.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (b.clientEmail && b.clientEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (b.clientPhone && b.clientPhone.includes(searchTerm)) ||
-      (b.invoiceNo && b.invoiceNo.includes(searchTerm));
+      (b.invoiceNo && b.invoiceNo.includes(searchTerm)) ||
+      (b.businessName && b.businessName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (b.items && b.items.some((item: any) => item.name.toLowerCase().includes(searchTerm.toLowerCase())));
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -369,7 +374,7 @@ export default function ManageBillsClient() {
   };
 
   const addBillItem = () => {
-    setBillItems(prev => [...prev, { name: "", quantity: 1, price: 0 }]);
+    setBillItems(prev => [...prev, { name: "", quantity: 1, price: 0, link: "" }]);
   };
 
   const removeBillItem = (index: number) => {
@@ -392,7 +397,8 @@ export default function ManageBillsClient() {
     setClientPhone("");
     setClientAddress("");
     setBusinessName("");
-    setBillItems([{ name: "", quantity: 1, price: 0 }]);
+    setBillItems([{ name: "", quantity: 1, price: 0, link: "" }]);
+    setOpenLinkIdx(null);
     setServiceCharge(0);
     setDiscountType("fixed");
     setDiscountValue(0);
@@ -415,7 +421,8 @@ export default function ManageBillsClient() {
     setClientPhone(bill.clientPhone);
     setClientAddress(bill.clientAddress);
     setBusinessName(bill.businessName || "");
-    setBillItems(bill.items.map((it: any) => ({ name: it.name, quantity: it.quantity, price: it.price })));
+    setBillItems(bill.items.map((it: any) => ({ name: it.name, quantity: it.quantity, price: it.price, link: it.link || "" })));
+    setOpenLinkIdx(null);
     setServiceCharge(bill.serviceCharge || 0);
     setDiscountType(bill.discountType || "fixed");
     setDiscountValue(bill.discountValue || 0);
@@ -606,56 +613,56 @@ export default function ManageBillsClient() {
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-4 bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm w-full">
-        <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-gray-900 p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm w-full">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative w-[190px]">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Search name, phone or bill no..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
+              className="pl-8 h-8 text-xs"
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Checkbox
               id="use-date-range"
               checked={useDateRange}
               onCheckedChange={(checked) => setUseDateRange(!!checked)}
             />
-            <Label htmlFor="use-date-range" className="text-sm font-semibold cursor-pointer select-none">
+            <Label htmlFor="use-date-range" className="text-xs font-semibold cursor-pointer select-none">
               Filter by Date
             </Label>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Input
               type="date"
               value={startDate}
               disabled={!useDateRange}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-[115px] h-8 px-1.5 text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <span className={`text-sm font-semibold ${!useDateRange ? "opacity-50" : ""}`}>to</span>
+            <span className={`text-xs font-semibold ${!useDateRange ? "opacity-50" : ""}`}>to</span>
             <Input
               type="date"
               value={endDate}
               disabled={!useDateRange}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-[115px] h-8 px-1.5 text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
         </div>
 
-        <div className="flex gap-2 w-full lg:w-auto justify-end">
+        <div className="flex gap-1.5">
           {["all", "paid", "due"].map((filter) => (
             <Button
               key={filter}
               variant={statusFilter === filter ? "default" : "outline"}
               onClick={() => setStatusFilter(filter)}
-              className="capitalize font-bold"
+              className="capitalize font-bold h-8 px-3 text-xs"
             >
               {filter}
             </Button>
@@ -739,10 +746,26 @@ export default function ManageBillsClient() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="max-w-[200px] truncate text-sm" title={bill.items.map((i: any) => i.name).join(", ")}>
-                        {bill.items.map((i: any) => i.name).join(", ")}
+                      <div className="max-w-[200px] text-sm flex flex-col gap-1">
+                        {bill.items.map((i: any, index: number) => (
+                          <div key={index} className="truncate">
+                            {i.link ? (
+                              <a
+                                href={i.link.startsWith("http") ? i.link : `https://${i.link}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 dark:text-blue-400 hover:underline font-semibold inline-flex items-center gap-0.5"
+                              >
+                                {i.name}
+                                <ExternalLink className="w-3 h-3 shrink-0" />
+                              </a>
+                            ) : (
+                              <span>{i.name}</span>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                      <div className="text-xs text-muted-foreground">{bill.items.length} service(s)</div>
+                      <div className="text-xs text-muted-foreground mt-1">{bill.items.length} service(s)</div>
                     </TableCell>
                     <TableCell className="text-right font-bold text-gray-900 dark:text-white">{getCurrencySymbol(bill.currency)}{bill.gTotal?.toLocaleString()}</TableCell>
                     <TableCell className="text-right text-emerald-600 dark:text-emerald-400">{getCurrencySymbol(bill.currency)}{bill.cashIn?.toLocaleString()}</TableCell>
@@ -1065,52 +1088,89 @@ export default function ManageBillsClient() {
 
               <div className="space-y-3">
                 {billItems.map((item, idx) => (
-                  <div key={idx} className="flex flex-col md:flex-row items-end gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-200 dark:border-gray-800">
-                    <div className="w-full md:flex-1 space-y-1">
-                      <Label className="text-xs">Item Description / Custom Name</Label>
-                      <Input
-                        placeholder="Type item description..."
-                        value={item.name}
-                        onChange={(e) => handleItemChange(idx, "name", e.target.value)}
-                        required
-                        className="h-9"
-                      />
+                  <div key={idx} className="flex flex-col gap-2 bg-gray-50/50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="flex flex-col md:flex-row items-end gap-3 w-full">
+                      <div className="w-full md:flex-1 space-y-1">
+                        <Label className="text-xs">Item Description / Custom Name</Label>
+                        <Input
+                          placeholder="Type item description..."
+                          value={item.name}
+                          onChange={(e) => handleItemChange(idx, "name", e.target.value)}
+                          required
+                          className="h-9"
+                        />
+                      </div>
+
+                      <div className="w-full md:w-20 space-y-1">
+                        <Label className="text-xs">Qty</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => handleItemChange(idx, "quantity", parseInt(e.target.value) || 1)}
+                          required
+                          className="h-9"
+                        />
+                      </div>
+
+                      <div className="w-full md:w-32 space-y-1">
+                        <Label className="text-xs">Price ({currencySymbol})</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={item.price}
+                          onChange={(e) => handleItemChange(idx, "price", parseFloat(e.target.value) || 0)}
+                          required
+                          className="h-9"
+                        />
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setOpenLinkIdx(prev => prev === idx ? null : idx)}
+                        className={`text-blue-600 ${item.link ? 'bg-blue-500/10' : ''}`}
+                        title="Add hyperlink to item description"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeBillItem(idx)}
+                        disabled={billItems.length === 1}
+                        className="text-rose-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
 
-                    <div className="w-full md:w-20 space-y-1">
-                      <Label className="text-xs">Qty</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => handleItemChange(idx, "quantity", parseInt(e.target.value) || 1)}
-                        required
-                        className="h-9"
-                      />
-                    </div>
-
-                    <div className="w-full md:w-32 space-y-1">
-                      <Label className="text-xs">Price ({currencySymbol})</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        value={item.price}
-                        onChange={(e) => handleItemChange(idx, "price", parseFloat(e.target.value) || 0)}
-                        required
-                        className="h-9"
-                      />
-                    </div>
-
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeBillItem(idx)}
-                      disabled={billItems.length === 1}
-                      className="text-rose-600"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {/* Link insert field */}
+                    {(openLinkIdx === idx || item.link) && (
+                      <div className="flex items-center gap-2 mt-1 w-full bg-white dark:bg-gray-950 p-2 rounded border border-gray-150 dark:border-gray-850">
+                        <span className="text-xs font-semibold text-muted-foreground shrink-0">Item Link:</span>
+                        <Input
+                          placeholder="Enter destination URL (e.g. https://example.com/project)..."
+                          value={item.link || ""}
+                          onChange={(e) => handleItemChange(idx, "link", e.target.value)}
+                          className="h-8 text-xs flex-1"
+                        />
+                        {item.link && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleItemChange(idx, "link", "")}
+                            className="h-7 text-xs text-rose-500 font-semibold"
+                          >
+                            Clear
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1308,7 +1368,21 @@ export default function ManageBillsClient() {
               <tbody>
                 {selectedBill?.items?.map((item: any, idx: number) => (
                   <tr key={idx} className="border-b">
-                    <td className="py-3 px-3 font-medium text-gray-900">{item.name}</td>
+                    <td className="py-3 px-3 font-medium text-gray-900">
+                      {item.link ? (
+                        <a
+                          href={item.link.startsWith("http") ? item.link : `https://${item.link}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                        >
+                          {item.name}
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      ) : (
+                        item.name
+                      )}
+                    </td>
                     <td className="py-3 px-3 text-right">{getCurrencySymbol(selectedBill?.currency)}{item.price?.toLocaleString()}</td>
                     <td className="py-3 px-3 text-center">{item.quantity}</td>
                     <td className="py-3 px-3 text-right font-semibold">{getCurrencySymbol(selectedBill?.currency)}{(item.price * item.quantity)?.toLocaleString()}</td>
