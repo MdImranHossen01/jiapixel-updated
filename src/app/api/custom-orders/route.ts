@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { title, description, client, price, dueDate, renewDate, renewPrice, adminNote, paymentLink, requirementsLink } = body;
+        const { title, description, client, price, currency, dueDate, renewDate, renewPrice, adminNote, paymentLink, requirementsLink } = body;
 
         if (!title) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
             admin: session.user.id,
             status: "proposed",
             shareableSlug,
+            currency: currency || "USD",
         };
 
         // Only add optional fields if they exist to avoid Mongoose casting errors and preserve zero values

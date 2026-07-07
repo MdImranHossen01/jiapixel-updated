@@ -149,9 +149,19 @@ export async function GET(req: NextRequest) {
       query.$and = andConditions;
     }
 
-    const [total, grandTotal] = await Promise.all([
+    const thirtyDaysLimit = new Date();
+    thirtyDaysLimit.setDate(thirtyDaysLimit.getDate() + 30);
+
+    const [total, grandTotal, upcomingRenewCount] = await Promise.all([
       LandingRequest.countDocuments(query),
       LandingRequest.countDocuments({}),
+      LandingRequest.countDocuments({
+        renewDate: {
+          $exists: true,
+          $ne: null,
+          $lte: thirtyDaysLimit
+        }
+      })
     ]);
     const requests = await LandingRequest.find(query)
       .sort({ createdAt: -1 })
@@ -164,6 +174,7 @@ export async function GET(req: NextRequest) {
       pagination: {
         total,
         grandTotal,
+        upcomingRenewCount,
         page,
         limit,
         totalPages: Math.ceil(total / limit),

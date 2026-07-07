@@ -220,6 +220,7 @@ export async function PUT(
             "description",
             "status",
             "price",
+            "currency",
             "dueDate",
             "renewDate",
             "renewPrice",

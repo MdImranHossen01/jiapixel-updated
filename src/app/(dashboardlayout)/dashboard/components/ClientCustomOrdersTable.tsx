@@ -22,6 +22,7 @@ interface CustomOrder {
     admin: { name: string; email: string; } | string;
     status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed";
     price?: number;
+    currency?: "USD" | "BDT";
     dueDate?: string;
     createdAt: string;
 }
@@ -113,7 +114,7 @@ export default function ClientCustomOrdersTable() {
                                 <div className="text-xs text-muted-foreground mt-1">Date: {new Date(order.createdAt).toLocaleDateString()}</div>
                             </TableCell>
                             <TableCell className="font-bold">
-                                {order.price ? `$${order.price.toLocaleString()}` : 'TBD'}
+                                {order.price ? `${order.currency === "BDT" ? "৳" : "$"}${order.price.toLocaleString()}` : 'TBD'}
                             </TableCell>
                             <TableCell>
                                 <Badge variant={getStatusVariant(order.status)} className="capitalize">

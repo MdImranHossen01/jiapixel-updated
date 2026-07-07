@@ -24,6 +24,7 @@ export default function CreateCustomOrderPage() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
+    const [currency, setCurrency] = useState("USD");
     const [dueDate, setDueDate] = useState("");
     const [renewDate, setRenewDate] = useState("");
     const [renewPrice, setRenewPrice] = useState("");
@@ -50,6 +51,7 @@ export default function CreateCustomOrderPage() {
                 title,
                 description,
                 price: price !== "" && price !== undefined ? Number(price) : undefined,
+                currency,
                 dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
                 renewDate: renewDate ? new Date(renewDate).toISOString() : undefined,
                 renewPrice: renewPrice !== "" && renewPrice !== undefined ? Number(renewPrice) : undefined,
@@ -101,7 +103,7 @@ export default function CreateCustomOrderPage() {
 
                         {/* Basic Details */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">Project Title <span className="text-red-500">*</span></Label>
                                     <Input
@@ -115,12 +117,25 @@ export default function CreateCustomOrderPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="price" className="block text-sm font-medium text-card-foreground mb-2">Total Price / Estimate ($)</Label>
+                                    <Label htmlFor="currency" className="block text-sm font-medium text-card-foreground mb-2">Currency</Label>
+                                    <Select value={currency} onValueChange={setCurrency}>
+                                        <SelectTrigger id="currency" className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground h-[48px]">
+                                            <SelectValue placeholder="Select Currency" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-card border border-border">
+                                            <SelectItem value="USD">USD ($)</SelectItem>
+                                            <SelectItem value="BDT">BDT (৳)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="price" className="block text-sm font-medium text-card-foreground mb-2">Total Price / Estimate ({currency === "USD" ? "$" : "৳"})</Label>
                                     <Input
                                         id="price"
                                         type="number"
                                         min={0}
-                                        placeholder="e.g., 2500"
+                                        placeholder={currency === "USD" ? "e.g., 2500" : "e.g., 25000"}
                                         value={price}
                                         onChange={(e) => {
                                             const val = e.target.value;
@@ -158,12 +173,12 @@ export default function CreateCustomOrderPage() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="renewPrice" className="block text-sm font-medium">Renewal Price ($)</Label>
+                                        <Label htmlFor="renewPrice" className="block text-sm font-medium">Renewal Price ({currency === "USD" ? "$" : "৳"})</Label>
                                         <Input
                                             id="renewPrice"
                                             type="number"
                                             min={0}
-                                            placeholder="e.g., 500"
+                                            placeholder={currency === "USD" ? "e.g., 500" : "e.g., 5000"}
                                             value={renewPrice}
                                             onChange={(e) => {
                                                 const val = e.target.value;

@@ -8,6 +8,7 @@ export interface ICustomOrder extends Document {
     status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed" | "canceled";
     shareableSlug: string;
     price?: number;
+    currency?: "USD" | "BDT";
 
     // Admin tracking features
     dueDate?: Date;
@@ -55,6 +56,11 @@ const CustomOrderSchema = new Schema<ICustomOrder>(
         price: {
             type: Number,
             required: false,
+        },
+        currency: {
+            type: String,
+            enum: ["USD", "BDT"],
+            default: "USD",
         },
         dueDate: {
             type: Date,

@@ -4,6 +4,7 @@ import Category from "@/models/Category";
 import Project from "@/models/Service";
 import Blog from "@/models/Blog";
 import Portfolio from "@/models/Portfolios";
+import Bill from "@/models/Bill";
 
 // Force dynamic behavior so it fetches fresh data on every request
 export const dynamic = 'force-dynamic';
@@ -11,18 +12,22 @@ export const dynamic = 'force-dynamic';
 export default async function Page() {
   await dbConnect();
 
-  const [totalCategories, totalServices, totalBlogs, totalPortfolios] = await Promise.all([
+  const [totalCategories, totalServices, totalBlogs, totalPortfolios, bills] = await Promise.all([
     Category.countDocuments({}),
     Project.countDocuments({}),
     Blog.countDocuments({}),
     Portfolio.countDocuments({}),
+    Bill.find({ status: 'Due' }),
   ]);
+
+  const totalReceivable = bills.reduce((acc, curr) => acc + (curr.currentBillDue || 0), 0);
 
   const stats = {
     totalCategories,
     totalServices,
     totalBlogs,
-    totalPortfolios
+    totalPortfolios,
+    totalReceivable
   };
 
   return (

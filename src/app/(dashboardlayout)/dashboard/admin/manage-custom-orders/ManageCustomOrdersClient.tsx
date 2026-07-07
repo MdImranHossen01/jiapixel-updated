@@ -39,6 +39,7 @@ interface CustomOrder {
     admin: { name: string; email: string; } | string;
     status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed" | "canceled";
     price?: number;
+    currency?: "USD" | "BDT";
     dueDate?: string;
     renewDate?: string;
     createdAt: string;
@@ -259,7 +260,7 @@ const ManageCustomOrdersClient = () => {
                                             <div className="text-xs text-muted-foreground">{clientInfo.email}</div>
                                         </TableCell>
                                         <TableCell className="font-bold">
-                                            {order.price ? `$${order.price.toLocaleString()}` : 'TBD'}
+                                            {order.price ? `${order.currency === "BDT" ? "৳" : "$"}${order.price.toLocaleString()}` : 'TBD'}
                                         </TableCell>
                                         <TableCell className="text-sm">
                                             {order.renewDate ? (

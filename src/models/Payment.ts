@@ -1,9 +1,12 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IPayment extends Document {
-    user: mongoose.Types.ObjectId;
+    user?: mongoose.Types.ObjectId;
+    clientName?: string;
+    clientMobile?: string;
+    clientEmail?: string;
     amount: number;
-    paymentMethod: "bKash" | "Nagad" | "Rocket" | "Scan QR";
+    paymentMethod: "bKash" | "Nagad" | "Rocket" | "Scan QR" | "Bank Transfer";
     transactionId?: string;
     senderNumber?: string;
     status: "pending" | "confirmed" | "rejected";
@@ -17,7 +20,22 @@ const PaymentSchema: Schema<IPayment> = new Schema(
         user: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: [true, "User is required"],
+            required: false,
+        },
+        clientName: {
+            type: String,
+            required: false,
+            trim: true,
+        },
+        clientMobile: {
+            type: String,
+            required: false,
+            trim: true,
+        },
+        clientEmail: {
+            type: String,
+            required: false,
+            trim: true,
         },
         amount: {
             type: Number,
@@ -26,7 +44,7 @@ const PaymentSchema: Schema<IPayment> = new Schema(
         },
         paymentMethod: {
             type: String,
-            enum: ["bKash", "Nagad", "Rocket", "Scan QR"],
+            enum: ["bKash", "Nagad", "Rocket", "Scan QR", "Bank Transfer"],
             required: [true, "Payment method is required"],
         },
         transactionId: {

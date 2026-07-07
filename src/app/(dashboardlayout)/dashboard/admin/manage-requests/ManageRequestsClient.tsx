@@ -162,8 +162,8 @@ const ManageRequestsClient = () => {
       email: request.email || "",
       projectTitle: request.projectTitle || "",
       proposalUrl: request.proposalUrl || "",
-      payment: request.payment !== undefined ? request.payment.toString() : "",
-      renewFee: request.renewFee !== undefined ? request.renewFee.toString() : "",
+      payment: (request.payment !== undefined && request.payment !== null) ? request.payment.toString() : "",
+      renewFee: (request.renewFee !== undefined && request.renewFee !== null) ? request.renewFee.toString() : "",
       renewDate: request.renewDate ? new Date(request.renewDate).toISOString().split('T')[0] : "",
     });
     setIsEditModalOpen(true);
@@ -238,6 +238,7 @@ const ManageRequestsClient = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalRequests, setTotalRequests] = useState(0);
   const [grandTotalRequests, setGrandTotalRequests] = useState(0);
+  const [upcomingRenewCount, setUpcomingRenewCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
   const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
@@ -329,10 +330,12 @@ const ManageRequestsClient = () => {
       const res = await fetch(`/api/landing-requests?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
+        console.log("Pagination API response:", data.pagination);
         setRequests(data.requests);
         setTotalPages(data.pagination.totalPages);
         setTotalRequests(data.pagination.total || 0);
         setGrandTotalRequests(data.pagination.grandTotal || 0);
+        setUpcomingRenewCount(data.pagination.upcomingRenewCount || 0);
       } else {
         toast.error("Failed to fetch requests");
       }
@@ -398,8 +401,8 @@ const ManageRequestsClient = () => {
     setSelectedRequest(request);
     setProjectTitle(request.projectTitle || `Ecommerce Website - ${request.name}`);
     setProposalUrl(request.proposalUrl || "");
-    setPayment(request.payment !== undefined ? request.payment.toString() : "");
-    setRenewFee(request.renewFee !== undefined ? request.renewFee.toString() : "");
+    setPayment(request.payment !== undefined && request.payment !== null ? request.payment.toString() : "");
+    setRenewFee(request.renewFee !== undefined && request.renewFee !== null ? request.renewFee.toString() : "");
     setRenewDate(request.renewDate ? new Date(request.renewDate).toISOString().split('T')[0] : "");
     setIsConfirmModalOpen(true);
   };
@@ -531,9 +534,26 @@ const ManageRequestsClient = () => {
             Showing <span className="font-bold text-foreground">{totalRequests}</span> matching requests out of <span className="font-bold text-foreground">{grandTotalRequests}</span> total leads
           </p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 self-start md:self-auto">
-          <Plus className="w-4 h-4" /> Add
-        </Button>
+        <div className="flex items-center gap-3 self-start md:self-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const newVal = filterRenew === "30" ? "all" : "30";
+              setFilterRenew(newVal);
+              updateQueryParams({ filterRenew: newVal, page: "1" });
+            }}
+            className={`bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/30 flex items-center gap-1.5 h-9 font-semibold text-xs transition-all ${
+              filterRenew === "30" ? "ring-2 ring-amber-500 bg-amber-500/25" : ""
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            Upcoming Renewals (30 Days): <span className="font-bold bg-amber-500/20 dark:bg-amber-500/30 px-1.5 py-0.5 rounded ml-0.5">{upcomingRenewCount}</span>
+          </Button>
+          <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 h-9">
+            <Plus className="w-4 h-4" /> Add
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -1287,7 +1307,7 @@ const ManageRequestsClient = () => {
 
       {/* Edit Request Details Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-[450px]">
+        <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle>Edit Request Details</DialogTitle>
             <DialogDescription>
@@ -1295,89 +1315,91 @@ const ManageRequestsClient = () => {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Name</Label>
-              <Input
-                id="edit-name"
-                value={editFormData.name}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Customer Name"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="edit-phone">Mobile Number</Label>
-              <Input
-                id="edit-phone"
-                value={editFormData.phone}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, phone: e.target.value }))}
-                placeholder="Mobile Number"
-                required
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Customer Name"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-phone">Mobile Number</Label>
+                <Input
+                  id="edit-phone"
+                  value={editFormData.phone}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="Mobile Number"
+                  required
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-email">Email Address</Label>
-              <Input
-                id="edit-email"
-                type="email"
-                value={editFormData.email}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="email@example.com"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-email">Email Address</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="email@example.com"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-projectTitle">Project Title</Label>
-              <Input
-                id="edit-projectTitle"
-                value={editFormData.projectTitle}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, projectTitle: e.target.value }))}
-                placeholder="Project Title"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-projectTitle">Project Title</Label>
+                <Input
+                  id="edit-projectTitle"
+                  value={editFormData.projectTitle}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, projectTitle: e.target.value }))}
+                  placeholder="Project Title"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-proposalUrl">Credential Link (URL)</Label>
-              <Input
-                id="edit-proposalUrl"
-                value={editFormData.proposalUrl}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, proposalUrl: e.target.value }))}
-                placeholder="Credential Link"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-proposalUrl">Credential Link (URL)</Label>
+                <Input
+                  id="edit-proposalUrl"
+                  value={editFormData.proposalUrl}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, proposalUrl: e.target.value }))}
+                  placeholder="Credential Link"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-payment">Payment / Initial Fee (Optional)</Label>
-              <Input
-                id="edit-payment"
-                type="number"
-                value={editFormData.payment}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, payment: e.target.value }))}
-                placeholder="e.g. 1500"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-payment">Payment / Initial Fee (Optional)</Label>
+                <Input
+                  id="edit-payment"
+                  type="number"
+                  value={editFormData.payment}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, payment: e.target.value }))}
+                  placeholder="e.g. 1500"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-renewFee">Renew Fee (Optional)</Label>
-              <Input
-                id="edit-renewFee"
-                type="number"
-                value={editFormData.renewFee}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, renewFee: e.target.value }))}
-                placeholder="e.g. 500"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-renewFee">Renew Fee (Optional)</Label>
+                <Input
+                  id="edit-renewFee"
+                  type="number"
+                  value={editFormData.renewFee}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, renewFee: e.target.value }))}
+                  placeholder="e.g. 500"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-renewDate">Renew Date (Optional)</Label>
-              <Input
-                id="edit-renewDate"
-                type="date"
-                value={editFormData.renewDate}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, renewDate: e.target.value }))}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="edit-renewDate">Renew Date (Optional)</Label>
+                <Input
+                  id="edit-renewDate"
+                  type="date"
+                  value={editFormData.renewDate}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, renewDate: e.target.value }))}
+                />
+              </div>
             </div>
 
             <DialogFooter className="pt-4">

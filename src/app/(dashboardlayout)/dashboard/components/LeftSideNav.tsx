@@ -194,6 +194,13 @@ const LeftSideNav = () => {
       current: pathname.startsWith('/dashboard/admin/manage-payments'),
       adminOnly: true,
     },
+    {
+      name: 'Manage Bills',
+      href: '/dashboard/admin/manage-bills',
+      icon: CreditCard,
+      current: pathname.startsWith('/dashboard/admin/manage-bills'),
+      adminOnly: true,
+    },
   ];
 
   const isAdmin = session?.user?.role === 'admin';

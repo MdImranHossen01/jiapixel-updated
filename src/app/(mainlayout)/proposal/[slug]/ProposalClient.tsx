@@ -198,7 +198,7 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                     <CardContent className="space-y-4">
                         <div>
                             <p className="text-4xl font-extrabold text-foreground">
-                                ${order.price?.toLocaleString() || "TBD"}
+                                {order.currency === "BDT" ? "৳" : "$"}{order.price?.toLocaleString() || "TBD"}
                             </p>
                         </div>
 

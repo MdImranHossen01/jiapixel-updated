@@ -28,14 +28,11 @@ export async function GET(req: NextRequest) {
 // POST /api/payments - Submit a new payment
 export async function POST(req: NextRequest) {
     const token = await getToken({ req });
-    if (!token || !token.id) {
-        return NextResponse.json({ message: "Not authorized" }, { status: 401 });
-    }
 
     try {
         await dbConnect();
         const body = await req.json();
-        const { amount, paymentMethod, transactionId, senderNumber, notes } = body;
+        const { clientName, clientMobile, clientEmail, amount, paymentMethod, transactionId, senderNumber, notes } = body;
 
         // Basic validation in addition to schema validation
         if (!amount || !paymentMethod) {
@@ -47,13 +44,16 @@ export async function POST(req: NextRequest) {
 
         if (paymentMethod !== "Scan QR" && !transactionId && !senderNumber) {
             return NextResponse.json(
-                { message: "Either Transaction ID or Sender Number must be provided for mobile banking." },
+                { message: "Either Transaction ID or Sender Number must be provided." },
                 { status: 400 }
             );
         }
 
         const newPayment = new Payment({
-            user: token.id,
+            user: token?.id || undefined,
+            clientName,
+            clientMobile,
+            clientEmail,
             amount,
             paymentMethod,
             transactionId,
