@@ -59,6 +59,24 @@ export default function ManageBillsClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
+  // Date range states (defaults to current month)
+  const getInitialDates = () => {
+    const now = new Date();
+    const startYear = now.getFullYear();
+    const startMonth = String(now.getMonth() + 1).padStart(2, "0");
+    const defaultStart = `${startYear}-${startMonth}-01`;
+    
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const defaultEnd = `${startYear}-${startMonth}-${String(lastDay).padStart(2, "0")}`;
+    
+    return { defaultStart, defaultEnd };
+  };
+
+  const { defaultStart, defaultEnd } = getInitialDates();
+  const [startDate, setStartDate] = useState(defaultStart);
+  const [endDate, setEndDate] = useState(defaultEnd);
+  const [useDateRange, setUseDateRange] = useState(true);
+
   // Selected Bill for viewing/printing
   const [selectedBill, setSelectedBill] = useState<any>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -178,17 +196,43 @@ export default function ManageBillsClient() {
   const getCurrencySymbol = (curr?: string) => curr === "USD" ? "$" : "৳";
   const cleanWhatsApp = (num?: string) => num ? num.replace(/[^\d]/g, "") : "";
 
-  // Cumulative Metrics calculated from all bills
-  const bdtTotalBilled = bills.filter(b => b.currency !== "USD").reduce((sum, b) => sum + (b.gTotal || 0), 0);
-  const bdtTotalCollected = bills.filter(b => b.currency !== "USD").reduce((sum, b) => sum + (b.cashIn || 0), 0);
-  const bdtAccountsReceivable = bills.filter(b => b.currency !== "USD").reduce((sum, b) => sum + (b.currentBillDue || 0), 0);
+  // Client-side search, status and date filter
+  const filteredBills = bills.filter((b) => {
+    const matchesSearch =
+      b.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (b.clientEmail && b.clientEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (b.clientPhone && b.clientPhone.includes(searchTerm)) ||
+      (b.invoiceNo && b.invoiceNo.includes(searchTerm));
 
-  const usdTotalBilled = bills.filter(b => b.currency === "USD").reduce((sum, b) => sum + (b.gTotal || 0), 0);
-  const usdTotalCollected = bills.filter(b => b.currency === "USD").reduce((sum, b) => sum + (b.cashIn || 0), 0);
-  const usdAccountsReceivable = bills.filter(b => b.currency === "USD").reduce((sum, b) => sum + (b.currentBillDue || 0), 0);
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "paid" && b.status === "Paid") ||
+      (statusFilter === "due" && b.status === "Due");
+
+    let matchesDate = true;
+    if (useDateRange && startDate && endDate) {
+      const billDate = new Date(b.createdAt);
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      matchesDate = billDate >= start && billDate <= end;
+    }
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+
+  // Cumulative Metrics calculated from filtered bills
+  const bdtTotalBilled = filteredBills.filter(b => b.currency !== "USD").reduce((sum, b) => sum + (b.gTotal || 0), 0);
+  const bdtTotalCollected = filteredBills.filter(b => b.currency !== "USD").reduce((sum, b) => sum + (b.cashIn || 0), 0);
+  const bdtAccountsReceivable = filteredBills.filter(b => b.currency !== "USD").reduce((sum, b) => sum + (b.currentBillDue || 0), 0);
+
+  const usdTotalBilled = filteredBills.filter(b => b.currency === "USD").reduce((sum, b) => sum + (b.gTotal || 0), 0);
+  const usdTotalCollected = filteredBills.filter(b => b.currency === "USD").reduce((sum, b) => sum + (b.cashIn || 0), 0);
+  const usdAccountsReceivable = filteredBills.filter(b => b.currency === "USD").reduce((sum, b) => sum + (b.currentBillDue || 0), 0);
 
   // Invoices renewing in next 30 days (inclusive of today)
-  const upcomingRenewals = bills.filter((b) => {
+  const upcomingRenewals = filteredBills.filter((b) => {
     if (!b.renewDate) return false;
     const renew = new Date(b.renewDate);
     const today = new Date();
@@ -204,22 +248,6 @@ export default function ManageBillsClient() {
   const upcomingRenewalsCount = upcomingRenewals.length;
   const bdtUpcomingRenewalsAmount = upcomingRenewals.filter(b => b.currency !== "USD").reduce((sum, b) => sum + (b.currentBillDue || 0), 0);
   const usdUpcomingRenewalsAmount = upcomingRenewals.filter(b => b.currency === "USD").reduce((sum, b) => sum + (b.currentBillDue || 0), 0);
-
-  // Client-side search and status filter
-  const filteredBills = bills.filter((b) => {
-    const matchesSearch =
-      b.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (b.clientEmail && b.clientEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (b.clientPhone && b.clientPhone.includes(searchTerm)) ||
-      (b.invoiceNo && b.invoiceNo.includes(searchTerm));
-
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "paid" && b.status === "Paid") ||
-      (statusFilter === "due" && b.status === "Due");
-
-    return matchesSearch && matchesStatus;
-  });
 
   const toggleProjectSelection = (projectId: string) => {
     setSelectedProjects(prev => {
@@ -497,19 +525,50 @@ export default function ManageBillsClient() {
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search name, phone or bill no..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
+      <div className="flex flex-col lg:flex-row justify-between items-center gap-4 bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm w-full">
+        <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search name, phone or bill no..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="use-date-range"
+              checked={useDateRange}
+              onCheckedChange={(checked) => setUseDateRange(!!checked)}
+            />
+            <Label htmlFor="use-date-range" className="text-sm font-semibold cursor-pointer select-none">
+              Filter by Date
+            </Label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              value={startDate}
+              disabled={!useDateRange}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+            <span className={`text-sm font-semibold ${!useDateRange ? "opacity-50" : ""}`}>to</span>
+            <Input
+              type="date"
+              value={endDate}
+              disabled={!useDateRange}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+          </div>
         </div>
 
-        <div className="flex gap-2 w-full md:w-auto">
+        <div className="flex gap-2 w-full lg:w-auto justify-end">
           {["all", "paid", "due"].map((filter) => (
             <Button
               key={filter}
