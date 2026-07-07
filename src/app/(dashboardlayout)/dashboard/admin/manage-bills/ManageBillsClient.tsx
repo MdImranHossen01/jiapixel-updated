@@ -92,6 +92,77 @@ export default function ManageBillsClient() {
   const [clientPhone, setClientPhone] = useState("");
   const [clientAddress, setClientAddress] = useState("");
   const [businessName, setBusinessName] = useState("");
+
+  // Auto suggestion states
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [activeSuggestions, setActiveSuggestions] = useState<any[]>([]);
+  const [showSuggestionsFor, setShowSuggestionsFor] = useState<"name" | "email" | "phone" | null>(null);
+
+  const fetchSuggestions = async () => {
+    try {
+      const res = await fetch("/api/admin/suggest-clients");
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success) {
+          setSuggestions(result.data || []);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching suggestions:", err);
+    }
+  };
+
+  const handleNameChange = (val: string) => {
+    setClientName(val);
+    if (!val) {
+      setActiveSuggestions([]);
+      setShowSuggestionsFor(null);
+      return;
+    }
+    const filtered = suggestions.filter(s =>
+      s.name.toLowerCase().includes(val.toLowerCase())
+    );
+    setActiveSuggestions(filtered);
+    setShowSuggestionsFor("name");
+  };
+
+  const handleEmailChange = (val: string) => {
+    setClientEmail(val);
+    if (!val) {
+      setActiveSuggestions([]);
+      setShowSuggestionsFor(null);
+      return;
+    }
+    const filtered = suggestions.filter(s =>
+      s.email.toLowerCase().includes(val.toLowerCase())
+    );
+    setActiveSuggestions(filtered);
+    setShowSuggestionsFor("email");
+  };
+
+  const handlePhoneChange = (val: string) => {
+    setClientPhone(val);
+    if (!val) {
+      setActiveSuggestions([]);
+      setShowSuggestionsFor(null);
+      return;
+    }
+    const filtered = suggestions.filter(s =>
+      s.phone.includes(val)
+    );
+    setActiveSuggestions(filtered);
+    setShowSuggestionsFor("phone");
+  };
+
+  const handleSelectSuggestion = (suggestion: any) => {
+    setClientName(suggestion.name || "");
+    setClientEmail(suggestion.email || "");
+    setClientPhone(suggestion.phone || "");
+    setClientAddress(suggestion.address || "");
+    setBusinessName(suggestion.businessName || "");
+    setActiveSuggestions([]);
+    setShowSuggestionsFor(null);
+  };
   const [billItems, setBillItems] = useState<BillItemInput[]>([
     { name: "", quantity: 1, price: 0 }
   ]);
@@ -111,6 +182,7 @@ export default function ManageBillsClient() {
   useEffect(() => {
     fetchBills();
     fetchProjects();
+    fetchSuggestions();
   }, []);
 
   const fetchBills = async () => {
@@ -411,6 +483,7 @@ export default function ManageBillsClient() {
       toast.success(editingBill ? "Invoice updated successfully" : "Invoice created successfully");
       setIsCreateOpen(false);
       fetchBills();
+      fetchSuggestions();
     } catch (error: any) {
       toast.error(error.message || "An error occurred");
     } finally {
@@ -756,7 +829,7 @@ export default function ManageBillsClient() {
           <form onSubmit={handleSubmit} className="space-y-6 py-4">
             {/* Client Details Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-950 p-4 rounded-xl border border-gray-100 dark:border-gray-900">
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label htmlFor="clientName">Client Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -764,11 +837,27 @@ export default function ManageBillsClient() {
                     id="clientName"
                     placeholder="Enter client's full name"
                     value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
+                    onChange={(e) => handleNameChange(e.target.value)}
+                    onBlur={() => setTimeout(() => setShowSuggestionsFor(null), 250)}
                     className="pl-9"
                     required
+                    autoComplete="off"
                   />
                 </div>
+                {showSuggestionsFor === "name" && activeSuggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {activeSuggestions.map((s, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSelectSuggestion(s)}
+                        className="px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex flex-col gap-0.5 border-b border-gray-100 dark:border-gray-900 last:border-none"
+                      >
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{s.name}</span>
+                        <span className="text-xs text-muted-foreground">{s.email} {s.phone ? `| WhatsApp: ${s.phone}` : ''}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -781,11 +870,12 @@ export default function ManageBillsClient() {
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     className="pl-9"
+                    autoComplete="off"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label htmlFor="clientEmail">Client Email (assigned login account)</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -794,14 +884,30 @@ export default function ManageBillsClient() {
                     type="email"
                     placeholder="Enter client's email for login association"
                     value={clientEmail}
-                    onChange={(e) => setClientEmail(e.target.value)}
+                    onChange={(e) => handleEmailChange(e.target.value)}
+                    onBlur={() => setTimeout(() => setShowSuggestionsFor(null), 250)}
                     className="pl-9"
                     required
+                    autoComplete="off"
                   />
                 </div>
+                {showSuggestionsFor === "email" && activeSuggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {activeSuggestions.map((s, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSelectSuggestion(s)}
+                        className="px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex flex-col gap-0.5 border-b border-gray-100 dark:border-gray-900 last:border-none"
+                      >
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{s.name}</span>
+                        <span className="text-xs text-muted-foreground">{s.email} {s.phone ? `| WhatsApp: ${s.phone}` : ''}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label htmlFor="clientPhone">WhatsApp Number</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -809,11 +915,27 @@ export default function ManageBillsClient() {
                     id="clientPhone"
                     placeholder="Enter WhatsApp number (e.g. 8801919011101)"
                     value={clientPhone}
-                    onChange={(e) => setClientPhone(e.target.value)}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    onBlur={() => setTimeout(() => setShowSuggestionsFor(null), 250)}
                     className="pl-9"
                     required
+                    autoComplete="off"
                   />
                 </div>
+                {showSuggestionsFor === "phone" && activeSuggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {activeSuggestions.map((s, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSelectSuggestion(s)}
+                        className="px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex flex-col gap-0.5 border-b border-gray-100 dark:border-gray-900 last:border-none"
+                      >
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{s.name}</span>
+                        <span className="text-xs text-muted-foreground">{s.email} {s.phone ? `| WhatsApp: ${s.phone}` : ''}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -840,6 +962,7 @@ export default function ManageBillsClient() {
                     onChange={(e) => setClientAddress(e.target.value)}
                     className="pl-9"
                     required
+                    autoComplete="off"
                   />
                 </div>
               </div>

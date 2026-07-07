@@ -1,7 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Bill from "@/models/Bill";
+import User from "@/models/User";
 import { getToken } from "next-auth/jwt";
+
+const formatBDPhoneForBill = (phone: string): string => {
+  const clean = phone.replace(/[^\d]/g, "");
+  if (clean.length === 11 && clean.startsWith("0")) {
+    return `88${clean}`;
+  }
+  if (clean.length === 10 && clean.startsWith("1")) {
+    return `880${clean}`;
+  }
+  return clean;
+};
+
+const formatBDPhoneForUser = (phone: string): string => {
+  const clean = phone.replace(/[^\d]/g, "");
+  if (clean.length === 13 && clean.startsWith("880")) {
+    return clean.slice(2);
+  }
+  if (clean.length === 11 && clean.startsWith("0")) {
+    return clean;
+  }
+  if (clean.length === 10 && clean.startsWith("1")) {
+    return `0${clean}`;
+  }
+  return clean;
+};
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -67,7 +93,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (clientName !== undefined) bill.clientName = clientName;
     if (clientEmail !== undefined) bill.clientEmail = clientEmail;
-    if (clientPhone !== undefined) bill.clientPhone = clientPhone;
+    if (clientPhone !== undefined) bill.clientPhone = formatBDPhoneForBill(clientPhone);
     if (clientAddress !== undefined) bill.clientAddress = clientAddress;
     if (businessName !== undefined) bill.businessName = businessName;
     if (items !== undefined) bill.items = items;
@@ -89,6 +115,24 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (status === "Paid") {
       bill.currentBillDue = 0;
       bill.cashIn = bill.gTotal;
+    }
+
+    if (bill.clientEmail) {
+      const formattedUserPhone = bill.clientPhone ? formatBDPhoneForUser(bill.clientPhone) : undefined;
+      const userExists = await User.findOne({ email: bill.clientEmail });
+      if (!userExists) {
+        await User.create({
+          name: bill.clientName,
+          email: bill.clientEmail,
+          phone: formattedUserPhone,
+          role: "user",
+        });
+      } else {
+        if (formattedUserPhone && userExists.phone !== formattedUserPhone) {
+          userExists.phone = formattedUserPhone;
+          await userExists.save();
+        }
+      }
     }
 
     await bill.save();

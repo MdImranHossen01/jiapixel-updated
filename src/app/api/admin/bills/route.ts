@@ -1,7 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Bill from "@/models/Bill";
+import User from "@/models/User";
 import { getToken } from "next-auth/jwt";
+
+const formatBDPhoneForBill = (phone: string): string => {
+  const clean = phone.replace(/[^\d]/g, "");
+  if (clean.length === 11 && clean.startsWith("0")) {
+    return `88${clean}`;
+  }
+  if (clean.length === 10 && clean.startsWith("1")) {
+    return `880${clean}`;
+  }
+  return clean;
+};
+
+const formatBDPhoneForUser = (phone: string): string => {
+  const clean = phone.replace(/[^\d]/g, "");
+  if (clean.length === 13 && clean.startsWith("880")) {
+    return clean.slice(2);
+  }
+  if (clean.length === 11 && clean.startsWith("0")) {
+    return clean;
+  }
+  if (clean.length === 10 && clean.startsWith("1")) {
+    return `0${clean}`;
+  }
+  return clean;
+};
 
 export async function GET(req: NextRequest) {
   try {
@@ -77,6 +103,25 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
 
+    const formattedBillPhone = formatBDPhoneForBill(clientPhone);
+    const formattedUserPhone = formatBDPhoneForUser(clientPhone);
+
+    // Ensure user exists in database
+    const userExists = await User.findOne({ email: clientEmail });
+    if (!userExists) {
+      await User.create({
+        name: clientName,
+        email: clientEmail,
+        phone: formattedUserPhone,
+        role: "user",
+      });
+    } else {
+      if (userExists.phone !== formattedUserPhone) {
+        userExists.phone = formattedUserPhone;
+        await userExists.save();
+      }
+    }
+
     // Generate unique sequential invoice number starting from 0000101
     const lastBill = await Bill.findOne().sort({ createdAt: -1 });
     let nextNum = 101;
@@ -91,7 +136,7 @@ export async function POST(req: NextRequest) {
     const newBill = new Bill({
       clientName,
       clientEmail,
-      clientPhone,
+      clientPhone: formattedBillPhone,
       clientAddress,
       businessName,
       invoiceNo,
