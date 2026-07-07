@@ -196,6 +196,14 @@ export default function ManageBillsClient() {
   const getCurrencySymbol = (curr?: string) => curr === "USD" ? "$" : "৳";
   const cleanWhatsApp = (num?: string) => num ? num.replace(/[^\d]/g, "") : "";
 
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`${label} copied to clipboard!`);
+    }).catch(() => {
+      toast.error("Failed to copy text");
+    });
+  };
+
   // Client-side search, status and date filter
   const filteredBills = bills.filter((b) => {
     const matchesSearch =
@@ -629,10 +637,31 @@ export default function ManageBillsClient() {
                     <TableCell>
                       <div className="font-semibold text-gray-900 dark:text-white">{bill.clientName}</div>
                       {bill.businessName && <div className="text-xs font-semibold text-blue-600 dark:text-blue-400">{bill.businessName}</div>}
-                      <div className="text-xs text-muted-foreground">{bill.clientEmail}</div>
-                      <div className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-                        <a href={`https://wa.me/${cleanWhatsApp(bill.clientPhone)}`} target="_blank" rel="noopener noreferrer">
+                      {bill.clientEmail && (
+                        <div 
+                          className="text-xs text-muted-foreground cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          onClick={() => copyToClipboard(bill.clientEmail, "Email")}
+                          title="Click to copy email"
+                        >
+                          {bill.clientEmail}
+                        </div>
+                      )}
+                      <div className="text-xs flex items-center gap-1.5 mt-0.5">
+                        <span 
+                          onClick={() => copyToClipboard(bill.clientPhone, "WhatsApp number")}
+                          className="text-muted-foreground cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          title="Click to copy WhatsApp number"
+                        >
                           WhatsApp: {bill.clientPhone}
+                        </span>
+                        <a 
+                          href={`https://wa.me/${cleanWhatsApp(bill.clientPhone)}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-blue-600 dark:text-blue-400 hover:underline font-semibold text-[11px]"
+                          title="Open WhatsApp chat"
+                        >
+                          (Open Link)
                         </a>
                       </div>
                     </TableCell>
