@@ -174,6 +174,7 @@ export default function ManageBillsClient() {
   const [prevDue, setPrevDue] = useState<number>(0);
   const [cashIn, setCashIn] = useState<number>(0);
   const [renewDate, setRenewDate] = useState("");
+  const [renewFee, setRenewFee] = useState<number>(0);
   const [billStatus, setBillStatus] = useState<"Paid" | "Due">("Due");
   const [currency, setCurrency] = useState<"BDT" | "USD">("BDT");
   const [adminNote, setAdminNote] = useState("");
@@ -405,6 +406,7 @@ export default function ManageBillsClient() {
     setPrevDue(0);
     setCashIn(0);
     setRenewDate("");
+    setRenewFee(0);
     setBillStatus("Due");
     setCurrency("BDT");
     setAdminNote("");
@@ -429,6 +431,7 @@ export default function ManageBillsClient() {
     setPrevDue(bill.prevDue || 0);
     setCashIn(bill.cashIn || 0);
     setRenewDate(bill.renewDate ? new Date(bill.renewDate).toISOString().split("T")[0] : "");
+    setRenewFee(bill.renewFee || 0);
     setBillStatus(bill.status);
     setCurrency(bill.currency || "BDT");
     setAdminNote(bill.adminNote || "");
@@ -471,6 +474,7 @@ export default function ManageBillsClient() {
       currentBillDue,
       status: calculatedStatus,
       renewDate: renewDate ? new Date(renewDate) : undefined,
+      renewFee,
       currency,
       adminNote,
     };
@@ -777,12 +781,19 @@ export default function ManageBillsClient() {
                     </TableCell>
                     <TableCell>
                       {bill.renewDate ? (
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                          <span>{new Date(bill.renewDate).toLocaleDateString()}</span>
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-1 text-sm font-semibold">
+                            <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span>{new Date(bill.renewDate).toLocaleDateString()}</span>
+                          </div>
+                          {bill.renewFee > 0 && (
+                            <span className="text-xs text-muted-foreground font-semibold pl-4.5">
+                              Renewal: {getCurrencySymbol(bill.currency)}{bill.renewFee.toLocaleString()}
+                            </span>
+                          )}
                         </div>
                       ) : (
-                        <span className="text-xs text-muted-foreground">N/A</span>
+                        <span className="text-xs text-muted-foreground">-</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -1179,7 +1190,7 @@ export default function ManageBillsClient() {
             {/* Calculations & Additional Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200 dark:border-gray-800">
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="serviceCharge">Maintenance ({currencySymbol})</Label>
                     <Input
@@ -1201,6 +1212,17 @@ export default function ManageBillsClient() {
                         onChange={(e) => setRenewDate(e.target.value)}
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="renewFee">Renewal Price ({currencySymbol})</Label>
+                    <Input
+                      id="renewFee"
+                      type="number"
+                      min="0"
+                      value={renewFee}
+                      onChange={(e) => setRenewFee(parseFloat(e.target.value) || 0)}
+                    />
                   </div>
                 </div>
 
@@ -1367,7 +1389,7 @@ export default function ManageBillsClient() {
               </thead>
               <tbody>
                 {selectedBill?.items?.map((item: any, idx: number) => (
-                  <tr key={idx} className="border-b">
+                  <tr key={idx} className="">
                     <td className="py-3 px-3 font-medium text-gray-900">
                       {item.link ? (
                         <a
@@ -1429,10 +1451,15 @@ export default function ManageBillsClient() {
             </div>
 
             {selectedBill?.renewDate && (
-              <div className="mt-12 border-t pt-6 text-center text-xs text-gray-500">
-                <p className="text-blue-600 font-semibold uppercase tracking-wider">
+              <div className="mt-12 border-t pt-6 text-center text-xs text-gray-500 flex flex-col gap-1">
+                <p className="text-blue-600 font-bold uppercase tracking-wider">
                   Next Renewal Date: {new Date(selectedBill.renewDate).toLocaleDateString()}
                 </p>
+                {selectedBill.renewFee > 0 && (
+                  <p className="text-gray-600 font-semibold">
+                    Renewal Price: {getCurrencySymbol(selectedBill.currency)}{selectedBill.renewFee.toLocaleString()}
+                  </p>
+                )}
               </div>
             )}
           </div>

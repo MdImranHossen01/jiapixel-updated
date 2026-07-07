@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
       currentBillDue,
       status,
       renewDate,
+      renewFee,
       currency,
       adminNote,
     } = body;
@@ -154,6 +155,7 @@ export async function POST(req: NextRequest) {
       status,
       currency: currency || "BDT",
       renewDate: renewDate ? new Date(renewDate) : undefined,
+      renewFee: renewFee !== undefined ? Number(renewFee) : 0,
       adminNote,
     });
 

@@ -29,6 +29,7 @@ export interface IBill extends Document {
   status: 'Paid' | 'Due';
   currency: 'BDT' | 'USD';
   renewDate?: Date;
+  renewFee?: number;
   adminNote?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -64,6 +65,7 @@ const BillSchema: Schema<IBill> = new Schema(
     status: { type: String, enum: ['Paid', 'Due'], default: 'Due' },
     currency: { type: String, enum: ['BDT', 'USD'], default: 'BDT' },
     renewDate: { type: Date },
+    renewFee: { type: Number, default: 0 },
     adminNote: { type: String, default: "" },
   },
   { timestamps: true }
@@ -72,6 +74,10 @@ const BillSchema: Schema<IBill> = new Schema(
 // Add text index for searching bills
 BillSchema.index({ clientName: 'text', clientEmail: 'text', clientPhone: 'text', invoiceNo: 'text' });
 
-const Bill: Model<IBill> = mongoose.models.Bill || mongoose.model<IBill>('Bill', BillSchema);
+if (mongoose.models.Bill) {
+  delete (mongoose.models as any).Bill;
+}
+
+const Bill: Model<IBill> = mongoose.model<IBill>('Bill', BillSchema);
 
 export default Bill;

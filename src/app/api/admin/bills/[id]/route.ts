@@ -87,6 +87,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       currentBillDue,
       status,
       renewDate,
+      renewFee,
       currency,
       adminNote,
     } = body;
@@ -110,6 +111,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (status !== undefined) bill.status = status;
     if (currency !== undefined) bill.currency = currency;
     if (renewDate !== undefined) bill.renewDate = renewDate ? new Date(renewDate) : undefined;
+    if (renewFee !== undefined) bill.renewFee = Number(renewFee);
     if (adminNote !== undefined) bill.adminNote = adminNote;
 
     if (status === "Paid") {
