@@ -712,16 +712,19 @@ export default function ManageBillsClient() {
                 {filteredBills.map((bill) => (
                   <TableRow key={bill._id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30">
                     <TableCell className="font-medium">
-                      <button
+                      <a
+                        href={`/bills/${bill.invoiceNo}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         onClick={() => {
-                          setSelectedBill(bill);
-                          setIsViewOpen(true);
+                          const shareUrl = `${window.location.origin}/bills/${bill.invoiceNo}`;
+                          copyToClipboard(shareUrl, "Share link");
                         }}
                         className="font-bold text-blue-600 dark:text-blue-400 hover:underline underline-offset-2 transition-colors"
-                        title="View Invoice Details"
+                        title="Open in new tab and copy link to clipboard"
                       >
                         #{bill.invoiceNo}
-                      </button>
+                      </a>
                     </TableCell>
                     <TableCell>
                       <div className="font-semibold text-gray-900 dark:text-white">{bill.clientName}</div>
