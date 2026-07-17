@@ -36,7 +36,8 @@ import {
   ExternalLink,
   ChevronDown,
   MoreVertical,
-  X
+  X,
+  Share2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -805,6 +806,16 @@ export default function ManageBillsClient() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-36">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                const shareUrl = `${window.location.origin}/bills/${bill.invoiceNo}`;
+                                copyToClipboard(shareUrl, "Share link");
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <Share2 className="w-4 h-4 mr-2 text-indigo-600 dark:text-indigo-400" />
+                              <span>Share Link</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => {
                                 setSelectedBill(bill);
