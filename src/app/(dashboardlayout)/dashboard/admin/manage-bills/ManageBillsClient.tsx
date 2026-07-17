@@ -729,17 +729,23 @@ export default function ManageBillsClient() {
                       {bill.clientEmail && (
                         <div 
                           className="text-xs text-muted-foreground cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                          onClick={() => copyToClipboard(bill.clientEmail, "Email")}
-                          title="Click to copy email"
+                          onClick={() => {
+                            setSearchTerm(bill.clientEmail);
+                            toast.success(`Filtering bills for: ${bill.clientEmail}`);
+                          }}
+                          title="Click to filter by this email"
                         >
                           {bill.clientEmail}
                         </div>
                       )}
                       <div className="text-xs flex items-center gap-1.5 mt-0.5">
                         <span 
-                          onClick={() => copyToClipboard(bill.clientPhone, "WhatsApp number")}
-                          className="text-muted-foreground cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                          title="Click to copy WhatsApp number"
+                          onClick={() => {
+                            setSearchTerm(bill.clientPhone);
+                            toast.success(`Filtering bills for: ${bill.clientPhone}`);
+                          }}
+                          className="text-muted-foreground cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                          title="Click to filter by this phone number"
                         >
                           WhatsApp: {bill.clientPhone}
                         </span>
