@@ -37,6 +37,7 @@ interface BillData {
   currency: 'BDT' | 'USD';
   renewDate?: string;
   renewFee?: number;
+  adminNote?: string;
 }
 
 export default function BillViewClient({ invoiceNo }: { invoiceNo: string }) {
@@ -81,8 +82,12 @@ export default function BillViewClient({ invoiceNo }: { invoiceNo: string }) {
               <style>
                 body { font-family: sans-serif; padding: 20px; }
                 .text-primary { color: oklch(0.648 0.2 131.684); }
+                .text-rose-600 { color: #dc2626 !important; }
+                .text-emerald-600 { color: #059669 !important; }
                 @media print {
                   .no-print { display: none; }
+                  .text-rose-600 { color: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                  .text-emerald-600 { color: #059669 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                 }
               </style>
             </head>
@@ -144,7 +149,7 @@ export default function BillViewClient({ invoiceNo }: { invoiceNo: string }) {
         )}
       </div>
 
-      {/* Main Invoice Card (exact same as the popup in manage bills) */}
+      {/* Main Invoice Card */}
       <div id="invoice-print-area" className="p-8 bg-white text-gray-900 border rounded-lg shadow-sm">
         <div className="flex justify-between items-start border-b pb-6 mb-6">
           <div>
@@ -264,6 +269,13 @@ export default function BillViewClient({ invoiceNo }: { invoiceNo: string }) {
           </div>
         )}
       </div>
+
+      {bill.adminNote && (
+        <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg no-print">
+          <h4 className="text-sm font-bold text-amber-800 dark:text-amber-400 mb-1">Internal Admin Note (Hidden from Client)</h4>
+          <p className="text-sm text-amber-700 dark:text-amber-300 whitespace-pre-wrap">{bill.adminNote}</p>
+        </div>
+      )}
     </div>
   );
 }

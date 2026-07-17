@@ -541,8 +541,12 @@ export default function ManageBillsClient() {
               <style>
                 body { font-family: sans-serif; padding: 20px; }
                 .text-primary { color: oklch(0.648 0.2 131.684); }
+                .text-rose-600 { color: #dc2626 !important; }
+                .text-emerald-600 { color: #059669 !important; }
                 @media print {
                   .no-print { display: none; }
+                  .text-rose-600 { color: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                  .text-emerald-600 { color: #059669 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                 }
               </style>
             </head>
