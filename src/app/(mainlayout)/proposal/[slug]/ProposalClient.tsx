@@ -7,7 +7,7 @@ import NovelEditor from "@/app/components/editor/NovelEditor";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { CheckCircle2, Clock, DollarSign, Loader2, ArrowRight, User, ExternalLink, FileText } from "lucide-react";
+import { CheckCircle2, Clock, DollarSign, Loader2, ArrowRight, User, ExternalLink, FileText, Printer } from "lucide-react";
 import Link from "next/link";
 import AuthModal from "@/components/AuthModal";
 import Image from "next/image";
@@ -97,6 +97,101 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
             handleAccept();
         }
     }, [authStatus, pendingAccept, slug, handleAccept]);
+
+    const printProposal = () => {
+        const editorContent = document.querySelector(".prose")?.innerHTML || "";
+        const currencySymbol = order.currency === "BDT" ? "৳" : "$";
+        const priceText = order.price ? `${currencySymbol}${order.price.toLocaleString()}` : "TBD";
+        const dateText = new Date(order.createdAt).toLocaleDateString();
+        const dueDateText = order.dueDate ? new Date(order.dueDate).toLocaleDateString() : "TBD";
+        
+        const clientHtml = order.client ? `
+          <div class="mb-8 text-sm bg-gray-50 p-6 rounded-lg border border-gray-200">
+            <h3 class="font-bold text-gray-700 uppercase tracking-wider mb-2">Prepared For:</h3>
+            <div class="font-bold text-base text-gray-900">${order.client.name || ''}</div>
+            <div class="text-gray-600">${order.client.email || ''}</div>
+          </div>
+        ` : '';
+
+        const win = window.open("", "_blank");
+        if (win) {
+            win.document.write(`
+                <html>
+                  <head>
+                    <title>Proposal - ${order.title}</title>
+                    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+                    <style>
+                      body { font-family: sans-serif; padding: 40px; color: #1f2937; }
+                      .text-primary { color: oklch(0.648 0.2 131.684); }
+                      .prose { max-width: 100%; }
+                      .prose h1 { font-size: 2.25rem; font-weight: 800; margin-top: 1.5rem; margin-bottom: 1rem; }
+                      .prose h2 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 1rem; border-b: 1px solid #e5e7eb; padding-bottom: 0.5rem; }
+                      .prose h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.75rem; }
+                      .prose p { margin-top: 0.5rem; margin-bottom: 0.5rem; line-height: 1.625; }
+                      .prose ul { list-style-type: disc; padding-left: 1.625rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+                      .prose ol { list-style-type: decimal; padding-left: 1.625rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+                      .prose li { margin-top: 0.25rem; margin-bottom: 0.25rem; }
+                      .prose strong { font-weight: 700; }
+                      .prose blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; font-style: italic; color: #4b5563; }
+                      .prose img { max-width: 100%; height: auto; border-radius: 0.375rem; margin: 1rem 0; }
+                      .prose table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+                      .prose th, .prose td { border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; text-align: left; }
+                      .prose th { background-color: #f9fafb; font-weight: 600; }
+                      @page {
+                        size: A4;
+                        margin: 20mm;
+                      }
+                      @media print {
+                        .no-print { display: none; }
+                        body { padding: 0; margin: 0; }
+                      }
+                    </style>
+                  </head>
+                  <body onload="window.print(); window.close();">
+                    <div class="max-w-4xl mx-auto">
+                      <!-- Header with Logo -->
+                      <div class="flex justify-between items-start border-b pb-6 mb-8">
+                        <div>
+                          <div class="flex items-center gap-2 mb-2">
+                            <img src="/Jia-Pixel-Logo.svg" alt="Jia Pixel Logo" class="w-10 h-10 object-contain" />
+                            <span class="text-3xl font-extrabold text-primary tracking-tight">JIA<span class="text-gray-800 text-lg font-bold ml-1">Pixel</span></span>
+                          </div>
+                          <p class="text-sm text-gray-500 mt-1">Premium Web Solutions & Digital Services</p>
+                        </div>
+                        <div class="text-right">
+                          <h2 class="text-xl font-bold uppercase text-gray-700 tracking-wider">PROJECT PROPOSAL</h2>
+                          <p class="text-sm text-gray-500 mt-1.5"><strong>Investment:</strong> ${priceText}</p>
+                          <p class="text-sm text-gray-500 mt-0.5"><strong>Expected Delivery:</strong> ${dueDateText}</p>
+                        </div>
+                      </div>
+
+                      <!-- Client Details -->
+                      ${clientHtml}
+
+                      <!-- Proposal Content Title -->
+                      <div class="mb-6">
+                        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">${order.title}</h1>
+                        <div class="h-1 w-20 bg-blue-600 rounded"></div>
+                      </div>
+
+                      <!-- Proposal Content (from Editor) -->
+                      <div class="prose">
+                        ${editorContent}
+                      </div>
+
+                      <!-- Footer note -->
+                      <div class="mt-16 border-t pt-6 text-center text-xs text-gray-500">
+                        <p class="mb-1 font-semibold text-gray-400">This is a computer-generated document, no signature is required.</p>
+                        <p>© ${new Date().getFullYear()} JiaPixel. All rights reserved.</p>
+                        <p class="mt-1">www.jiapixel.com | mail.jiapixel@gmail.com</p>
+                      </div>
+                    </div>
+                  </body>
+                </html>
+            `);
+            win.document.close();
+        }
+    };
 
     const parseNovelContent = (jsonString: string) => {
         try {
@@ -215,6 +310,12 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                                 </div>
                             </div>
                         )}
+
+                        <div className="pt-2 no-print">
+                            <Button onClick={printProposal} className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-1.5 h-11">
+                                <Printer className="w-4 h-4" /> Print/Download PDF
+                            </Button>
+                        </div>
                     </CardContent>
 
                     {showActionButtons && (
