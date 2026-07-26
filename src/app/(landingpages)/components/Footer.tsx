@@ -43,21 +43,7 @@ const LandingFooter = () => {
             </p>
           </div>
 
-          {/* Social Icons */}
-          <div className="flex space-x-6">
-            {socialLinks.map((social, index) => (
-              <Link
-                key={index}
-                href={social.href}
-                aria-label={social.label}
-                className="text-muted-foreground hover:text-primary transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {social.icon}
-              </Link>
-            ))}
-          </div>
+          {/* Social Icons removed */}
         </div>
 
         {/* Copyright */}

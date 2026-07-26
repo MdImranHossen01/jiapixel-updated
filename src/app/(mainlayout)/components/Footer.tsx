@@ -83,18 +83,7 @@ const Footer = () => {
               Creating exceptional digital experiences that drive growth and
               innovation for businesses worldwide.
             </p>
-            <div className="flex justify-center md:justify-start space-x-4">
-              {socialLinks.map((social, index) => (
-                <Link
-                  key={index}
-                  href={social.href}
-                  aria-label={social.label}
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {social.icon}
-                </Link>
-              ))}
-            </div>
+            {/* Social icons removed */}
           </div>
 
           {/* Footer Links */}

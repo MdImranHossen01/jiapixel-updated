@@ -219,16 +219,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                         </Link>
                       )}
 
-                      {portfolio.githubUrl && (
-                        <Link
-                          href={portfolio.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full flex items-center justify-center px-4 py-2 border border-border bg-background text-foreground rounded-lg hover:bg-accent transition-colors"
-                        >
-                          View Code
-                        </Link>
-                      )}
+                      {/* View Code button removed */}
                     </div>
 
                     {/* Share Project - Client Component */}
