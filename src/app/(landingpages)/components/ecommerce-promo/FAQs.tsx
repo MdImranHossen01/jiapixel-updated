@@ -37,7 +37,7 @@ export const FAQs = () => {
                             <span className="group-hover:text-primary transition-colors">হোস্টিং কি একদম ফ্রি পাওয়া যাবে?</span>
                         </AccordionTrigger>
                         <AccordionContent className="text-muted-foreground text-base leading-relaxed pb-7 text-left border-t border-border/10 pt-4">
-                            হ্যাঁ, প্রথম বছরের জন্য আমরা হাই-স্পিড ক্লাউড হোস্টিং একদম ফ্রিতে দিচ্ছি আপনার বিজনেসের খরচ কমাতে।
+                            হ্যাঁ, প্রথম ৬ মাসের জন্য আমরা হাই-স্পিড ক্লাউড হোস্টিং একদম ফ্রিতে দিচ্ছি আপনার বিজনেসের খরচ কমাতে।
                         </AccordionContent>
                     </AccordionItem>
 
