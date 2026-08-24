@@ -4,14 +4,6 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI as string;
 const DB_NAME = process.env.DB_NAME as string;
 
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
-}
-
-if (!DB_NAME) {
-  throw new Error('Please define the DB_NAME environment variable');
-}
-
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -31,6 +23,13 @@ if (!global.mongoose) {
 }
 
 async function connectDB() {
+  if (!MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI environment variable');
+  }
+  if (!DB_NAME) {
+    throw new Error('Please define the DB_NAME environment variable');
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
