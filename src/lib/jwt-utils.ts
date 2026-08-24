@@ -16,18 +16,18 @@ export interface Tokens {
   refreshToken: string;
 }
 
-// Fail-fast secret validation
-function getRequiredSecret(name: string): string {
-  const secret = process.env[name];
-  if (!secret) {
-    throw new Error(`CRITICAL: ${name} is not defined in .env`);
-  }
+// Lazily fetch secrets to prevent build-time crashes in Next.js
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('CRITICAL: JWT_SECRET is not defined in .env');
   return secret;
 }
 
-// ENV secrets
-const JWT_SECRET = getRequiredSecret('JWT_SECRET');
-const JWT_REFRESH_SECRET = getRequiredSecret('JWT_REFRESH_SECRET');
+function getJwtRefreshSecret(): string {
+  const secret = process.env.JWT_REFRESH_SECRET;
+  if (!secret) throw new Error('CRITICAL: JWT_REFRESH_SECRET is not defined in .env');
+  return secret;
+}
 
 // Parse expiration safely (fallback to default seconds)
 function parseExpiry(value: string | undefined, fallbackSeconds: number): number {
@@ -54,11 +54,11 @@ export async function generateTokens(user: any): Promise<Tokens> {
   const accessOptions: SignOptions = { expiresIn: accessExpiresIn };
   const refreshOptions: SignOptions = { expiresIn: refreshExpiresIn };
 
-  const accessToken = jwt.sign(payload, JWT_SECRET, accessOptions);
+  const accessToken = jwt.sign(payload, getJwtSecret(), accessOptions);
 
   const refreshToken = jwt.sign(
     { ...payload, type: 'refresh' },
-    JWT_REFRESH_SECRET,
+    getJwtRefreshSecret(),
     refreshOptions
   );
 
@@ -82,7 +82,7 @@ export async function generateTokens(user: any): Promise<Tokens> {
 
 export async function verifyAccessToken(token: string): Promise<JWTPayload | null> {
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+    return jwt.verify(token, getJwtSecret()) as JWTPayload;
   } catch {
     return null;
   }
@@ -90,7 +90,7 @@ export async function verifyAccessToken(token: string): Promise<JWTPayload | nul
 
 export async function verifyRefreshToken(token: string): Promise<JWTPayload | null> {
   try {
-    const decoded = jwt.verify(token, JWT_REFRESH_SECRET) as JWTPayload;
+    const decoded = jwt.verify(token, getJwtRefreshSecret()) as JWTPayload;
 
     if (decoded.type !== 'refresh') return null;
 
