@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
@@ -13,12 +14,17 @@ export const metadata: Metadata = {
     }
 }
 
+export const revalidate = 3600; // revalidate every hour
+
 export default async function BestWebDesignPage() {
-    await connectDB();
-    const servicesData = await Service.find({ status: 'published' })
-        .sort({ createdAt: -1 })
-        .limit(4)
-        .lean();
+    let servicesData: any[] = [];
+    if (process.env.MONGODB_URI) {
+        await connectDB();
+        servicesData = await Service.find({ status: 'published' })
+            .sort({ createdAt: -1 })
+            .limit(4)
+            .lean();
+    }
 
     // Serialize data to resolve "Only plain objects can be passed to Client Components" error
     const latestServices = JSON.parse(JSON.stringify(servicesData));
