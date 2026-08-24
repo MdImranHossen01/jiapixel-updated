@@ -53,6 +53,7 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  output: "standalone",
 
   // Add these for better performance and security
   experimental: {
@@ -95,7 +96,7 @@ const nextConfig = {
   },
 };
 
-// @ts-ignore
+
 const withPWA = require("@ducanh2912/next-pwa").default({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
