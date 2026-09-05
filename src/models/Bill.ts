@@ -26,7 +26,7 @@ export interface IBill extends Document {
   gTotal: number;
   cashIn: number;
   currentBillDue: number;
-  status: 'Paid' | 'Due';
+  status: 'Paid' | 'Due' | 'Fraud';
   currency: 'BDT' | 'USD';
   renewDate?: Date;
   renewFee?: number;
@@ -62,7 +62,7 @@ const BillSchema: Schema<IBill> = new Schema(
     gTotal: { type: Number, required: true, min: 0 },
     cashIn: { type: Number, default: 0, min: 0 },
     currentBillDue: { type: Number, default: 0, min: 0 },
-    status: { type: String, enum: ['Paid', 'Due'], default: 'Due' },
+    status: { type: String, enum: ['Paid', 'Due', 'Fraud'], default: 'Due' },
     currency: { type: String, enum: ['BDT', 'USD'], default: 'BDT' },
     renewDate: { type: Date },
     renewFee: { type: Number, default: 0 },

@@ -47,6 +47,8 @@ export async function GET(req: NextRequest) {
       query.status = "Paid";
     } else if (filter === "due") {
       query.status = "Due";
+    } else if (filter === "fraud") {
+      query.status = "Fraud";
     }
 
     if (search) {

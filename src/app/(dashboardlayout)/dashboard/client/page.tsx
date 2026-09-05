@@ -188,7 +188,14 @@ export default function ClientDashboardPage() {
                                             <TableCell className="text-right text-emerald-600 dark:text-emerald-400">৳{bill.cashIn?.toLocaleString()}</TableCell>
                                             <TableCell className="text-right font-bold text-rose-600 dark:text-rose-400">৳{bill.currentBillDue?.toLocaleString()}</TableCell>
                                             <TableCell>
-                                                <Badge variant={bill.status === "Paid" ? "default" : "destructive"}>
+                                                <Badge
+                                                    variant={bill.status === "Paid" ? "default" : "destructive"}
+                                                    className={
+                                                        bill.status === "Fraud"
+                                                            ? "bg-purple-700 hover:bg-purple-800 text-white font-bold tracking-wide"
+                                                            : ""
+                                                    }
+                                                >
                                                     {bill.status}
                                                 </Badge>
                                             </TableCell>

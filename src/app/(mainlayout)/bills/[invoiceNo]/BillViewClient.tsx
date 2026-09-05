@@ -33,7 +33,7 @@ interface BillData {
   gTotal: number;
   cashIn: number;
   currentBillDue: number;
-  status: 'Paid' | 'Due';
+  status: 'Paid' | 'Due' | 'Fraud';
   currency: 'BDT' | 'USD';
   renewDate?: string;
   renewFee?: number;

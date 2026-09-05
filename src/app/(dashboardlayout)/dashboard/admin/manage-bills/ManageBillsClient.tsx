@@ -37,7 +37,9 @@ import {
   ChevronDown,
   MoreVertical,
   X,
-  Share2
+  Share2,
+  AlertTriangle,
+  ShieldAlert
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -176,7 +178,7 @@ export default function ManageBillsClient() {
   const [cashIn, setCashIn] = useState<number>(0);
   const [renewDate, setRenewDate] = useState("");
   const [renewFee, setRenewFee] = useState<number>(0);
-  const [billStatus, setBillStatus] = useState<"Paid" | "Due">("Due");
+  const [billStatus, setBillStatus] = useState<"Paid" | "Due" | "Fraud">("Due");
   const [currency, setCurrency] = useState<"BDT" | "USD">("BDT");
   const [adminNote, setAdminNote] = useState("");
   const [selectedProjects, setSelectedProjects] = useState<Record<string, boolean>>({});
@@ -213,6 +215,40 @@ export default function ManageBillsClient() {
       }
     } catch (err) {
       console.error("Error fetching projects:", err);
+    }
+  };
+
+  const handleToggleFraud = async (bill: any) => {
+    const isCurrentlyFraud = bill.status === "Fraud";
+    const confirmText = isCurrentlyFraud 
+      ? `Are you sure you want to unmark invoice #${bill.invoiceNo} as fraud?` 
+      : `Are you sure you want to mark invoice #${bill.invoiceNo} (${bill.clientName}) as FRAUD?`;
+
+    const result = await Swal.fire({
+      title: isCurrentlyFraud ? "Remove Fraud Status?" : "Mark as Fraud?",
+      text: confirmText,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: isCurrentlyFraud ? "#3b82f6" : "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: isCurrentlyFraud ? "Yes, remove fraud mark" : "Yes, mark as Fraud!"
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const newStatus = isCurrentlyFraud ? (bill.currentBillDue <= 0 ? "Paid" : "Due") : "Fraud";
+        const res = await fetch(`/api/admin/bills/${bill._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!res.ok) throw new Error("Failed to update status");
+        toast.success(isCurrentlyFraud ? "Fraud status removed" : "Marked as Fraud successfully");
+        fetchBills();
+      } catch (error) {
+        toast.error("Failed to update status");
+      }
     }
   };
 
@@ -294,7 +330,8 @@ export default function ManageBillsClient() {
     const matchesStatus =
       statusFilter === "all" ||
       (statusFilter === "paid" && b.status === "Paid") ||
-      (statusFilter === "due" && b.status === "Due");
+      (statusFilter === "due" && b.status === "Due") ||
+      (statusFilter === "fraud" && b.status === "Fraud");
 
     let matchesDate = true;
     if (useDateRange && startDate && endDate) {
@@ -666,7 +703,7 @@ export default function ManageBillsClient() {
         </div>
 
         <div className="flex gap-1.5">
-          {["all", "paid", "due"].map((filter) => (
+          {["all", "paid", "due", "fraud"].map((filter) => (
             <Button
               key={filter}
               variant={statusFilter === filter ? "default" : "outline"}
@@ -789,7 +826,14 @@ export default function ManageBillsClient() {
                     <TableCell className="text-right text-emerald-600 dark:text-emerald-400">{getCurrencySymbol(bill.currency)}{bill.cashIn?.toLocaleString()}</TableCell>
                     <TableCell className="text-right font-semibold text-rose-600 dark:text-rose-400">{getCurrencySymbol(bill.currency)}{bill.currentBillDue?.toLocaleString()}</TableCell>
                     <TableCell>
-                      <Badge variant={bill.status === "Paid" ? "default" : "destructive"}>
+                      <Badge
+                        variant={bill.status === "Paid" ? "default" : "destructive"}
+                        className={
+                          bill.status === "Fraud"
+                            ? "bg-purple-700 hover:bg-purple-800 text-white font-bold tracking-wide"
+                            : ""
+                        }
+                      >
                         {bill.status}
                       </Badge>
                     </TableCell>
@@ -818,7 +862,7 @@ export default function ManageBillsClient() {
                               <MoreVertical className="w-4 h-4 text-gray-500" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-36">
+                          <DropdownMenuContent align="end" className="w-44">
                             <DropdownMenuItem
                               onClick={() => {
                                 const shareUrl = `${window.location.origin}/bills/${bill.invoiceNo}`;
@@ -855,6 +899,17 @@ export default function ManageBillsClient() {
                                 <span>Collect Payment</span>
                               </DropdownMenuItem>
                             )}
+                            <DropdownMenuItem
+                              onClick={() => handleToggleFraud(bill)}
+                              className={`cursor-pointer ${
+                                bill.status === "Fraud"
+                                  ? "text-blue-600 dark:text-blue-400 font-medium"
+                                  : "text-purple-600 dark:text-purple-400 font-medium"
+                              }`}
+                            >
+                              <ShieldAlert className="w-4 h-4 mr-2" />
+                              <span>{bill.status === "Fraud" ? "Unmark Fraud" : "Mark as Fraud"}</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                               variant="destructive"
                               onClick={() => handleDeleteBill(bill._id)}
