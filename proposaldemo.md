@@ -1,111 +1,181 @@
-# Business Proposal: Premium E-commerce Website Solution
+# Business Proposal: All-In-One E-commerce Solution
 
-**Prepared for:** Valued Client  
+**Created on:** 5/2/2026  
 **Prepared by:** Md. Imran Hossen (Jiapixel)  
-**Offer Price:** 3,500 BDT (One-time Setup)  
-**Special Offer:** No Advance Payment Required. Pay Only After Approval.
+**Project Deadline / Timeline:** 7 Days
 
 ---
 
 ## 1. Executive Summary
-Empower your business with a state-of-the-art E-commerce platform. Our solution is built using the latest technology stack (Next.js, React, and MongoDB) to ensure unmatched speed, security, and scalability. We follow a "Trust First" policy—we build your store demo without any advance payment, and you only pay when you are satisfied with the results.
+Empower your business with a state-of-the-art E-commerce platform. Our solution is built using the latest technology stack (Next.js, React, and MongoDB) to ensure unmatched speed, security, and scalability — delivering a superior shopping experience that drives real business growth.
 
-## 2. Comprehensive Feature List (54+ Features)
-Every store we build comes packed with these professional features, organized for your business growth:
+## 2. Comprehensive Feature List
+Every store we build comes packed with these professional, enterprise-grade features organized for your business growth:
 
-### Core Technology & Performance
-1.  **Free Cloud Hosting:** High-performance cloud hosting included at no monthly cost.
-2.  **Super Fast Speed:** Optimized for Google Core Web Vitals for lightning-fast loading.
-3.  **Advanced Technology Stack:** Built with Next.js and React for a modern user experience.
-4.  **SSR, ISR, CSR Integration:** Hybrid rendering for peak performance and SEO.
-5.  **Free SSL Certificate:** First-year SSL included to keep your store data secure.
-6.  **Fully Responsive Design:** Perfect viewing experience on Mobile, Tablet, and Desktop.
-7.  **PWA (Offline Support):** Allows users to install your website as an app on their devices.
+### 🚀 Core Technology & Performance
+1.  **Cloud VPS Hosting:** High-performance cloud VPS hosting for peak traffic handling and stability.
+2.  **Next.js & React Stack:** Cutting-edge, lightning-fast architecture for a superior customer experience.
+3.  **SSR, ISR & CSR Integration:** Hybrid rendering for peak speed, stability, and top-tier SEO performance.
+4.  **Super Fast Speed & Core Web Vitals:** Highly optimized assets and code for instantaneous load times.
+5.  **PWA (Progressive Web App):** Allows customers to install your website as a standalone native-like mobile app.
+6.  **Free SSL Certificate:** Secure encrypted connection (HTTPS) included to protect store data.
+7.  **Fully Responsive Design:** Pixel-perfect user experience across Mobile, Tablet, and Desktop screens.
 
-### Advanced Technical & SEO Setup
-8.  **Structured Data Markup:** Advanced Schema implementation for better search engine appearance.
-9.  **Open Graph Setup:** Beautiful link previews when sharing on social media (Facebook, WhatsApp).
-10. **Dynamic Sitemap Generation:** Automated sitemaps for faster Google indexing.
-11. **Twitter Card Setup:** Professional link previews specifically for Twitter/X.
-12. **Customized Theme & Fonts:** Tailored colors and premium typography to match your brand.
-13. **Advanced Security & Hardening:** Latest protocols to protect against hacking and malware.
-14. **Domain Management:** Professional assistance in domain connecting, DNS setup, and renewal management.
+### 🔍 Advanced Technical & SEO Setup
+8.  **Dynamic Meta Title & Description:** Automated, custom meta tags for every product, category, and page.
+9.  **Structured Data & Schema Markup:** Rich snippets implementation for enhanced Google search engine appearance.
+10. **Dynamic Sitemap Generation:** Automated XML sitemaps for rapid indexing by Google and other search engines.
+11. **Open Graph Setup:** Beautiful preview cards when sharing links on Facebook, WhatsApp, LinkedIn, etc.
+12. **Twitter / X Card Setup:** Customized link previews specifically formatted for Twitter/X.
+13. **Customized Theme & Fonts:** Dynamic color palette and font typography customized to match your brand identity.
+14. **Advanced Security & Hardening:** Enterprise-level security protocols to guard against attacks, spam, and malware.
+15. **Domain & DNS Management:** Full setup and DNS configuration for your custom domain name.
 
-### E-commerce & Logistics Automation
-15. **Courier Integration:** Automated shipping with Pathao, RedX, Steadfast, and more.
-16. **Payment Method Integration:** Accept bKash, Nagad, Rocket, and Card payments directly.
-17. **Real-time Courier Tracking:** Customers can track their parcels directly from your site.
-18. **Live Order Tracking:** Step-by-step status updates from confirmation to delivery.
-19. **Dynamic Delivery Charge:** Automatic calculation based on location and order value.
-20. **Short Product Alert:** Automated notifications before any product goes out of stock.
-21. **Day and Night Mode:** Switch between dark and light themes for better accessibility and style.
-22. **Automated Invoice Generation:** Instant professional PDF invoices for every order.
+### 📦 Logistics, Shipping & Order Management
+16. **Instant Courier Booking & Integration:** Automated API dispatch with Pathao, Steadfast, RedX, and more.
+17. **Real-time Courier Tracking:** Direct parcel tracking integrated directly into the customer portal.
+18. **Live Step-by-Step Order Tracking:** Real-time visual progress from order confirmation to delivery.
+19. **Dynamic Delivery Charges:** Automatic shipping cost calculation based on city/district and order value.
+20. **Manual Order Creation (Offline Orders):** Create and manage phone/social media orders directly from the Admin Panel.
+21. **Automated PDF Invoice:** Instant, downloadable professional invoices generated for every order.
+22. **Sticker Invoice & Shipping Labels:** One-click generation of parcel stickers and shipping label formats for couriers.
+23. **Delivery Challan:** Dedicated packing slip and delivery challan printing support.
+24. **Short Product & Out-of-Stock Alerts:** Automated alerts and dashboard warnings when inventory is running low.
+25. **Automatic Delivery Status Update (Cronjob):** Delivery statuses are automatically synced and updated in real-time via Steadfast Courier API using scheduled cronjobs — no manual refresh required.
 
-### Marketing & Sales Optimization
-23. **SEO Friendly Structure:** Built-in technical SEO to help you rank higher.
-24. **CRO Optimized Layout:** High-conversion design to turn visitors into buyers.
-25. **Facebook Pixel Setup:** Professional tracking for effective social media marketing.
-26. **Dynamic Discount Coupons:** Create festival or campaign-based discount codes easily.
-27. **Customer Loyalty Program:** Point system and membership tiers for regular customers.
-28. **Social Media Integration:** Connect directly with your Facebook and Instagram pages.
+### 💳 Payment & Fraud Prevention
+26. **Multi-Gateway Payment Integration:** Accept bKash, Nagad, Rocket, Upay, Visa, MasterCard, and Amex via SSLCommerz and other payment gateways seamlessly.
+26. **Cash on Delivery (COD) Support:** Full support for standard and advanced cash-on-delivery workflows.
+27. **Fraud Detection & Order Verification:** Smart validation to flag risky phone numbers, fake addresses, and duplicate orders.
+28. **Secure Checkout System:** Multi-layer encryption protecting sensitive customer data during checkout.
 
-### Analytics & Business Insights
-29. **Search Console & Analytics:** Full integration with Google tools to monitor growth.
-30. **Live Traffic Count:** See exactly how many visitors are active on your site right now.
-31. **Traffic Source & Location:** Detailed tracking of where your visitors are coming from.
-32. **Recurring Traffic Analytics:** Insights into how many customers are returning to your store.
-33. **Advanced Graphical Analytics:** Visualize sales trends and customer behavior.
-34. **Top Selling Products:** Automated tracking and reports for your most popular items.
-35. **Customer Insights:** Detailed profiles and behavioral analysis of your target audience.
-36. **ROAS Reporting:** Detailed Return on Ad Spend analytics to measure marketing efficiency.
-37. **Sales Forecasting:** AI-driven predictions for future sales trends and inventory planning.
+### 📈 Marketing, Tracking & Sales Optimization
+29. **Free Server-Side Tracking (CAPI):** Accurate tracking unaffected by iOS 14+ or ad-blocker restrictions.
+30. **Meta (Facebook) Pixel Setup:** Complete e-commerce event tracking (PageView, ViewContent, AddToCart, Purchase).
+31. **TikTok Pixel Setup:** Advanced tracking integration tailored for TikTok advertising campaigns.
+32. **Google Tag Manager (GTM) & GA4 Setup:** Comprehensive event tracking and in-depth user journey analysis.
+33. **High-Converting Landing Pages:** Dedicated single-product landing page layouts designed for maximum conversion.
+34. **CRO & SEO Optimized Architecture:** Clean UI/UX hierarchy structured to turn maximum visitors into paying buyers.
+35. **Dynamic Discount Coupons:** Create flat, percentage, or minimum-spend promotional discount codes.
+36. **Special Offers & Campaigns:** Easy setup for flash sales, combo offers, and buy-one-get-one promotions.
+37. **Abandoned Cart Recovery & Tracking:** Track customers who left without completing checkout and recover lost sales.
+38. **Customer Loyalty & Rewards Program:** Points and membership reward tier system for recurring buyers.
+39. **Social Media Integration:** Direct links and live feeds from Facebook, Instagram, and TikTok pages.
 
-### Premium User Experience (UX)
-38. **Smooth Scrolling & Interactions:** Premium UI effects for a high-end feel.
-39. **Premium Animations:** Modern loading and interaction animations.
-40. **Splash Screen & Skeleton Loading:** Professional loading experience to reduce bounce rates.
-41. **AI Integration:** Chatbot and automation support to guide your customers 24/7.
-42. **Google Map Integration:** Help customers find your physical office or showroom easily.
-43. **Voice Search:** Advanced search functionality for modern users.
-44. **Advanced Product Filtering:** Filter by category, price, and attributes.
-45. **Wishlist Functionality:** Allow customers to save their favorite products for later.
-46. **Customer Reviews & Ratings:** Build trust with verified social proof.
+### 📊 Accounts, Analytics & Business Insights
+40. **Ledger & Due Tracking:** Track customer and supplier credits, debits, and balance dues.
+41. **Google Search Console Integration:** Full integration to monitor organic keyword rankings and search impressions.
+42. **Top Selling Products Report:** Automated inventory performance metrics.
+43. **Customer Insights:** Detailed profiles and behavioral analysis of your target audience.
+44. **Repeat Customer Tracking:** Identify and analyze returning customers with full purchase history and retention metrics.
+45. **Duplicate Order Detection:** Automatically flag and alert on suspicious duplicate orders from the same customer.
 
-### CMS, Security & Support
-47. **Dynamic Admin Panel:** Full control over products, orders, and content.
-48. **Blog & CMS Support:** Post articles and news to drive organic traffic.
-49. **Advanced Rich-Text Editor:** Tiptap-based professional content editor.
-50. **Role-Based Authentication:** Separate dashboards for Admin and Customers.
-51. **Social & Email Login:** Quick and secure login via Google or Email.
-52. **Secure MongoDB Database:** Modern NoSQL database for data integrity.
-53. **Secure Checkout Process:** Multi-layer security to protect customer information during checkout.
-54. **Lifetime Technical Support:** Ongoing support for any technical issues or bugs.
+### ✨ Premium User Experience (UX & UI)
+50. **Day & Night (Dark/Light) Mode:** Instant theme switcher for user comfort and modern appeal.
+51. **Quick View Modal:** Fast product preview popups without leaving the category/catalog page.
+52. **AI Chatbot & Virtual Assistant:** 24/7 intelligent customer support and shopping assistant.
+53. **Voice Search Functionality:** Modern voice-driven product search for effortless navigation.
+54. **Advanced Product Filtering & Sorting:** Instant multi-attribute filtering (Price range, Category, Size, Color).
+55. **Wishlist Functionality:** Save-for-later favorites list for customers.
+56. **Customer Reviews & Star Ratings:** Verified social proof with user photos and feedback.
+57. **Smooth Scrolling & Micro-Interactions:** Modern, fluid animations and responsive button states.
+58. **Splash Screen & Skeleton Loading Screens:** Elegant placeholder loaders to eliminate jarring layout shifts.
+59. **Google Map & Location Integration:** Interactive maps for store/office/showroom locations.
+
+### 🛠️ Content Management (CMS) & Administration
+60. **Dynamic Admin Dashboard:** Full control over products, orders, customers, banners, and settings.
+61. **Blog & News CMS:** Full-featured article publishing to boost SEO and content marketing.
+62. **Advanced Rich-Text Editor (Tiptap):** Powerful WYSIWYG editor for product details, policies, and blog posts.
+63. **Role-Based Access Control (RBAC):** Separate role permissions for Super Admin, Admin, Manager, and Support Staff.
+64. **Social & One-Click Login:** Fast, secure user login via Google and Email.
+65. **Reliable MongoDB Database:** High-performance NoSQL database for flexible and fast data storage.
+66. **Secure Checkout Process:** Multi-layer security to protect customer information during checkout.
+67. **Lifetime Technical Support:** Continuous technical maintenance and bug fixes.
+68. **Multi-Language Support:** Full multilingual interface for reaching a broader, global audience.
+
+### 🏪 Showroom Management
+69. **Multi-Showroom Setup:** Add and manage multiple physical showroom locations from a single platform.
+70. **Showroom Manager Dashboard:** Dedicated dashboard for each showroom manager with location-specific access and controls.
+71. **Showroom Sales Tracking:** Real-time sales, revenue, and transaction tracking per individual showroom.
+72. **Showroom Expense Management:** Log and monitor all operational expenses specific to each showroom branch.
+73. **Showroom Inventory Control:** Separate stock management and transfer tracking per showroom location.
+
+### 👥 HR & Employment Management
+74. **Employee Dashboard:** Dedicated personal dashboard for each employee to view tasks, attendance, and records.
+75. **Leave Application System:** Employees can apply for leave online; managers can approve or reject with full log history.
+76. **Salary & Payroll Tracking:** View, manage, and export monthly salary slips and payroll reports per employee.
+
+### 🖨️ POS Billing System
+78. **Point-of-Sale (POS) Terminal:** Full in-store POS system for fast physical, manual, and showroom-based sales.
+79. **Barcode & Product Search:** Instant product lookup by barcode scan or name for rapid billing at the counter.
+80. **POS Receipt Printing:** One-click thermal receipt printing for every in-store transaction.
+81. **Cash & MFS Payment at POS:** Accept cash, bKash, Nagad, and card payments directly at the POS terminal.
+
+### 🤝 Supplier Management
+82. **Supplier Directory:** Centralized list of all suppliers with contact info, product categories, and history.
+83. **Supplier Due & Payment Tracking:** Monitor outstanding payables and payment history for every supplier.
+84. **Purchase Order Management:** Create and track purchase orders sent to suppliers.
+
+### 🏷️ Role-Based Dashboards
+85. **Customer Dashboard:** Personal order history, wishlist, loyalty points, and profile management.
+86. **Employee Dashboard:** Task assignments, leave status, salary, and attendance records.
+87. **Showroom Manager Dashboard:** Branch-specific sales, inventory, and expense overview.
+88. **Wholesaler Dashboard:** Wholesale pricing catalog, bulk order history, and due balance tracking.
+89. **Admin / Super Admin Dashboard:** Complete control over all modules, users, branches, and financials.
+
+### 🏭 Wholesale Facility
+90. **Wholesaler Account System:** Separate account type for registered wholesale buyers with custom pricing tiers.
+91. **Wholesale Product Pricing:** Wholesalers see and purchase products at their exclusive wholesale rates.
+92. **Wholesale Invoice & Challan:** Dedicated invoicing and delivery challan format for wholesale transactions.
+
+### ⚠️ Product & Inventory Intelligence
+94. **Product Expiry Alert:** Automated alerts for all products expiring within the next 30 days to prevent losses.
+95. **Product Brand Management:** Add and manage product brands; filter and browse catalog by brand.
+96. **Product Return & Refund Handling:** Dynamic return request system for customers with admin approval workflow.
+97. **Inter-Showroom Stock Transfer:** Seamlessly transfer stock from one showroom to another with full transfer logs, quantity tracking, and approval records.
+
+### 💰 Financial & Accounting Management
+98. **Accounts Payable & Receivable:** Full tracking of supplier payables, loan payables, and credit sales receivables.
+99. **Business Loan Management:** Track all business loans, lender details, repayment schedules, and outstanding balances.
+100. **Cash, Bank & MFS Management:** Unified ledger for cash in hand, bank accounts, and mobile banking (bKash, Nagad) balances.
+101. **Transaction History & Ledger:** Complete, filterable transaction log with export functionality for every account.
+102. **Income & Expense Categorization:** Categorize all business income and expenses for clean financial reporting.
+103. **Profit & Loss Statement:** Automated P&L report generation for any selected time period.
 
 ---
 
 ## 3. Client Requirements
 To begin the development process, please provide:
-1.  **Business Information:** Name, Logo, and a short "About Us" description.
-2.  **Contact Details:** Phone Number, Email, and Office/Showroom Address.
-3.  **Product Data:** Images, Titles, and Prices for at least 5-10 products.
-4.  **Social Links:** Facebook page URL and Instagram handle.
-5.  **Domain Preference:** Your desired domain name (e.g., www.yourbrand.com).
+1.  **Business Information:** Name, Logo, FAQ, and a short "About Us" description.
+2.  **Contact Details:** Phone Number, WhatsApp, Email, and Office/Showroom Address.
+3.  **Social Links:** Facebook, Instagram, TikTok, YouTube, and LinkedIn page links.
+4.  **Domain Preference:** Your desired domain name (e.g., www.yourbrand.com).
+5.  **Marketing & Tracking Credentials:** Facebook Pixel ID / Access Token, Domain Verification Code, GTM / GA4 ID, and Search Console access.
+6.  **Courier & Payment Gateways:** Courier API Keys (Pathao, Steadfast, RedX) and Payment Gateway Credentials (bKash, Nagad, SSLCommerz, etc.).
 
-## 4. Timeline & Process
-*   **Demo Phase:** We will deliver the initial store demo within 48-72 hours.
-*   **Feedback & Revision:** You review the demo and suggest any changes.
-*   **Final Launch:** Once you approve, we go live within 24 hours of payment.
-
-## 5. Terms & Conditions
-*   **Payment Policy:** No advance required. Full payment is due after you approve the demo.
-*   **Hosting:** Lifetime free cloud hosting on our infrastructure.
-*   **Domain:** Domain registration fees (.com, .net, etc.) are to be borne by the client.
-*   **Support:** We provide free lifetime support for any technical bugs or platform issues.
+## 4. Terms & Conditions
+- **Cloud VPS Hosting:** 1 Year high-performance Cloud VPS hosting included.
+- **Domain Registration:** 1 Year .com domain registration & DNS setup included. If you already have a domain, only manager/DNS access is required.
+- **Content & Products:** We configure all sample layouts, categories, and banners; client is responsible for regular product uploads and blog posts (full training/guidelines provided).
+- **Marketing & Ads:** Ad campaign budgets and creative materials are the responsibility of the client.
+- **Training & Video Tutorials:** Complete step-by-step video tutorials will be provided for all key integrations and operations — including Fraud Detection, Server-Side Tracking (CAPI), Pixel Tracking, SSLCommerz Payment Setup, Facebook Ads Running, and Courier Booking. The client will be able to independently manage all these features after watching the tutorials.
+- **API Keys & Credentials:** All API keys (Payment Gateway, Courier, Pixel, Tracking, etc.) must be obtained and managed by the client. Full guidance will be provided — including video walkthroughs showing exactly where and how to get each API key from the respective platform.
+- **Project Maintenance & Access:** Jiapixel retains technical administrator access to maintain, update, secure, and fix any platform issues under our lifetime support warranty. **Please note:** Free lifetime support is only available for projects hosted on Jiapixel's Cloud VPS infrastructure. If the client chooses to use their own personal hosting, free support and maintenance will not be applicable.
 
 ---
 
-**We are excited to help you take your business online.**
+## 5. Investment & Pricing Breakdown
+
+| Package Includes | Details |
+|---|---|
+| Complete Platform Development | ✅ Included |
+| Cloud VPS Hosting (1 Year) | ✅ Included (Unlimited High-Performance Cloud VPS) |
+| .com Domain (1 Year) | ✅ Included (Global .com Registration & DNS Setup) |
+| **Total Package Price** | **11,500 BDT** |
+| Annual Renewal (Hosting + Domain) | 8,000 BDT / Year |
+
+---
 
 **Md. Imran Hossen**  
-Founder, Jiapixel  
-[www.jiapixel.com](https://www.jiapixel.com)
+Lead Full-Stack Developer, Jiapixel  
+[www.jiapixel.com](https://www.jiapixel.com/)
