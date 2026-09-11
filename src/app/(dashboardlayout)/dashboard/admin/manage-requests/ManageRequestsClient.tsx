@@ -837,7 +837,21 @@ const ManageRequestsClient = () => {
                 <TableRow key={request._id} className="hover:bg-muted/30 transition-colors">
                   <TableCell className="bg-card border-r border-border py-2">
                     <div className="flex flex-col gap-1">
-                      <div className="font-bold text-sm">{request.name}</div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-sm">{request.name}</span>
+                        {request.price ? (
+                          <Badge
+                            variant="secondary"
+                            className={`text-[11px] font-bold px-1.5 py-0.5 rounded border shrink-0 ${
+                              request.price > 5000
+                                ? "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800"
+                                : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                            }`}
+                          >
+                            ৳{request.price.toLocaleString()}
+                          </Badge>
+                        ) : null}
+                      </div>
                       {request.projectTitle ? (
                         <div className="text-xs font-medium">
                           {request.proposalUrl ? (

@@ -100,97 +100,210 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
 
     const printProposal = () => {
         const editorContent = document.querySelector(".prose")?.innerHTML || "";
-        const currencySymbol = order.currency === "BDT" ? "৳" : "$";
-        const priceText = order.price ? `${currencySymbol}${order.price.toLocaleString()}` : "TBD";
-        const dateText = new Date(order.createdAt).toLocaleDateString();
-        const dueDateText = order.dueDate ? new Date(order.dueDate).toLocaleDateString() : "TBD";
+        const currencySymbol = order?.currency === "BDT" ? "৳" : "$";
+        const priceText = order?.price ? `${currencySymbol}${order.price.toLocaleString()}` : "TBD";
+        const dueDateText = order?.dueDate ? new Date(order.dueDate).toLocaleDateString() : "TBD";
         
-        const clientHtml = order.client ? `
-          <div class="mb-8 text-sm bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <h3 class="font-bold text-gray-700 uppercase tracking-wider mb-2">Prepared For:</h3>
-            <div class="font-bold text-base text-gray-900">${order.client.name || ''}</div>
-            <div class="text-gray-600">${order.client.email || ''}</div>
+        const clientHtml = order?.client ? `
+          <div class="client-box">
+            <h3 class="client-label">Prepared For:</h3>
+            <div class="client-name">${order.client.name || ''}</div>
+            <div class="client-email">${order.client.email || ''}</div>
           </div>
         ` : '';
 
-        const win = window.open("", "_blank");
-        if (win) {
-            win.document.write(`
-                <html>
-                  <head>
-                    <title>Proposal - ${order.title}</title>
-                    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-                    <style>
-                      body { font-family: sans-serif; padding: 40px; color: #1f2937; }
-                      .text-primary { color: oklch(0.648 0.2 131.684); }
-                      .prose { max-width: 100%; }
-                      .prose h1 { font-size: 2.25rem; font-weight: 800; margin-top: 1.5rem; margin-bottom: 1rem; }
-                      .prose h2 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 1rem; border-b: 1px solid #e5e7eb; padding-bottom: 0.5rem; }
-                      .prose h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.75rem; }
-                      .prose p { margin-top: 0.5rem; margin-bottom: 0.5rem; line-height: 1.625; }
-                      .prose ul { list-style-type: disc; padding-left: 1.625rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-                      .prose ol { list-style-type: decimal; padding-left: 1.625rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-                      .prose li { margin-top: 0.25rem; margin-bottom: 0.25rem; }
-                      .prose strong { font-weight: 700; }
-                      .prose blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; font-style: italic; color: #4b5563; }
-                      .prose img { max-width: 100%; height: auto; border-radius: 0.375rem; margin: 1rem 0; }
-                      .prose table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-                      .prose th, .prose td { border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; text-align: left; }
-                      .prose th { background-color: #f9fafb; font-weight: 600; }
-                      @page {
-                        size: A4;
-                        margin: 20mm;
-                      }
-                      @media print {
-                        .no-print { display: none; }
-                        body { padding: 0; margin: 0; }
-                      }
-                    </style>
-                  </head>
-                  <body onload="window.print(); window.close();">
-                    <div class="max-w-4xl mx-auto">
-                      <!-- Header with Logo -->
-                      <div class="flex justify-between items-start border-b pb-6 mb-8">
-                        <div>
-                          <div class="flex items-center gap-2 mb-2">
-                            <img src="/Jia-Pixel-Logo.svg" alt="Jia Pixel Logo" class="w-10 h-10 object-contain" />
-                            <span class="text-3xl font-extrabold text-primary tracking-tight">JIA<span class="text-gray-800 text-lg font-bold ml-1">Pixel</span></span>
-                          </div>
-                          <p class="text-sm text-gray-500 mt-1">Premium Web Solutions & Digital Services</p>
-                        </div>
-                        <div class="text-right">
-                          <h2 class="text-xl font-bold uppercase text-gray-700 tracking-wider">PROJECT PROPOSAL</h2>
-                          <p class="text-sm text-gray-500 mt-1.5"><strong>Investment:</strong> ${priceText}</p>
-                          <p class="text-sm text-gray-500 mt-0.5"><strong>Expected Delivery:</strong> ${dueDateText}</p>
-                        </div>
-                      </div>
+        // Create invisible iframe for 100% reliable printing without popup blocking
+        const printFrame = document.createElement("iframe");
+        printFrame.style.position = "fixed";
+        printFrame.style.left = "-9999px";
+        printFrame.style.top = "-9999px";
+        printFrame.style.width = "0";
+        printFrame.style.height = "0";
+        printFrame.style.border = "none";
+        printFrame.style.opacity = "0";
+        printFrame.style.pointerEvents = "none";
+        document.body.appendChild(printFrame);
 
-                      <!-- Client Details -->
-                      ${clientHtml}
-
-                      <!-- Proposal Content Title -->
-                      <div class="mb-6">
-                        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">${order.title}</h1>
-                        <div class="h-1 w-20 bg-blue-600 rounded"></div>
-                      </div>
-
-                      <!-- Proposal Content (from Editor) -->
-                      <div class="prose">
-                        ${editorContent}
-                      </div>
-
-                      <!-- Footer note -->
-                      <div class="mt-16 border-t pt-6 text-center text-xs text-gray-500">
-                        <p class="mb-1 font-semibold text-gray-400">This is a computer-generated document, no signature is required.</p>
-                        <p>© ${new Date().getFullYear()} JiaPixel. All rights reserved.</p>
-                        <p class="mt-1">www.jiapixel.com | mail.jiapixel@gmail.com</p>
-                      </div>
-                    </div>
-                  </body>
-                </html>
-            `);
-            win.document.close();
+        const frameDoc = printFrame.contentWindow?.document;
+        if (!frameDoc) {
+            toast.error("Could not initialize printing");
+            return;
         }
+
+        frameDoc.open();
+        frameDoc.write(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>Proposal - ${order?.title || "Project"}</title>
+                <style>
+                  @page {
+                    size: A4;
+                    margin: 15mm 20mm;
+                  }
+                  * { box-sizing: border-box; }
+                  body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    padding: 20px;
+                    color: #1f2937;
+                    line-height: 1.6;
+                    font-size: 14px;
+                    background: #fff;
+                  }
+                  .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    border-bottom: 2px solid #e5e7eb;
+                    padding-bottom: 20px;
+                    margin-bottom: 24px;
+                  }
+                  .brand {
+                    font-size: 26px;
+                    font-weight: 800;
+                    color: #5ea500;
+                    letter-spacing: -0.5px;
+                  }
+                  .brand span {
+                    color: #1f2937;
+                    font-size: 16px;
+                    font-weight: 700;
+                    margin-left: 2px;
+                  }
+                  .subtitle {
+                    font-size: 12px;
+                    color: #6b7280;
+                    margin-top: 4px;
+                  }
+                  .meta {
+                    text-align: right;
+                  }
+                  .meta h2 {
+                    font-size: 18px;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    color: #374151;
+                    margin: 0 0 6px 0;
+                  }
+                  .meta p {
+                    margin: 2px 0;
+                    font-size: 13px;
+                    color: #4b5563;
+                  }
+                  .client-box {
+                    margin-bottom: 24px;
+                    padding: 16px 20px;
+                    background: #f9fafb;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 8px;
+                  }
+                  .client-label {
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    color: #6b7280;
+                    margin: 0 0 6px 0;
+                  }
+                  .client-name {
+                    font-weight: 700;
+                    font-size: 15px;
+                    color: #111827;
+                  }
+                  .client-email {
+                    color: #4b5563;
+                    font-size: 13px;
+                  }
+                  .title-section {
+                    margin-bottom: 20px;
+                  }
+                  .title-section h1 {
+                    font-size: 24px;
+                    font-weight: 800;
+                    color: #111827;
+                    margin: 0 0 8px 0;
+                  }
+                  .divider {
+                    width: 60px;
+                    height: 4px;
+                    background: #2563eb;
+                    border-radius: 2px;
+                  }
+                  .prose {
+                    color: #374151;
+                    font-size: 14px;
+                  }
+                  .prose h1, .prose h2, .prose h3, .prose h4 {
+                    color: #111827;
+                    font-weight: 700;
+                    margin-top: 24px;
+                    margin-bottom: 12px;
+                  }
+                  .prose h1 { font-size: 22px; }
+                  .prose h2 { font-size: 18px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+                  .prose h3 { font-size: 15px; }
+                  .prose p { margin: 8px 0; }
+                  .prose ul { list-style-type: disc; padding-left: 24px; margin: 8px 0; }
+                  .prose ol { list-style-type: decimal; padding-left: 24px; margin: 8px 0; }
+                  .prose li { margin: 4px 0; }
+                  .prose strong { font-weight: 700; color: #111827; }
+                  .prose table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+                  .prose th, .prose td { border: 1px solid #e5e7eb; padding: 8px 12px; text-align: left; }
+                  .prose th { background-color: #f9fafb; font-weight: 600; }
+                  .prose blockquote { border-left: 4px solid #e5e7eb; padding-left: 14px; font-style: italic; color: #4b5563; }
+                  .footer {
+                    margin-top: 40px;
+                    border-top: 1px solid #e5e7eb;
+                    padding-top: 16px;
+                    text-align: center;
+                    font-size: 11px;
+                    color: #6b7280;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="header">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                      <img src="/Jia-Pixel-Logo.svg" alt="Jia Pixel Logo" style="width: 32px; height: 32px; object-fit: contain;" />
+                      <div class="brand">JIA<span>Pixel</span></div>
+                    </div>
+                    <div class="subtitle">Premium Web Solutions & Digital Services</div>
+                  </div>
+                  <div class="meta">
+                    <h2>PROJECT DETAILS</h2>
+                    <p><strong>Investment:</strong> ${priceText}</p>
+                    <p><strong>Expected Delivery:</strong> ${dueDateText}</p>
+                  </div>
+                </div>
+
+                ${clientHtml}
+
+                <div class="title-section">
+                  <h1>${order?.title || "Project Proposal"}</h1>
+                  <div class="divider"></div>
+                </div>
+
+                <div class="prose">
+                  ${editorContent}
+                </div>
+
+                <div class="footer">
+                  <p style="margin-bottom: 4px; font-weight: 600; color: #9ca3af;">This is a computer-generated document, no signature is required.</p>
+                  <p>© ${new Date().getFullYear()} JiaPixel. All rights reserved. | www.jiapixel.com | mail.jiapixel@gmail.com</p>
+                </div>
+              </body>
+            </html>
+        `);
+        frameDoc.close();
+
+        setTimeout(() => {
+            printFrame.contentWindow?.focus();
+            printFrame.contentWindow?.print();
+            setTimeout(() => {
+                document.body.removeChild(printFrame);
+            }, 1000);
+        }, 300);
     };
 
     const parseNovelContent = (jsonString: string) => {
