@@ -83,6 +83,7 @@ const WritingSidebar: React.FC<WritingSidebarProps> = ({
                             {writing.featuredImage && (
                                 <div className="relative w-20 h-16 shrink-0 rounded-md overflow-hidden bg-muted">
                                     <Image
+                                        key={writing.featuredImage}
                                         src={writing.featuredImage}
                                         alt={writing.title}
                                         fill

@@ -76,6 +76,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
             {/* Image Section */}
             <div className="relative aspect-[1366/768] overflow-hidden shrink-0 bg-muted">
                 <Image
+                    key={portfolio.featuredImage || 'portfolio-image'}
                     src={portfolio.featuredImage || '/api/placeholder/400/250'}
                     alt={portfolio.title}
                     fill

@@ -110,6 +110,7 @@ export default function ProjectCard({ project, clientMode = false }: ProjectCard
                 <Link href={projectUrl} className={clientMode ? "cursor-default" : "block"} prefetch={false}>
                     <div className="relative aspect-[1024/570] rounded-xl overflow-hidden bg-muted shadow-sm group-hover:shadow-md transition-shadow duration-300">
                         <Image
+                            key={featuredImage}
                             src={featuredImage}
                             alt={project.title}
                             fill

@@ -71,6 +71,7 @@ const WritingCard: React.FC<WritingCardProps> = ({ writing }) => {
             {writing.featuredImage && (
                 <div className="relative w-full aspect-[1024/570] overflow-hidden shrink-0">
                     <Image
+                        key={writing.featuredImage}
                         src={writing.featuredImage}
                         alt={writing.title || 'Writing image'}
                         fill
