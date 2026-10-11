@@ -15,6 +15,7 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Writing {
     _id: string;
@@ -35,6 +36,8 @@ const WritingCard: React.FC<WritingCardProps> = ({ writing }) => {
     const { data: session } = useSession();
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isImageLoading, setIsImageLoading] = useState(true);
+    const [imgSrc, setImgSrc] = useState(writing.featuredImage || '/Jia-pixel-your-partner-in-digital-transformation.png');
     const isAdmin = session?.user?.role === "admin";
 
     const handleDelete = async (e: React.MouseEvent) => {
@@ -68,18 +71,24 @@ const WritingCard: React.FC<WritingCardProps> = ({ writing }) => {
         <article
             className="bg-card rounded-sm lg:rounded-md shadow-lg overflow-hidden border border-border hover:shadow-xl transition-shadow duration-300 group h-full flex flex-col relative"
         >
-            {writing.featuredImage && (
-                <div className="relative w-full aspect-[1024/570] overflow-hidden shrink-0">
-                    <Image
-                        key={writing.featuredImage}
-                        src={writing.featuredImage}
-                        alt={writing.title || 'Writing image'}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                </div>
-            )}
+            <div className="relative w-full aspect-[1024/570] overflow-hidden shrink-0 bg-muted">
+                {isImageLoading && (
+                    <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
+                )}
+                <Image
+                    key={imgSrc}
+                    src={imgSrc}
+                    alt={writing.title || 'Writing image'}
+                    fill
+                    onLoad={() => setIsImageLoading(false)}
+                    onError={() => {
+                        setImgSrc('/Jia-pixel-your-partner-in-digital-transformation.png');
+                        setIsImageLoading(false);
+                    }}
+                    className={`object-cover group-hover:scale-105 transition-all duration-500 ${isImageLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+            </div>
             <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-center justify-between mb-3">
                     <span className="text-sm text-muted-foreground">
@@ -87,13 +96,14 @@ const WritingCard: React.FC<WritingCardProps> = ({ writing }) => {
                     </span>
                 </div>
 
-                <h2 className="font-bold text-card-foreground mb-2 line-clamp-2">                    <Link
-                    href={`/writings/${writing.slug}`}
-                    className="hover:text-primary transition-colors"
-                    prefetch={false}
-                >
-                    {writing.title || 'Untitled Writing'}
-                </Link>
+                <h2 className="font-bold text-card-foreground mb-2 line-clamp-2">
+                    <Link
+                        href={`/writings/${writing.slug}`}
+                        className="hover:text-primary transition-colors"
+                        prefetch={true}
+                    >
+                        {writing.title || 'Untitled Writing'}
+                    </Link>
                 </h2>
                 <div className="text-sm text-muted-foreground">
                     {formatBlogDate(writing.publishedAt || writing.createdAt)}
@@ -103,7 +113,7 @@ const WritingCard: React.FC<WritingCardProps> = ({ writing }) => {
                     <Link
                         href={`/writings/${writing.slug}`}
                         className="text-primary hover:text-primary/80 font-medium text-sm transition-colors"
-                        prefetch={false}
+                        prefetch={true}
                     >
                         Read More →
                     </Link>

@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import Swal from "sweetalert2";
 
 interface ProjectCardProps {
@@ -31,9 +32,11 @@ export default function ProjectCard({ project, clientMode = false }: ProjectCard
     const { data: session } = useSession();
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isImageLoading, setIsImageLoading] = useState(true);
     
     // Determine image and link based on project type
-    const featuredImage = project.images?.[0] || project.featuredImage || "/placeholder-image.jpg";
+    const featuredImage = project.images?.[0] || project.featuredImage || "/Jia-pixel-your-partner-in-digital-transformation.png";
+    const [imgSrc, setImgSrc] = useState(featuredImage);
     const isAdmin = session?.user?.role === "admin";
     const projectUrl = clientMode ? "#" : `/projects/${project.slug}`;
 
@@ -107,15 +110,23 @@ export default function ProjectCard({ project, clientMode = false }: ProjectCard
     return (
         <div className="group relative flex flex-col h-full">
             <div className="flex-grow space-y-4">
-                <Link href={projectUrl} className={clientMode ? "cursor-default" : "block"} prefetch={false}>
+                <Link href={projectUrl} className={clientMode ? "cursor-default" : "block"} prefetch={true}>
                     <div className="relative aspect-[1024/570] rounded-xl overflow-hidden bg-muted shadow-sm group-hover:shadow-md transition-shadow duration-300">
+                        {isImageLoading && (
+                            <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
+                        )}
                         <Image
-                            key={featuredImage}
-                            src={featuredImage}
+                            key={imgSrc}
+                            src={imgSrc}
                             alt={project.title}
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            onLoad={() => setIsImageLoading(false)}
+                            onError={() => {
+                                setImgSrc("/Jia-pixel-your-partner-in-digital-transformation.png");
+                                setIsImageLoading(false);
+                            }}
+                            className={`object-cover group-hover:scale-105 transition-all duration-500 ${isImageLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
                         />
                         
                         {/* Status Badge for Client Mode */}

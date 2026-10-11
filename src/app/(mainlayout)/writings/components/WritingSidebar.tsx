@@ -77,7 +77,7 @@ const WritingSidebar: React.FC<WritingSidebarProps> = ({
                         <Link
                             key={writing._id}
                             href={`/writings/${writing.slug}`}
-                            prefetch={false}
+                            prefetch={true}
                             className="group flex gap-4 items-start"
                         >
                             {writing.featuredImage && (

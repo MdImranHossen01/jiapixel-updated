@@ -15,6 +15,7 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { extractTextFromProjectDescription } from "@/lib/utils";
 import Swal from "sweetalert2";
 
@@ -26,6 +27,8 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
     const { data: session } = useSession();
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isImageLoading, setIsImageLoading] = useState(true);
+    const [imgSrc, setImgSrc] = useState(portfolio.featuredImage || '/Jia-pixel-your-partner-in-digital-transformation.png');
     const isAdmin = session?.user?.role === "admin";
 
     const handleDelete = async (e: React.MouseEvent) => {
@@ -75,12 +78,20 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
         <article className="group relative bg-card rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:translate-y-[-4px] flex flex-col h-full">
             {/* Image Section */}
             <div className="relative aspect-[1366/768] overflow-hidden shrink-0 bg-muted">
+                {isImageLoading && (
+                    <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
+                )}
                 <Image
-                    key={portfolio.featuredImage || 'portfolio-image'}
-                    src={portfolio.featuredImage || '/api/placeholder/400/250'}
+                    key={imgSrc}
+                    src={imgSrc}
                     alt={portfolio.title}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    onLoad={() => setIsImageLoading(false)}
+                    onError={() => {
+                        setImgSrc('/Jia-pixel-your-partner-in-digital-transformation.png');
+                        setIsImageLoading(false);
+                    }}
+                    className={`object-cover group-hover:scale-105 transition-all duration-500 ${isImageLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
 
@@ -97,7 +108,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
                 <Link
                     href={`/portfolios/${portfolio.slug}`}
                     className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                    prefetch={false}
+                    prefetch={true}
                 />
             </div>
 
@@ -105,7 +116,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
             <div className="px-2 py-4 flex flex-col flex-grow">
                 <div className="flex-grow">
                     <h3 className="text-lg font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                        <Link href={`/portfolios/${portfolio.slug}`} prefetch={false}>
+                        <Link href={`/portfolios/${portfolio.slug}`} prefetch={true}>
                             {portfolio.title}
                         </Link>
                     </h3>
@@ -125,7 +136,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ portfolio }) => {
                             ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                             : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                             }`}
-                        prefetch={false}
+                        prefetch={true}
                     >
                         {portfolio.projectUrl ? (
                             <>
