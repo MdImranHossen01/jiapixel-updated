@@ -47,40 +47,46 @@ export const Hero = () => {
                             <span>মাত্র ১১,৫০০ টাকায় (সম্পূর্ণ প্যাকেজ)</span>
                         </div>
 
-                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70 leading-tight">
-                            গড়ে তুলুন আপনার পূর্ণাঙ্গ ই-কমার্স সাম্রাজ্য
+                        <h1 className="text-xl sm:text-2xl lg:text-[26px] xl:text-[28px] font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70 leading-snug">
+                            গড়ে তুলুন অল-ইন-ওয়ান B2B ও B2C মাল্টি-টেন্যান্ট ই-কমার্স এবং ড্রপশিপিং প্ল্যাটফর্ম
                         </h1>
 
-                        <ul className="space-y-3 text-sm md:text-base text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+                        <ul className="space-y-2.5 text-sm md:text-base text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
                             <li className="flex items-center gap-2.5 lg:justify-start justify-center">
                                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                                 </div>
-                                <span>ব্যবসার জন্য প্রিমিয়াম অল-ইন-ওয়ান ই-কমার্স প্ল্যাটফর্ম</span>
+                                <span><span className="text-primary font-bold">১০০+ এন্টারপ্রাইজ-গ্রেড ফিচার</span> সমৃদ্ধ (১ থেকে ১২২ ক্রমানুসারে)</span>
                             </li>
                             <li className="flex items-center gap-2.5 lg:justify-start justify-center">
                                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                                 </div>
-                                <span>১০০টিরও বেশি <span className="text-primary font-bold">অ্যাডভান্সড এন্টারপ্রাইজ ফিচার</span></span>
+                                <span><span className="text-foreground font-semibold">২৪ ঘণ্টা এআই সাপোর্ট</span> ও স্মার্ট ভার্চুয়াল সেলস অ্যাসিস্ট্যান্ট</span>
                             </li>
                             <li className="flex items-center gap-2.5 lg:justify-start justify-center">
                                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                                 </div>
-                                <span>১ বছরের <span className="text-foreground font-semibold">Unlimited Cloud VPS হোস্টিং</span> ও <span className="text-foreground font-semibold">.com ডোমেন</span> অন্তর্ভুক্ত</span>
+                                <span>ফ্রি <span className="text-foreground font-semibold">Unlimited Cloud VPS হোস্টিং</span> ও <span className="text-foreground font-semibold">.com ডোমেইন </span></span>
                             </li>
                             <li className="flex items-center gap-2.5 lg:justify-start justify-center">
                                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                                 </div>
-                                <span>ফ্রি SSL, সার্ভার-সাইড ট্র্যাকিং, অটো কুরিয়ার বুকিং ও ফ্রড ডিটেকশন</span>
+                                <span><span className="text-foreground font-semibold">আনলিমিটেড প্রোডাক্ট আপলোড</span>, অর্ডার ও রিসেলার নেটওয়ার্ক</span>
                             </li>
                             <li className="flex items-center gap-2.5 lg:justify-start justify-center">
                                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                                 </div>
-                                <span>লাইফটাইম টেকনিক্যাল সাপোর্ট ও স্টেপ-বাই-স্টেপ ভিডিও ট্রেনিং</span>
+                                <span><span className="text-foreground font-semibold">ডাবল-এন্ট্রি একাউন্টিং লেজার</span> ও ওয়ান-ক্লিক কুরিয়ার অটোমেশন</span>
+                            </li>
+                            <li className="flex items-center gap-2.5 lg:justify-start justify-center">
+                                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                                </div>
+                                <span><span className="text-primary font-semibold">৭ দিনের ১০০% মানিব্যাক গ্যারান্টি</span> ও লাইফটাইম টেকনিক্যাল সাপোর্ট</span>
                             </li>
                         </ul>
 

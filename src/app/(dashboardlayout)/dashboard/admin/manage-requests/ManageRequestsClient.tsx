@@ -70,6 +70,7 @@ import {
 import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { NotificationSettingsDialog } from "@/components/admin/NotificationSettingsDialog";
 
 type RequestStatus = "requested" | "need contact" | "contacted" | "confirm" | "need to contact again" | "ordered" | "processing" | "ready to deliver" | "delivered" | "paid" | "canceled" | "fake" | "hot" | "need followup" | "a" | "b" | "c" | "d";
 
@@ -535,7 +536,8 @@ const ManageRequestsClient = () => {
             Showing <span className="font-bold text-foreground">{totalRequests}</span> matching requests out of <span className="font-bold text-foreground">{grandTotalRequests}</span> total leads
           </p>
         </div>
-        <div className="flex items-center gap-3 self-start md:self-auto">
+        <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+          <NotificationSettingsDialog />
           <Button
             variant="outline"
             size="sm"

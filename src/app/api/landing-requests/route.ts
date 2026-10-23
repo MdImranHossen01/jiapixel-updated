@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import LandingRequest from "@/models/LandingRequest";
 import { getToken } from "next-auth/jwt";
+import { sendTelegramNotification } from "@/lib/telegram";
+import { sendWebPushNotification } from "@/lib/webpush";
 
 // GET for admin dashboard
 export async function GET(req: NextRequest) {
@@ -231,6 +233,25 @@ export async function POST(req: NextRequest) {
     });
 
     await newRequest.save();
+
+    // 🔔 Trigger Telegram Instant Notification (fire and forget)
+    sendTelegramNotification({
+      name: newRequest.name,
+      phone: newRequest.phone,
+      email: newRequest.email,
+      price: newRequest.price,
+      source: newRequest.source,
+      paymentNumber: newRequest.paymentNumber,
+      details: newRequest.details,
+      id: newRequest._id.toString(),
+    }).catch((err) => console.error("[Telegram] Trigger error:", err));
+
+    // 🔔 Trigger Web Push Notification to mobile & laptop (fire and forget)
+    sendWebPushNotification({
+      title: "🛒 নতুন অর্ডার রিকোয়েস্ট! (Jiapixel)",
+      body: `${newRequest.name} (${newRequest.phone}) — ৳${newRequest.price || 11500}`,
+      url: "/dashboard/admin/manage-requests",
+    }).catch((err) => console.error("[WebPush] Trigger error:", err));
 
     return NextResponse.json(
       { message: "Request created successfully", id: newRequest._id },

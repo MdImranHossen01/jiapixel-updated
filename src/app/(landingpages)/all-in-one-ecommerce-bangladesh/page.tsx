@@ -14,12 +14,12 @@ const FAQs = dynamic(() => import("./components/FAQs").then(mod => mod.FAQs));
 const FloatingCTAs = dynamic(() => import("./components/FloatingCTAs").then(mod => mod.FloatingCTAs));
 
 export const metadata: Metadata = {
-    title: "পূর্ণাঙ্গ অল-ইন-ওয়ান ই-কমার্স ওয়েবসাইট | মাত্র ১১,৫০০ টাকা",
-    description: "আপনার ব্যবসার জন্য পান ১০০+ ফিচার সহ সুপার-ফাস্ট অল-ইন-ওয়ান ই-কমার্স প্ল্যাটফর্ম। Unlimited Cloud VPS হোস্টিং, .com ডোমেন, POS, শোরুম ও কুরিয়ার ইন্টিগ্রেশন সহ সম্পূর্ণ প্যাকেজ মাত্র ১১,৫০০ টাকায়।",
-    keywords: ["all in one ecommerce bangladesh", "ecommerce website bangladesh", "small business website", "pos ecommerce", "showroom management ecommerce", "jiapixel ecommerce", "ই-কমার্স ওয়েবসাইট বাংলাদেশ"],
+    title: "অল-ইন-ওয়ান B2B ও B2C মাল্টি-টেন্যান্ট ই-কমার্স এবং ড্রপশিপিং ওয়েবসাইট | ১২২টি ফিচার মাত্র ১১,৫০০ টাকা",
+    description: "আপনার ব্যবসার জন্য পান ১২২টি ফিচার সহ সুপার-ফাস্ট অল-ইন-ওয়ান B2B ও B2C মাল্টি-টেন্যান্ট ই-কমার্স এবং ড্রপশিপিং প্ল্যাটফর্ম। Unlimited Cloud VPS হোস্টিং, .com ডোমেইন , রিসেলার নেটওয়ার্ক, Gemini AI চ্যাটবট ও ৭ দিনের মানিব্যাক গ্যারান্টি সহ সম্পূর্ণ প্যাকেজ মাত্র ১১,৫০০ টাকায়।",
+    keywords: ["all in one ecommerce bangladesh", "multi tenant ecommerce", "dropshipping website bangladesh", "b2b b2c ecommerce bangladesh", "ecommerce website bangladesh", "gemini ai chatbot ecommerce", "jiapixel ecommerce", "মাল্টি-টেন্যান্ট ই-কমার্স", "ই-কমার্স ওয়েবসাইট বাংলাদেশ", "ড্রপশিপিং ওয়েবসাইট"],
     openGraph: {
-        title: "পূর্ণাঙ্গ অল-ইন-ওয়ান ই-কমার্স প্ল্যাটফর্ম",
-        description: "মাত্র ১১,৫০০ টাকায় ১০০+ ফিচার সহ পান পূর্ণাঙ্গ অনলাইন ও অফলাইন ই-কমার্স সল্যুশন।",
+        title: "অল-ইন-ওয়ান B2B ও B2C মাল্টি-টেন্যান্ট ই-কমার্স এবং ড্রপশিপিং ওয়েবসাইট",
+        description: "মাত্র ১১,৫০০ টাকায় ১২২টি এন্টারপ্রাইজ ফিচার সহ পান পূর্ণাঙ্গ B2B ও B2C মাল্টি-টেন্যান্ট ই-কমার্স ও ড্রপশিপিং প্ল্যাটফর্ম।",
         images: [{ url: "/images/landing-pages/ecommerce-promo/hero.png" }],
     }
 };

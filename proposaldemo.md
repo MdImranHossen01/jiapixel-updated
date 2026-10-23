@@ -1,186 +1,284 @@
-# Business Proposal: All-In-One E-commerce Solution
-
-**Created on:** 5/2/2026  
-**Prepared by:** Md. Imran Hossen (Jiapixel)  
-**Project Deadline / Timeline:** 7 Days
+# অল-ইন-ওয়ান B2B ও B2C মাল্টি-টেন্যান্ট ই-কমার্স এবং ড্রপশিপিং ওয়েবসাইট ফিচার ও স্পেসিফিকেশন
 
 ---
 
-## 1. Executive Summary
-Empower your business with a state-of-the-art **All-In-One E-Commerce Ecosystem**. We call this platform **"All-In-One"** because it is far more than just a typical online store — it unifies your entire online and offline business operations into a single, seamless powerhouse:
+## ১. Executive Summary
 
-- **🛒 Modern E-Commerce Platform:** High-converting, ultra-fast online storefront with smooth checkout, multi-gateway payment (bKash/Nagad/Cards), and automated courier dispatch.
-- **📦 Advanced Product & Inventory Control:** Real-time inventory tracking, low-stock warnings, expiry alerts, and inter-showroom stock transfers.
-- **🖨️ Point-of-Sale (POS) Software:** Fast in-store counter billing, barcode scanning, thermal receipt printing, and multiple payment acceptance.
-- **👥 CRM & Customer Intelligence:** Customer behavioural insights, repeat buyer analysis, fraud detection, duplicate order filtering, and automated cart recovery.
-- **🏢 ERP & Branch Operations:** Multi-showroom/outlet management, employee dashboards with leave, supplier purchasing, and exclusive wholesale buyer portals.
-- **💰 Complete Financial & Accounting System:** Unified ledgers for cash, bank, and MFS, income & expense categorization, payables/receivables tracking, loan management, and automated Profit & Loss (P&L) reporting.
+একটি অত্যাধুনিক অল-ইন-ওয়ান B2B ও B2C মাল্টি-টেন্যান্ট ই-কমার্স এবং ড্রপশিপিং ইকোসিস্টেমের মাধ্যমে আপনার ব্যবসাকে নিয়ে যান অনন্য উচ্চতায়। আমরা এই প্ল্যাটফর্মটিকে "অল-ইন-ওয়ান" বলি কারণ এটি কেবল একটি সাধারণ অনলাইন ওয়েবসাইট নয় — এটি আপনার মাদার ব্র্যান্ড, ড্রপশিপিং রিসেলার নেটওয়ার্ক এবং সম্পূর্ণ ফাইন্যান্সিয়াল অপারেশনকে একটি মাত্র শক্তিশালী সেন্ট্রাল ড্যাশবোর্ডে একত্রিত করে:
 
-Built using the latest technology stack (**Next.js, React, and MongoDB**), this solution eliminates the need to subscribe to separate POS, ERP, CRM, and accounting tools — delivering unmatched speed, security, and scalability while maximizing business profitability.
+- **🛒 আধুনিক ই-কমার্স প্ল্যাটফর্ম:** হাই-কনভার্টিং, সুপার-ফাস্ট অনলাইন স্টোরফ্রন্ট যার সাথে রয়েছে ইনস্ট্যান্ট চেকআউট, মাল্টি-গেটওয়ে পেমেন্ট (বিকাশ, নগদ, রকেট, কার্ড) এবং অটোমেটিক কুরিয়ার ডেলিভারি ডিসপ্যাচ।
+- **🤖 এআই স্মার্ট চ্যাটবট ও ভার্চুয়াল অ্যাসিস্ট্যান্ট:** গুগল জেমিনি (Google Gemini AI) চালিত স্মার্ট চ্যাটবট যা দিন-রাত ২৪ ঘণ্টা ভিজিটরদের পণ্যের তথ্য প্রদান ও কেনাকাটায় স্বয়ংক্রিয় সেলস অ্যাসিস্ট করে।
+- **🌐 মাল্টি-টেন্যান্ট ড্রপশিপিং ও রিসেলার নেটওয়ার্ক:** প্রতিটি অনুমোদিত রিসেলারের জন্য স্বয়ংক্রিয় নিজস্ব ব্র্যান্ডেড সাবডোমেইন  বা নিজস্ব কাস্টম ডোমেইন , সেন্ট্রাল ক্যাটালগ সিঙ্ক, অটোমেটিক প্রফিট কমিশন স্প্লিট এবং রিসেলার ওয়ালেট পে-আউট ম্যানেজমেন্ট।
+- **📦 অ্যাডভান্সড প্রোডাক্ট ও ইনভেন্টরি কন্ট্রোল:** আনলিমিটেড প্রোডাক্ট আপলোড, রিয়েল-টাইম স্টক ট্র্যাকিং, লো-স্টক এলার্ট, প্রোডাক্ট এক্সপায়ারি ও ব্যাচ নোটিফিকেশন এবং মাল্টিপল ভ্যারিয়েন্ট ম্যানেজমেন্ট (কালার, সাইজ, স্পেসিফিকেশন)।
+- **🎨 ডায়নামিক সিস্টেম ডিজাইন ও থিমিং ইঞ্জিন:** কোনো কোডিং ছাড়াই অ্যাডমিন প্যানেল থেকে ওয়ান-ক্লিকে নেভবার (V1-V5), ফুটার, প্রোডাক্ট কার্ড (V1-V6), থিম কালার প্যালেট ও টাইপোগ্রাফি পরিবর্তনের স্বাধীনতা।
+- **👥 সিআরএম (CRM) ও কাস্টমার ইন্টেলিজেন্স:** গ্রাহকদের পার্সোনাল প্রোফাইল ও কেনাকাটার হিস্ট্রি, রিপিট কাস্টমার অ্যানালাইসিস, ফ্রড ও ডুপ্লিকেট অর্ডার ডিটেকশন এবং এব্যান্ডনড কার্ট রিকভারি।
+- **💰 পূর্ণাঙ্গ ফাইন্যান্সিয়াল ও একাউন্টিং সিস্টেম:** ক্যাশ, ব্যাংক ও মোবাইল ব্যাংকিংয়ের (বিকাশ/নগদ) সমন্বিত লেজার, প্রদেয় ও পাওনা দায় (Accounts Payable & Receivable), আয়-ব্যয় ক্যাটাগরি, বিজনেস লোন হিসাব এবং স্বয়ংক্রিয় প্রফিট অ্যান্ড লস (P&L) রিপোর্ট।
 
-## 2. Comprehensive Feature List
-Every store we build comes packed with these professional, enterprise-grade features organized for your business growth:
-
-### 🚀 Core Technology & Performance
-1.  **Cloud VPS Hosting:** High-performance cloud VPS hosting for peak traffic handling and stability.
-2.  **Next.js & React Stack:** Cutting-edge, lightning-fast architecture for a superior customer experience.
-3.  **SSR, ISR & CSR Integration:** Hybrid rendering for peak speed, stability, and top-tier SEO performance.
-4.  **Super Fast Speed & Core Web Vitals:** Highly optimized assets and code for instantaneous load times.
-5.  **PWA (Progressive Web App):** Allows customers to install your website as a standalone native-like mobile app.
-6.  **Free SSL Certificate:** Secure encrypted connection (HTTPS) included to protect store data.
-7.  **Fully Responsive Design:** Pixel-perfect user experience across Mobile, Tablet, and Desktop screens.
-
-### 🔍 Advanced Technical & SEO Setup
-8.  **Dynamic Meta Title & Description:** Automated, custom meta tags for every product, category, and page.
-9.  **Structured Data & Schema Markup:** Rich snippets implementation for enhanced Google search engine appearance.
-10. **Dynamic Sitemap Generation:** Automated XML sitemaps for rapid indexing by Google and other search engines.
-11. **Open Graph Setup:** Beautiful preview cards when sharing links on Facebook, WhatsApp, LinkedIn, etc.
-12. **Twitter / X Card Setup:** Customized link previews specifically formatted for Twitter/X.
-13. **Customized Theme & Fonts:** Dynamic color palette and font typography customized to match your brand identity.
-14. **Advanced Security & Hardening:** Enterprise-level security protocols to guard against attacks, spam, and malware.
-15. **Domain & DNS Management:** Full setup and DNS configuration for your custom domain name.
-
-### 📦 Logistics, Shipping & Order Management
-16. **Instant Courier Booking & Integration:** Automated API dispatch with Pathao, Steadfast, RedX, and more.
-17. **Real-time Courier Tracking:** Direct parcel tracking integrated directly into the customer portal.
-18. **Live Step-by-Step Order Tracking:** Real-time visual progress from order confirmation to delivery.
-19. **Dynamic Delivery Charges:** Automatic shipping cost calculation based on city/district and order value.
-20. **Manual Order Creation (Offline Orders):** Create and manage phone/social media orders directly from the Admin Panel.
-21. **Automated PDF Invoice:** Instant, downloadable professional invoices generated for every order.
-22. **Sticker Invoice & Shipping Labels:** One-click generation of parcel stickers and shipping label formats for couriers.
-23. **Delivery Challan:** Dedicated packing slip and delivery challan printing support.
-24. **Short Product & Out-of-Stock Alerts:** Automated alerts and dashboard warnings when inventory is running low.
-25. **Automatic Delivery Status Update (Cronjob):** Delivery statuses are automatically synced and updated in real-time via Steadfast Courier API using scheduled cronjobs — no manual refresh required.
-
-### 💳 Payment & Fraud Prevention
-26. **Multi-Gateway Payment Integration:** Accept bKash, Nagad, Rocket, Upay, Visa, MasterCard, and Amex via SSLCommerz and other payment gateways seamlessly.
-26. **Cash on Delivery (COD) Support:** Full support for standard and advanced cash-on-delivery workflows.
-27. **Fraud Detection & Order Verification:** Smart validation to flag risky phone numbers, fake addresses, and duplicate orders.
-28. **Secure Checkout System:** Multi-layer encryption protecting sensitive customer data during checkout.
-
-### 📈 Marketing, Tracking & Sales Optimization
-29. **Free Server-Side Tracking (CAPI):** Accurate tracking unaffected by iOS 14+ or ad-blocker restrictions.
-30. **Meta (Facebook) Pixel Setup:** Complete e-commerce event tracking (PageView, ViewContent, AddToCart, Purchase).
-31. **TikTok Pixel Setup:** Advanced tracking integration tailored for TikTok advertising campaigns.
-32. **Google Tag Manager (GTM) & GA4 Setup:** Comprehensive event tracking and in-depth user journey analysis.
-33. **High-Converting Landing Pages:** Dedicated single-product landing page layouts designed for maximum conversion.
-34. **CRO & SEO Optimized Architecture:** Clean UI/UX hierarchy structured to turn maximum visitors into paying buyers.
-35. **Dynamic Discount Coupons:** Create flat, percentage, or minimum-spend promotional discount codes.
-36. **Special Offers & Campaigns:** Easy setup for flash sales, combo offers, and buy-one-get-one promotions.
-37. **Abandoned Cart Recovery & Tracking:** Track customers who left without completing checkout and recover lost sales.
-38. **Customer Loyalty & Rewards Program:** Points and membership reward tier system for recurring buyers.
-39. **Social Media Integration:** Direct links and live feeds from Facebook, Instagram, and TikTok pages.
-
-### 📊 Accounts, Analytics & Business Insights
-40. **Ledger & Due Tracking:** Track customer and supplier credits, debits, and balance dues.
-41. **Google Search Console Integration:** Full integration to monitor organic keyword rankings and search impressions.
-42. **Top Selling Products Report:** Automated inventory performance metrics.
-43. **Customer Insights:** Detailed profiles and behavioral analysis of your target audience.
-44. **Repeat Customer Tracking:** Identify and analyze returning customers with full purchase history and retention metrics.
-45. **Duplicate Order Detection:** Automatically flag and alert on suspicious duplicate orders from the same customer.
-
-### ✨ Premium User Experience (UX & UI)
-50. **Day & Night (Dark/Light) Mode:** Instant theme switcher for user comfort and modern appeal.
-51. **Quick View Modal:** Fast product preview popups without leaving the category/catalog page.
-52. **AI Chatbot & Virtual Assistant:** 24/7 intelligent customer support and shopping assistant.
-53. **Voice Search Functionality:** Modern voice-driven product search for effortless navigation.
-54. **Advanced Product Filtering & Sorting:** Instant multi-attribute filtering (Price range, Category, Size, Color).
-55. **Wishlist Functionality:** Save-for-later favorites list for customers.
-56. **Customer Reviews & Star Ratings:** Verified social proof with user photos and feedback.
-57. **Smooth Scrolling & Micro-Interactions:** Modern, fluid animations and responsive button states.
-58. **Splash Screen & Skeleton Loading Screens:** Elegant placeholder loaders to eliminate jarring layout shifts.
-59. **Google Map & Location Integration:** Interactive maps for store/office/showroom locations.
-
-### 🛠️ Content Management (CMS) & Administration
-60. **Dynamic Admin Dashboard:** Full control over products, orders, customers, banners, and settings.
-61. **Blog & News CMS:** Full-featured article publishing to boost SEO and content marketing.
-62. **Advanced Rich-Text Editor (Tiptap):** Powerful WYSIWYG editor for product details, policies, and blog posts.
-63. **Role-Based Access Control (RBAC):** Separate role permissions for Super Admin, Admin, Manager, and Support Staff.
-64. **Reliable MongoDB Database:** High-performance NoSQL database for flexible and fast data storage.
-65. **Secure Checkout Process:** Multi-layer security to protect customer information during checkout.
-66. **Lifetime Technical Support:** Continuous technical maintenance and bug fixes.
-67. **Multi-Language Support:** Full multilingual interface for reaching a broader, global audience.
-
-### 🏪 Showroom Management
-69. **Multi-Showroom Setup:** Add and manage multiple physical showroom locations from a single platform.
-70. **Showroom Manager Dashboard:** Dedicated dashboard for each showroom manager with location-specific access and controls.
-71. **Showroom Sales Tracking:** Real-time sales, revenue, and transaction tracking per individual showroom.
-72. **Showroom Expense Management:** Log and monitor all operational expenses specific to each showroom branch.
-73. **Showroom Inventory Control:** Separate stock management and transfer tracking per showroom location.
-
-### 👥 HR & Employment Management
-74. **Employee Dashboard:** Dedicated personal dashboard for each employee to view tasks, attendance, and records.
-75. **Leave Application System:** Employees can apply for leave online; managers can approve or reject with full log history.
-76. **Salary & Payroll Tracking:** View, manage, and export monthly salary slips and payroll reports per employee.
-
-### 🖨️ POS Billing System
-78. **Point-of-Sale (POS) Terminal:** Full in-store POS system for fast physical, manual, and showroom-based sales.
-79. **Barcode & Product Search:** Instant product lookup by barcode scan or name for rapid billing at the counter.
-80. **POS Receipt Printing:** One-click thermal receipt printing for every in-store transaction.
-81. **Cash & MFS Payment at POS:** Accept cash, bKash, Nagad, and card payments directly at the POS terminal.
-
-### 🤝 Supplier Management
-82. **Supplier Directory:** Centralized list of all suppliers with contact info, product categories, and history.
-83. **Supplier Due & Payment Tracking:** Monitor outstanding payables and payment history for every supplier.
-84. **Purchase Order Management:** Create and track purchase orders sent to suppliers.
-
-### 🏷️ Role-Based Dashboards
-85. **Customer Dashboard:** Personal order history, wishlist, loyalty points, and profile management.
-86. **Employee Dashboard:** Task assignments, leave status, salary, and attendance records.
-87. **Showroom Manager Dashboard:** Branch-specific sales, inventory, and expense overview.
-88. **Wholesaler Dashboard:** Wholesale pricing catalog, bulk order history, and due balance tracking.
-89. **Admin / Super Admin Dashboard:** Complete control over all modules, users, branches, and financials.
-
-### 🏭 Wholesale Facility
-90. **Wholesaler Account System:** Separate account type for registered wholesale buyers with custom pricing tiers.
-91. **Wholesale Product Pricing:** Wholesalers see and purchase products at their exclusive wholesale rates.
-92. **Wholesale Invoice & Challan:** Dedicated invoicing and delivery challan format for wholesale transactions.
-
-### ⚠️ Product & Inventory Intelligence
-94. **Product Expiry Alert:** Automated alerts for all products expiring within the next 30 days to prevent losses.
-95. **Product Brand Management:** Add and manage product brands; filter and browse catalog by brand.
-96. **Product Return & Refund Handling:** Dynamic return request system for customers with admin approval workflow.
-97. **Inter-Showroom Stock Transfer:** Seamlessly transfer stock from one showroom to another with full transfer logs, quantity tracking, and approval records.
-
-### 💰 Financial & Accounting Management
-98. **Accounts Payable & Receivable:** Full tracking of supplier payables, loan payables, and credit sales receivables.
-99. **Business Loan Management:** Track all business loans, lender details, repayment schedules, and outstanding balances.
-100. **Cash, Bank & MFS Management:** Unified ledger for cash in hand, bank accounts, and mobile banking (bKash, Nagad) balances.
-101. **Transaction History & Ledger:** Complete, filterable transaction log with export functionality for every account.
-102. **Income & Expense Categorization:** Categorize all business income and expenses for clean financial reporting.
-103. **Profit & Loss Statement:** Automated P&L report generation for any selected time period.
+> **💡 সম্পূর্ণ প্যাকেজ ও খরচ সাশ্রয়ী সমাধান:**  
+> লেটেস্ট টেকনোলজি স্ট্যাক (Next.js, React, এবং MongoDB) দিয়ে তৈরি হওয়ায় আপনাকে আলাদাভাবে ড্রপশিপিং সফটওয়্যার, CRM বা Accounting সফটওয়্যারের জন্য প্রতি মাসে অতিরিক্ত কোনো সাবস্ক্রিপশন ফি দিতে হবে না। এছাড়া এই প্রজেক্টের সাথে **ফ্রি গ্লোবাল .com ডোমেইন **, **হাই-স্পিড Unlimited Cloud VPS হোস্টিং**, **গুগল জেমিনি এআই চ্যাটবট**, **স্টেপ-বাই-স্টেপ ভিডিও টিউটোরিয়াল** এবং **৭ দিনের মানিব্যাক গ্যারান্টি** সম্পূর্ণ বিনামূল্যে অন্তর্ভুক্ত রয়েছে।
 
 ---
 
-## 3. Client Requirements
-To begin the development process, please provide:
-1.  **Business Information:** Name, Logo, FAQ, and a short "About Us" description.
-2.  **Contact Details:** Phone Number, WhatsApp, Email, and Office/Showroom Address.
-3.  **Social Links:** Facebook, Instagram, TikTok, YouTube, and LinkedIn page links.
-4.  **Domain Preference:** Your desired domain name (e.g., www.yourbrand.com).
-5.  **Marketing & Tracking Credentials:** Facebook Pixel ID / Access Token, Domain Verification Code, GTM / GA4 ID, and Search Console access.
-6.  **Courier & Payment Gateways:** Courier API Keys (Pathao, Steadfast, RedX) and Payment Gateway Credentials (bKash, Nagad, SSLCommerz, etc.).
+## ২. Comprehensive Feature List (১ থেকে ১২২ পর্যন্ত ক্রমানুসারে)
 
-## 4. Terms & Conditions
-- **Cloud VPS Hosting:** 1 Year high-performance Cloud VPS hosting included.
-- **Domain Registration:** 1 Year .com domain registration & DNS setup included. If you already have a domain, only manager/DNS access is required.
-- **Content & Products:** We configure all sample layouts, categories, and banners; client is responsible for regular product uploads and blog posts (full training/guidelines provided).
-- **Marketing & Ads:** Ad campaign budgets and creative materials are the responsibility of the client.
-- **Training & Video Tutorials:** Complete step-by-step video tutorials will be provided for all key integrations and operations — including Fraud Detection, Server-Side Tracking (CAPI), Pixel Tracking, SSLCommerz Payment Setup, Facebook Ads Running, and Courier Booking. The client will be able to independently manage all these features after watching the tutorials.
-- **API Keys & Credentials:** All API keys (Payment Gateway, Courier, Pixel, Tracking, etc.) must be obtained and managed by the client. Full guidance will be provided — including video walkthroughs showing exactly where and how to get each API key from the respective platform.
-- **Project Maintenance & Access:** Jiapixel retains technical administrator access to maintain, update, secure, and fix any platform issues under our lifetime support warranty. **Please note:** Free lifetime support is only available for projects hosted on Jiapixel's Cloud VPS infrastructure. If the client chooses to use their own personal hosting, free support and maintenance will not be applicable.
+আপনার ব্যবসার সার্বিক বৃদ্ধির লক্ষ্যে প্ল্যাটফর্মে অন্তর্ভুক্ত রয়েছে **১২২টি এন্টারপ্রাইজ-গ্রেড ফিচার** — যা নিচে ক্যাটাগরি অনুযায়ী ১ থেকে ১২২ পর্যন্ত ক্রমানুসারে সুনির্দিষ্টভাবে তুলে ধরা হলো:
+
+### 🚀 কোর টেকনোলজি ও পারফরম্যান্স (Core Technology & Performance)
+1. **Next.js 15 (App Router):** সর্বাধুনিক Next.js 15 অ্যাপ রাউটার আর্কিটেকচার যা আধুনিক ওয়েব অ্যাপের সর্বোচ্চ গতি ও নিরাপত্তা প্রদান করে।
+2. **React 19 ইন্টিগ্রেশন:** রিঅ্যাক্ট-এর লেটেস্ট সংস্করণ যা কনকারেন্ট রেন্ডারিং ও ইনস্ট্যান্ট ইউজার ইন্টার‍্যাকশন নিশ্চিত করে।
+3. **MongoDB Atlas ডাটাবেস:** দ্রুত ও নিরাপদ ক্লাউড নো-এসকিউএল ডাটাবেস আর্কিটেকচার যা বিপুল পরিমাণ প্রোডাক্ট ও অর্ডার ডাটা সহজে হ্যান্ডেল করে।
+4. **হাই-স্পিড Unlimited Cloud VPS হোস্টিং (সম্পূর্ণ ফ্রি):** পিক ট্রাফিক ও পিক সিজনে ওয়েবসাইট ডাউন হওয়া ছাড়াই নিরবচ্ছিন্ন পারফরম্যান্স নিশ্চিত করতে প্যাকেজে হাই-কনফিগারেশন ক্লাউড ভিপিএস হোস্টিং সম্পূর্ণ ফ্রি।
+5. **১ বছরের ফ্রি গ্লোবাল .com ডোমেইন :** প্রজেক্ট প্যাকেজের সাথে আন্তর্জাতিক মানের `.com` ডোমেইন  ১ বছরের জন্য সম্পূর্ণ বিনামূল্যে অন্তর্ভুক্ত।
+6. **SSR (Server-Side Rendering):** প্রতিটি পেজ রিকোয়েস্টে সার্ভার থেকে অপ্টিমাইজড HTML রেন্ডারিং যা এসইও ও ফার্স্ট লোড টাইম বাড়ায়।
+7. **ISR (Incremental Static Regeneration):** সাইট রিবিল্ড না করেই ব্যাকগ্রাউন্ডে প্রোডাক্ট ও পেজ ডেটা স্বয়ংক্রিয়ভাবে রিভ্যালিডেট ও আপডেট।
+8. **CSR (Client-Side Rendering):** পেজ রিলোড ছাড়াই মসৃণ কার্ট, ফিল্টারিং ও ইউজার ইন্টার‍্যাকশন (SPA ফিল)।
+9. **PWA (প্রোগ্রেসিভ ওয়েব অ্যাপ):** গ্রাহকরা কোনো গুগল প্লে-স্টোর বা অ্যাপল স্টোর ছাড়াই সরাসরি ব্রাউজার থেকে ফোনে অ্যাপের মতো ইনস্টল করতে পারেন।
+10. **Core Web Vitals অপ্টিমাইজেশন:** গুগলের LCP, FID, এবং CLS মেট্রিক্সে ৯০+ পারফরম্যান্স স্কোর বজায় রাখতে অপ্টিমাইজড কোডবেস।
+11. **সম্পূর্ণ রেসপনসিভ ফ্লুইড ডিজাইন:** মোবাইল, ট্যাবলেট, ল্যাপটপ এবং বড় ডেস্কটপ স্ক্রিনে পিক্সেল-পারফেক্ট লেআউট অ্যাডাপ্টেশন।
+12. **ফ্রি ও অটোমেটেড SSL সার্টিফিকেট:** কাস্টমার ডাটা ও পেমেন্ট ট্রানজেকশন সম্পূর্ণ এনক্রিপ্টেড রাখতে প্রিমিয়াম HTTPS কানেকশন।
+
+### 🌐 মাল্টি-টেন্যান্ট ড্রপশিপিং ও রিসেলার ইকোসিস্টেম (Dropshipping & Reseller System)
+13. **আনলিমিটেড রিসেলার অ্যাকাউন্ট (Unlimited Reseller Accounts):** প্ল্যাটফর্মে যত খুশি তত রিসেলার অ্যাকাউন্ট খোলার সুযোগ, কোনো লিমিট বা অতিরিক্ত ফি নেই।
+14. **স্বয়ংক্রিয় সাবডোমেইন  স্টোরফ্রন্ট:** অনুমোদিত প্রতিটি রিসেলারের জন্য ওয়ান-ক্লিকে নিজস্ব সাবডোমেইন  স্টোরফ্রন্ট (`reseller.yourdomain.com`) স্বয়ংক্রিয়ভাবে তৈরি হওয়া।
+15. **রিসেলার কাস্টম ডোমেইন  কানেকশন (Custom Domain Mapping):** রিসেলার চাইলে সাবডোমেইন ের পরিবর্তে তাদের সম্পূর্ণ নিজস্ব ব্র্যান্ডেড ডোমেইন  (`www.resellerbrand.com`) প্ল্যাটফর্মে কানেক্ট করে স্বাধীনভাবে সেল করতে পারবেন।
+16. **সেন্ট্রাল মাদার ক্যাটালগ সোর্সিং:** মূল মাদার শপের ক্যাটালগ থেকে রিসেলাররা এক ক্লিকে যেকোনো পণ্য নিজের স্টোরে যুক্ত করতে পারেন।
+17. **কাস্টম প্রফিট মার্জিন ও প্রাইস মার্কআপ:** রিসেলাররা প্রতিটি পণ্যে নিজস্ব বিক্রয়মূল্য ও লাভ (মার্জিন) স্বাধীনভাবে সেট করতে পারেন।
+18. **রিসেলার নিজস্ব প্রোডাক্ট আপলোড:** মাদার ক্যাটালগের পণ্যের পাশাপাশি রিসেলার চাইলে নিজের সংগ্রহ করা পণ্যও স্টোরে আপলোড করে বিক্রি করতে পারেন।
+19. **অটোমেটিক কমিশন ও প্রফিট স্প্লিট:** রিসেলার স্টোরে অর্ডার ডেলিভারি হওয়ার সাথে সাথে মাদার শপের খরচ আলাদা হয়ে রিসেলারের অর্জিত নিট প্রফিট স্বয়ংক্রিয়ভাবে তার ওয়ালেটে জমা হয়।
+20. **রিসেলার ওয়ালেট লেজার:** রিসেলারের বর্তমান লাইভ ব্যালেন্স, মোট আয় এবং পূর্বের সকল ট্রানজাকশনের স্পষ্ট হিসাব।
+21. **পেন্ডিং ইন-ট্রানজিট প্রফিট ট্র্যাকিং:** কুরিয়ারে থাকা পার্সেল ডেলিভারি না হওয়া পর্যন্ত প্রফিট "Pending" হিসেবে রাখা এবং ডেলিভারি কনফার্ম হলে মূল ব্যালেন্সে যোগ হওয়া।
+22. **রিসেলার পে-আউট ও উইথড্রয়াল রিকোয়েস্ট:** অর্জিত প্রফিট বিকাশ, নগদ বা ব্যাংক একাউন্টে ট্রান্সফারের জন্য রিসেলারের উইথড্রয়াল রিকোয়েস্ট পাঠানোর সুবিধা।
+23. **অ্যাডমিন পে-আউট অনুমোদন ওয়ার্কফ্লো:** অ্যাডমিন প্যানেল থেকে রিসেলারের পে-আউট রিকোয়েস্ট যাচাই, অনুমোদন ও লেনদেন নিষ্পত্তি করার ব্যবস্থা।
+24. **মাল্টি-ভেন্ডর সেলার আইসোলেশন গার্ড:** কার্টে ভিন্ন ভিন্ন রিসেলারের পণ্য যেন একসাথে মিশ্রিত না হয় সেজন্য স্বয়ংক্রিয় কার্ট গার্ড ও আইসোলেশন।
+25. **রিসেলার ডেডিকেটেড ড্যাশবোর্ড:** প্রতিটি রিসেলারের জন্য পৃথক কন্ট্রোল প্যানেল যেখান থেকে তারা সেলস, অর্ডার, কাস্টমার ও প্রোডাক্ট পরিচালনা করতে পারেন।
+26. **রিসেলার ওয়ান-ক্লিক অর্ডার ফুলফিলমেন্ট:** গ্রাহকের অর্ডার কনফার্ম করে সরাসরি মাদার ফুলফিলমেন্ট সিস্টেমে পুশ করার সুবিধা।
+27. **রিসেলার কাস্টম কুপন সিস্টেম:** রিসেলাররা নিজেদের প্রমোট করার জন্য নিজস্ব স্টোরে স্পেশাল ডিসকাউন্ট কুপন তৈরি করতে পারেন।
+28. **রিসেলার অ্যানালিটিক্স ও সেলস রিপোর্ট:** গ্রাফিকাল চার্টের মাধ্যমে দৈনিক, সাপ্তাহিক ও মাসিক সেলস ও প্রফিটের ভিজ্যুয়াল পরিসংখ্যান।
+
+### 🎨 ডায়নামিক সিস্টেম ডিজাইন ও থিমিং প্যানেল (Dynamic System Design & Theming)
+29. **নেভবার ভার্সন সুইচিং (V1 - V5):** কোনো কোড পরিবর্তন ছাড়াই অ্যাডমিন প্যানেল থেকে ৫টি ভিন্ন ডিজাইনের নেভিগেশন বার লাইভ সুইচিং।
+30. **প্রোডাক্ট কার্ড ভার্সন সুইচিং (V1 - V6):** ৬টি সম্পূর্ণ ভিন্ন স্টাইল ও লেআউটের প্রিমিয়াম প্রোডাক্ট কার্ড থেকে পছন্দের ভার্সন নির্বাচন।
+31. **ফুটার ভার্সন সুইচিং (V1 - V5):** স্টোরের ধরণের সাথে মিলিয়ে ৫টি আকর্ষণীয় ফুটার ভ্যারিয়েন্টের যেকোনো একটি সক্রিয় করার সুবিধা।
+32. **হিরো ব্যানার স্টাইল সিলেক্টর:** স্লাইডার ব্যানার, ফুল-উইডথ গ্রিড কিংবা মিনিমালিস্ট হিরো সেকশন কনফিগারেশন।
+33. **ডায়নামিক কালার প্যালেট ইঞ্জিন:** সিএসএস ভেরিয়েবল চালিত প্রাইমারি, সেকেন্ডারি, অ্যাকসেন্ট ও ব্যাকগ্রাউন্ড কালার রিয়েল-টাইম কাস্টমাইজার।
+34. **২০+ গুগল ফন্ট ও টাইপোগ্রাফি সিলেক্টর:** Inter, Poppins, Roboto, Playfair Display, Montserrat সহ বিশ্বের জনপ্রিয় ফন্ট এক ক্লিকে সিলেক্ট করার সুবিধা।
+35. **রিয়েল-টাইম সিস্টেম ডিজাইন প্রিভিউ:** থিম, কালার বা লেআউট পরিবর্তন করার সাথে সাথেই অ্যাডমিন ড্যাশবোর্ডে লাইভ প্রিভিউ দেখে চূড়ান্ত করার সুবিধা।
+36. **ক্লায়েন্ট স্পেসিফিক স্টোরফ্রন্ট কাস্টমাইজেশন:** প্রতিটি ক্লায়েন্ট বা স্টোরের জন্য আলাদা লুক অ্যান্ড ফিল নিশ্চিত করার ফ্লেক্সিবিলিটি।
+37. **অটোমেটিক সুপার এডমিন রোল প্রটেকশন:** প্ল্যাটফর্মের মূল টেকনিক্যাল ওনারের সুপার এডমিন একাউন্ট অপরিবর্তনীয় ও সর্বোচ্চ সুরক্ষিত রাখার ব্যবস্থা।
+38. **ডায়নামিক লোগো ও ফেভিকন আপলোডার:** কোনো ডেভেলপার বা সার্ভার রিস্টার্ট ছাড়াই সরাসরি অ্যাডমিন প্যানেল থেকে সাইট লোগো ও ফেভিকন পরিবর্তন।
+39. **মোবাইল বটম নেভিগেশন বার:** মোবাইল ব্যবহারকারীদের জন্য স্মার্টফোনের নিচে অ্যাপ-লাইক ফাস্ট মেনু বার (Home, Shop, Cart, Account)।
+40. **ডার্ক ও লাইট থিম মোড (Dark/Light):** গ্রাহক ও অ্যাডমিন উভয়ের জন্য প্রিমিয়াম ডার্ক ও লাইট থিম মোড পরিবর্তনের স্বাধীনতা।
+41. **সিস্টেম এক্সপায়ারি ও মেইনটেন্যান্স কন্ট্রোল:** সিস্টেম ডিজাইন থেকে প্রজেক্টের এক্সপায়ারি ডেট নির্ধারণ ও সিকিউরিটি লক সেটিংস।
+
+### 🔍 অ্যাডভান্সড টেকনিক্যাল ও এসইও আর্কিটেকচার (Advanced Technical & SEO)
+42. **ডায়নামিক মেটা টাইটেল ও ডেসক্রিপশন:** প্রতিটি প্রোডাক্ট, ক্যাটাগরি ও পেজের জন্য স্বয়ংক্রিয় অপ্টিমাইজড মেটা ট্যাগ জেনারেশন।
+43. **স্ট্রাকচার্ড ডাটা ও স্কিমা মার্কআপ (Schema.org JSON-LD):** গুগলের সার্চ রেজাল্টে প্রডাক্ট প্রাইস, ইনভেন্টরি স্টক ও স্টার রেটিং সমৃদ্ধ রিচ স্নিপেট ডিসপ্লে।
+44. **অটোমেটিক XML সাইটম্যাপ (`/sitemap.xml`):** গুগল সার্চ ইঞ্জিন ক্রলারদের দ্রুত নতুন প্রোডাক্ট ও ক্যাটাগরি ইন্ডেক্স করার জন্য স্বয়ংক্রিয় সাইটম্যাপ।
+45. **Robots.txt কনফিগারেশন:** সার্চ ইঞ্জিন বটদের জন্য সঠিক ক্রলিং ও ইনডেক্সিং পলিসি নিয়ন্ত্রণ।
+46. **ওপেন গ্রাফ (Open Graph) মেটা সেটআপ:** ফেসবুক, হোয়াটসঅ্যাপ ও মেসেঞ্জারে লিংক শেয়ার করলে দৃষ্টিনন্দন ইমেজ, টাইটেল ও ডেসক্রিপশন কার্ড প্রদর্শন।
+47. **Twitter / X কার্ড ইন্টিগ্রেশন:** টুইটার/এক্স প্ল্যাটফর্মে শেয়ারের জন্য বিশেষ লার্জ প্রিভিউ কার্ড ফরম্যাটিং।
+48. **ক্যানোনিকাল ইউআরএল (Canonical URL) হ্যান্ডলিং:** ডুপ্লিকেট কন্টেন্ট বা ফিল্টারিং পেজের এসইও পেনাল্টি এড়াতে সঠিক ক্যানোনিকাল ট্যাগ প্রদান।
+49. **অ্যাডভান্সড HTTP সিকিউরিটি ও ডাটা স্যানিটাইজেশন:** XSS, SQL Injection ও CSRF আক্রমণ প্রতিরোধে আধুনিক সিকিউরিটি ফিল্টার।
+50. **গুগল সার্চ কনসোল ও ওয়েবমাস্টার রেডি:** গুগল সার্চ কনসোল এবং অন্যান্য সার্চ ইঞ্জিনে সহজেই সাইট ভেরিফাই করার মেটা ও ডিএনএস সাপোর্ট।
+
+### 📦 লজিস্টিকস, শিপিং ও অর্ডার ফুলফিলমেন্ট (Logistics, Shipping & Fulfillment)
+51. **আনলিমিটেড অর্ডার ম্যানেজমেন্ট (Unlimited Order Processing):** প্রতি মাসে বা বছরে আনলিমিটেড সংখ্যক কাস্টমার অর্ডার প্রসেসিং ও ম্যানেজমেন্ট — কোনো ট্রানজাকশন লিমিটেশন বা এক্সট্রা চার্জ নেই।
+52. **পাঠাও কুরিয়ার API ইন্টিগ্রেশন:** পাঠাও কুরিয়ারের সাথে সরাসরি যুক্ত হয়ে ওয়ান-ক্লিকে পার্সেল বুকিং করার সুবিধা।
+53. **স্টিডফাস্ট কুরিয়ার API ইন্টিগ্রেশন:** ওয়ান-ক্লিকে স্টিডফাস্ট কুরিয়ারে অটোমেটিক কনসাইনমেন্ট বুকিং এবং ট্র্যাকিং কোড জেনারেশন।
+54. **রেডএক্স কুরিয়ার API ইন্টিগ্রেশন:** রেডএক্স কুরিয়ার সার্ভিস ব্যবহারকারীদের জন্য ওয়ান-ক্লিক বুকিং ও স্ট্যাটাস সিঙ্ক।
+55. **বাল্ক কুরিয়ার ডিসপ্যাচ:** একসাথে একাধিক অর্ডার নির্বাচন করে একটি ক্লিকে কুরিয়ারে পাঠিয়ে বুকিং সম্পন্ন করার সুবিধা।
+56. **লাইভ কুরিয়ার পার্সেল ট্র্যাকিং:** কাস্টমার ও অ্যাডমিন উভয়ের জন্য সরাসরি কুরিয়ার পার্সেলের বর্তমান অবস্থান ট্র্যাকিং সুবিধা।
+57. **ভিজ্যুয়াল স্টেপ-বাই-স্টেপ অর্ডার প্রগ্রেস বার:** অর্ডার প্লেসড -> প্রসেসিং -> ইন-ট্রানজিট -> ডেলিভার্ড পর্যন্ত গ্রাহকের জন্য আকর্ষণীয় ট্র্যাকিং বার।
+58. **অটোমেটিক ডেলিভারি স্ট্যাটাস সিঙ্ক (Cronjob):** ব্যাকগ্রাউন্ড শিডিউলড ক্রনজব দিয়ে কুরিয়ার API থেকে নিয়মিত পার্সেলের ডেলিভারি স্ট্যাটাস স্বয়ংক্রিয়ভাবে আপডেট হওয়া।
+59. **ডায়নামিক লোকেশনভিত্তিক ডেলিভারি চার্জ:** ঢাকা সিটি (Inside Dhaka) এবং ঢাকার বাইরে (Outside Dhaka) এর ওপর ভিত্তি করে স্বয়ংক্রিয় শিপিং চার্জ নির্ধারণ।
+60. **ফ্রি ডেলিভারি থ্রেশহোল্ড ইঞ্জিন:** নির্দিষ্ট টাকার বেশি কেনাকাটা করলে গ্রাহকদের জন্য স্বয়ংক্রিয় ফ্রি হোম ডেলিভারি অফার কার্যকর হওয়া।
+61. **ম্যানুয়াল অফলাইন অর্ডার এন্ট্রি:** ফোন কল, হোয়াটসঅ্যাপ বা শোরুম থেকে আসা অর্ডারগুলো এডমিন প্যানেল থেকে খুব সহজে ইনপুট করার ব্যবস্থা।
+62. **ডাউনলোডযোগ্য প্রফেশনাল PDF ইনভয়েস:** ব্র্যান্ডের লোগো, অর্ডারের বিবরণ ও কাস্টমার ইনফরমেশন সহ ওয়ান-ক্লিকে প্রিন্ট ও ডাউনলোডযোগ্য ইনভয়েস।
+63. **ডেলিভারি চালান ও প্যাকিং স্লিপ প্রিন্টিং:** ওয়্যারহাউস ও প্যাকিং টিমের জন্য আলাদা প্যাকিং স্লিপ ও ডেলিভারি চালান প্রিন্ট করার সুবিধা।
+64. **শর্ট প্রোডাক্ট ও লো-স্টক এলার্ট:** কোনো পণ্যের স্টক কমে ৩ বা তার নিচে নামলে ড্যাশবোর্ডে তাৎক্ষণিক ওয়ার্নিং নোটিফিকেশন।
+
+### 💳 পেমেন্ট গেটওয়ে, সিকিউরিটি ও ফ্রড প্রতিরোধ (Payment & Fraud Prevention)
+65. **SSLCommerz মাল্টি-চ্যানেল গেটওয়ে:** ভিসা, মাস্টারকার্ড, ইন্টারনেট ব্যাংকিং এবং মোবাইল ব্যাংকিংয়ের সমন্বিত পেমেন্ট প্রসেসিং।
+66. **Stripe আন্তর্জাতিক পেমেন্ট গেটওয়ে:** প্রবাসী ও আন্তর্জাতিক গ্রাহকদের জন্য সরাসরি কার্ডে ডলার ও বিদেশি মুদ্রায় পেমেন্ট গ্রহণের ব্যবস্থা।
+67. **ডায়নামিক ম্যানুয়াল MFS পেমেন্ট:** বিকাশ, নগদ ও রকেট ব্যক্তিগত বা মার্চেন্ট নম্বর কনফিগারেশন এবং কাস্টমারকে পেমেন্ট নির্দেশিকা প্রদান।
+68. **ইন্টারঅপারেবল Bangla QR পেমেন্ট:** কাস্টমার যেকোনো বাংলাদেশি ব্যাংকিং অ্যাপ (বিকাশ, নগদ, সেলফিন ইত্যাদি) দিয়ে বাংলা কিউআর কোড স্ক্যান করে পেমেন্ট করার সুবিধা।
+69. **TrxID ভেরিফিকেশন ও ট্র্যাকিং:** ম্যানুয়াল পেমেন্টে কাস্টমারের দেওয়া ট্রানজেকশন আইডি (TrxID) ইনপুট ও অ্যাডমিন ভেরিফিকেশন মোডাল।
+70. **ক্যাশ অন ডেলিভারি (COD) পেমেন্ট:** সারা দেশে বিশ্বস্ত ক্যাশ অন ডেলিভারি চেকআউট প্রসেসিং।
+71. **কাস্টমার সাকসেস রেট (%) ফ্রড ডিটেকশন:** প্রতিটি অর্ডারের পাশে কাস্টমারের পূর্বের পার্সেল ডেলিভারি সাকসেস রেট (%) প্রদর্শন করে ফেক অর্ডার সনাক্তকরণ।
+72. **ডুপ্লিকেট অর্ডার ডিটেকশন এলার্ট:** একই কাস্টমার একাধিকবার ভুলবশত বা ইচ্ছাকৃত একই অর্ডার প্লেস করলে অ্যাডমিনকে তাৎক্ষণিক সতর্কবার্তা প্রদান।
+73. **ইনকমপ্লিট ফর্ম লকড সাবমিট বাটন:** নাম, মোবাইল নম্বর ও ঠিকানা সঠিকভাবে পূরণ না করা পর্যন্ত অর্ডার সাবমিট বাটন সুরক্ষিতভাবে নিষ্ক্রিয় রাখা।
+
+### 📈 মার্কেটিং, CAPI ট্র্যাকিং ও সেলস অপ্টিমাইজেশন (Marketing, Tracking & CRO)
+74. **সার্ভার-সাইড ফেসবুক কনভার্সন API (Facebook CAPI):** ব্রাউজার এড-ব্লকার ও iOS 14+ আপডেট বাইপাস করে সার্ভার থেকে সরাসরি ১০০% নির্ভুল ডেটা ফেসবুক পিক্সেলে পাঠানো।
+75. **মেটা (ফেসবুক) পিক্সেল ফুল ইভেন্ট সেটআপ:** PageView, ViewContent, AddToCart, InitiateCheckout, Purchase সহ স্ট্যান্ডার্ড ই-কমার্স ইভেন্ট ট্র্যাকিং।
+76. **টিকটক ইভেন্টস API ও টিকটক পিক্সেল:** টিকটক বিজ্ঞাপন ক্যাম্পেইনের জন্য হাই-কনভার্টিং ইভেন্ট ট্র্যাকিং।
+77. **গুগল ট্যাগ ম্যানেজার (GTM) কন্টেইনার ইন্টিগ্রেশন:** বিভিন্ন মার্কেটিং স্ক্রিপ্ট ও ট্যাগ এক জায়গা থেকে নিয়ন্ত্রণ করার সুবিধা।
+78. **গুগল অ্যানালিটিক্স ৪ (GA4) সেটআপ:** গ্রাহকের আচরণ, ভিজিটর ট্রাফিক সোর্স এবং কনভার্সন ফানেলের গভীর বিশ্লেষণ।
+79. **হাই-কনভার্টিং ল্যান্ডিং পেজ বিল্ডার:** ড্র্যাগ অ্যান্ড ড্রপ কম্পোনেন্ট দিয়ে সিঙ্গেল প্রোডাক্ট সেলস বাড়ানোর জন্য আকর্ষণীয় ল্যান্ডিং পেজ তৈরির সুবিধা।
+80. **অ্যাডভান্সড CRO (কনভার্সন রেট অপ্টিমাইজেশন):** ওয়ান-পেজ ফাস্ট চেকআউট ও মিনিমালিস্ট স্টেপ দিয়ে ড্রপ-অফ রেট কমিয়ে বেশি সেলস নিশ্চিত করা।
+81. **ডায়নামিক ডিসকাউন্ট কুপন ইঞ্জিন:** ফিক্সড টাকা কিংবা পার্সেন্টেজ (%) হারে ডিসকাউন্ট কুপন কোড জেনারেটর।
+82. **কুপন এক্সপায়ারি ও ব্যবহারের লিমিটেশন:** নির্দিষ্ট মেয়াদ ও সর্বোচ্চ ব্যবহারের সংখ্যা নির্ধারণ করার নিরাপত্তা ব্যবস্থা।
+83. **স্পেশাল ক্যাম্পেইন ও ফ্ল্যাশ সেল ব্যানার:** নির্দিষ্ট উৎসব বা ক্যাম্পেইনে সাইটজুড়ে আকর্ষণীয় অফার ব্যানার ও কাউন্টডাউন প্রদর্শনের সুবিধা।
+84. **এব্যান্ডনড কার্ট রিকভারি ও ট্র্যাকিং:** কার্টে পণ্য যোগ করেও চেকআউট না করা ক্রেতাদের ডেটা ট্র্যাকিং এবং পরবর্তীতে তাদের কনভার্ট করার সুযোগ।
+85. **কাস্টমার লয়্যালটি ও রিওয়ার্ডস টোকেন:** কেনাকাটা করার সাথে সাথে গ্রাহকের একাউন্টে লয়্যালটি পয়েন্ট জমা হওয়া এবং পরবর্তী অর্ডারে ডিসকাউন্ট হিসেবে ব্যবহার।
+86. **হোয়াটসঅ্যাপ ফ্লোটিং চ্যাট উইজেট:** গ্রাহক ওয়েবসাইটে ভিজিট করা অবস্থায় এক ক্লিকে সরাসরি ফেসবুক বা হোয়াটসঅ্যাপে লাইভ চ্যাট শুরু করার সুবিধা।
+87. **সোশ্যাল মিডিয়া লাইভ ফিড ও চ্যানেল লিংক:** ফেসবুক পেজ, ইনস্টাগ্রাম, টিকটক, ইউটিউব ও লিংকডইন চ্যানেলের সরাসরি সংযোগ।
+
+### 📊 ফাইন্যান্সিয়াল একাউন্টিং ও ডাবল-এন্ট্রি লেজার (Financial Accounting & Ledger)
+88. **ডাবল-এন্ট্রি একাউন্টিং লেজার সিস্টেম:** প্রতিটি আর্থিক লেনদেনের বিপরীতে স্বয়ংক্রিয় ডেবিট ও ক্রেডিট জার্নাল এন্ট্রি সম্পন্ন হওয়া।
+89. **লাইভ একাউন্টস পেয়েবল (AP) ট্র্যাকিং:** সাপ্লায়ারদের বকেয়া বিল এবং সক্রিয় অর্ডারের রিসেলার প্রদেয় আয়ের রিয়েল-টাইম দায়ের হিসাব।
+90. **লাইভ একাউন্টস রিসিভেবল (AR) ট্র্যাকিং:** সক্রিয় ডেলিভারি পার্সেল ও ক্লায়েন্টদের থেকে প্রাপ্য লাইভ পাওনা টাকার নিখুঁত হিসাব।
+91. **ক্যাশ-ইন-হ্যান্ড ট্র্যাকিং:** প্রতিষ্ঠানের অফিসে থাকা নগদ টাকার বর্তমান ব্যালেন্স লাইভ মনিটরিং।
+92. **ব্যাংক একাউন্টস লেজার:** একাধিক ব্যাংক একাউন্ট যুক্ত করা, ডিপোজিট, চেক ক্লিয়ারিং এবং ব্যালেন্স ট্র্যাকিং।
+93. **মোবাইল ওয়ালেটস (MFS) লেজার:** বিকাশ ও নগদ মার্চেন্ট একাউন্টের ব্যালেন্স ও ক্যাশ-আউটের আলাদা লেজার হিসাব।
+94. **ইন্টার-অ্যাকাউন্ট ফান্ড ট্রান্সফার:** ক্যাশ থেকে ব্যাংক, ব্যাংক থেকে ক্যাশ বা বিকাশে ব্যালেন্স স্থানান্তরের ট্রানজাকশন এন্ট্রি।
+95. **বিজনেস লোন ও কিস্তি ট্র্যাকিং:** ব্যবসার ঋণের হিসাব, ঋণদাতার বিবরণ, কিস্তির শিডিউল, পেইড অ্যামাউন্ট ও অবশিষ্ট দেনার ট্র্যাকিং।
+96. **সাপ্লায়ার পারচেজ বিলিং (Purchase Bills):** সরবরাহকারীদের থেকে পণ্য ক্রয়ের ইনভয়েস যুক্ত করা, আংশিক পেমেন্ট ও বাকি খতিয়ান।
+97. **কাস্টম ইনকাম ও এক্সপেন্স ক্যাটাগরি:** অফিস ভাড়া, স্টাফদের বেতন, প্যাকেজিং খরচ ইত্যাদি ক্যাটাগরিতে ব্যয় ও অন্যান্য আয়ের হিসাব রাখা।
+98. **অটোমেটেড প্রফিট অ্যান্ড লস (P&L) রিপোর্ট:** নির্দিষ্ট দিন, মাস বা বছরের মোট রাজস্ব, বিক্রীত পণ্যের ব্যয়, পরিচালন খরচ ও নিট মুনাফা/লোকসানের লাইভ হিসাব।
+99. **অটো-অরফ্যান ট্রানজাকশন ক্লিনআপ ও ব্যালেন্স রিক্যালকুলেশন:** কোনো ডাটাবেস অসঙ্গতি দূর করে লেজার ব্যালেন্স স্বয়ংক্রিয়ভাবে রিক্যালকুলেট করার ইন্টেলিজেন্ট ইঞ্জিন।
+
+### ✨ প্রিমিয়াম ইউজার এক্সপিরিয়েন্স ও ফ্রন্টএন্ড UI (UX & Frontend UI)
+100. **কুইক ভিউ মোডাল (Quick View Modal):** পেজ রিলোড না করেই পপ-আপ মোডালে প্রোডাক্টের ছবি, ভ্যারিয়েন্ট নির্বাচন ও সরাসরি কার্টে যোগ করার সুবিধা।
+101. **গুগল জেমিনি এআই স্মার্ট চ্যাটবট (Google Gemini AI Chatbot):** দিন-রাত ২৪ ঘণ্টা স্বয়ংক্রিয়ভাবে পণ্যের বিবরণ জানানো, ক্রেতাদের প্রশ্নের উত্তর দেওয়া ও কেনাকাটায় অ্যাসিস্ট করার জন্য ইন্টিগ্রেটেড এআই ভার্চুয়াল সেলস অ্যাসিস্ট্যান্ট।
+102. **ওয়েব স্পিচ এপিআই ভয়েস সার্চ (Voice Search):** গ্রাহকরা কোনো কিছু না লিখে মুখে কথা বললেই ব্রাউজারের মাধ্যমে সাথে সাথে প্রোডাক্ট খুঁজে পাওয়ার প্রযুক্তি।
+103. **ইনস্ট্যান্ট প্রাইস স্লাইডার ও ফিল্টারিং:** মূল্যের সীমা, ক্যাটাগরি, সাইজ এবং কালার দিয়ে রিয়েল-টাইমে পণ্য ফিল্টার ও সর্টিং করার ব্যবস্থা।
+104. **ডুয়াল উইশলিস্ট সিস্টেম (Local + Cloud Sync):** ভিজিটর ও রেজিস্টার্ড কাস্টমার উভয়ই পছন্দের প্রোডাক্ট ভবিষ্যতে কেনার জন্য উইশলিস্টে সংরক্ষণ করতে পারেন।
+105. **কাস্টমার রিভিউ ও ফটো আপলোড:** রেটিং, বিস্তারিত রিভিউ এবং গ্রাহকদের বাস্তব প্রোডাক্টের ছবি আপলোড করার ভেরিফাইড সোশ্যাল প্রুফ ব্যবস্থা।
+106. **স্মুথ মাইক্রো-অ্যানিমেশন ও বাটন এফেক্টস:** প্রিমিয়াম অ্যাপ্লিকেশনের অনুভূতি দিতে ফ্লুইড ট্রানজিশন, হোভার এফেক্ট ও বাটন অ্যানিমেশন।
+107. **স্কেলিটন লোডার ও প্লেসহোল্ডার:** ইন্টারনেট স্লো থাকলেও বিরক্তিকর খালি পেজের বদলে আধুনিক স্কেলিটন লোডিং প্রিভিউ।
+108. **ইন্টারেক্টিভ গুগল ম্যাপ ও শোরুম লোকেশন:** গ্রাহকদের সহজে খুঁজে পেতে প্রতিষ্ঠানের হেড অফিস বা শোরুমের লাইভ গুগল ম্যাপ ইন্টিগ্রেশন।
+109. **টপ-লেভেল টোস্ট (Sonner) ও SweetAlert2 এলার্ট:** সিস্টেমের সকল নোটিফিকেশন, এরর ও কনফার্মেশনের জন্য বিশ্বমানের ভিজ্যুয়াল পপআপ এলার্ট।
+
+### 🛠️ ইনভেন্টরি, কনটেন্ট ম্যানেজমেন্ট ও অ্যাডমিনিস্ট্রেশন (Inventory, CMS & Administration)
+110. **আনলিমিটেড প্রোডাক্ট ও ক্যাটালগ আপলোড (Unlimited Product Upload):** স্টোরে যত খুশি পণ্য, ছবি ও ভ্যারিয়েন্ট আপলোড করার পূর্ণ স্বাধীনতা, কোনো অতিরিক্ত ফি বা লিমিটেশন নেই।
+111. **ফুল-ফিচার্ড টিপট্যাপ (Tiptap) রিচ টেক্সট এডিটর:** প্রোডাক্ট ডেসক্রিপশন, ব্লগ এবং পলিসি পেজ সুন্দরভাবে ফরম্যাট করার জন্য শক্তিশালী এডিটর।
+112. **ক্যাটাগরাইজড ব্লগ ও আর্টিকেল পাবলিশিং CMS:** অর্গানিক গুগল র‍্যাঙ্কিং ও কন্টেন্ট মার্কেটিং বাড়াতে ক্যাটাগরিভিত্তিক ব্লগ লেখার স্বয়ংক্রিয় সিস্টেম।
+113. **রোল-বেসড এক্সেস কন্ট্রোল (RBAC):** সুপার এডমিন, এডমিন ও রিসেলারদের জন্য কঠোর সিকিউরিটি পারমিশন আইসোলেশন।
+114. **প্রোডাক্ট ব্যাচ ও এক্সপায়ারি ডেট ট্র্যাকিং (Upcoming Expiry):** যেসকল পণ্যের মেয়াদের তারিখ রয়েছে সেগুলোর মেয়াদ শেষ হওয়ার আগেই ড্যাশবোর্ডে আগাম সতর্কতা প্রদান।
+115. **মাল্টি-এট্রিবিউট ভ্যারিয়েন্ট ও SKU ম্যানেজমেন্ট:** সাইজ, কালার ও স্পেসিফিকেশন ভেদে আলাদা আলাদা স্টক, প্রাইসিং এবং ইউনিক SKU কন্ট্রোল।
+116. **কাস্টমার প্রোফাইল ও ফুল অর্ডার হিস্ট্রি ড্যাশবোর্ড:** কাস্টমারদের অতীতের সব অর্ডার, পেমেন্ট ও ইনভয়েস ট্র্যাক করার পার্সোনাল পোর্টাল।
+117. **গ্লোবাল সিস্টেম ডিজাইন লক ও প্রজেক্ট এক্সপায়ারি কন্ট্রোল:** সুপার এডমিন কর্তৃক সিস্টেম আর্কিটেকচার সুরক্ষা এবং ক্লায়েন্ট প্রজেক্টের এক্সপায়ারি নির্ধারণের সুযোগ।
+118. **গেস্ট ও লগইনকৃত কাস্টমার ডুয়াল চেকআউট:** একাউন্ট খোলা ছাড়াই ওয়ান-ক্লিক ফাস্ট চেকআউট এবং একাউন্ট তৈরি করে কেনাকাটা করার উভয় সুবিধা।
+119. **বাল্ক এক্সেল প্রোডাক্ট ইম্পোর্ট ও এক্সপোর্ট সাপোর্ট:** এক্সেল/CSV ফাইলের মাধ্যমে একসাথে শত শত প্রোডাক্ট দ্রুত আপলোড বা এক্সপোর্ট করার সুবিধা।
+120. **স্টেপ-বাই-স্টেপ ভিডিও টিউটোরিয়াল সিরিজ (Video Tutorial):** প্রোডাক্ট আপলোড, অর্ডার ডিসপ্যাচ, রিসেলার হ্যান্ডলিং ও সেটিংসের প্রতিটি বিষয়ের ওপর সুস্পষ্ট স্ক্রিনরেকর্ড ভিডিও গাইড।
+121. **৭ দিনের শতভাগ মানিব্যাক গ্যারান্টি (7 Days Money-Back Guarantee):** প্রজেক্ট ডেলিভারির পর ৭ দিনের মধ্যে প্ল্যাটফর্ম সন্তোষজনক মনে না হলে কোনো প্রশ্ন ছাড়াই ১০০% মূল্য ফেরতের নিরাপত্তা।
+122. **লাইফটাইম কোডবেস সিকিউরিটি ও মেইনটেন্যান্স সাপোর্ট:** প্ল্যাটফর্মের দীর্ঘমেয়াদী নিরবচ্ছিন্ন আপডেট ও সিস্টেম নির্ভরযোগ্যতা নিশ্চিতকরণ।
 
 ---
 
-## 5. Investment & Pricing Breakdown
-- **Complete Platform Development:** ✅ Included (Full platform setup with 100+ enterprise features)
-- **Cloud VPS Hosting (1 Year):** ✅ Included (Unlimited High-Performance Cloud VPS)
-- **.com Domain (1 Year):** ✅ Included (Global .com Registration & DNS Setup)
-- **Total Package Price:** **11,500 BDT**
-- **Annual Renewal (Hosting + Domain):** 8,000 BDT / Year
+## ৩. প্যাকেজ অফার ও প্রাইসিং (Pricing & Investment)
+
+### 💎 অল-ইন-ওয়ান B2B ও B2C মাল্টি-টেন্যান্ট ই-কমার্স এবং ড্রপশিপিং ওয়েবসাইট
+- **সর্বমোট প্রজেক্ট ফি / ইনভেস্টমেন্ট:** মাত্র **১১,৫০০ টাকা** (এককালীন / One-Time Setup Fee)  
+  *(💡 দ্রষ্টব্য: আপনার পূর্বের কেনা ডোমেইন  থাকলে বা নিজে ডোমেইন  কিনে দিলে ১,৫০০ টাকা ক্যাশ ডিসকাউন্ট পাবেন — তখন মোট ফি হবে মাত্র ১০,০০০ টাকা)*
+
+> ### 🛡️ ৭ দিনের শতভাগ মানিব্যাক গ্যারান্টি (100% Risk-Free Guarantee)
+> প্রজেক্ট ডেলিভারির পর আপনি পূর্ণ ৭ দিন সিস্টেমটি ব্যবহার ও পরীক্ষা করবেন। যদি কোনো কারণে প্ল্যাটফর্ম আপনার পছন্দ না হয় বা আপনি সন্তুষ্ট না হন, তবে **কোনো শর্ত বা প্রশ্ন ছাড়াই ৭ দিনের মধ্যে সম্পূর্ণ ১১,৫০০ টাকা রিফান্ড** দেওয়া হবে।
+
+#### 🎁 প্যাকেজে যা যা সম্পূর্ণ ফ্রি অন্তর্ভুক্ত থাকছে:
+1. **আন্তর্জাতিক .com ডোমেইন :** ১ বছরের জন্য সম্পূর্ণ ফ্রি গ্লোবাল `.com` ডোমেইন  রেজিস্ট্রেশন (১০০% মালিকানা আপনার)।
+2. **হাই-স্পিড Unlimited Cloud VPS হোস্টিং:** পিক সিজনে সুপার-ফাস্ট স্পিড বজায় রাখতে প্রিমিয়াম ক্লাউড ভিপিএস হোস্টিং সম্পূর্ণ ফ্রি।
+3. **গুগল জেমিনি এআই (Gemini AI) চ্যাটবট ইন্টিগ্রেশন:** ২৪/৭ গ্রাহক সেবায় স্মার্ট এআই ভার্চুয়াল সেলস অ্যাসিস্ট্যান্ট।
+4. **আনলিমিটেড প্রোডাক্ট আপলোড:** যত খুশি প্রোডাক্ট ও ভ্যারিয়েন্ট আপলোড করার সুবিধা।
+5. **আনলিমিটেড রিসেলার অ্যাকাউন্ট:** যত খুশি রিসেলারকে যুক্ত করে ড্রপশিপিং নেটওয়ার্ক বাড়ানোর সুবিধা।
+6. **আনলিমিটেড অর্ডার ম্যানেজমেন্ট:** কোনো মাসিক অর্ডার লিমিটেশন বা ট্রানজাকশন ফি ছাড়া আনলিমিটেড অর্ডার প্রসেসিং।
+7. **রিসেলার কাস্টম ডোমেইন  কানেকশন:** রিসেলারদের নিজস্ব ব্র্যান্ডের ডোমেইন  যুক্ত করার সুযোগ।
+8. **সার্ভার-সাইড ট্র্যাকিং (CAPI) ও মেটা পিক্সেল সেটআপ:** ১০০% সঠিক ট্র্যাকিং কনফিগারেশন।
+9. **কুরিয়ার ও পেমেন্ট গেটওয়ে ইন্টিগ্রেশন:** পাঠাও/স্টিডফাস্ট এবং বিকাশ/নগদ/SSLCommerz সেটআপ।
+10. **স্টেপ-বাই-স্টেপ সম্পূর্ণ ভিডিও টিউটোরিয়াল:** পুরো প্ল্যাটফর্ম সহজে পরিচালনার জন্য বিস্তারিত ভিডিও টিউটোরিয়াল সিরিজ।
+11. **৭ দিনের নো-কোয়েশ্চন মানিব্যাক গ্যারান্টি:** শতভাগ ঝুঁকিমুক্ত নিশ্চয়তা।
+12. **লাইফটাইম টেকনিক্যাল সাপোর্ট:** Jiapixel Cloud VPS ইনফ্রাস্ট্রাকচারে লাইফটাইম ফ্রি মেইনটেন্যান্স ও বাগ-ফিক্সিং সাপোর্ট।
 
 ---
 
-**Md. Imran Hossen**  
+## ৪. Client Requirements
+
+প্রজেক্টের কাজ শুরু করতে অনুগ্রহ করে নিচের তথ্যগুলো প্রদান করবেন:
+
+1. **বিজনেস ইনফরমেশন:** ব্যবসার নাম, লোগো, সাধারণ কিছু FAQ এবং সংক্ষিপ্ত "About Us" বিবরণ।
+2. **যোগাযোগের তথ্য:** ফোন নম্বর, হোয়াটসঅ্যাপ, ইমেইল এবং অফিস/শোরুমের ঠিকানা।
+3. **সোশ্যাল মিডিয়া লিংক:** ফেসবুক, ইনস্টাগ্রাম, টিকটক, ইউটিউব এবং লিংকডইন পেজের লিংক।
+4. **পছন্দের ডোমেইন :** আপনার কাঙ্ক্ষিত `.com` ডোমেইন  নাম (যেমন: `www.yourbrand.com`) — যা আমরা ফ্রিতে রেজিস্টার করে দেব।
+5. **মার্কেটিং ও ট্র্যাকিং ক্রেডেনশিয়াল:** ফেসবুক পিক্সেল আইডি / এক্সেস টোকেন, ডোমেইন  ভেরিফিকেশন কোড, GTM / GA4 আইডি এবং সার্চ কনসোল এক্সেস।
+6. **কুরিয়ার ও পেমেন্ট গেটওয়ে:** কুরিয়ার API Keys (পাঠাও, স্টিডফাস্ট, রেডএক্স) এবং পেমেন্ট গেটওয়ে ক্রেডেনশিয়াল (বিকাশ, নগদ, SSLCommerz ইত্যাদি)।
+
+---
+
+## ৫. Terms & Conditions
+
+- **প্যাকেজ মূল্য:** সম্পূর্ণ প্রজেক্টের প্যাকেজ মূল্য নির্ধারিত হয়েছে মাত্র **১১,৫০০ টাকা**।
+- **৭ দিনের মানিব্যাক গ্যারান্টি:** কাজ ডেলিভারি দেওয়ার পরবর্তী ৭ দিনের মধ্যে ক্লায়েন্ট অসন্তুষ্ট হলে কোনো প্রশ্ন ছাড়াই সম্পূর্ণ ফি রিফান্ড করা হবে।
+- **ভিডিও টিউটোরিয়াল ও ট্রেনিং:** সকল গুরুত্বপূর্ণ ইন্টিগ্রেশন ও পরিচালনার (ফ্রড ডিটেকশন, প্রোডাক্ট আপলোড, রিসেলার অ্যাপ্রুভাল, সার্ভার-সাইড ট্র্যাকিং CAPI, পিক্সেল, SSLCommerz পেমেন্ট সেটআপ, ফেসবুক এডস রান, কুরিয়ার বুকিং) জন্য ধাপে ধাপে সম্পূর্ণ ভিডিও টিউটোরিয়াল প্রদান করা হবে।
+- **Cloud VPS হোস্টিং:** প্যাকেজে হাই-পারফরম্যান্স Unlimited Cloud VPS হোস্টিং সম্পূর্ণ ফ্রি অন্তর্ভুক্ত রয়েছে (পরবর্তী বছর থেকে সাধারণ সার্ভার রিনিউয়াল ফি প্রযোজ্য হবে)।
+- **ডোমেইন  রেজিস্ট্রেশন:** আন্তর্জাতিক মানের একটি `.com` ডোমেইন  ১ বছরের জন্য সম্পূর্ণ ফ্রি প্রদান করা হবে। ডোমেইন ের ১০০% সম্পূর্ণ কন্ট্রোল এবং মালিকানা ক্লায়েন্টের নিজস্ব অ্যাকাউন্টে থাকবে।
+- **কনটেন্ট ও প্রোডাক্ট আপলোড:** আমরা সকল স্যাম্পল লেআউট, ক্যাটাগরি ও আকর্ষণীয় ব্যানার সাজিয়ে দেব; পরবর্তীতে নিয়মিত প্রোডাক্ট আপলোড ও ব্লগ পোস্ট আপনি নিজে পরিচালনা করবেন (যার সম্পূর্ণ ভিডিও ট্রেনিং প্রদান করা হবে)।
+- **বিজ্ঞাপন ও মার্কেটিং:** বিজ্ঞাপন ক্যাম্পেইনের বাজেট এবং ক্রিয়েটিভ মেটেরিয়াল সম্পূর্ণ আপনার দায়িত্ব।
+- **API Keys ও ক্রেডেনশিয়াল:** সকল API Keys আপনাকে সংগ্রহ করতে হবে। প্রতিটি প্ল্যাটফর্ম থেকে কীভাবে API Key নিতে হয় তার সম্পূর্ণ ভিডিও গাইডলাইন আমরা প্রদান করব।
+- **প্রজেক্ট মেইনটেন্যান্স ও লাইফটাইম সাপোর্ট:** প্ল্যাটফর্মের নিয়মিত মেইনটেন্যান্স, আপডেট ও সিকিউরিটি নিশ্চিত করতে Jiapixel টেকনিক্যাল অ্যাডমিনিস্ট্রেটর এক্সেস বজায় রাখবে।
+
+> **⚠️ বিশেষ দ্রষ্টব্য (কেন নিজস্ব পার্সোনাল হোস্টিংয়ে ফ্রি লাইফটাইম সাপোর্ট প্রযোজ্য হবে না?):**  
+> লাইফটাইম ফ্রি টেকনিক্যাল সাপোর্ট ও বাগ-ফিক্সিং শুধুমাত্র Jiapixel-এর ডেডিকেটেড Cloud VPS ইনফ্রাস্ট্রাকচারে হোস্ট করা প্রজেক্টের ক্ষেত্রে প্রযোজ্য। আপনি নিজস্ব পার্সোনাল বা তৃতীয় পক্ষের হোস্টিং ব্যবহার করলে এই ফ্রি সাপোর্ট সুবিধা প্রযোজ্য হবে না, কারণ:
+> 1. **সার্ভার কনফিগারেশন ও কন্ট্রোল:** আধুনিক Next.js 15, React 19 এবং MongoDB আর্কিটেকচারের জন্য বিশেষায়িত Node.js রানটাইম, রিভার্স প্রক্সি, মেমোরি অ্যালোকেশন ও ক্যাশিং ইঞ্জিন প্রয়োজন হয় — যা তৃতীয় পক্ষের সাধারণ বা শেয়ার্ড হোস্টিংয়ে থাকে না এবং এর ইন্টারনাল রুট সার্ভার এক্সেস আমাদের নিয়ন্ত্রণে থাকে না।
+> 2. **সার্ভার ডাউন ও মেমোরি লিমিটেশন:** থার্ড-পার্টি শেয়ার্ড বা সাধারণ হোস্টিংয়ে রিসোর্স লিমিট এক্সিড করা, সার্ভার স্লো হওয়া কিংবা সার্ভার ক্র্যাশ করার মতো সমস্যা হরহামেশাই ঘটে — যা ওয়েবসাইটের কোডের কোনো ত্রুটি নয় বরং হোস্টিং প্রোভাইডারের দুর্বলতা।
+> 3. **অটোমেটেড সিকিউরিটি ও ক্রনজব মনিটরিং:** আমাদের ক্লাউড ভিপিএস-এ সার্বক্ষণিক অটোমেটেড ব্যাকআপ, সিকিউরিটি প্যাচ এবং ব্যাকগ্রাউন্ড ক্রনজব (যেমন: কুরিয়ার লাইভ স্ট্যাটাস অটো-আপডেট) সক্রিয়ভাবে মনিটর করা হয় — যা বাইরের কোনো পার্সোনাল হোস্টিংয়ে ট্র্যাক করা আমাদের পক্ষে অসম্ভব।
+> 
+> *অতএব, আমাদের নিজস্ব অপ্টিমাইজড ক্লাউড সার্ভারে আমরা ১০০% স্মুথ পারফরম্যান্স ও সমস্যার তাৎক্ষণিক সমাধানের দায়িত্ব নিতে পারি, কিন্তু অন্যের সার্ভারের অভ্যন্তরীণ সমস্যার সমাধান বা ফ্রি সাপোর্ট দেওয়া বাস্তবিক অর্থে সম্ভব নয়।*
+
+---
+
+## ৬. সাধারণ জিজ্ঞাসাবলী ও প্রশ্নোত্তর (FAQ - Frequently Asked Questions)
+
+**১. প্রশ্ন: আমার যদি পূর্বে থেকেই ডোমেইন  থাকে অথবা ডোমেইন  যদি আমি নিজে কিনে দিতে চাই, সেটা কি দেওয়া যাবে?**  
+**উত্তর:** হ্যাঁ, অবশ্যই দেওয়া যাবে! আপনার যদি পূর্বে থেকে কেনা নিজস্ব ডোমেইন  থাকে অথবা আপনি নিজে ডোমেইন  কিনে দিতে চান, তবে প্যাকেজ মূল্য থেকে **১,৫০০ টাকা সরাসরি ছাড় (ডিসকাউন্ট)** পাবেন (অর্থাৎ প্রজেক্টের মোট ফি হবে মাত্র ১০,০০০ টাকা)।
+
+---
+
+**২. প্রশ্ন: আমি কি আমার নিজস্ব হোস্টিং ব্যবহার করতে পারব?**  
+**উত্তর:** হ্যাঁ, অবশ্যই আপনি চাইলে আপনার নিজস্ব যেকোনো হোস্টিং ব্যবহার করতে পারবেন। তবে এর জন্য প্যাকেজ মূল্যে কোনো প্রকার ডিসকাউন্ট দেওয়া হবে না; কারণ আমাদের প্যাকেজে ১ম বছরের জন্য হাই-কনফিগারেশন Cloud VPS হোস্টিং সম্পূর্ণ ফ্রিতে উপহার হিসেবে দেওয়া হচ্ছে। তাই আপনি নিজের হোস্টিং ব্যবহার করলেও প্যাকেজ মূল্য ১১,৫০০ টাকাই থাকবে।
+
+---
+
+**৩. প্রশ্ন: ১ম বছর ফ্রি হোস্টিং ব্যবহার করার পর কি আমি আমার নিজস্ব হোস্টিংয়ে সাইট ট্রান্সফার করতে পারব?**  
+**উত্তর:** জ্বী, অবশ্যই পারবেন! আপনি ১ম বছর আমাদের ফ্রি ক্লাউড হোস্টিং ব্যবহার করার পর পরবর্তীতে চাইলে যেকোনো সময় আপনার নিজস্ব হোস্টিংয়ে সাইট শিফট করতে পারবেন। এমনকি চাইলে প্রথম দিন থেকেই নিজস্ব হোস্টিং ব্যবহার করতে পারেন।
+
+---
+
+**৪. প্রশ্ন: ১ম বছর ফ্রি হোস্টিং ব্যবহারের পর ২য় বছর থেকে হোস্টিংয়ের জন্য কত টাকা দিতে হবে?**  
+**উত্তর:** ২য় বছর থেকে বার্ষিক রিনিউয়াল ফি মাত্র **৬,৫০০ টাকা (১ বছরের জন্য)**। আমরা কোনো সাধারণ শেয়ার্ড বা ফিজিক্যাল হোস্টিং ব্যবহার করি না; এটি একটি হাই-স্পিড Cloud VPS ইনফ্রাস্ট্রাকচার — যার ফলে পিক ট্রাফিকেও আপনার ই-কমার্স ওয়েবসাইটের স্পিড ও পারফরম্যান্স থাকবে সুপার-ফাস্ট এবং ডাউন-টাইম থাকবে শূন্য।
+
+---
+
+**৫. প্রশ্ন: ওয়েবসাইটের কি কোনো মাসিক বা বাৎসরিক রিনিউয়াল চার্জ আছে?**  
+**উত্তর:** না, ওয়েবসাইট ব্যবহারের জন্য কোনো প্রকার মাসিক বা বাৎসরিক সফটওয়্যার চার্জ নেই (এটি ওয়ান-টাইম পারচেজ)। তবে আমাদের দেওয়া ১ম বছরের ফ্রি হোস্টিং ব্যবহারের পর যদি সার্ভিস ভালো লাগে এবং আমাদের ক্লাউড হোস্টিংয়েই সাইট চালু রাখতে চান, তবে ২য় বছর থেকে শুধুমাত্র হোস্টিংয়ের জন্য বছরে ৬,৫০০ টাকা রিনিউয়াল চার্জ দিতে হবে। এর বাইরে ওয়েবসাইট ব্যবহারের জন্য অন্য কোনো চার্জ নেই।
+
+---
+
+**৬. প্রশ্ন: প্রজেক্টে কোনো অপ্রকাশিত বা হিডেন চার্জ (Hidden Cost) আছে কি?**  
+**উত্তর:** না, বিন্দুমাত্র কোনো হিডেন চার্জ নেই। ডোমেইন , হোস্টিং, কমপ্লিট সেটআপ ও ইন্টিগ্রেশন সহ সবকিছু সম্পূর্ণ স্বচ্ছভাবে উল্লেখিত রয়েছে।
+
+---
+
+**৭. প্রশ্ন: ওয়েবসাইট কি পরবর্তীতে কাস্টমাইজ বা পরিবর্তন করা যাবে?**  
+**উত্তর:** জ্বী, ১০০% পরিবর্তন করা যাবে। ওয়েবসাইটের থিম কালার, ফন্ট, ব্যানার ও লেআউট আপনি নিজেই অ্যাডমিন ড্যাশবোর্ড থেকে ওয়ান-ক্লিকে পরিবর্তন করতে পারবেন। এছাড়া ছোটখাটো যেকোনো টেক্সট বা বাটন ফ্রিতেই আমরা পরিবর্তন করে দেব। তবে ভবিষ্যতে যদি সম্পূর্ণ নতুন কোনো বড় পেজ বা অতিরিক্ত নতুন কাস্টম সেকশন তৈরি করতে চান, তবে কাজের পরিধি অনুযায়ী সামান্য ৫০০ থেকে ১,০০০ টাকা ডেভেলপমেন্ট ফি প্রযোজ্য হতে পারে।
+
+---
+
+**৮. প্রশ্ন: "লাইফটাইম ফ্রি টেকনিক্যাল সাপোর্ট" বলতে আসলে কী বোঝায় এবং নিজস্ব হোস্টিংয়ে তা কেন প্রযোজ্য নয়?**  
+**উত্তর:** লাইফটাইম সাপোর্ট মানে হচ্ছে ওয়েবসাইটটি যতদিন আমাদের অপ্টিমাইজড Cloud VPS ইনফ্রাস্ট্রাকচারে লাইভ থাকবে, ততদিন যেকোনো কারিগরি ত্রুটি বা বাগ-ফিক্সিংয়ে আমরা সম্পূর্ণ বিনামূল্যে তাৎক্ষণিক সাপোর্ট দেব। কিন্তু আপনি যদি নিজস্ব বা থার্ড-পার্টি পার্সোনাল হোস্টিং ব্যবহার করেন, সেক্ষেত্রে সার্ভার কনফিগারেশন, মেমোরি লিমিটেশন ও রুট এক্সেস আমাদের নিয়ন্ত্রণে না থাকায় সার্ভার ক্র্যাশ বা বাহ্যিক হোস্টিংজনিত সমস্যার সমাধান দেওয়া আমাদের পক্ষে সম্ভব হবে না — এজন্য নিজস্ব হোস্টিংয়ের ক্ষেত্রে এই ফ্রি সাপোর্ট প্রযোজ্য নয়।
+
+---
+
+**৯. প্রশ্ন: হোস্টিংয়ের এক্সেস ও কন্ট্রোল কি আমাকে দেওয়া হবে?**  
+**উত্তর:** হ্যাঁ, দেওয়া হবে। তবে ১ম বছর উপহার হিসেবে দেওয়া ফ্রি ক্লাউড হোস্টিংয়ের রুট এক্সেস দেওয়া হবে না; কারণ এটি আমাদের সেন্ট্রাল অপ্টিমাইজড ক্লাউড সার্ভার ক্লাস্টারে কনফিগার করা থাকে। কিন্তু আপনি যখন ২য় বছর থেকে নিয়মিত হোস্টিং রিনিউ করবেন, তখন আপনার ডেডিকেটেড ক্লাউড হোস্টিং একাউন্ট ও ফুল কন্ট্রোল আপনার কাছে সম্পূর্ণ হস্তান্তর করা হবে।
+
+---
+
+**১০. প্রশ্ন: আমি কি কোনো ডেমো ওয়েবসাইট ব্যবহার করে যাচাই করার পর অর্ডার দিতে পারব?**  
+**উত্তর:** জ্বী, অবশ্যই পারবেন! অর্ডার কনফার্ম করার পূর্বে আপনাকে কোনো প্রকার অগ্রিম (অ্যাডভান্স) পেমেন্ট করতে হবে না। আপনি অর্ডার করার আগেই আমাদের সম্পূর্ণ প্রস্তুত লাইভ ডেমো ওয়েবসাইট এবং অ্যাডমিন প্যানেল নিজে সরাসরি ব্যবহার করে সকল ফিচার, স্পিড ও সেটিংস পুঙ্খানুপুঙ্খভাবে চেক করতে পারবেন; এরপর সবকিছু আপনার পছন্দ ও সন্তোষজনক মনে হলেই কেবল নিশ্চিন্তে অর্ডার করবেন।
+
+---
+
+**মোঃ ইমরান হোসেন**  
 Lead Full-Stack Developer, Jiapixel  
-[www.jiapixel.com](https://www.jiapixel.com/)
+Website: [www.jiapixel.com](http://www.jiapixel.com)
