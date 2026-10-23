@@ -115,6 +115,17 @@ export function NotificationSettingsDialog() {
       const data = await res.json();
       if (res.ok && data.success) {
         toast.success("টেস্ট পুশ নোটিফিকেশন পাঠানো হয়েছে! আপনার স্ক্রিনে চেক করুন।");
+        if ("Notification" in window && Notification.permission === "granted") {
+          try {
+            new Notification("🔔 টেস্ট পুশ নোটিফিকেশন (Jiapixel)", {
+              body: "অভিনন্দন! আপনার ডিভাইসে নোটিফিকেশন সফলভাবে কাজ করছে।",
+              icon: "/Jia-Pixel-Logo.png",
+              requireInteraction: true,
+            });
+          } catch (e) {
+            console.error("Local notification display error:", e);
+          }
+        }
       } else {
         toast.error(data.error || "টেস্ট পুশ নোটিফিকেশন ব্যর্থ হয়েছে।");
       }

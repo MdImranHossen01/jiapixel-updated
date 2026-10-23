@@ -13,6 +13,7 @@ self.addEventListener("push", function (event) {
       vibrate: [250, 100, 250, 100, 250],
       tag: "jiapixel-order-notification",
       renotify: true,
+      requireInteraction: true,
       data: {
         url: data.url || "/dashboard/admin/manage-requests",
       },
