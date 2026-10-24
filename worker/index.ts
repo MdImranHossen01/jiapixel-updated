@@ -6,7 +6,7 @@ self.addEventListener("push", function (event: any) {
   try {
     const data = event.data.json();
     const title = data.title || "🛒 নতুন অর্ডার রিকোয়েস্ট (Jiapixel)";
-    const options: NotificationOptions = {
+    const options: any = {
       body: data.body || "একটি নতুন অর্ডার রিকোয়েস্ট জমা পড়েছে।",
       icon: data.icon || "/Jia-Pixel-Logo.png",
       badge: data.badge || "/Jia-Pixel-Logo.png",
@@ -19,7 +19,7 @@ self.addEventListener("push", function (event: any) {
       },
     };
 
-    event.waitUntil(self.registration.showNotification(title, options));
+    event.waitUntil((self as any).registration.showNotification(title, options));
   } catch (err) {
     console.error("[SW Worker] Push handling error:", err);
   }

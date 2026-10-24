@@ -234,24 +234,28 @@ export async function POST(req: NextRequest) {
 
     await newRequest.save();
 
-    // 🔔 Trigger Telegram Instant Notification (fire and forget)
-    sendTelegramNotification({
-      name: newRequest.name,
-      phone: newRequest.phone,
-      email: newRequest.email,
-      price: newRequest.price,
-      source: newRequest.source,
-      paymentNumber: newRequest.paymentNumber,
-      details: newRequest.details,
-      id: newRequest._id.toString(),
-    }).catch((err) => console.error("[Telegram] Trigger error:", err));
-
-    // 🔔 Trigger Web Push Notification to mobile & laptop (fire and forget)
-    sendWebPushNotification({
-      title: "🛒 নতুন অর্ডার রিকোয়েস্ট! (Jiapixel)",
-      body: `${newRequest.name} (${newRequest.phone}) — ৳${newRequest.price || 11500}`,
-      url: "/dashboard/admin/manage-requests",
-    }).catch((err) => console.error("[WebPush] Trigger error:", err));
+    // 🔔 Trigger Telegram & Web Push Notifications in parallel and await delivery
+    try {
+      await Promise.allSettled([
+        sendTelegramNotification({
+          name: newRequest.name,
+          phone: newRequest.phone,
+          email: newRequest.email,
+          price: newRequest.price,
+          source: newRequest.source,
+          paymentNumber: newRequest.paymentNumber,
+          details: newRequest.details,
+          id: newRequest._id.toString(),
+        }),
+        sendWebPushNotification({
+          title: "🛒 নতুন অর্ডার রিকোয়েস্ট! (Jiapixel)",
+          body: `${newRequest.name || "কাস্টমার"} (${newRequest.phone}) — ৳${newRequest.price || 11500}`,
+          url: "/dashboard/admin/manage-requests",
+        }),
+      ]);
+    } catch (notifyErr) {
+      console.error("[Order Notification] Error sending alerts:", notifyErr);
+    }
 
     return NextResponse.json(
       { message: "Request created successfully", id: newRequest._id },
