@@ -21,11 +21,19 @@ export const Hero = () => {
     }, []);
 
     const bannerImages = [
-        "/images/landing-pages/ecommerce-promo/banner1.webp",
-        "/images/landing-pages/ecommerce-promo/banner2.webp",
-        "/images/landing-pages/ecommerce-promo/banner3.webp",
-        "/images/landing-pages/ecommerce-promo/banner4.webp",
-        "/images/landing-pages/ecommerce-promo/banner5.webp",
+        "/images/landing-pages/ecommerce-promo/banner-1.webp",
+        "/images/landing-pages/ecommerce-promo/banner-2.webp",
+        "/images/landing-pages/ecommerce-promo/banner-3.webp",
+        "/images/landing-pages/ecommerce-promo/banner-4.webp",
+        "/images/landing-pages/ecommerce-promo/banner-5.webp",
+        "/images/landing-pages/ecommerce-promo/banner-6.webp",
+        "/images/landing-pages/ecommerce-promo/banner-7.webp",
+        "/images/landing-pages/ecommerce-promo/banner-8.webp",
+        "/images/landing-pages/ecommerce-promo/banner-9.webp",
+        "/images/landing-pages/ecommerce-promo/banner-10.webp",
+        "/images/landing-pages/ecommerce-promo/banner-11.webp",
+        "/images/landing-pages/ecommerce-promo/banner-12.webp",
+        "/images/landing-pages/ecommerce-promo/banner-13.webp",
     ];
 
     return (

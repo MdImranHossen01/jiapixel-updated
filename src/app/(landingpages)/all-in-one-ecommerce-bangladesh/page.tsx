@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 const EcommerceLandingPage = () => {
     // Preload the first banner image
-    preload('/images/landing-pages/ecommerce-promo/banner1.webp', { as: 'image' });
+    preload('/images/landing-pages/ecommerce-promo/banner-1.webp', { as: 'image' });
 
     return (
         <div className="min-h-screen w-full relative">
