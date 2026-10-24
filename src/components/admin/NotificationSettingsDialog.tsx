@@ -33,6 +33,25 @@ export function NotificationSettingsDialog() {
   const [isTestingPush, setIsTestingPush] = useState(false);
   const [isTestingTelegram, setIsTestingTelegram] = useState(false);
 
+  function playNotificationSound() {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const audioCtx = new AudioCtx();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.35);
+    } catch (e) {}
+  }
+
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
       setPermission(Notification.permission);
@@ -43,7 +62,7 @@ export function NotificationSettingsDialog() {
   const checkExistingSubscription = async () => {
     try {
       if ("serviceWorker" in navigator) {
-        const reg = await navigator.serviceWorker.getRegistration("/push-sw.js");
+        const reg = await navigator.serviceWorker.ready;
         if (reg) {
           const sub = await reg.pushManager.getSubscription();
           setIsSubscribed(!!sub);
@@ -71,12 +90,19 @@ export function NotificationSettingsDialog() {
         return;
       }
 
-      // 2. Register Service Worker
-      const reg = await navigator.serviceWorker.register("/push-sw.js", { scope: "/" });
+      // 2. Register Service Worker (/sw.js or /push-sw.js)
+      let reg: ServiceWorkerRegistration;
+      try {
+        reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      } catch (e) {
+        reg = await navigator.serviceWorker.register("/push-sw.js", { scope: "/" });
+      }
       await navigator.serviceWorker.ready;
 
       // 3. Subscribe to push manager using public VAPID key
-      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "BKc8CDjOGVJXcupFb2GIDVaMJ7QstKD-Wb7YlTKt53GcE803xq5f57zboWjBymnLx5TsY9dgE4eETMrcDUpdJiY";
+      const vapidPublicKey =
+        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ||
+        "BKc8CDjOGVJXcupFb2GIDVaMJ7QstKD-Wb7YlTKt53GcE803xq5f57zboWjBymnLx5TsY9dgE4eETMrcDUpdJiY";
       const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
 
       const subscription = await reg.pushManager.subscribe({
@@ -96,6 +122,7 @@ export function NotificationSettingsDialog() {
 
       if (res.ok) {
         setIsSubscribed(true);
+        playNotificationSound();
         toast.success("অভিনন্দন! এই ডিভাইসে পুশ নোটিফিকেশন সফলভাবে চালু হয়েছে।");
       } else {
         toast.error("সার্ভারে সাবস্ক্রিপশন সেভ করতে ব্যর্থ হয়েছে।");
@@ -111,19 +138,22 @@ export function NotificationSettingsDialog() {
   const handleTestPush = async () => {
     setIsTestingPush(true);
     try {
+      playNotificationSound();
       const res = await fetch("/api/push/test", { method: "POST" });
       const data = await res.json();
       if (res.ok && data.success) {
         toast.success("টেস্ট পুশ নোটিফিকেশন পাঠানো হয়েছে! আপনার স্ক্রিনে চেক করুন।");
-        if ("Notification" in window && Notification.permission === "granted") {
+        if ("serviceWorker" in navigator) {
           try {
-            new Notification("🔔 টেস্ট পুশ নোটিফিকেশন (Jiapixel)", {
+            const reg = await navigator.serviceWorker.ready;
+            await reg.showNotification("🔔 টেস্ট পুশ নোটিফিকেশন (Jiapixel)", {
               body: "অভিনন্দন! আপনার ডিভাইসে নোটিফিকেশন সফলভাবে কাজ করছে।",
               icon: "/Jia-Pixel-Logo.png",
+              badge: "/Jia-Pixel-Logo.png",
               requireInteraction: true,
             });
           } catch (e) {
-            console.error("Local notification display error:", e);
+            console.error("ServiceWorker showNotification error:", e);
           }
         }
       } else {
