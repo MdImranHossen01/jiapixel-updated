@@ -196,7 +196,7 @@ export function NotificationSettingsDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-xl max-h-[92vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg font-bold">
             <Bell className="w-5 h-5 text-primary" />
