@@ -19,7 +19,8 @@ import {
   Mail,
   PenTool,
   CreditCard,
-  Zap
+  Zap,
+  HardDrive
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 import Logo from '@/app/(mainlayout)/components/Logo';
@@ -115,6 +116,13 @@ const LeftSideNav = () => {
       href: '/dashboard/admin/manage-writings',
       icon: PenTool,
       current: pathname.startsWith('/dashboard/admin/manage-writings'),
+      adminOnly: true,
+    },
+    {
+      name: 'Media & Storage',
+      href: '/dashboard/admin/manage-media',
+      icon: HardDrive,
+      current: pathname.startsWith('/dashboard/admin/manage-media'),
       adminOnly: true,
     },
     {
