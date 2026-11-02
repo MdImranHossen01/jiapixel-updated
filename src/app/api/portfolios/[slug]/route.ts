@@ -141,6 +141,17 @@ export async function DELETE(
 
     await Portfolio.deleteOne({ slug: decodedSlug });
 
+    try {
+      const { deleteMultipleFromR2 } = await import('@/lib/r2');
+      const imgs: string[] = [];
+      if (Array.isArray(portfolio.images)) imgs.push(...portfolio.images);
+      if (portfolio.featuredImage) imgs.push(portfolio.featuredImage);
+      if (portfolio.thumbnail) imgs.push(portfolio.thumbnail);
+      if (imgs.length > 0) await deleteMultipleFromR2(imgs);
+    } catch (r2Err) {
+      console.error('R2 delete error for portfolio:', r2Err);
+    }
+
     revalidatePath('/portfolios');
     revalidatePath(`/portfolios/${decodedSlug}`);
     revalidateTag('portfolios', 'max');

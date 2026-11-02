@@ -188,6 +188,15 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     }
 
     await Blog.findByIdAndDelete(blog._id);
+
+    if (blog.featuredImage) {
+      try {
+        const { deleteFromR2 } = await import('@/lib/r2');
+        await deleteFromR2(blog.featuredImage);
+      } catch (r2Err) {
+        console.error('R2 delete error for blog:', r2Err);
+      }
+    }
     revalidateTag(`blog-${slug}`, 'max');
     revalidateTag('blogs', 'max');
 
