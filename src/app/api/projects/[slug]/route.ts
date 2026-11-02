@@ -90,11 +90,11 @@ export async function PUT(
             // Validate image count (new + existing) need to be handled carefully. 
             // Here we process new files. The total count check involves existing images which are passed in projectData.
             try {
-                imageUrls = await uploadMultipleToImgBB(imageFiles);
+                imageUrls = await uploadMultipleToImgBB(imageFiles, 'projects');
             } catch (uploadError: any) {
                 console.error('Image upload error:', uploadError);
                 return NextResponse.json(
-                    { success: false, message: 'Failed to upload images' },
+                    { success: false, message: `Failed to upload images: ${uploadError?.message || 'Upload error'}` },
                     { status: 500 }
                 );
             }
@@ -190,8 +190,18 @@ export async function PUT(
             project.isIndexedInGoogle = projectData.isIndexedInGoogle;
         }
 
-        // Combine existing images (that were kept) with new uploads
-        // Combine existing images (that were kept) with new uploads
+        // Clean up removed images from Cloudflare R2
+        const removedImages = (project.images || []).filter((oldImg: string) => !validExistingImages.includes(oldImg));
+        if (removedImages.length > 0) {
+            try {
+                const { deleteMultipleFromR2 } = await import('@/lib/r2');
+                await deleteMultipleFromR2(removedImages);
+            } catch (r2CleanErr) {
+                console.error('Failed to clean up removed project images from R2:', r2CleanErr);
+            }
+        }
+
+        // Combine existing images with new uploads
         project.images = [...validExistingImages, ...imageUrls];
 
         await project.save();

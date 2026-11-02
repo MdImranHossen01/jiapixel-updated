@@ -1,4 +1,4 @@
-import { S3Client, DeleteObjectCommand, DeleteObjectsCommand } from '@aws-sdk/client-s3';
+import { S3Client, DeleteObjectCommand, DeleteObjectsCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 
 const accountId = process.env.R2_ACCOUNT_ID || '';
 const accessKeyId = process.env.R2_ACCESS_KEY_ID || '';
@@ -33,6 +33,68 @@ export function extractR2Key(urlOrKey: string): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Server-side direct upload of File or Buffer to Cloudflare R2 with WebP conversion
+ */
+export async function uploadServerFileToR2(
+  fileOrBuffer: File | Buffer,
+  filename: string = 'image.jpg',
+  folder: string = 'general',
+  fileType: string = 'image/jpeg'
+): Promise<{ url: string; fileKey: string; title: string }> {
+  let buffer: Buffer;
+  let contentType = fileType;
+  let originalName = filename;
+
+  if (fileOrBuffer && typeof (fileOrBuffer as any).arrayBuffer === 'function') {
+    const file = fileOrBuffer as File;
+    const bytes = await file.arrayBuffer();
+    buffer = Buffer.from(bytes);
+    contentType = file.type || fileType || 'image/jpeg';
+    originalName = file.name || filename;
+  } else {
+    buffer = fileOrBuffer as Buffer;
+  }
+
+  const isSvg = contentType.includes('svg');
+  const isGif = contentType.includes('gif');
+  let ext = 'webp';
+
+  if (!isSvg && !isGif) {
+    try {
+      const sharp = (await import('sharp')).default;
+      buffer = await sharp(buffer)
+        .rotate()
+        .webp({ quality: 82, effort: 4 })
+        .toBuffer();
+      contentType = 'image/webp';
+      ext = 'webp';
+    } catch {
+      const rawExt = originalName.split('.').pop()?.toLowerCase() || 'jpg';
+      ext = rawExt.replace(/[^a-z0-9]/g, '') || 'jpg';
+    }
+  } else {
+    const rawExt = originalName.split('.').pop()?.toLowerCase() || (isSvg ? 'svg' : 'gif');
+    ext = rawExt.replace(/[^a-z0-9]/g, '') || 'jpg';
+  }
+
+  const crypto = await import('crypto');
+  const safeFolder = folder.replace(/[^a-zA-Z0-9_-]/g, '') || 'general';
+  const fileKey = `jiapixel/${safeFolder}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+
+  await r2Client.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: fileKey,
+      Body: buffer,
+      ContentType: contentType,
+    })
+  );
+
+  const publicUrl = `${R2_PUBLIC_URL}/${fileKey}`;
+  return { url: publicUrl, fileKey, title: originalName };
 }
 
 /**
@@ -98,4 +160,3 @@ export async function deleteMultipleFromR2(urlsOrKeys: string[]): Promise<number
     return 0;
   }
 }
-

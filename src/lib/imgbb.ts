@@ -1,6 +1,7 @@
 /**
  * Cloudflare R2 Image Upload Utility with Client-side WebP Compression.
  * Fully compatible drop-in replacement for previous ImgBB methods.
+ * Supports both client-side and server-side execution seamlessly.
  */
 
 export interface ImgBBResponse {
@@ -40,12 +41,30 @@ export async function uploadToR2(
   folder: string = 'general',
   compress: boolean = true
 ): Promise<ImgBBResponse> {
+  // 0. If running on the server (Node.js runtime / Next.js API Route)
+  if (typeof window === 'undefined') {
+    const { uploadServerFileToR2 } = await import('./r2');
+    const result = await uploadServerFileToR2(file, file.name, folder, file.type);
+    return {
+      success: true,
+      status: 200,
+      data: {
+        id: result.fileKey,
+        title: result.title,
+        url: result.url,
+        display_url: result.url,
+        url_viewer: result.url,
+        fileKey: result.fileKey,
+      },
+    };
+  }
+
   let uploadFile: File = file;
   let contentType = file.type || 'image/jpeg';
   let filename = file.name;
 
   // 1. Client-side WebP Compression
-  if (typeof window !== 'undefined' && compress && file.type.startsWith('image/') && !file.type.includes('svg') && !file.type.includes('gif')) {
+  if (compress && file.type.startsWith('image/') && !file.type.includes('svg') && !file.type.includes('gif')) {
     try {
       const imageCompression = (await import('browser-image-compression')).default;
       const compressionOptions = {
@@ -140,15 +159,15 @@ export async function uploadToR2(
  * Backward-compatible drop-in replacement for existing code calling uploadToImgBB.
  * Automatically delegates to Cloudflare R2 with WebP compression.
  */
-export async function uploadToImgBB(file: File): Promise<ImgBBResponse> {
-  return uploadToR2(file, 'general', true);
+export async function uploadToImgBB(file: File, folder: string = 'general'): Promise<ImgBBResponse> {
+  return uploadToR2(file, folder, true);
 }
 
 /**
  * Multiple file upload to Cloudflare R2
  */
-export async function uploadMultipleToImgBB(files: File[]): Promise<string[]> {
-  const uploadPromises = files.map(file => uploadToR2(file));
+export async function uploadMultipleToImgBB(files: File[], folder: string = 'general'): Promise<string[]> {
+  const uploadPromises = files.map(file => uploadToR2(file, folder));
   const results = await Promise.all(uploadPromises);
   return results.map(result => result.data.url);
 }

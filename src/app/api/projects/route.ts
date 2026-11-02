@@ -38,13 +38,13 @@ export async function POST(request: NextRequest) {
                 );
             }
             try {
-                imageUrls = await uploadMultipleToImgBB(imageFiles);
+                imageUrls = await uploadMultipleToImgBB(imageFiles, 'projects');
             } catch (uploadError: any) {
                 console.error('Image upload error:', uploadError);
                 return NextResponse.json(
                     {
                         success: false,
-                        message: 'Failed to upload images'
+                        message: `Failed to upload images: ${uploadError?.message || 'Upload error'}`
                     },
                     { status: 500 }
                 );

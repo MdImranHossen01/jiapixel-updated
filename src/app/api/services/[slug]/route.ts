@@ -71,7 +71,7 @@ export async function PUT(
       if (imageFiles.length > 0 && imageFiles[0].size > 0) {
         try {
           const { uploadMultipleToImgBB } = await import('../../../../lib/imgbb');
-          newImageUrls = await uploadMultipleToImgBB(imageFiles);
+          newImageUrls = await uploadMultipleToImgBB(imageFiles, 'services');
         } catch (uploadError) {
           console.error('Image upload error:', uploadError);
         }
@@ -82,7 +82,7 @@ export async function PUT(
       if (documentFiles.length > 0 && documentFiles[0].size > 0) {
         try {
           const { uploadMultipleToImgBB } = await import('../../../../lib/imgbb');
-          newDocumentUrls = await uploadMultipleToImgBB(documentFiles);
+          newDocumentUrls = await uploadMultipleToImgBB(documentFiles, 'documents');
         } catch (uploadError) {
           console.error('Document upload error:', uploadError);
         }

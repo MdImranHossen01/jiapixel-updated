@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from '@/lib/r2';
-import crypto from 'crypto';
+import { uploadServerFileToR2 } from '@/lib/r2';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,20 +14,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let buffer: Buffer;
-    let contentType = 'image/jpeg';
-    let originalName = 'image.jpg';
-
+    let result;
     if (image instanceof File) {
-      const bytes = await image.arrayBuffer();
-      buffer = Buffer.from(bytes);
-      contentType = image.type || 'image/jpeg';
-      originalName = image.name || 'image.jpg';
+      result = await uploadServerFileToR2(image, image.name, folder, image.type);
     } else if (typeof image === 'string') {
       const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
-      buffer = Buffer.from(base64Data, 'base64');
+      const buffer = Buffer.from(base64Data, 'base64');
+      let contentType = 'image/jpeg';
       const match = image.match(/^data:(image\/\w+);base64,/);
       if (match) contentType = match[1];
+      result = await uploadServerFileToR2(buffer, 'image.jpg', folder, contentType);
     } else {
       return NextResponse.json(
         { success: false, error: 'Unsupported image format' },
@@ -37,53 +31,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Convert raster images to WebP via Sharp if not SVG or animated GIF
-    const isSvg = contentType.includes('svg');
-    const isGif = contentType.includes('gif');
-    let ext = 'webp';
-
-    if (!isSvg && !isGif) {
-      try {
-        const sharp = (await import('sharp')).default;
-        buffer = await sharp(buffer)
-          .rotate()
-          .webp({ quality: 82, effort: 4 })
-          .toBuffer();
-        contentType = 'image/webp';
-        ext = 'webp';
-      } catch (sharpErr) {
-        console.warn('[Sharp] WebP conversion fallback in jiapixel:', sharpErr);
-        const rawExt = originalName.split('.').pop()?.toLowerCase() || 'jpg';
-        ext = rawExt.replace(/[^a-z0-9]/g, '') || 'jpg';
-      }
-    } else {
-      const rawExt = originalName.split('.').pop()?.toLowerCase() || (isSvg ? 'svg' : 'gif');
-      ext = rawExt.replace(/[^a-z0-9]/g, '') || 'jpg';
-    }
-
-    const safeFolder = folder.replace(/[^a-zA-Z0-9_-]/g, '') || 'general';
-    const fileKey = `jiapixel/${safeFolder}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
-
-    const command = new PutObjectCommand({
-      Bucket: R2_BUCKET_NAME,
-      Key: fileKey,
-      Body: buffer,
-      ContentType: contentType,
-    });
-
-    await r2Client.send(command);
-
-    const publicUrl = `${R2_PUBLIC_URL}/${fileKey}`;
-
     return NextResponse.json({
       success: true,
       data: {
-        id: fileKey,
-        title: originalName,
-        url: publicUrl,
-        display_url: publicUrl,
-        url_viewer: publicUrl,
-        fileKey: fileKey,
+        id: result.fileKey,
+        title: result.title,
+        url: result.url,
+        display_url: result.url,
+        url_viewer: result.url,
+        fileKey: result.fileKey,
       },
     });
   } catch (error: any) {

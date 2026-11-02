@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     let imageUrls: string[] = [];
     if (imageFiles.length > 0 && imageFiles[0].size > 0) {
       try {
-        imageUrls = await uploadMultipleToImgBB(imageFiles);
+        imageUrls = await uploadMultipleToImgBB(imageFiles, 'services');
       } catch (uploadError) {
         console.error('Image upload error:', uploadError);
       }
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     let documentUrls: string[] = [];
     if (documentFiles.length > 0 && documentFiles[0].size > 0) {
       try {
-        documentUrls = await uploadMultipleToImgBB(documentFiles);
+        documentUrls = await uploadMultipleToImgBB(documentFiles, 'documents');
       } catch (uploadError) {
         console.error('Document upload error:', uploadError);
       }
