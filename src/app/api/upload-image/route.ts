@@ -37,8 +37,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const rawExt = originalName.split('.').pop()?.toLowerCase() || 'jpg';
-    const ext = rawExt.replace(/[^a-z0-9]/g, '') || 'jpg';
+    // Convert raster images to WebP via Sharp if not SVG or animated GIF
+    const isSvg = contentType.includes('svg');
+    const isGif = contentType.includes('gif');
+    let ext = 'webp';
+
+    if (!isSvg && !isGif) {
+      try {
+        const sharp = (await import('sharp')).default;
+        buffer = await sharp(buffer)
+          .rotate()
+          .webp({ quality: 82, effort: 4 })
+          .toBuffer();
+        contentType = 'image/webp';
+        ext = 'webp';
+      } catch (sharpErr) {
+        console.warn('[Sharp] WebP conversion fallback in jiapixel:', sharpErr);
+        const rawExt = originalName.split('.').pop()?.toLowerCase() || 'jpg';
+        ext = rawExt.replace(/[^a-z0-9]/g, '') || 'jpg';
+      }
+    } else {
+      const rawExt = originalName.split('.').pop()?.toLowerCase() || (isSvg ? 'svg' : 'gif');
+      ext = rawExt.replace(/[^a-z0-9]/g, '') || 'jpg';
+    }
+
     const safeFolder = folder.replace(/[^a-zA-Z0-9_-]/g, '') || 'general';
     const fileKey = `jiapixel/${safeFolder}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
 
