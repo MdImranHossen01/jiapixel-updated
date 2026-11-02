@@ -219,6 +219,18 @@ export async function DELETE(
     console.log('Deleting service with slug:', slug);
 
     const service = await Service.findOneAndDelete({ slug: slug });
+    if (service) {
+      try {
+        const { deleteMultipleFromR2 } = await import('@/lib/r2');
+        const imgs = [];
+        if (service.image) imgs.push(service.image);
+        if (Array.isArray(service.images)) imgs.push(...service.images);
+        if (Array.isArray(service.documents)) imgs.push(...service.documents);
+        if (imgs.length > 0) await deleteMultipleFromR2(imgs);
+      } catch (r2Err) {
+        console.error('R2 delete error for service in jiapixel:', r2Err);
+      }
+    }
     if (!service) {
       return NextResponse.json(
         {

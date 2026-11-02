@@ -192,6 +192,15 @@ export async function DELETE(request: NextRequest, { params }: Params) {
 
         await Post.findByIdAndDelete(post._id);
 
+        if (post.featuredImage) {
+          try {
+            const { deleteFromR2 } = await import('@/lib/r2');
+            await deleteFromR2(post.featuredImage);
+          } catch (r2Err) {
+            console.error('R2 delete error for post in jiapixel:', r2Err);
+          }
+        }
+
         return NextResponse.json({
             success: true,
             message: 'Post deleted successfully'

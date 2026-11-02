@@ -60,7 +60,11 @@ export async function PUT(
     await connectDB();
     
     const decodedSlug = decodeURIComponent(slug);
-    const product = await Product.findOne({ slug: decodedSlug });
+    const mongoose = (await import('mongoose')).default;
+    const isObjectId = mongoose.Types.ObjectId.isValid(decodedSlug);
+    const product = await Product.findOne(
+      isObjectId ? { $or: [{ slug: decodedSlug }, { _id: decodedSlug }] } : { slug: decodedSlug }
+    );
     
     if (!product) {
       return NextResponse.json(
@@ -132,7 +136,18 @@ export async function DELETE(
       );
     }
     
-    await Product.deleteOne({ slug: decodedSlug });
+    await Product.deleteOne({ _id: product._id });
+
+    // Automatically clean up all product images from Cloudflare R2
+    try {
+      const { deleteMultipleFromR2 } = await import('@/lib/r2');
+      const imgs = [];
+      if (product.featuredImage) imgs.push(product.featuredImage);
+      if (Array.isArray(product.images)) imgs.push(...product.images);
+      if (imgs.length > 0) await deleteMultipleFromR2(imgs);
+    } catch (r2Err) {
+      console.error('R2 delete error for product in jiapixel:', r2Err);
+    }
     
     return NextResponse.json({
       message: 'Product deleted successfully'
