@@ -136,6 +136,15 @@ export async function DELETE(
             return NextResponse.json({ error: 'Category not found' }, { status: 404 });
         }
 
+        if (category.banner) {
+            try {
+                const { deleteFromR2 } = await import('@/lib/r2');
+                await deleteFromR2(category.banner);
+            } catch (r2Err) {
+                console.error('R2 delete error for category in jiapixel:', r2Err);
+            }
+        }
+
         if (category.slug) {
             revalidatePath(`/${category.slug}`);
         }

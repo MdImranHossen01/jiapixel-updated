@@ -236,6 +236,15 @@ export async function DELETE(
 
         const deletedProject = await Project.findOneAndDelete({ slug });
 
+        if (deletedProject && Array.isArray(deletedProject.images) && deletedProject.images.length > 0) {
+          try {
+            const { deleteMultipleFromR2 } = await import('@/lib/r2');
+            await deleteMultipleFromR2(deletedProject.images);
+          } catch (r2Err) {
+            console.error('R2 delete error for project in jiapixel:', r2Err);
+          }
+        }
+
         if (!deletedProject) {
             return NextResponse.json(
                 { success: false, message: 'Project not found' },
