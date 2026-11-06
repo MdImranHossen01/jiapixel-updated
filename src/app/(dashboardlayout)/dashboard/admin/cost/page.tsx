@@ -1,8 +1,7 @@
 "use client";
 // Force regeneration
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, useRef } from 'react';
 import { COST_CATEGORIES, INCOME_SOURCES } from '@/constants/financials';
 import { Edit2, Trash2, Plus, X, Save, AlertCircle, RefreshCw, MoreVertical } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
@@ -82,36 +81,8 @@ const formatLocalDate = (date: Date) => {
     return `${year}-${month}-${day}`;
 };
 
-function CostPageContent() {
-    const searchParams = useSearchParams();
+export default function CostPage() {
     const [activeTab, setActiveTab] = useState<'daily' | 'yearly' | 'income' | 'performance' | 'assets' | 'cashflow'>('cashflow');
-
-    useEffect(() => {
-        const tabParam = searchParams.get('tab');
-        if (tabParam) {
-            if (tabParam === 'cashflow' || tabParam === 'ledger') {
-                setActiveTab('cashflow');
-            } else if (tabParam === 'daily' || tabParam === 'expenses' || tabParam === 'cost' || tabParam === 'payable') {
-                setActiveTab('daily');
-            } else if (tabParam === 'income' || tabParam === 'incomes') {
-                setActiveTab('income');
-            } else if (tabParam === 'yearly' || tabParam === 'category' || tabParam === 'categories' || tabParam === 'budget') {
-                setActiveTab('yearly');
-            } else if (tabParam === 'performance') {
-                setActiveTab('performance');
-            } else if (tabParam === 'assets' || tabParam === 'accounts') {
-                setActiveTab('assets');
-            }
-        }
-    }, [searchParams]);
-
-    const handleTabChange = (tab: 'daily' | 'yearly' | 'income' | 'performance' | 'assets' | 'cashflow') => {
-        setActiveTab(tab);
-        const url = new URL(window.location.href);
-        url.searchParams.set('tab', tab);
-        url.searchParams.delete('action');
-        window.history.replaceState({}, '', url.toString());
-    };
 
     // Performance State
     const [performanceStats, setPerformanceStats] = useState<PerformanceStat[]>([]);
@@ -774,40 +745,40 @@ function CostPageContent() {
                 {/* Tabs */}
                 <div className="bg-white p-1 rounded-lg border flex flex-wrap justify-end gap-1 shadow-sm">
                     <button
-                        onClick={() => handleTabChange('cashflow')}
+                        onClick={() => setActiveTab('cashflow')}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'cashflow' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        Accounts Ledger (Cashflow)
+                        Cashflow
                     </button>
                     <button
-                        onClick={() => handleTabChange('daily')}
+                        onClick={() => setActiveTab('daily')}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'daily' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        Expenses & Costs
+                        Cost
                     </button>
                     <button
-                        onClick={() => handleTabChange('income')}
+                        onClick={() => setActiveTab('income')}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'income' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
                         Income
                     </button>
                     <button
-                        onClick={() => handleTabChange('yearly')}
+                        onClick={() => setActiveTab('yearly')}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'yearly' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        Categories & Budget
+                        Yearly Budget
                     </button>
                     <button
-                        onClick={() => handleTabChange('performance')}
+                        onClick={() => setActiveTab('performance')}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'performance' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
                         Performance
                     </button>
                     <button
-                        onClick={() => handleTabChange('assets')}
+                        onClick={() => setActiveTab('assets')}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition whitespace-nowrap ${activeTab === 'assets' ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        All Accounts & Assets
+                        Asset & Zakat
                     </button>
 
                 </div>
@@ -2103,13 +2074,5 @@ function CostPageContent() {
                 )
             }
         </div >
-    );
-}
-
-export default function CostPage() {
-    return (
-        <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading Cost & Accounting...</div>}>
-            <CostPageContent />
-        </Suspense>
     );
 }

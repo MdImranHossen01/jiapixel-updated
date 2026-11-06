@@ -277,14 +277,9 @@ const LeftSideNav = () => {
       icon: CreditCard,
       adminOnly: true,
       items: [
-        { name: 'All Accounts', href: '/dashboard/admin/cost?tab=assets' },
-        { name: 'Expenses & Incomes', href: '/dashboard/admin/cost?tab=daily' },
-        { name: 'Add New Entry', href: '/dashboard/admin/cost?tab=cashflow&action=new' },
-        { name: 'Category', href: '/dashboard/admin/cost?tab=yearly' },
-        { name: 'Accounts Ledger', href: '/dashboard/admin/cost?tab=cashflow' },
-        { name: 'Account Payable', href: '/dashboard/admin/cost?tab=payable' },
-        { name: 'Account Receivable', href: '/dashboard/admin/manage-bills' },
-        { name: 'Payments Received', href: '/dashboard/admin/manage-payments' },
+        { name: 'Manage Bills', href: '/dashboard/admin/manage-bills' },
+        { name: 'Manage Payments', href: '/dashboard/admin/manage-payments' },
+        { name: 'Manage Costs', href: '/dashboard/admin/cost' },
       ],
     },
     {
