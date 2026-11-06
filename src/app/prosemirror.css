@@ -1,7 +1,26 @@
+:root {
+    --novel-highlight-default: transparent;
+    --novel-highlight-purple: #d8b4fe;
+    --novel-highlight-red: #fca5a5;
+    --novel-highlight-yellow: #fde047;
+    --novel-highlight-blue: #93c5fd;
+    --novel-highlight-green: #86efac;
+    --novel-highlight-orange: #fdba74;
+    --novel-highlight-pink: #f9a8d4;
+    --novel-highlight-gray: #d1d5db;
+}
+
 .ProseMirror {
     @apply p-4 font-sans leading-normal;
     font-size: 16px;
     --novel-highlight-blue: #dbeafe;
+}
+
+.ProseMirror mark {
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.25rem;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
 }
 
 .ProseMirror p {
