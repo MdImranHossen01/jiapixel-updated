@@ -330,7 +330,7 @@ const LeftSideNav = () => {
         </div>
 
         {/* Scrollable Navigation Groups */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent bg-[#0a152e]">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1.5 sidebar-scrollbar bg-[#0a152e]">
           {navGroups.map((group) => (
             <NavGroupItem
               key={group.title}
