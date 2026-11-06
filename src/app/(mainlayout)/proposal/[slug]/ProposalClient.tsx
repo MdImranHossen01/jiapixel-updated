@@ -137,18 +137,32 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
               <head>
                 <title>Proposal - ${order?.title || "Project"}</title>
                 <style>
+                  :root {
+                    --novel-highlight-default: transparent;
+                    --novel-highlight-purple: #d8b4fe;
+                    --novel-highlight-red: #fca5a5;
+                    --novel-highlight-yellow: #fde047;
+                    --novel-highlight-blue: #93c5fd;
+                    --novel-highlight-green: #86efac;
+                    --novel-highlight-orange: #fdba74;
+                    --novel-highlight-pink: #f9a8d4;
+                    --novel-highlight-gray: #d1d5db;
+                  }
                   @page {
                     size: A4;
-                    margin: 15mm 20mm;
+                    margin: 0.5in;
                   }
                   * { box-sizing: border-box; }
                   body {
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                    padding: 20px;
+                    margin: 0;
+                    padding: 0;
                     color: #1f2937;
                     line-height: 1.6;
                     font-size: 14px;
                     background: #fff;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
                   }
                   .header {
                     display: flex;
@@ -232,6 +246,12 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                   .prose {
                     color: #374151;
                     font-size: 14px;
+                  }
+                  .prose mark {
+                    border-radius: 3px;
+                    padding: 1px 3px;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
                   }
                   .prose h1, .prose h2, .prose h3, .prose h4 {
                     color: #111827;
