@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import {
   LayoutDashboard,
@@ -40,48 +40,83 @@ interface NavGroup {
 function isUrlActive(
   itemUrl: string,
   pathname: string,
+  searchParams: ReturnType<typeof useSearchParams> | null,
   allSiblingUrls: string[] = []
 ): boolean {
   if (!itemUrl || itemUrl === '#') return false;
 
-  const [itemPath] = itemUrl.split('?');
+  const [itemPath, itemQuery] = itemUrl.split('?');
 
-  if (pathname === itemPath) return true;
+  if (itemQuery) {
+    if (pathname !== itemPath) return false;
+    if (!searchParams) return false;
 
-  // Exact-only match for root dashboard links to avoid false highlights on sub-routes
-  if (
-    itemPath === '/dashboard' ||
-    itemPath === '/dashboard/admin' ||
-    itemPath === '/dashboard/client'
-  ) {
-    return pathname === itemPath;
+    const itemSearchParams = new URLSearchParams(itemQuery);
+    for (const [key, val] of itemSearchParams.entries()) {
+      if (searchParams.get(key) !== val) {
+        return false;
+      }
+    }
+    return true;
+  } else {
+    // Menu item has NO query parameters
+    if (pathname !== itemPath) {
+      if (
+        itemPath === '/dashboard' ||
+        itemPath === '/dashboard/admin' ||
+        itemPath === '/dashboard/client'
+      ) {
+        return false;
+      }
+
+      const pathMatches =
+        pathname.startsWith(itemPath + '/') &&
+        !allSiblingUrls.some(
+          (other) =>
+            other !== itemUrl &&
+            other.length > itemUrl.length &&
+            (pathname === other || pathname.startsWith(other + '/'))
+        );
+
+      if (!pathMatches) return false;
+    }
+
+    // If pathname matches, check if any other sibling specifically matches current searchParams
+    if (searchParams && searchParams.toString().length > 0) {
+      const moreSpecificSiblingMatches = allSiblingUrls.some((siblingUrl) => {
+        if (!siblingUrl.includes('?')) return false;
+        const [sibPath, sibQuery] = siblingUrl.split('?');
+        if (sibPath !== pathname) return false;
+        const sibSearchParams = new URLSearchParams(sibQuery);
+        for (const [key, val] of sibSearchParams.entries()) {
+          if (searchParams.get(key) !== val) return false;
+        }
+        return true;
+      });
+
+      if (moreSpecificSiblingMatches) {
+        return false;
+      }
+    }
+
+    return true;
   }
-
-  // Prefix match if pathname starts with itemPath/ and no sibling URL is a longer match
-  const pathMatches =
-    pathname.startsWith(itemPath + '/') &&
-    !allSiblingUrls.some(
-      (other) =>
-        other !== itemUrl &&
-        other.length > itemUrl.length &&
-        (pathname === other || pathname.startsWith(other + '/'))
-    );
-
-  return pathMatches;
 }
 
 function NavGroupItem({
   group,
   pathname,
+  searchParams,
   onNavigate,
 }: {
   group: NavGroup;
   pathname: string;
+  searchParams: ReturnType<typeof useSearchParams> | null;
   onNavigate: () => void;
 }) {
   const allSubUrls = group.items.map((item) => item.href);
   const isParentActive = group.items.some((item) =>
-    isUrlActive(item.href, pathname, allSubUrls)
+    isUrlActive(item.href, pathname, searchParams, allSubUrls)
   );
 
   const [isOpen, setIsOpen] = useState(isParentActive);
@@ -136,7 +171,7 @@ function NavGroupItem({
         <CollapsibleContent>
           <div className="ml-4 pl-2.5 border-l border-slate-800/80 my-1 space-y-1">
             {group.items.map((subItem) => {
-              const isSubActive = isUrlActive(subItem.href, pathname, allSubUrls);
+              const isSubActive = isUrlActive(subItem.href, pathname, searchParams, allSubUrls);
 
               return (
                 <Link
@@ -163,6 +198,31 @@ function NavGroupItem({
         </CollapsibleContent>
       </div>
     </Collapsible>
+  );
+}
+
+function NavMainList({
+  navGroups,
+  pathname,
+  onNavigate,
+}: {
+  navGroups: NavGroup[];
+  pathname: string;
+  onNavigate: () => void;
+}) {
+  const searchParams = useSearchParams();
+  return (
+    <>
+      {navGroups.map((group) => (
+        <NavGroupItem
+          key={group.title}
+          group={group}
+          pathname={pathname}
+          searchParams={searchParams}
+          onNavigate={onNavigate}
+        />
+      ))}
+    </>
   );
 }
 
@@ -217,9 +277,14 @@ const LeftSideNav = () => {
       icon: CreditCard,
       adminOnly: true,
       items: [
-        { name: 'Manage Bills', href: '/dashboard/admin/manage-bills' },
-        { name: 'Manage Payments', href: '/dashboard/admin/manage-payments' },
-        { name: 'Manage Costs', href: '/dashboard/admin/cost' },
+        { name: 'All Accounts', href: '/dashboard/admin/cost?tab=assets' },
+        { name: 'Expenses & Incomes', href: '/dashboard/admin/cost?tab=daily' },
+        { name: 'Add New Entry', href: '/dashboard/admin/cost?tab=cashflow&action=new' },
+        { name: 'Category', href: '/dashboard/admin/cost?tab=yearly' },
+        { name: 'Accounts Ledger', href: '/dashboard/admin/cost?tab=cashflow' },
+        { name: 'Account Payable', href: '/dashboard/admin/cost?tab=payable' },
+        { name: 'Account Receivable', href: '/dashboard/admin/manage-bills' },
+        { name: 'Payments Received', href: '/dashboard/admin/manage-payments' },
       ],
     },
     {
@@ -331,14 +396,23 @@ const LeftSideNav = () => {
 
         {/* Scrollable Navigation Groups */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1.5 sidebar-scrollbar bg-[#0a152e]">
-          {navGroups.map((group) => (
-            <NavGroupItem
-              key={group.title}
-              group={group}
+          <React.Suspense
+            fallback={navGroups.map((group) => (
+              <NavGroupItem
+                key={group.title}
+                group={group}
+                pathname={pathname}
+                searchParams={null}
+                onNavigate={() => setIsMobileMenuOpen(false)}
+              />
+            ))}
+          >
+            <NavMainList
+              navGroups={navGroups}
               pathname={pathname}
               onNavigate={() => setIsMobileMenuOpen(false)}
             />
-          ))}
+          </React.Suspense>
         </nav>
 
         {/* User Profile Mini Footer (Swapnobaz style) */}
