@@ -576,7 +576,23 @@ export default function ManageBillsClient() {
               <title>Invoice - ${selectedBill?.invoiceNo}</title>
               <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
               <style>
-                body { font-family: sans-serif; padding: 20px; }
+                @page {
+                  size: A4;
+                  margin: 0.5in;
+                }
+                * { box-sizing: border-box; }
+                body {
+                  font-family: sans-serif;
+                  margin: 0;
+                  padding: 0;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
+                #invoice-print-area {
+                  padding: 0 !important;
+                  border: none !important;
+                  box-shadow: none !important;
+                }
                 .text-primary { color: oklch(0.648 0.2 131.684); }
                 .text-rose-600 { color: #dc2626 !important; }
                 .text-emerald-600 { color: #059669 !important; }
