@@ -2,6 +2,7 @@
 // src/app/api/services/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '../../../lib/db';
 import Service from '../../../models/Service';
 import { uploadMultipleToImgBB } from '../../../lib/imgbb';
@@ -122,6 +123,7 @@ export async function POST(request: NextRequest) {
     await service.save();
     revalidateTag('services', 'max');
     revalidateTag(`service-${uniqueSlug}`, 'max');
+    purgeCloudflareCache().catch(() => {});
 
     return NextResponse.json(
       {

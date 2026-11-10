@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '@/lib/db';
 import Portfolio from '@/models/Portfolios';
 import { getServerSession } from 'next-auth';
@@ -90,6 +91,7 @@ export async function PUT(
     revalidatePath(`/portfolios/${decodedSlug}`);
     revalidateTag('portfolios', 'max');
     revalidateTag(`portfolio-${decodedSlug}`, 'max');
+    purgeCloudflareCache().catch(() => {});
 
     // If slug changed, revalidate the new slug as well
     if (portfolio.slug !== decodedSlug) {
@@ -156,6 +158,7 @@ export async function DELETE(
     revalidatePath(`/portfolios/${decodedSlug}`);
     revalidateTag('portfolios', 'max');
     revalidateTag(`portfolio-${decodedSlug}`, 'max');
+    purgeCloudflareCache().catch(() => {});
 
     return NextResponse.json({
       message: 'Portfolio deleted successfully'

@@ -3,6 +3,7 @@
 /* eslint-disable prefer-const */
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '@/lib/db';
 import Writing from '@/models/Writing';
 import { getServerSession } from 'next-auth';
@@ -151,6 +152,7 @@ export async function POST(request: NextRequest) {
 
         revalidateTag('writings', 'max');
         revalidateTag(`writing-${slug}`, 'max');
+        purgeCloudflareCache().catch(() => {});
 
         return NextResponse.json(
             {

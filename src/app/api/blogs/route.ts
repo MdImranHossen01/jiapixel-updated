@@ -2,6 +2,7 @@
 /* eslint-disable prefer-const */
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '@/lib/db';
 import Blog from '@/models/Blog';
 
@@ -105,6 +106,7 @@ export async function POST(request: NextRequest) {
     await blog.save();
     revalidateTag('blogs', 'max');
     revalidateTag(`blog-${blog.slug}`, 'max');
+    purgeCloudflareCache().catch(() => {});
 
     return NextResponse.json(
       {

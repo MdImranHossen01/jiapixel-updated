@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '@/lib/db';
 import Newsletter from '@/models/Newsletter';
 import '@/models/Project'; // Registers "Project" model for populate
@@ -131,6 +132,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         // Revalidate the newsletter details page to show updates instantly
         revalidatePath(`/newsletters/${slug}`);
         revalidateTag(`newsletter-${slug}`, 'max');
+        purgeCloudflareCache().catch(() => {});
 
         return NextResponse.json({
             success: true,
@@ -179,6 +181,10 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         }
 
         await Newsletter.findByIdAndDelete(newsletter._id);
+        revalidatePath('/newsletters');
+        revalidatePath(`/newsletters/${slug}`);
+        revalidateTag('newsletters', 'max');
+        purgeCloudflareCache().catch(() => {});
 
         return NextResponse.json({
             success: true,

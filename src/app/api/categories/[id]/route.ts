@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db';
 import Category from '@/models/Category';
 import ServiceModel from '@/models/Service'; // Ensure this model is registered
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 export async function GET(
     req: NextRequest,
@@ -96,6 +97,7 @@ export async function PUT(
             // Revalidate current/new slug
             revalidatePath(`/${category.slug}`);
             revalidateTag(`category-${category.slug}`, 'max');
+            purgeCloudflareCache().catch(() => {});
             
             // If slug changed, revalidate the old slug cache too
             if (!isObjectId && id !== category.slug) {
@@ -147,6 +149,7 @@ export async function DELETE(
 
         if (category.slug) {
             revalidatePath(`/${category.slug}`);
+            purgeCloudflareCache().catch(() => {});
         }
 
         return NextResponse.json({ message: 'Category deleted successfully' });

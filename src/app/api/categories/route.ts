@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import dbConnect from '@/lib/db';
 import Category from '@/models/Category';
 import { generateSlug } from '@/lib/slug'; // Assuming this utility exists, otherwise I'll implement a simple one or use the one from Project.ts
@@ -35,6 +37,10 @@ export async function POST(req: NextRequest) {
         }
 
         const category = await Category.create(body);
+        revalidatePath(`/${category.slug}`);
+        revalidateTag('categories', 'max');
+        revalidateTag(`category-${category.slug}`, 'max');
+        purgeCloudflareCache().catch(() => {});
         return NextResponse.json(category, { status: 201 });
     } catch (error: any) {
         if (error.code === 11000) {

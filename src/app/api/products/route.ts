@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Product from '@/models/Product';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 // Enable route caching - revalidate every 60 seconds
 export const revalidate = 3600;
@@ -141,6 +143,10 @@ export async function POST(request: NextRequest) {
     });
 
     await product.save();
+
+    revalidatePath('/products');
+    revalidateTag('products', 'max');
+    purgeCloudflareCache().catch(() => {});
 
     return NextResponse.json(
       { message: 'Product created successfully', product },

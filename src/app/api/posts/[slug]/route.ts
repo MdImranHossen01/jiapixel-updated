@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
 import '@/models/Project'; // Registers "Project" model for populate
@@ -144,6 +145,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
         // Revalidate the post details page to show updates instantly
         revalidatePath(`/posts/${slug}`);
         revalidateTag(`post-${slug}`, 'max');
+        revalidatePath('/posts');
+        revalidateTag('posts', 'max');
+        purgeCloudflareCache().catch(() => {});
 
         return NextResponse.json({
             success: true,
@@ -191,6 +195,11 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         }
 
         await Post.findByIdAndDelete(post._id);
+        revalidatePath('/posts');
+        revalidatePath(`/posts/${slug}`);
+        revalidateTag('posts', 'max');
+        revalidateTag(`post-${slug}`, 'max');
+        purgeCloudflareCache().catch(() => {});
 
         if (post.featuredImage) {
           try {

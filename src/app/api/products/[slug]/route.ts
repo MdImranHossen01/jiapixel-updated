@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '@/lib/db';
 import Product from '@/models/Product';
 import { getServerSession } from 'next-auth';
@@ -92,6 +94,10 @@ export async function PUT(
     });
     
     await product.save();
+    revalidatePath('/products');
+    revalidatePath(`/products/${decodedSlug}`);
+    revalidateTag('products', 'max');
+    purgeCloudflareCache().catch(() => {});
     
     return NextResponse.json({
       message: 'Product updated successfully',
@@ -137,6 +143,10 @@ export async function DELETE(
     }
     
     await Product.deleteOne({ _id: product._id });
+    revalidatePath('/products');
+    revalidatePath(`/products/${decodedSlug}`);
+    revalidateTag('products', 'max');
+    purgeCloudflareCache().catch(() => {});
 
     // Automatically clean up all product images from Cloudflare R2
     try {

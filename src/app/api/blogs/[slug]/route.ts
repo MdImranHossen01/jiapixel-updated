@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '@/lib/db';
 import Blog from '@/models/Blog';
 import '@/models/Service'; // Registers "Service" model for populate
@@ -134,6 +135,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     revalidatePath(`/blogs/${slug}`);
     revalidateTag(`blog-${slug}`, 'max');
     revalidateTag('blogs', 'max');
+    purgeCloudflareCache().catch(() => {});
 
     // If slug changed, revalidate the new slug as well
     if (blog.slug !== slug) {
@@ -199,6 +201,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     }
     revalidateTag(`blog-${slug}`, 'max');
     revalidateTag('blogs', 'max');
+    purgeCloudflareCache().catch(() => {});
 
     return NextResponse.json({
       success: true,

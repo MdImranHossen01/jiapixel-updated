@@ -2,6 +2,7 @@
 // src/app/api/projects/[slug]/route.ts
 import { NextResponse, NextRequest } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '@/lib/db';
 import Project from '@/models/Project';
 import { uploadMultipleToImgBB } from '@/lib/imgbb';
@@ -211,6 +212,7 @@ export async function PUT(
         revalidatePath(`/projects/${slug}`);
         revalidateTag('projects', 'max');
         revalidateTag(`project-${slug}`, 'max');
+        purgeCloudflareCache().catch(() => {});
 
         // If slug changed, revalidate the new slug as well
         if (project.slug !== slug) {
@@ -264,6 +266,7 @@ export async function DELETE(
 
         revalidateTag('projects', 'max');
         revalidateTag(`project-${slug}`, 'max');
+        purgeCloudflareCache().catch(() => {});
 
         return NextResponse.json({
             success: true,

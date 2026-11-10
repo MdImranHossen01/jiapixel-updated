@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db';
 import LocalCategory from '@/models/LocalCategory';
 import ProjectModel from '@/models/Project'; // Ensure Project model is registered
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 export async function GET(
     req: NextRequest,
@@ -103,7 +104,9 @@ export async function PUT(
         // Revalidate cache
         if (category.slug) {
             revalidatePath(`/categories/${category.slug}`); // Update the public page path (assuming /categories/[slug])
-            revalidateTag(`local-category-${category.slug}`, 'max'); // Update the data cache tag
+            revalidateTag(`local-category-${category.slug}`, 'max');
+            purgeCloudflareCache().catch(() => {}); // Update the data cache tag
+            purgeCloudflareCache().catch(() => {});
         }
 
         return NextResponse.json({ category });
@@ -139,6 +142,7 @@ export async function DELETE(
         if (category.slug) {
             revalidatePath(`/categories/${category.slug}`);
             revalidateTag(`local-category-${category.slug}`, 'max');
+            purgeCloudflareCache().catch(() => {});
         }
 
         return NextResponse.json({ message: 'Category deleted successfully' });

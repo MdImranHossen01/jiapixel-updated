@@ -2,10 +2,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 // Enable route caching - revalidate every 3600 seconds (1 hour)
 export const revalidate = 3600;
@@ -111,6 +113,9 @@ export async function POST(request: NextRequest) {
 
         try {
             await post.save();
+            revalidatePath('/posts');
+            revalidateTag('posts', 'max');
+            purgeCloudflareCache().catch(() => {});
         } catch (error: any) {
             // Handle duplicate key error (E11000)
             if (error.code === 11000) {

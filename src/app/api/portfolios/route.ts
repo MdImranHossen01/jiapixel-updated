@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '@/lib/db';
 import Portfolio from '@/models/Portfolios';
 import { getServerSession } from 'next-auth';
@@ -119,6 +120,7 @@ export async function POST(request: NextRequest) {
     revalidatePath(`/portfolios/${portfolio.slug}`);
     revalidateTag('portfolios', 'max');
     revalidateTag(`portfolio-${portfolio.slug}`, 'max');
+    purgeCloudflareCache().catch(() => {});
 
     return NextResponse.json(
       { message: 'Portfolio created successfully', portfolio },

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidateTag, revalidatePath } from 'next/cache';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 import connectDB from '../../../../lib/db';
 import Service from '../../../../models/Service'; // Import Service model
 import { generateSlug } from '../../../../lib/slug';
@@ -181,7 +182,9 @@ export async function PUT(
     // Revalidate the service page and cache tag
     revalidateTag('services', 'max');
     revalidateTag(`service-${slug}`, 'max');
+    purgeCloudflareCache().catch(() => {});
     revalidatePath(`/services/${slug}`);
+    purgeCloudflareCache().catch(() => {});
 
     // If slug changed, revalidate the new slug as well
     if (service.slug !== slug) {
@@ -243,6 +246,7 @@ export async function DELETE(
 
     revalidateTag('services', 'max');
     revalidateTag(`service-${slug}`, 'max');
+    purgeCloudflareCache().catch(() => {});
 
     return NextResponse.json({
       success: true,
