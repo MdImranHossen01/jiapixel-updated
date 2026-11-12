@@ -7,7 +7,7 @@ import crypto from 'crypto';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { filename, contentType, folder = 'general' } = body;
+    const { filename, contentType, folder = 'general', fileSize } = body;
 
     if (!filename || !contentType) {
       return NextResponse.json(
@@ -16,17 +16,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const isBanner = folder === 'banners' || folder.includes('banner') || folder.includes('hero');
+    const maxAllowedBytes = isBanner ? 400 * 1024 : 150 * 1024;
+
+    if (typeof fileSize !== 'number' || fileSize <= 0 || fileSize > maxAllowedBytes) {
+      return NextResponse.json(
+        { success: false, error: `Direct presigned upload requires optimized file size <= ${Math.round(maxAllowedBytes / 1024)}KB.` },
+        { status: 400 }
+      );
+    }
+
     const allowedTypes = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
       'image/webp',
       'image/gif',
       'image/svg+xml',
     ];
     if (!allowedTypes.includes(contentType.toLowerCase())) {
       return NextResponse.json(
-        { success: false, error: 'Invalid file type. Only image files are allowed.' },
+        { success: false, error: 'Direct upload only accepts optimized WebP/SVG/GIF.' },
         { status: 400 }
       );
     }
@@ -42,6 +49,7 @@ export async function POST(req: NextRequest) {
       Bucket: R2_BUCKET_NAME,
       Key: fileKey,
       ContentType: contentType,
+      ContentLength: Number(fileSize),
     });
 
     const uploadUrl = await getSignedUrl(r2Client, command, { expiresIn: 300 });

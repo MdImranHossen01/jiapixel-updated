@@ -58,6 +58,12 @@ export async function uploadServerFileToR2(
     buffer = fileOrBuffer as Buffer;
   }
 
+  const MAX_ALLOWED_BYTES = 1 * 1024 * 1024; // 1 MB
+  if (buffer.length > MAX_ALLOWED_BYTES) {
+    const sizeMB = (buffer.length / (1024 * 1024)).toFixed(2);
+    throw new Error(`Image size cannot exceed 1 MB! Your file is ${sizeMB} MB.`);
+  }
+
   const isSvg = contentType.includes('svg');
   const isGif = contentType.includes('gif');
   let ext = 'webp';
@@ -65,10 +71,34 @@ export async function uploadServerFileToR2(
   if (!isSvg && !isGif) {
     try {
       const sharp = (await import('sharp')).default;
-      buffer = await sharp(buffer)
-        .rotate()
-        .webp({ quality: 82, effort: 4 })
-        .toBuffer();
+      const isBanner = folder === 'banners' || folder.includes('banner') || folder.includes('hero');
+      const maxDim = isBanner ? 2160 : 1200;
+      const targetSize = isBanner ? 400 * 1024 : 150 * 1024;
+
+      const attempts = [
+        { scale: 1.0, quality: 82 },
+        { scale: 1.0, quality: 78 },
+        { scale: 0.92, quality: 74 },
+        { scale: 0.85, quality: 70 },
+        { scale: 0.75, quality: 65 },
+        { scale: 0.65, quality: 60 },
+      ];
+
+      let optimized = buffer;
+      for (const attempt of attempts) {
+        const dim = Math.max(100, Math.round(maxDim * attempt.scale));
+        optimized = await sharp(buffer)
+          .rotate()
+          .resize({ width: dim, height: dim, fit: 'inside', withoutEnlargement: true })
+          .webp({ quality: attempt.quality, effort: 5 })
+          .toBuffer();
+
+        if (optimized.length <= targetSize) {
+          break;
+        }
+      }
+
+      buffer = optimized;
       contentType = 'image/webp';
       ext = 'webp';
     } catch {
