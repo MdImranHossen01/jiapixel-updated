@@ -82,15 +82,6 @@ const ManageCustomOrdersClient = () => {
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [projects, setProjects] = useState<any[]>([]);
 
-    // Duplicate Modal State
-    const [dupOrder, setDupOrder] = useState<CustomOrder | null>(null);
-    const [dupLoading, setDupLoading] = useState(false);
-    const [dupClientName, setDupClientName] = useState("");
-    const [dupClientEmail, setDupClientEmail] = useState("");
-    const [dupClientPhone, setDupClientPhone] = useState("");
-    const [dupClientAddress, setDupClientAddress] = useState("");
-    const [dupBusinessName, setDupBusinessName] = useState("");
-
     // Convert to Bill Modal State
     const [convertOrder, setConvertOrder] = useState<CustomOrder | null>(null);
     const [convertLoading, setConvertLoading] = useState(false);
@@ -243,62 +234,43 @@ const ManageCustomOrdersClient = () => {
         );
     };
 
-    const openDuplicateModal = (order: CustomOrder) => {
-        setDupOrder(order);
-        setDupClientName("");
-        setDupClientEmail("");
-        setDupClientPhone("");
-        setDupClientAddress("");
-        setDupBusinessName("");
-    };
-
-    const handleDuplicateSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!dupOrder) return;
-        if (!dupClientName.trim() || !dupClientEmail.trim() || !dupClientPhone.trim() || !dupClientAddress.trim()) {
-            toast.error("Please fill in all required Client Information fields.");
-            return;
-        }
-        setDupLoading(true);
+    const handleReuseOffer = async (order: CustomOrder) => {
         try {
             const res = await fetch("/api/custom-orders", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    title: dupOrder.title,
-                    description: dupOrder.description || "",
-                    clientName: dupClientName,
-                    clientEmail: dupClientEmail,
-                    clientPhone: dupClientPhone,
-                    clientAddress: dupClientAddress,
-                    businessName: dupBusinessName,
-                    items: getOrderItems(dupOrder),
-                    serviceCharge: dupOrder.serviceCharge || 0,
-                    discountType: dupOrder.discountType || "fixed",
-                    discountValue: dupOrder.discountValue || 0,
-                    discount: dupOrder.discount || 0,
-                    price: dupOrder.price,
-                    currency: dupOrder.currency || "BDT",
-                    dueDate: dupOrder.dueDate,
-                    renewDate: dupOrder.renewDate,
-                    renewPrice: dupOrder.renewPrice,
-                    adminNote: dupOrder.adminNote,
-                    paymentLink: dupOrder.paymentLink,
-                    requirementsLink: dupOrder.requirementsLink,
+                    title: order.title,
+                    description: order.description || "",
+                    clientName: "",
+                    clientEmail: "",
+                    clientPhone: "",
+                    clientAddress: "",
+                    businessName: "",
+                    items: Array.isArray(order.items) && order.items.length > 0 ? order.items : [],
+                    serviceCharge: order.serviceCharge || 0,
+                    discountType: order.discountType || "fixed",
+                    discountValue: order.discountValue || 0,
+                    discount: order.discount || 0,
+                    price: order.price,
+                    currency: order.currency || "BDT",
+                    dueDate: order.dueDate,
+                    renewDate: order.renewDate,
+                    renewPrice: order.renewPrice,
+                    adminNote: order.adminNote,
+                    paymentLink: order.paymentLink,
+                    requirementsLink: order.requirementsLink,
                 }),
             });
             if (res.ok) {
-                toast.success("Offer duplicated with new client!");
-                setDupOrder(null);
+                toast.success("New reusable offer created without client information!");
                 fetchOrders();
             } else {
                 const err = await res.json();
-                toast.error(err.error || "Failed to duplicate offer");
+                toast.error(err.error || "Failed to reuse offer");
             }
         } catch {
-            toast.error("Failed to duplicate offer");
-        } finally {
-            setDupLoading(false);
+            toast.error("Failed to reuse offer");
         }
     };
 
@@ -634,8 +606,8 @@ const ManageCustomOrdersClient = () => {
                                                     <DropdownMenuItem onClick={() => openConvertToBillModal(order)} className="text-emerald-600 font-medium cursor-pointer">
                                                         <Receipt className="mr-2 h-4 w-4" /> Convert to Client Bill
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => openDuplicateModal(order)} className="text-blue-600 font-medium cursor-pointer">
-                                                        <Files className="mr-2 h-4 w-4" /> Duplicate Offer
+                                                    <DropdownMenuItem onClick={() => handleReuseOffer(order)} className="text-blue-600 font-medium cursor-pointer">
+                                                        <Files className="mr-2 h-4 w-4" /> Reuse
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => handleDownloadOfferPDF(order)} className="cursor-pointer">
                                                         <Printer className="mr-2 h-4 w-4" /> Download Quotation PDF
@@ -690,45 +662,6 @@ const ManageCustomOrdersClient = () => {
                     </TableBody>
                 </Table>
             </div>
-
-            {/* Duplicate Offer Modal (Change Client Only) */}
-            <Dialog open={!!dupOrder} onOpenChange={(o) => !o && setDupOrder(null)}>
-                <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Duplicate Offer for Another Client</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleDuplicateSubmit} className="space-y-4 py-2">
-                        <div className="p-3 rounded-lg bg-muted/40 border text-sm">
-                            <div className="font-semibold">Copying Offer: {dupOrder?.title}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5">
-                                All services, pricing, and proposal scope will be copied. Select or enter the new client below.
-                            </div>
-                        </div>
-                        <ClientAutoSuggestFields
-                            clientName={dupClientName}
-                            setClientName={setDupClientName}
-                            clientEmail={dupClientEmail}
-                            setClientEmail={setDupClientEmail}
-                            clientPhone={dupClientPhone}
-                            setClientPhone={setDupClientPhone}
-                            clientAddress={dupClientAddress}
-                            setClientAddress={setDupClientAddress}
-                            businessName={dupBusinessName}
-                            setBusinessName={setDupBusinessName}
-                            suggestions={suggestions}
-                        />
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setDupOrder(null)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={dupLoading}>
-                                {dupLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                Save New Offer
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
 
             {/* Convert to Client Bill Modal */}
             <Dialog open={!!convertOrder} onOpenChange={(o) => !o && setConvertOrder(null)}>
