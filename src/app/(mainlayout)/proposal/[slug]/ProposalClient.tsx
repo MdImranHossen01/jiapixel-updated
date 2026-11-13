@@ -430,6 +430,35 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                             </p>
                         </div>
 
+                        {Array.isArray(order.items) && order.items.length > 0 && (
+                            <div className="space-y-2 pt-2 border-t text-sm">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Included Services</p>
+                                {order.items.map((it: any, i: number) => (
+                                    <div key={i} className="flex justify-between items-start gap-2">
+                                        <span className="text-foreground">
+                                            {it.name} {it.quantity > 1 ? `× ${it.quantity}` : ""}
+                                        </span>
+                                        <span className="font-semibold shrink-0">
+                                            {order.currency === "BDT" ? "৳" : "$"}
+                                            {((it.price || 0) * (it.quantity || 1)).toLocaleString()}
+                                        </span>
+                                    </div>
+                                ))}
+                                {Number(order.serviceCharge || 0) > 0 && (
+                                    <div className="flex justify-between text-xs text-muted-foreground">
+                                        <span>Service Charge</span>
+                                        <span>+{order.currency === "BDT" ? "৳" : "$"}{Number(order.serviceCharge).toLocaleString()}</span>
+                                    </div>
+                                )}
+                                {Number(order.discount || 0) > 0 && (
+                                    <div className="flex justify-between text-xs text-emerald-600">
+                                        <span>Discount</span>
+                                        <span>-{order.currency === "BDT" ? "৳" : "$"}{Number(order.discount).toLocaleString()}</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="h-px w-full bg-border my-4" />
 
                         {order.dueDate && (

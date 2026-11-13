@@ -17,6 +17,8 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import ClientAutoSuggestFields from "@/components/admin/ClientAutoSuggestFields";
+import ProposalItemsSection, { OfferItemInput } from "@/components/admin/ProposalItemsSection";
 
 interface EditCustomOrderClientProps {
     slug: string;
@@ -29,8 +31,7 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [price, setPrice] = useState("");
-    const [currency, setCurrency] = useState("USD");
+    const [currency, setCurrency] = useState("BDT");
     const [dueDate, setDueDate] = useState("");
     const [renewDate, setRenewDate] = useState("");
     const [renewPrice, setRenewPrice] = useState("");
@@ -38,8 +39,34 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
     const [paymentLink, setPaymentLink] = useState("");
     const [requirementsLink, setRequirementsLink] = useState("");
 
+    // Client Info
+    const [clientName, setClientName] = useState("");
+    const [clientEmail, setClientEmail] = useState("");
+    const [clientPhone, setClientPhone] = useState("");
+    const [clientAddress, setClientAddress] = useState("");
+    const [businessName, setBusinessName] = useState("");
+    const [suggestions, setSuggestions] = useState<any[]>([]);
+    const [projects, setProjects] = useState<any[]>([]);
+
+    // Multiple Items
+    const [items, setItems] = useState<OfferItemInput[]>([{ name: "", quantity: 1, price: 0, link: "" }]);
+    const [serviceCharge, setServiceCharge] = useState<number>(0);
+    const [discountType, setDiscountType] = useState<"fixed" | "percentage">("fixed");
+    const [discountValue, setDiscountValue] = useState<number>(0);
+
     // Status Tracker
     const [currentStatus, setCurrentStatus] = useState<string>("proposed");
+
+    useEffect(() => {
+        fetch("/api/admin/suggest-clients")
+            .then((r) => r.ok ? r.json() : null)
+            .then((res) => { if (res?.success) setSuggestions(res.data || []); })
+            .catch(() => {});
+        fetch("/api/projects?limit=100")
+            .then((r) => r.ok ? r.json() : null)
+            .then((res) => { if (res?.projects) setProjects(res.projects); })
+            .catch(() => {});
+    }, []);
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
@@ -51,13 +78,38 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
 
                     setTitle(order.title || "");
                     setDescription(order.description || "");
-                    setPrice(order.price ? String(order.price) : "");
-                    setCurrency(order.currency || "USD");
+                    setCurrency(order.currency || "BDT");
                     setCurrentStatus(order.status);
                     setRenewPrice(order.renewPrice ? String(order.renewPrice) : "");
                     setAdminNote(order.adminNote || "");
                     setPaymentLink(order.paymentLink || "");
                     setRequirementsLink(order.requirementsLink || "");
+
+                    setClientName(order.clientName || order.client?.name || "");
+                    setClientEmail(order.clientEmail || order.client?.email || "");
+                    setClientPhone(order.clientPhone || "");
+                    setClientAddress(order.clientAddress || "");
+                    setBusinessName(order.businessName || "");
+
+                    if (Array.isArray(order.items) && order.items.length > 0) {
+                        setItems(order.items.map((it: any) => ({
+                            name: it.name || "",
+                            description: it.description || "",
+                            quantity: Number(it.quantity || 1),
+                            price: Number(it.price || 0),
+                            link: it.link || "",
+                        })));
+                    } else {
+                        setItems([{
+                            name: order.title || "",
+                            quantity: 1,
+                            price: Number(order.price || 0),
+                            link: "",
+                        }]);
+                    }
+                    setServiceCharge(Number(order.serviceCharge || 0));
+                    setDiscountType(order.discountType || "fixed");
+                    setDiscountValue(Number(order.discountValue || 0));
 
                     if (order.dueDate) {
                         const date = new Date(order.dueDate);
@@ -82,10 +134,21 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
         fetchOrderDetails();
     }, [slug, router]);
 
+    const subtotal = items.reduce((sum, it) => sum + Number(it.price || 0) * Number(it.quantity || 1), 0);
+    const discountAmount =
+        discountType === "percentage"
+            ? Math.round(((subtotal + serviceCharge) * discountValue) / 100)
+            : discountValue;
+    const calculatedTotal = Math.max(0, subtotal + serviceCharge - discountAmount);
+
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!title.trim()) {
             toast.error("Title is required.");
+            return;
+        }
+        if (items.some((it) => !it.name.trim() || it.quantity < 1 || it.price < 0)) {
+            toast.error("Please complete all service items correctly.");
             return;
         }
 
@@ -97,15 +160,21 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
         setSubmitting(true);
 
         try {
-            // Re-using the PATCH endpoint but adding a parallel PUT or extending PATCH logic
-            // The existing PATCh is strict for ONLY accepting "status" updates.
-            // We should use PUT to update the entire object, or build out PATCH.
-
             const payload = {
                 title,
                 description,
-                status: currentStatus, // keep existing status unless changed
-                price: price !== "" && price !== undefined ? Number(price) : null,
+                status: currentStatus,
+                clientName,
+                clientEmail,
+                clientPhone,
+                clientAddress,
+                businessName,
+                items,
+                serviceCharge,
+                discountType,
+                discountValue,
+                discount: discountAmount,
+                price: calculatedTotal,
                 currency,
                 dueDate: dueDate ? new Date(dueDate).toISOString() : null,
                 renewDate: renewDate ? new Date(renewDate).toISOString() : null,
@@ -201,11 +270,47 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
                 <div className="grid grid-cols-1 gap-6">
                     <div className="space-y-6">
 
+                        {/* Client Information */}
+                        <div className="bg-card rounded-lg shadow p-6 border border-border space-y-4">
+                            <div>
+                                <h3 className="text-lg font-semibold text-card-foreground">Client Information</h3>
+                                <p className="text-xs text-muted-foreground">Type name, email or phone to auto-fill from existing clients</p>
+                            </div>
+                            <ClientAutoSuggestFields
+                                clientName={clientName}
+                                setClientName={setClientName}
+                                clientEmail={clientEmail}
+                                setClientEmail={setClientEmail}
+                                clientPhone={clientPhone}
+                                setClientPhone={setClientPhone}
+                                clientAddress={clientAddress}
+                                setClientAddress={setClientAddress}
+                                businessName={businessName}
+                                setBusinessName={setBusinessName}
+                                suggestions={suggestions}
+                                emailRequired={false}
+                            />
+                        </div>
+
+                        {/* Multiple Services / Items */}
+                        <ProposalItemsSection
+                            items={items}
+                            setItems={setItems}
+                            serviceCharge={serviceCharge}
+                            setServiceCharge={setServiceCharge}
+                            discountType={discountType}
+                            setDiscountType={setDiscountType}
+                            discountValue={discountValue}
+                            setDiscountValue={setDiscountValue}
+                            currency={currency}
+                            projects={projects}
+                        />
+
                         {/* Basic Details */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">Project Title <span className="text-red-500">*</span></Label>
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">Offer / Project Title <span className="text-red-500">*</span></Label>
                                     <Input
                                         id="title"
                                         placeholder="e.g., E-commerce Redesign"
@@ -223,28 +328,10 @@ export default function EditCustomOrderClient({ slug }: EditCustomOrderClientPro
                                             <SelectValue placeholder="Select Currency" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-card border border-border">
-                                            <SelectItem value="USD">USD ($)</SelectItem>
                                             <SelectItem value="BDT">BDT (৳)</SelectItem>
+                                            <SelectItem value="USD">USD ($)</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="price" className="block text-sm font-medium text-card-foreground mb-2">Total Price / Estimate ({currency === "USD" ? "$" : "৳"})</Label>
-                                    <Input
-                                        id="price"
-                                        type="number"
-                                        min={0}
-                                        placeholder={currency === "USD" ? "e.g., 2500" : "e.g., 25000"}
-                                        value={price}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            if (val === "" || Number(val) >= 0) {
-                                                setPrice(val);
-                                            }
-                                        }}
-                                        className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
-                                    />
                                 </div>
                             </div>
 

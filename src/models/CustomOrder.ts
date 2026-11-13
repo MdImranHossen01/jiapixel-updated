@@ -1,14 +1,33 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+export interface ICustomOrderItem {
+    name: string;
+    description?: string;
+    quantity: number;
+    price: number;
+    link?: string;
+}
+
 export interface ICustomOrder extends Document {
     title: string;
     description: string; // Novel.sh JSON content stringified
     admin: mongoose.Types.ObjectId;
     client?: mongoose.Types.ObjectId;
+    clientName?: string;
+    clientEmail?: string;
+    clientPhone?: string;
+    clientAddress?: string;
+    businessName?: string;
+    items?: ICustomOrderItem[];
+    serviceCharge?: number;
+    discountType?: "fixed" | "percentage";
+    discountValue?: number;
+    discount?: number;
     status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed" | "canceled";
     shareableSlug: string;
     price?: number;
     currency?: "USD" | "BDT";
+    convertedBillId?: mongoose.Types.ObjectId;
 
     // Admin tracking features
     dueDate?: Date;
@@ -41,6 +60,29 @@ const CustomOrderSchema = new Schema<ICustomOrder>(
         client: {
             type: Schema.Types.ObjectId,
             ref: "User",
+            required: false,
+        },
+        clientName: { type: String, trim: true, default: "" },
+        clientEmail: { type: String, trim: true, default: "" },
+        clientPhone: { type: String, trim: true, default: "" },
+        clientAddress: { type: String, trim: true, default: "" },
+        businessName: { type: String, trim: true, default: "" },
+        items: [
+            {
+                name: { type: String, required: true, trim: true },
+                description: { type: String, default: "" },
+                quantity: { type: Number, default: 1, min: 1 },
+                price: { type: Number, default: 0, min: 0 },
+                link: { type: String, default: "" },
+            },
+        ],
+        serviceCharge: { type: Number, default: 0 },
+        discountType: { type: String, enum: ["fixed", "percentage"], default: "fixed" },
+        discountValue: { type: Number, default: 0 },
+        discount: { type: Number, default: 0 },
+        convertedBillId: {
+            type: Schema.Types.ObjectId,
+            ref: "Bill",
             required: false,
         },
         status: {

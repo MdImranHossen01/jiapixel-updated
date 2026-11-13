@@ -14,7 +14,29 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { title, description, client, price, currency, dueDate, renewDate, renewPrice, adminNote, paymentLink, requirementsLink } = body;
+        const {
+            title,
+            description,
+            client,
+            clientName,
+            clientEmail,
+            clientPhone,
+            clientAddress,
+            businessName,
+            items,
+            serviceCharge,
+            discountType,
+            discountValue,
+            discount,
+            price,
+            currency,
+            dueDate,
+            renewDate,
+            renewPrice,
+            adminNote,
+            paymentLink,
+            requirementsLink,
+        } = body;
 
         if (!title) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -26,7 +48,7 @@ export async function POST(request: NextRequest) {
 
         const orderData: any = {
             title,
-            description,
+            description: description || "",
             admin: session.user.id,
             status: "proposed",
             shareableSlug,
@@ -35,7 +57,22 @@ export async function POST(request: NextRequest) {
 
         // Only add optional fields if they exist to avoid Mongoose casting errors and preserve zero values
         if (client !== undefined && client !== null && client !== "") orderData.client = client;
-        if (price !== undefined && price !== null && price !== "") orderData.price = Number(price);
+        if (clientName !== undefined) orderData.clientName = clientName;
+        if (clientEmail !== undefined) orderData.clientEmail = clientEmail;
+        if (clientPhone !== undefined) orderData.clientPhone = clientPhone;
+        if (clientAddress !== undefined) orderData.clientAddress = clientAddress;
+        if (businessName !== undefined) orderData.businessName = businessName;
+        if (Array.isArray(items) && items.length > 0) orderData.items = items;
+        if (serviceCharge !== undefined && serviceCharge !== null && serviceCharge !== "") orderData.serviceCharge = Number(serviceCharge);
+        if (discountType !== undefined) orderData.discountType = discountType;
+        if (discountValue !== undefined && discountValue !== null && discountValue !== "") orderData.discountValue = Number(discountValue);
+        if (discount !== undefined && discount !== null && discount !== "") orderData.discount = Number(discount);
+        if (price !== undefined && price !== null && price !== "") {
+            orderData.price = Number(price);
+        } else if (Array.isArray(items) && items.length > 0) {
+            const sub = items.reduce((s: number, it: any) => s + Number(it.price || 0) * Number(it.quantity || 1), 0);
+            orderData.price = Math.max(0, sub + Number(serviceCharge || 0) - Number(discount || 0));
+        }
         if (dueDate !== undefined && dueDate !== null && dueDate !== "") orderData.dueDate = new Date(dueDate);
         if (renewDate !== undefined && renewDate !== null && renewDate !== "") orderData.renewDate = new Date(renewDate);
         if (renewPrice !== undefined && renewPrice !== null && renewPrice !== "") orderData.renewPrice = Number(renewPrice);

@@ -39,8 +39,12 @@ import {
   X,
   Share2,
   AlertTriangle,
-  ShieldAlert
+  ShieldAlert,
+  History,
+  Receipt,
+  Truck
 } from "lucide-react";
+import { generateBillPDF, generatePaymentReceiptPDF } from "@/lib/bill-invoice-generator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -85,6 +89,17 @@ export default function ManageBillsClient() {
   // Selected Bill for viewing/printing
   const [selectedBill, setSelectedBill] = useState<any>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+
+  // Payment History & Collect Next Payment states
+  const [historyBill, setHistoryBill] = useState<any>(null);
+  const [historyInstallments, setHistoryInstallments] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isCollectOpen, setIsCollectOpen] = useState(false);
+  const [collectAmount, setCollectAmount] = useState<number>(0);
+  const [collectMethod, setCollectMethod] = useState<string>("Cash");
+  const [collectNote, setCollectNote] = useState<string>("");
+  const [collectLoading, setCollectLoading] = useState(false);
 
   // Dialog state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -191,6 +206,102 @@ export default function ManageBillsClient() {
     fetchProjects();
     fetchSuggestions();
   }, []);
+
+  const openHistoryModal = async (bill: any) => {
+    setHistoryBill(bill);
+    setHistoryInstallments([]);
+    setIsHistoryOpen(true);
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`/api/admin/bills/${bill._id}/transactions`);
+      if (res.ok) {
+        const data = await res.json();
+        setHistoryBill(data.bill || bill);
+        setHistoryInstallments(data.installments || []);
+      } else {
+        toast.error("Failed to load payment history");
+      }
+    } catch {
+      toast.error("Error loading payment history");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const openCollectPaymentModal = (bill: any) => {
+    setHistoryBill(bill);
+    setCollectAmount(Math.max(0, Number(bill.currentBillDue || 0)));
+    setCollectMethod("Cash");
+    setCollectNote("");
+    setIsCollectOpen(true);
+  };
+
+  const handleCollectPaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!historyBill || collectAmount <= 0) {
+      toast.error("Enter a valid payment amount");
+      return;
+    }
+    setCollectLoading(true);
+    try {
+      const res = await fetch(`/api/admin/bills/${historyBill._id}/transactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: collectAmount,
+          method: collectMethod,
+          note: collectNote,
+        }),
+      });
+      if (res.ok) {
+        toast.success("Payment recorded successfully!");
+        setIsCollectOpen(false);
+        await fetchBills();
+        if (isHistoryOpen) {
+          await openHistoryModal(historyBill);
+        }
+      } else {
+        const err = await res.json();
+        toast.error(err.message || "Failed to record payment");
+      }
+    } catch {
+      toast.error("Error recording payment");
+    } finally {
+      setCollectLoading(false);
+    }
+  };
+
+  const handleCreateChalanFromBill = async (bill: any) => {
+    try {
+      const res = await fetch("/api/admin/bills", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientName: bill.clientName,
+          clientEmail: bill.clientEmail || "",
+          clientPhone: bill.clientPhone,
+          clientAddress: bill.clientAddress,
+          businessName: bill.businessName || "",
+          items: bill.items,
+          subtotal: 0,
+          total: 0,
+          gTotal: 0,
+          status: "Paid",
+          currency: bill.currency || "BDT",
+          documentType: "chalan",
+        }),
+      });
+      if (res.ok) {
+        const chalan = await res.json();
+        toast.success(`Delivery Chalan ${chalan.invoiceNo} created!`);
+        generateBillPDF(chalan, {}, "download");
+      } else {
+        toast.error("Failed to create Delivery Chalan");
+      }
+    } catch {
+      toast.error("Error creating Delivery Chalan");
+    }
+  };
 
   const fetchBills = async () => {
     try {
@@ -878,7 +989,44 @@ export default function ManageBillsClient() {
                               <MoreVertical className="w-4 h-4 text-gray-500" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-44">
+                          <DropdownMenuContent align="end" className="w-52">
+                            <DropdownMenuItem
+                              onClick={() => openHistoryModal(bill)}
+                              className="cursor-pointer font-medium"
+                            >
+                              <History className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" />
+                              <span>Payment History</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => generateBillPDF(bill, {}, "download")}
+                              className="cursor-pointer"
+                            >
+                              <Printer className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" />
+                              <span>Download PDF Invoice</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                generatePaymentReceiptPDF(
+                                  bill,
+                                  {},
+                                  undefined,
+                                  undefined,
+                                  undefined,
+                                  Number(bill.cashIn || 0) === 0
+                                )
+                              }
+                              className="cursor-pointer"
+                            >
+                              <Receipt className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
+                              <span>Money Receipt</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleCreateChalanFromBill(bill)}
+                              className="cursor-pointer"
+                            >
+                              <Truck className="w-4 h-4 mr-2 text-orange-600 dark:text-orange-400" />
+                              <span>Create Delivery Chalan</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => {
                                 const shareUrl = `${window.location.origin}/bills/${bill.invoiceNo}`;
@@ -897,7 +1045,7 @@ export default function ManageBillsClient() {
                               className="cursor-pointer"
                             >
                               <Eye className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
-                              <span>View / Print</span>
+                              <span>Quick View</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => openEditModal(bill)}
@@ -908,7 +1056,7 @@ export default function ManageBillsClient() {
                             </DropdownMenuItem>
                             {bill.status === "Due" && (
                               <DropdownMenuItem
-                                onClick={() => handleUpdateStatus(bill._id, bill.currentBillDue)}
+                                onClick={() => openCollectPaymentModal(bill)}
                                 className="cursor-pointer"
                               >
                                 <CreditCard className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" />
@@ -1565,6 +1713,265 @@ export default function ManageBillsClient() {
               <p className="text-sm text-amber-700 dark:text-amber-300 whitespace-pre-wrap">{selectedBill.adminNote}</p>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment & Transaction History Modal */}
+      <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <History className="w-5 h-5 text-primary" />
+              <span>Payment &amp; Transaction History</span>
+              {historyBill && (
+                <Badge variant="secondary" className="font-mono">
+                  #{historyBill.invoiceNo}
+                </Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+
+          {historyBill && (
+            <div className="space-y-4 py-1">
+              {/* Client & Collect CTA */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl border bg-muted/30">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-primary" />
+                    <span className="font-bold text-base">{historyBill.clientName}</span>
+                    <Badge variant={historyBill.status === "Paid" ? "default" : "destructive"}>
+                      {historyBill.status}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-3">
+                    <span>{historyBill.clientPhone}</span>
+                    <span>• Bill Date: {new Date(historyBill.date || historyBill.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                {Number(historyBill.currentBillDue || 0) > 0 && (
+                  <Button
+                    type="button"
+                    onClick={() => openCollectPaymentModal(historyBill)}
+                    className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    Collect Next Payment
+                  </Button>
+                )}
+              </div>
+
+              {/* 3 Summary Cards */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 rounded-xl border bg-card">
+                  <div className="text-[10px] font-bold uppercase text-muted-foreground">Grand Total</div>
+                  <div className="text-xl font-extrabold mt-0.5">
+                    {getCurrencySymbol(historyBill.currency)}
+                    {Number(historyBill.gTotal || historyBill.total || 0).toLocaleString()}
+                  </div>
+                </div>
+                <div className="p-3 rounded-xl border bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900">
+                  <div className="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-400">
+                    Total Paid (Cash-In)
+                  </div>
+                  <div className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                    {getCurrencySymbol(historyBill.currency)}
+                    {Number(historyBill.cashIn || 0).toLocaleString()}
+                  </div>
+                </div>
+                <div className="p-3 rounded-xl border bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900">
+                  <div className="text-[10px] font-bold uppercase text-amber-700 dark:text-amber-400">
+                    Remaining Due
+                  </div>
+                  <div className="text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">
+                    {getCurrencySymbol(historyBill.currency)}
+                    {Number(historyBill.currentBillDue || 0).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              {(() => {
+                const gTot = Number(historyBill.gTotal || historyBill.total || 0);
+                const paid = Number(historyBill.cashIn || 0);
+                const pct = gTot > 0 ? Math.min(100, Math.round((paid / gTot) * 100)) : 100;
+                return (
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-medium">
+                      <span className="text-muted-foreground">Payment Progress</span>
+                      <span className="font-bold text-primary">{pct}%</span>
+                    </div>
+                    <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-500 transition-all duration-300"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Installments */}
+              <div className="space-y-2.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold">
+                    Payment Installments ({historyInstallments.length})
+                  </span>
+                  <span className="text-xs text-muted-foreground">Step-by-step transaction logs</span>
+                </div>
+
+                {historyLoading ? (
+                  <div className="py-8 flex justify-center">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  </div>
+                ) : historyInstallments.length === 0 ? (
+                  <div className="p-6 text-center rounded-xl border border-dashed text-sm text-muted-foreground">
+                    No payment installments recorded yet.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {historyInstallments.map((inst: any, i: number) => (
+                      <div
+                        key={inst.txId || i}
+                        className="p-3 rounded-xl border bg-card flex flex-wrap items-center justify-between gap-3"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0">
+                            #{inst.installmentNo}
+                          </div>
+                          <div>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="font-semibold text-sm">{inst.description}</span>
+                              {i === 0 && (
+                                <Badge variant="secondary" className="text-[10px] h-5 bg-emerald-100 text-emerald-700">
+                                  Latest
+                                </Badge>
+                              )}
+                              <Badge variant="outline" className="text-[10px] h-5">
+                                {inst.method}
+                              </Badge>
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              {new Date(inst.date).toLocaleString()} • Remaining Due:{" "}
+                              <span className="text-rose-500 font-semibold">
+                                {getCurrencySymbol(historyBill.currency)}
+                                {Number(inst.remainingDueAfter || 0).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <div className="font-bold text-emerald-600 text-sm">
+                              + {getCurrencySymbol(historyBill.currency)}
+                              {Number(inst.amount || 0).toLocaleString()}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground">
+                              Total paid so far: {getCurrencySymbol(historyBill.currency)}
+                              {Number(inst.cumulativePaid || 0).toLocaleString()}
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="gap-1.5 h-8"
+                            onClick={() =>
+                              generatePaymentReceiptPDF(
+                                historyBill,
+                                {},
+                                inst.amount,
+                                inst.date,
+                                inst.txId
+                              )
+                            }
+                          >
+                            <Printer className="w-3.5 h-3.5" />
+                            Receipt
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter className="flex justify-between sm:justify-between pt-2 border-t">
+                <Button type="button" variant="outline" onClick={() => setIsHistoryOpen(false)}>
+                  Close
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => generateBillPDF(historyBill, {}, "download")}
+                  className="gap-1.5"
+                >
+                  <Eye className="w-4 h-4" />
+                  View Full Bill
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Collect Next Payment Modal */}
+      <Dialog open={isCollectOpen} onOpenChange={setIsCollectOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Collect Payment — #{historyBill?.invoiceNo}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleCollectPaymentSubmit} className="space-y-4 py-2">
+            <div className="p-3 rounded-lg bg-muted/40 border text-xs flex justify-between">
+              <span>Remaining Due:</span>
+              <strong className="text-rose-600">
+                {getCurrencySymbol(historyBill?.currency)}
+                {Number(historyBill?.currentBillDue || 0).toLocaleString()}
+              </strong>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Payment Amount *</Label>
+              <Input
+                type="number"
+                min={1}
+                value={collectAmount}
+                onChange={(e) => setCollectAmount(Math.max(0, Number(e.target.value)))}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Payment Method</Label>
+              <Select value={collectMethod} onValueChange={setCollectMethod}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cash">Cash in Hand</SelectItem>
+                  <SelectItem value="bKash">bKash</SelectItem>
+                  <SelectItem value="Nagad">Nagad</SelectItem>
+                  <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="Card">Card / Online</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Note (Optional)</Label>
+              <Input
+                placeholder="e.g., 2nd installment via bKash"
+                value={collectNote}
+                onChange={(e) => setCollectNote(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsCollectOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={collectLoading}>
+                {collectLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Save Payment
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

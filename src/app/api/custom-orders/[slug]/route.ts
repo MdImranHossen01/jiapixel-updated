@@ -219,6 +219,16 @@ export async function PUT(
             "title",
             "description",
             "status",
+            "clientName",
+            "clientEmail",
+            "clientPhone",
+            "clientAddress",
+            "businessName",
+            "items",
+            "serviceCharge",
+            "discountType",
+            "discountValue",
+            "discount",
             "price",
             "currency",
             "dueDate",
@@ -227,6 +237,7 @@ export async function PUT(
             "adminNote",
             "paymentLink",
             "requirementsLink",
+            "convertedBillId",
         ];
 
         const sanitizedUpdate: any = {};

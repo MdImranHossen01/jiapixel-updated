@@ -27,21 +27,44 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, FileText, CheckCircle, RefreshCcw, DollarSign, PackageCheck, Copy, Trash2, Edit, Search, Filter, Clock, XCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { MoreHorizontal, FileText, CheckCircle, RefreshCcw, DollarSign, Copy, Trash2, Edit, Search, Filter, Clock, XCircle, Printer, Receipt, Files, Truck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import ClientAutoSuggestFields from "@/components/admin/ClientAutoSuggestFields";
+import ProposalItemsSection, { OfferItemInput } from "@/components/admin/ProposalItemsSection";
+import { generateBillPDF } from "@/lib/bill-invoice-generator";
 
 interface CustomOrder {
     _id: string;
     shareableSlug: string;
     title: string;
+    description?: string;
     client: { name: string; email: string; } | string;
+    clientName?: string;
+    clientEmail?: string;
+    clientPhone?: string;
+    clientAddress?: string;
+    businessName?: string;
+    items?: OfferItemInput[];
+    serviceCharge?: number;
+    discountType?: "fixed" | "percentage";
+    discountValue?: number;
+    discount?: number;
+    convertedBillId?: string;
     admin: { name: string; email: string; } | string;
     status: "proposed" | "accepted" | "pending" | "paid" | "processing" | "delivered" | "under review" | "completed" | "canceled";
     price?: number;
     currency?: "USD" | "BDT";
     dueDate?: string;
     renewDate?: string;
+    renewPrice?: number;
+    adminNote?: string;
+    paymentLink?: string;
+    requirementsLink?: string;
     createdAt: string;
 }
 
@@ -51,16 +74,52 @@ const ALL_STATUSES = [
 ];
 
 const ManageCustomOrdersClient = () => {
+    const router = useRouter();
     const [orders, setOrders] = useState<CustomOrder[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [suggestions, setSuggestions] = useState<any[]>([]);
+    const [projects, setProjects] = useState<any[]>([]);
+
+    // Duplicate Modal State
+    const [dupOrder, setDupOrder] = useState<CustomOrder | null>(null);
+    const [dupLoading, setDupLoading] = useState(false);
+    const [dupClientName, setDupClientName] = useState("");
+    const [dupClientEmail, setDupClientEmail] = useState("");
+    const [dupClientPhone, setDupClientPhone] = useState("");
+    const [dupClientAddress, setDupClientAddress] = useState("");
+    const [dupBusinessName, setDupBusinessName] = useState("");
+
+    // Convert to Bill Modal State
+    const [convertOrder, setConvertOrder] = useState<CustomOrder | null>(null);
+    const [convertLoading, setConvertLoading] = useState(false);
+    const [billClientName, setBillClientName] = useState("");
+    const [billClientEmail, setBillClientEmail] = useState("");
+    const [billClientPhone, setBillClientPhone] = useState("");
+    const [billClientAddress, setBillClientAddress] = useState("");
+    const [billBusinessName, setBillBusinessName] = useState("");
+    const [billItems, setBillItems] = useState<OfferItemInput[]>([{ name: "", quantity: 1, price: 0 }]);
+    const [billServiceCharge, setBillServiceCharge] = useState(0);
+    const [billDiscountType, setBillDiscountType] = useState<"fixed" | "percentage">("fixed");
+    const [billDiscountValue, setBillDiscountValue] = useState(0);
+    const [billPrevDue, setBillPrevDue] = useState(0);
+    const [billCashIn, setBillCashIn] = useState(0);
+    const [billCurrency, setBillCurrency] = useState<"BDT" | "USD">("BDT");
+    const [billRenewDate, setBillRenewDate] = useState("");
+    const [billRenewFee, setBillRenewFee] = useState(0);
+    const [billAdminNote, setBillAdminNote] = useState("");
 
     const filteredOrders = orders.filter(order => {
+        const q = searchTerm.toLowerCase();
         const matchesSearch =
-            order.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (typeof order.client === 'object' && order.client?.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (typeof order.client === 'object' && order.client?.email?.toLowerCase().includes(searchTerm.toLowerCase()));
+            order.title.toLowerCase().includes(q) ||
+            (order.clientName || "").toLowerCase().includes(q) ||
+            (order.clientEmail || "").toLowerCase().includes(q) ||
+            (order.clientPhone || "").toLowerCase().includes(q) ||
+            (order.businessName || "").toLowerCase().includes(q) ||
+            (typeof order.client === 'object' && order.client?.name?.toLowerCase().includes(q)) ||
+            (typeof order.client === 'object' && order.client?.email?.toLowerCase().includes(q));
 
         const matchesStatus = statusFilter === "all" || order.status === statusFilter;
 
@@ -85,6 +144,14 @@ const ManageCustomOrdersClient = () => {
 
     useEffect(() => {
         fetchOrders();
+        fetch("/api/admin/suggest-clients")
+            .then((r) => r.ok ? r.json() : null)
+            .then((res) => { if (res?.success) setSuggestions(res.data || []); })
+            .catch(() => {});
+        fetch("/api/projects?limit=100")
+            .then((r) => r.ok ? r.json() : null)
+            .then((res) => { if (res?.projects) setProjects(res.projects); })
+            .catch(() => {});
     }, []);
 
     const handleStatusChange = async (slug: string, status: string) => {
@@ -107,7 +174,15 @@ const ManageCustomOrdersClient = () => {
     };
 
     const handleDelete = async (slug: string) => {
-        if (!confirm("Are you sure you want to delete this custom order? This action cannot be undone.")) return;
+        const confirmRes = await Swal.fire({
+            title: "Delete Offer?",
+            text: "Are you sure you want to delete this offer? This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc2626",
+            confirmButtonText: "Yes, delete it",
+        });
+        if (!confirmRes.isConfirmed) return;
 
         try {
             const res = await fetch(`/api/custom-orders/${slug}`, {
@@ -115,14 +190,270 @@ const ManageCustomOrdersClient = () => {
             });
 
             if (res.ok) {
-                toast.success("Custom order deleted successfully");
+                toast.success("Offer deleted successfully");
                 fetchOrders();
             } else {
-                toast.error("Failed to delete custom order");
+                toast.error("Failed to delete offer");
             }
         } catch (error) {
             toast.error("An error occurred while deleting the order");
         }
+    };
+
+    const getOrderItems = (order: CustomOrder): OfferItemInput[] => {
+        if (Array.isArray(order.items) && order.items.length > 0) {
+            return order.items.map((it) => ({
+                name: it.name || "",
+                description: it.description || "",
+                quantity: Number(it.quantity || 1),
+                price: Number(it.price || 0),
+                link: it.link || "",
+            }));
+        }
+        return [{ name: order.title || "Custom Service", quantity: 1, price: Number(order.price || 0), link: "" }];
+    };
+
+    const handleDownloadOfferPDF = (order: CustomOrder) => {
+        const items = getOrderItems(order);
+        const subtotal = items.reduce((s, it) => s + Number(it.price || 0) * Number(it.quantity || 1), 0);
+        const sc = Number(order.serviceCharge || 0);
+        const disc = Number(order.discount || 0);
+        const total = Math.max(0, subtotal + sc - disc);
+        const clientDisplay = getOrderClientDisplay(order);
+
+        generateBillPDF(
+            {
+                ...order,
+                documentType: "offer",
+                clientName: clientDisplay.name === "Unassigned" ? "Valued Client" : clientDisplay.name,
+                clientEmail: order.clientEmail || (typeof order.client === "object" ? order.client?.email : ""),
+                clientPhone: order.clientPhone || "",
+                clientAddress: order.clientAddress || "",
+                businessName: order.businessName || "",
+                items,
+                subtotal,
+                serviceCharge: sc,
+                discountType: order.discountType || "fixed",
+                discountValue: order.discountValue || 0,
+                discount: disc,
+                total,
+            },
+            {},
+            "download"
+        );
+    };
+
+    const openDuplicateModal = (order: CustomOrder) => {
+        setDupOrder(order);
+        setDupClientName("");
+        setDupClientEmail("");
+        setDupClientPhone("");
+        setDupClientAddress("");
+        setDupBusinessName("");
+    };
+
+    const handleDuplicateSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!dupOrder) return;
+        if (!dupClientName.trim() || !dupClientEmail.trim() || !dupClientPhone.trim() || !dupClientAddress.trim()) {
+            toast.error("Please fill in all required Client Information fields.");
+            return;
+        }
+        setDupLoading(true);
+        try {
+            const res = await fetch("/api/custom-orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: dupOrder.title,
+                    description: dupOrder.description || "",
+                    clientName: dupClientName,
+                    clientEmail: dupClientEmail,
+                    clientPhone: dupClientPhone,
+                    clientAddress: dupClientAddress,
+                    businessName: dupBusinessName,
+                    items: getOrderItems(dupOrder),
+                    serviceCharge: dupOrder.serviceCharge || 0,
+                    discountType: dupOrder.discountType || "fixed",
+                    discountValue: dupOrder.discountValue || 0,
+                    discount: dupOrder.discount || 0,
+                    price: dupOrder.price,
+                    currency: dupOrder.currency || "BDT",
+                    dueDate: dupOrder.dueDate,
+                    renewDate: dupOrder.renewDate,
+                    renewPrice: dupOrder.renewPrice,
+                    adminNote: dupOrder.adminNote,
+                    paymentLink: dupOrder.paymentLink,
+                    requirementsLink: dupOrder.requirementsLink,
+                }),
+            });
+            if (res.ok) {
+                toast.success("Offer duplicated with new client!");
+                setDupOrder(null);
+                fetchOrders();
+            } else {
+                const err = await res.json();
+                toast.error(err.error || "Failed to duplicate offer");
+            }
+        } catch {
+            toast.error("Failed to duplicate offer");
+        } finally {
+            setDupLoading(false);
+        }
+    };
+
+    const openConvertToBillModal = (order: CustomOrder) => {
+        setConvertOrder(order);
+        const clientObj = typeof order.client === "object" && order.client !== null ? order.client : null;
+        setBillClientName(order.clientName || clientObj?.name || "");
+        setBillClientEmail(order.clientEmail || clientObj?.email || "");
+        setBillClientPhone(order.clientPhone || "");
+        setBillClientAddress(order.clientAddress || "");
+        setBillBusinessName(order.businessName || "");
+        setBillItems(getOrderItems(order));
+        setBillServiceCharge(Number(order.serviceCharge || 0));
+        setBillDiscountType(order.discountType || "fixed");
+        setBillDiscountValue(Number(order.discountValue || 0));
+        setBillPrevDue(0);
+        setBillCashIn(0);
+        setBillCurrency(order.currency || "BDT");
+        setBillRenewDate(order.renewDate ? new Date(order.renewDate).toISOString().split("T")[0] : "");
+        setBillRenewFee(Number(order.renewPrice || 0));
+        setBillAdminNote(order.adminNote || "");
+    };
+
+    const billSubtotal = billItems.reduce((s, it) => s + Number(it.price || 0) * Number(it.quantity || 1), 0);
+    const billDiscountAmount =
+        billDiscountType === "percentage"
+            ? Math.round(((billSubtotal + billServiceCharge) * billDiscountValue) / 100)
+            : billDiscountValue;
+    const billTotal = Math.max(0, billSubtotal + billServiceCharge - billDiscountAmount);
+    const billGrandTotal = billTotal + billPrevDue;
+    const billDue = Math.max(0, billGrandTotal - billCashIn);
+
+    const handleConvertToBillSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!convertOrder) return;
+        if (!billClientName.trim() || !billClientEmail.trim() || !billClientPhone.trim() || !billClientAddress.trim()) {
+            toast.error("Please fill in all required client details");
+            return;
+        }
+        if (billItems.some((it) => !it.name.trim() || it.quantity < 1 || it.price < 0)) {
+            toast.error("Please complete all service items correctly");
+            return;
+        }
+        setConvertLoading(true);
+        try {
+            const res = await fetch("/api/admin/bills", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    clientName: billClientName,
+                    clientEmail: billClientEmail,
+                    clientPhone: billClientPhone,
+                    clientAddress: billClientAddress,
+                    businessName: billBusinessName,
+                    items: billItems,
+                    subtotal: billSubtotal,
+                    serviceCharge: billServiceCharge,
+                    discountType: billDiscountType,
+                    discountValue: billDiscountValue,
+                    discount: billDiscountAmount,
+                    total: billTotal,
+                    prevDue: billPrevDue,
+                    gTotal: billGrandTotal,
+                    cashIn: billCashIn,
+                    currentBillDue: billDue,
+                    status: billDue <= 0 ? "Paid" : "Due",
+                    currency: billCurrency,
+                    renewDate: billRenewDate ? new Date(billRenewDate) : undefined,
+                    renewFee: billRenewFee,
+                    adminNote: billAdminNote,
+                    documentType: "bill",
+                    convertedFromCustomOrder: convertOrder._id,
+                }),
+            });
+            if (res.ok) {
+                const newBill = await res.json();
+                setConvertOrder(null);
+                fetchOrders();
+                const go = await Swal.fire({
+                    title: "Converted to Client Bill!",
+                    text: `Invoice #${newBill.invoiceNo} has been created.`,
+                    icon: "success",
+                    showCancelButton: true,
+                    confirmButtonText: "Go to Manage Bills",
+                    cancelButtonText: "Stay Here",
+                });
+                if (go.isConfirmed) {
+                    router.push("/dashboard/admin/manage-bills");
+                }
+            } else {
+                const err = await res.json();
+                toast.error(err.message || "Failed to convert to bill");
+            }
+        } catch {
+            toast.error("Error creating client bill");
+        } finally {
+            setConvertLoading(false);
+        }
+    };
+
+    const handleCreateChalanFromOffer = async (order: CustomOrder) => {
+        const clientObj = typeof order.client === "object" && order.client !== null ? order.client : null;
+        const cName = order.clientName || clientObj?.name || "";
+        const cPhone = order.clientPhone || "";
+        const cAddr = order.clientAddress || "";
+        if (!cName || !cPhone || !cAddr) {
+            toast.error("Client Name, Phone and Address are required to create a Chalan. Please edit the offer first.");
+            return;
+        }
+        try {
+            const items = getOrderItems(order);
+            const res = await fetch("/api/admin/bills", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    clientName: cName,
+                    clientEmail: order.clientEmail || clientObj?.email || "",
+                    clientPhone: cPhone,
+                    clientAddress: cAddr,
+                    businessName: order.businessName || "",
+                    items,
+                    subtotal: 0,
+                    total: 0,
+                    gTotal: 0,
+                    status: "Paid",
+                    currency: order.currency || "BDT",
+                    documentType: "chalan",
+                    expectedDeliveryDate: order.dueDate || undefined,
+                    convertedFromCustomOrder: order._id,
+                }),
+            });
+            if (res.ok) {
+                const chalan = await res.json();
+                toast.success(`Delivery Chalan ${chalan.invoiceNo} created!`);
+                generateBillPDF(chalan, {}, "download");
+            } else {
+                const err = await res.json();
+                toast.error(err.message || "Failed to create Delivery Chalan");
+            }
+        } catch {
+            toast.error("Error creating Delivery Chalan");
+        }
+    };
+
+    const getOrderClientDisplay = (order: CustomOrder) => {
+        if (order.clientName) {
+            return {
+                name: order.clientName,
+                email: order.clientEmail || order.clientPhone || "",
+            };
+        }
+        if (typeof order.client === 'object' && order.client !== null && 'name' in order.client) {
+            return { name: order.client.name, email: order.client.email };
+        }
+        return { name: 'Unassigned', email: 'Waiting for client...' };
     };
 
     const getStatusVariant = (status: CustomOrder["status"]) => {
@@ -245,7 +576,7 @@ const ManageCustomOrdersClient = () => {
                             </TableRow>
                         ) : (
                             filteredOrders.map((order) => {
-                                const clientInfo = getUserDisplay(order.client);
+                                const clientInfo = getOrderClientDisplay(order);
 
                                 return (
                                     <TableRow key={order._id}>
@@ -298,8 +629,21 @@ const ManageCustomOrdersClient = () => {
                                                         <MoreHorizontal className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-48">
+                                                <DropdownMenuContent align="end" className="w-56">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => openConvertToBillModal(order)} className="text-emerald-600 font-medium cursor-pointer">
+                                                        <Receipt className="mr-2 h-4 w-4" /> Convert to Client Bill
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => openDuplicateModal(order)} className="text-blue-600 font-medium cursor-pointer">
+                                                        <Files className="mr-2 h-4 w-4" /> Duplicate Offer
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleDownloadOfferPDF(order)} className="cursor-pointer">
+                                                        <Printer className="mr-2 h-4 w-4" /> Download Quotation PDF
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleCreateChalanFromOffer(order)} className="cursor-pointer">
+                                                        <Truck className="mr-2 h-4 w-4" /> Create Delivery Chalan
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
                                                     <DropdownMenuItem asChild>
                                                         <Link href={`/dashboard/admin/manage-custom-orders/edit/${order.shareableSlug}`}>
                                                             <Edit className="mr-2 h-4 w-4" /> Edit Order Details
@@ -346,6 +690,136 @@ const ManageCustomOrdersClient = () => {
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Duplicate Offer Modal (Change Client Only) */}
+            <Dialog open={!!dupOrder} onOpenChange={(o) => !o && setDupOrder(null)}>
+                <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Duplicate Offer for Another Client</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleDuplicateSubmit} className="space-y-4 py-2">
+                        <div className="p-3 rounded-lg bg-muted/40 border text-sm">
+                            <div className="font-semibold">Copying Offer: {dupOrder?.title}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                                All services, pricing, and proposal scope will be copied. Select or enter the new client below.
+                            </div>
+                        </div>
+                        <ClientAutoSuggestFields
+                            clientName={dupClientName}
+                            setClientName={setDupClientName}
+                            clientEmail={dupClientEmail}
+                            setClientEmail={setDupClientEmail}
+                            clientPhone={dupClientPhone}
+                            setClientPhone={setDupClientPhone}
+                            clientAddress={dupClientAddress}
+                            setClientAddress={setDupClientAddress}
+                            businessName={dupBusinessName}
+                            setBusinessName={setDupBusinessName}
+                            suggestions={suggestions}
+                        />
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setDupOrder(null)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={dupLoading}>
+                                {dupLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                Save New Offer
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Convert to Client Bill Modal */}
+            <Dialog open={!!convertOrder} onOpenChange={(o) => !o && setConvertOrder(null)}>
+                <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Convert Offer to Client Bill</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleConvertToBillSubmit} className="space-y-5 py-2">
+                        <ClientAutoSuggestFields
+                            clientName={billClientName}
+                            setClientName={setBillClientName}
+                            clientEmail={billClientEmail}
+                            setClientEmail={setBillClientEmail}
+                            clientPhone={billClientPhone}
+                            setClientPhone={setBillClientPhone}
+                            clientAddress={billClientAddress}
+                            setClientAddress={setBillClientAddress}
+                            businessName={billBusinessName}
+                            setBusinessName={setBillBusinessName}
+                            suggestions={suggestions}
+                        />
+
+                        <ProposalItemsSection
+                            items={billItems}
+                            setItems={setBillItems}
+                            serviceCharge={billServiceCharge}
+                            setServiceCharge={setBillServiceCharge}
+                            discountType={billDiscountType}
+                            setDiscountType={setBillDiscountType}
+                            discountValue={billDiscountValue}
+                            setDiscountValue={setBillDiscountValue}
+                            currency={billCurrency}
+                            projects={projects}
+                        />
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-muted/30 p-4 rounded-xl border">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Previous Due</Label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    value={billPrevDue}
+                                    onChange={(e) => setBillPrevDue(Math.max(0, Number(e.target.value)))}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Paid Amount (Cash In)</Label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    value={billCashIn}
+                                    onChange={(e) => setBillCashIn(Math.max(0, Number(e.target.value)))}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Renew Date</Label>
+                                <Input
+                                    type="date"
+                                    value={billRenewDate}
+                                    onChange={(e) => setBillRenewDate(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Renew Fee</Label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    value={billRenewFee}
+                                    onChange={(e) => setBillRenewFee(Math.max(0, Number(e.target.value)))}
+                                />
+                            </div>
+                            <div className="md:col-span-4 flex flex-wrap justify-between items-center pt-2 border-t text-sm">
+                                <span>Grand Total: <strong>{billCurrency === "USD" ? "$" : "৳"}{billGrandTotal.toLocaleString()}</strong></span>
+                                <span className={billDue > 0 ? "text-red-600 font-bold" : "text-emerald-600 font-bold"}>
+                                    Remaining Due: {billCurrency === "USD" ? "$" : "৳"}{billDue.toLocaleString()} ({billDue <= 0 ? "Paid" : "Due"})
+                                </span>
+                            </div>
+                        </div>
+
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setConvertOrder(null)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={convertLoading}>
+                                {convertLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                Create Client Bill
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

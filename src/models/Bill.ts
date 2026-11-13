@@ -2,15 +2,24 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export interface IBillItem {
   name: string;
+  description?: string;
   quantity: number;
   price: number;
   link?: string;
 }
 
+export interface IBillPayment {
+  _id?: mongoose.Types.ObjectId;
+  amount: number;
+  date: Date;
+  method?: string;
+  note?: string;
+}
+
 export interface IBill extends Document {
   clientName: string;
-  clientEmail: string;
   clientPhone: string;
+  clientEmail?: string;
   clientAddress: string;
   businessName?: string;
   invoiceNo: string;
@@ -31,6 +40,13 @@ export interface IBill extends Document {
   renewDate?: Date;
   renewFee?: number;
   adminNote?: string;
+  documentType?: 'bill' | 'chalan';
+  convertedFromCustomOrder?: mongoose.Types.ObjectId | string;
+  expectedDeliveryDate?: Date | string;
+  expectedReceivableDate?: Date;
+  termsAndConditions?: string;
+  vatTaxIncluded?: boolean;
+  payments?: IBillPayment[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +54,7 @@ export interface IBill extends Document {
 const BillSchema: Schema<IBill> = new Schema(
   {
     clientName: { type: String, required: true },
-    clientEmail: { type: String, required: true },
+    clientEmail: { type: String, required: false, default: "" },
     clientPhone: { type: String, required: true },
     clientAddress: { type: String, required: true },
     businessName: { type: String },
@@ -47,6 +63,7 @@ const BillSchema: Schema<IBill> = new Schema(
     items: [
       {
         name: { type: String, required: true },
+        description: { type: String },
         quantity: { type: Number, required: true, min: 1 },
         price: { type: Number, required: true, min: 0 },
         link: { type: String },
@@ -67,6 +84,20 @@ const BillSchema: Schema<IBill> = new Schema(
     renewDate: { type: Date },
     renewFee: { type: Number, default: 0 },
     adminNote: { type: String, default: "" },
+    documentType: { type: String, enum: ['bill', 'chalan'], default: 'bill' },
+    convertedFromCustomOrder: { type: Schema.Types.ObjectId, ref: 'CustomOrder' },
+    expectedDeliveryDate: { type: Schema.Types.Mixed },
+    expectedReceivableDate: { type: Date },
+    termsAndConditions: { type: String },
+    vatTaxIncluded: { type: Boolean, default: true },
+    payments: [
+      {
+        amount: { type: Number, required: true, min: 0 },
+        date: { type: Date, default: Date.now },
+        method: { type: String, default: 'Cash' },
+        note: { type: String, default: '' },
+      },
+    ],
   },
   { timestamps: true }
 );

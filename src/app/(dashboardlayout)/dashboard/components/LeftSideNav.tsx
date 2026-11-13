@@ -264,11 +264,13 @@ const LeftSideNav = () => {
       ],
     },
     {
-      title: 'Orders & Requests',
+      title: 'Orders & Bills',
       icon: ShoppingBag,
       adminOnly: true,
       items: [
-        { name: 'Custom Orders', href: '/dashboard/admin/manage-custom-orders' },
+        { name: 'Custom Orders (Offers)', href: '/dashboard/admin/manage-custom-orders' },
+        { name: 'Manage Bills', href: '/dashboard/admin/manage-bills' },
+        { name: 'Delivery Chalans', href: '/dashboard/admin/chalans' },
         { name: 'E-Commerce Orders', href: '/dashboard/admin/manage-orders' },
         { name: 'Landing Requests', href: '/dashboard/admin/manage-requests' },
       ],
@@ -278,7 +280,10 @@ const LeftSideNav = () => {
       icon: CreditCard,
       adminOnly: true,
       items: [
-        { name: 'Manage Bills', href: '/dashboard/admin/manage-bills' },
+        { name: 'All Accounts', href: '/dashboard/admin/accounts' },
+        { name: 'Accounts Ledger', href: '/dashboard/admin/ledger' },
+        { name: 'Account Payable', href: '/dashboard/admin/ledger/payable' },
+        { name: 'Account Receivable', href: '/dashboard/admin/ledger/receivable' },
         { name: 'Manage Payments', href: '/dashboard/admin/manage-payments' },
         { name: 'Manage Costs', href: '/dashboard/admin/cost' },
       ],

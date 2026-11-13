@@ -17,14 +17,15 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import ClientAutoSuggestFields from "@/components/admin/ClientAutoSuggestFields";
+import ProposalItemsSection, { OfferItemInput } from "@/components/admin/ProposalItemsSection";
 
 export default function CreateCustomOrderPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [price, setPrice] = useState("");
-    const [currency, setCurrency] = useState("USD");
+    const [currency, setCurrency] = useState("BDT");
     const [dueDate, setDueDate] = useState("");
     const [renewDate, setRenewDate] = useState("");
     const [renewPrice, setRenewPrice] = useState("");
@@ -32,10 +33,51 @@ export default function CreateCustomOrderPage() {
     const [paymentLink, setPaymentLink] = useState("https://www.jiapixel.com/pay");
     const [requirementsLink, setRequirementsLink] = useState("");
 
+    // Client Info
+    const [clientName, setClientName] = useState("");
+    const [clientEmail, setClientEmail] = useState("");
+    const [clientPhone, setClientPhone] = useState("");
+    const [clientAddress, setClientAddress] = useState("");
+    const [businessName, setBusinessName] = useState("");
+    const [suggestions, setSuggestions] = useState<any[]>([]);
+    const [projects, setProjects] = useState<any[]>([]);
+
+    // Multiple Items
+    const [items, setItems] = useState<OfferItemInput[]>([{ name: "", quantity: 1, price: 0, link: "" }]);
+    const [serviceCharge, setServiceCharge] = useState<number>(0);
+    const [discountType, setDiscountType] = useState<"fixed" | "percentage">("fixed");
+    const [discountValue, setDiscountValue] = useState<number>(0);
+
+    useEffect(() => {
+        fetch("/api/admin/suggest-clients")
+            .then((r) => r.ok ? r.json() : null)
+            .then((res) => { if (res?.success) setSuggestions(res.data || []); })
+            .catch(() => {});
+        fetch("/api/projects?limit=100")
+            .then((r) => r.ok ? r.json() : null)
+            .then((res) => { if (res?.projects) setProjects(res.projects); })
+            .catch(() => {});
+    }, []);
+
+    const subtotal = items.reduce((sum, it) => sum + Number(it.price || 0) * Number(it.quantity || 1), 0);
+    const discountAmount =
+        discountType === "percentage"
+            ? Math.round(((subtotal + serviceCharge) * discountValue) / 100)
+            : discountValue;
+    const calculatedTotal = Math.max(0, subtotal + serviceCharge - discountAmount);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!title.trim()) {
-            toast.error("Title is required.");
+            toast.error("Project Title is required.");
+            return;
+        }
+        if (!clientName.trim() || !clientEmail.trim() || !clientPhone.trim() || !clientAddress.trim()) {
+            toast.error("Please fill in all required Client Information fields.");
+            return;
+        }
+        if (items.some((it) => !it.name.trim() || it.quantity < 1 || it.price < 0)) {
+            toast.error("Please complete all service items correctly.");
             return;
         }
 
@@ -50,7 +92,17 @@ export default function CreateCustomOrderPage() {
             const payload = {
                 title,
                 description,
-                price: price !== "" && price !== undefined ? Number(price) : undefined,
+                clientName,
+                clientEmail,
+                clientPhone,
+                clientAddress,
+                businessName,
+                items,
+                serviceCharge,
+                discountType,
+                discountValue,
+                discount: discountAmount,
+                price: calculatedTotal,
                 currency,
                 dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
                 renewDate: renewDate ? new Date(renewDate).toISOString() : undefined,
@@ -101,14 +153,49 @@ export default function CreateCustomOrderPage() {
                 <div className="grid grid-cols-1 gap-6">
                     <div className="space-y-6">
 
+                        {/* Client Information */}
+                        <div className="bg-card rounded-lg shadow p-6 border border-border space-y-4">
+                            <div>
+                                <h3 className="text-lg font-semibold text-card-foreground">Client Information <span className="text-red-500">*</span></h3>
+                                <p className="text-xs text-muted-foreground">Type name, email or phone to auto-fill from existing clients</p>
+                            </div>
+                            <ClientAutoSuggestFields
+                                clientName={clientName}
+                                setClientName={setClientName}
+                                clientEmail={clientEmail}
+                                setClientEmail={setClientEmail}
+                                clientPhone={clientPhone}
+                                setClientPhone={setClientPhone}
+                                clientAddress={clientAddress}
+                                setClientAddress={setClientAddress}
+                                businessName={businessName}
+                                setBusinessName={setBusinessName}
+                                suggestions={suggestions}
+                            />
+                        </div>
+
+                        {/* Multiple Services / Items */}
+                        <ProposalItemsSection
+                            items={items}
+                            setItems={setItems}
+                            serviceCharge={serviceCharge}
+                            setServiceCharge={setServiceCharge}
+                            discountType={discountType}
+                            setDiscountType={setDiscountType}
+                            discountValue={discountValue}
+                            setDiscountValue={setDiscountValue}
+                            currency={currency}
+                            projects={projects}
+                        />
+
                         {/* Basic Details */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">Project Title <span className="text-red-500">*</span></Label>
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">Offer / Project Title <span className="text-red-500">*</span></Label>
                                     <Input
                                         id="title"
-                                        placeholder="e.g., E-commerce Redesign"
+                                        placeholder="e.g., E-commerce Redesign & Marketing Package"
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
                                         required
@@ -123,28 +210,10 @@ export default function CreateCustomOrderPage() {
                                             <SelectValue placeholder="Select Currency" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-card border border-border">
-                                            <SelectItem value="USD">USD ($)</SelectItem>
                                             <SelectItem value="BDT">BDT (৳)</SelectItem>
+                                            <SelectItem value="USD">USD ($)</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="price" className="block text-sm font-medium text-card-foreground mb-2">Total Price / Estimate ({currency === "USD" ? "$" : "৳"})</Label>
-                                    <Input
-                                        id="price"
-                                        type="number"
-                                        min={0}
-                                        placeholder={currency === "USD" ? "e.g., 2500" : "e.g., 25000"}
-                                        value={price}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            if (val === "" || Number(val) >= 0) {
-                                                setPrice(val);
-                                            }
-                                        }}
-                                        className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
-                                    />
                                 </div>
                             </div>
 

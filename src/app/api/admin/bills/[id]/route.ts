@@ -90,7 +90,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       renewFee,
       currency,
       adminNote,
+      expectedDeliveryDate,
+      expectedReceivableDate,
+      termsAndConditions,
+      vatTaxIncluded,
+      paymentMethod,
+      paymentNote,
     } = body;
+
+    const prevCashIn = Number(bill.cashIn || 0);
 
     if (clientName !== undefined) bill.clientName = clientName;
     if (clientEmail !== undefined) bill.clientEmail = clientEmail;
@@ -113,10 +121,36 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (renewDate !== undefined) bill.renewDate = renewDate ? new Date(renewDate) : undefined;
     if (renewFee !== undefined) bill.renewFee = Number(renewFee);
     if (adminNote !== undefined) bill.adminNote = adminNote;
+    if (expectedDeliveryDate !== undefined) bill.expectedDeliveryDate = expectedDeliveryDate;
+    if (expectedReceivableDate !== undefined) bill.expectedReceivableDate = expectedReceivableDate ? new Date(expectedReceivableDate) : undefined;
+    if (termsAndConditions !== undefined) bill.termsAndConditions = termsAndConditions;
+    if (vatTaxIncluded !== undefined) bill.vatTaxIncluded = vatTaxIncluded;
 
-    if (status === "Paid") {
+    if (status === "Paid" && cashIn === undefined) {
       bill.currentBillDue = 0;
       bill.cashIn = bill.gTotal;
+    }
+
+    const newCashIn = Number(bill.cashIn || 0);
+    const deltaPayment = Math.round((newCashIn - prevCashIn) * 100) / 100;
+    if (deltaPayment > 0 && (bill.documentType || "bill") === "bill") {
+      if (!Array.isArray(bill.payments)) {
+        bill.payments = [];
+      }
+      if (bill.payments.length === 0 && prevCashIn > 0) {
+        bill.payments.push({
+          amount: prevCashIn,
+          date: bill.date || bill.createdAt || new Date(),
+          method: "Cash",
+          note: "Initial Payment",
+        });
+      }
+      bill.payments.push({
+        amount: deltaPayment,
+        date: new Date(),
+        method: paymentMethod || "Cash",
+        note: paymentNote || "Payment Received",
+      });
     }
 
     if (bill.clientEmail) {
