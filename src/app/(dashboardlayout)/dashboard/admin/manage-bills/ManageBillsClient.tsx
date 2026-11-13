@@ -676,52 +676,80 @@ export default function ManageBillsClient() {
 
   const printInvoice = () => {
     const printContent = document.getElementById("invoice-print-area")?.innerHTML;
-    const originalContent = document.body.innerHTML;
+    if (!printContent) return;
 
-    if (printContent) {
-      const win = window.open("", "_blank");
-      if (win) {
-        win.document.write(`
-          <html>
-            <head>
-              <title>Invoice - ${selectedBill?.invoiceNo}</title>
-              <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-              <style>
-                @page {
-                  size: A4;
-                  margin: 0.5in;
-                }
-                * { box-sizing: border-box; }
-                body {
-                  font-family: sans-serif;
-                  margin: 0;
-                  padding: 0;
-                  -webkit-print-color-adjust: exact;
-                  print-color-adjust: exact;
-                }
-                #invoice-print-area {
-                  padding: 0 !important;
-                  border: none !important;
-                  box-shadow: none !important;
-                }
-                .text-primary { color: oklch(0.648 0.2 131.684); }
-                .text-rose-600 { color: #dc2626 !important; }
-                .text-emerald-600 { color: #059669 !important; }
-                @media print {
-                  .no-print { display: none; }
-                  .text-rose-600 { color: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                  .text-emerald-600 { color: #059669 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                }
-              </style>
-            </head>
-            <body onload="window.print(); window.close();">
-              ${printContent}
-            </body>
-          </html>
-        `);
-        win.document.close();
-      }
+    const printFrame = document.createElement("iframe");
+    printFrame.style.position = "fixed";
+    printFrame.style.right = "0";
+    printFrame.style.bottom = "0";
+    printFrame.style.width = "0";
+    printFrame.style.height = "0";
+    printFrame.style.border = "0";
+    document.body.appendChild(printFrame);
+
+    const frameDoc = printFrame.contentWindow?.document;
+    if (!frameDoc) {
+      document.body.removeChild(printFrame);
+      return;
     }
+
+    frameDoc.open();
+    frameDoc.write(`
+      <html>
+        <head>
+          <title>Invoice - ${selectedBill?.invoiceNo}</title>
+          <base href="${window.location.origin}/" />
+          <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+          <style>
+            @page {
+              size: A4;
+              margin: 0.5in;
+            }
+            * { box-sizing: border-box; }
+            body {
+              font-family: sans-serif;
+              margin: 0;
+              padding: 0;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            #invoice-print-area {
+              padding: 0 !important;
+              border: none !important;
+              box-shadow: none !important;
+            }
+            .text-primary { color: oklch(0.648 0.2 131.684); }
+            .text-rose-600 { color: #dc2626 !important; }
+            .text-emerald-600 { color: #059669 !important; }
+            @media print {
+              .no-print { display: none; }
+              .text-rose-600 { color: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+              .text-emerald-600 { color: #059669 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    frameDoc.close();
+
+    let printed = false;
+    const triggerPrint = () => {
+      if (printed) return;
+      printed = true;
+      setTimeout(() => {
+        printFrame.contentWindow?.focus();
+        printFrame.contentWindow?.print();
+        setTimeout(() => {
+          if (printFrame.parentNode) document.body.removeChild(printFrame);
+        }, 1500);
+      }, 250);
+    };
+
+    printFrame.onload = triggerPrint;
+    setTimeout(triggerPrint, 1200);
   };
 
   return (
