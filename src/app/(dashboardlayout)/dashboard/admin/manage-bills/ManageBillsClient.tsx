@@ -998,11 +998,14 @@ export default function ManageBillsClient() {
                               <span>Payment History</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => generateBillPDF(bill, {}, "download")}
+                              onClick={() => {
+                                setSelectedBill(bill);
+                                setIsViewOpen(true);
+                              }}
                               className="cursor-pointer"
                             >
                               <Printer className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" />
-                              <span>Download PDF Invoice</span>
+                              <span>Print / View Invoice</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() =>
@@ -1903,7 +1906,11 @@ export default function ManageBillsClient() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => generateBillPDF(historyBill, {}, "download")}
+                  onClick={() => {
+                    setIsHistoryOpen(false);
+                    setSelectedBill(historyBill);
+                    setIsViewOpen(true);
+                  }}
                   className="gap-1.5"
                 >
                   <Eye className="w-4 h-4" />
