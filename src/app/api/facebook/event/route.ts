@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
-const ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN;
-
-export const runtime = 'edge';
+import { getEffectiveMarketingSettings } from '@/lib/marketing-settings';
 
 async function hashData(data: string): Promise<string> {
   if (!data) return '';
@@ -11,56 +7,86 @@ async function hashData(data: string): Promise<string> {
   const dataBuffer = encoder.encode(data.trim().toLowerCase());
   const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 export async function POST(request: NextRequest) {
   try {
-    if (!PIXEL_ID || !ACCESS_TOKEN) {
-      return NextResponse.json({ error: 'Missing Facebook config' }, { status: 500 });
+    const settings = await getEffectiveMarketingSettings();
+    const pixelId = settings.metaPixelId;
+    const accessToken = settings.facebookAccessToken;
+
+    if (!pixelId || !accessToken) {
+      return NextResponse.json(
+        { skipped: true, reason: 'Facebook CAPI not configured' },
+        { status: 200 }
+      );
     }
 
     const body = await request.json();
-    const { 
-      eventName = 'PageView', 
-      eventUrl, 
-      userAgent, 
-      userData = {}, 
+    const {
+      eventName = 'PageView',
+      eventUrl,
+      userAgent,
+      userData = {},
       customData: providedCustomData = {},
       testEventCode,
       eventId: providedEventId,
       ...rest
     } = body;
 
-    // Get real client IP
     const ipAddress =
       request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
       request.headers.get('x-real-ip') ||
       '0.0.0.0';
 
-    // Merge rest of the body into customData if not already there
-    // This handles clients that send parameters in the root instead of inside customData
     const customData = { ...rest, ...providedCustomData };
-
-    // Use provided eventId or fallback to a new one
     const eventId = providedEventId || body.eventId || crypto.randomUUID();
 
-    // Get browser identifiers for better matching
     const fbp = request.cookies.get('_fbp')?.value;
     const fbc = request.cookies.get('_fbc')?.value;
 
-    // Prepare user data for matching
-    const hashedEmail = userData.email ? await hashData(userData.email) : undefined;
-    
-    // Process phone: ensure digits only and has country code (BD: 88)
-    let phone = userData.phone ? userData.phone.replace(/\D/g, '') : '';
+    // Support both { email, phone, name } and { em, ph, fn, ln }
+    const rawEmail = userData.email || userData.em || '';
+    const rawPhone = userData.phone || userData.ph || '';
+    const rawFirstName =
+      userData.fn || (userData.name ? String(userData.name).split(' ')[0] : '');
+    const rawLastName =
+      userData.ln ||
+      (userData.name && String(userData.name).includes(' ')
+        ? String(userData.name).split(' ').slice(1).join(' ')
+        : '');
+
+    const hashedEmail = rawEmail ? await hashData(rawEmail) : undefined;
+
+    let phone = rawPhone ? String(rawPhone).replace(/\D/g, '') : '';
     if (phone && !phone.startsWith('88')) {
       phone = '88' + phone;
     }
     const hashedPhone = phone ? await hashData(phone) : undefined;
-    const hashedFirstName = userData.name ? await hashData(userData.name.split(' ')[0]) : undefined;
+    const hashedFirstName = rawFirstName ? await hashData(rawFirstName) : undefined;
+    const hashedLastName = rawLastName ? await hashData(rawLastName) : undefined;
+    const hashedCity = userData.ct ? await hashData(userData.ct) : undefined;
+    const hashedState = userData.st ? await hashData(userData.st) : undefined;
+    const hashedZip = userData.zp ? await hashData(userData.zp) : undefined;
+    const hashedCountry = userData.country ? await hashData(userData.country) : undefined;
 
-    const payload: any = {
+    const fbUserData: Record<string, any> = {
+      client_ip_address: ipAddress,
+      client_user_agent: userAgent,
+      fbp,
+      fbc,
+      ...(hashedEmail && { em: [hashedEmail] }),
+      ...(hashedPhone && { ph: [hashedPhone] }),
+      ...(hashedFirstName && { fn: [hashedFirstName] }),
+      ...(hashedLastName && { ln: [hashedLastName] }),
+      ...(hashedCity && { ct: [hashedCity] }),
+      ...(hashedState && { st: [hashedState] }),
+      ...(hashedZip && { zp: [hashedZip] }),
+      ...(hashedCountry && { country: [hashedCountry] }),
+    };
+
+    const payload: Record<string, any> = {
       data: [
         {
           event_name: eventName,
@@ -68,27 +94,21 @@ export async function POST(request: NextRequest) {
           event_id: eventId,
           event_source_url: eventUrl,
           action_source: 'website',
-          user_data: {
-            client_ip_address: ipAddress,
-            client_user_agent: userAgent,
-            fbp,
-            fbc,
-            em: hashedEmail ? [hashedEmail] : undefined,
-            ph: hashedPhone ? [hashedPhone] : undefined,
-            fn: hashedFirstName ? [hashedFirstName] : undefined,
-          },
+          user_data: fbUserData,
           custom_data: customData,
         },
       ],
     };
 
-    // Include test_event_code if provided (for debugging in Events Manager)
-    if (testEventCode || process.env.NEXT_PUBLIC_FACEBOOK_TEST_EVENT_CODE) {
-      payload.test_event_code = testEventCode || process.env.NEXT_PUBLIC_FACEBOOK_TEST_EVENT_CODE;
+    const resolvedTestCode =
+      settings.facebookTestEventCode ||
+      (typeof testEventCode === 'string' ? testEventCode.trim() : '');
+    if (resolvedTestCode) {
+      payload.test_event_code = resolvedTestCode;
     }
 
     const fbResponse = await fetch(
-      `https://graph.facebook.com/v19.0/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`,
+      `https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

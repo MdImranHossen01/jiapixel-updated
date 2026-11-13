@@ -11,6 +11,7 @@ import {
   Briefcase,
   FileText,
   Users,
+  BarChart3,
   ChevronRight,
   LogOut,
   Menu,
@@ -314,6 +315,14 @@ const LeftSideNav = () => {
       items: [
         { name: 'Manage Clients', href: '/dashboard/admin/manage-client' },
         { name: 'Manage Users', href: '/dashboard/admin/manage-users' },
+      ],
+    },
+    {
+      title: 'Marketing & Pixels',
+      icon: BarChart3,
+      adminOnly: true,
+      items: [
+        { name: 'Tracking & Pixels', href: '/dashboard/admin/marketing' },
       ],
     },
   ];

@@ -7,6 +7,8 @@ import { Suspense } from "react";
 import StructuredData from "./components/StructuredData";
 import GoogleTagManager from "./components/GoogleTagManager";
 import FacebookPixel from "./components/FacebookPixel";
+import TikTokPixel from "./components/TikTokPixel";
+import { getEffectiveMarketingSettings } from "@/lib/marketing-settings";
 import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 import { BookingProvider } from "@/components/booking-provider";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
@@ -31,92 +33,104 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-export const metadata: Metadata = {
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Jia Pixel",
-  },
-  metadataBase: new URL("https://www.jiapixel.com"),
-  title: {
-    default: "Jia Pixel | Leading Digital Agency in Bangladesh",
-    template: "%s | Jia Pixel",
-  },
-  description:
-    "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
-  keywords: [
-    "web development",
-    "digital marketing",
-    "SEO",
-    "Bangladesh",
-    "agency",
-  ],
-  authors: [{ name: "Jia Pixel" }],
-  creator: "Jia Pixel",
-  verification: {
-    google: "JWpS0CTCZQueL8zbGQi3mvgV7kUrk2HDkB73M1B_aAM",
-  },
-  other: {
-    "facebook-domain-verification": "ooj5dfcwu2fuvyjntb6l60b9zdz41u",
-  },
-  // Alternates removed to allow page-level dynamic overrides
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+export async function generateMetadata(): Promise<Metadata> {
+  const marketing = await getEffectiveMarketingSettings();
+
+  const otherMeta: Record<string, string> = {};
+  if (marketing.facebookDomainVerification) {
+    otherMeta["facebook-domain-verification"] = marketing.facebookDomainVerification;
+  }
+  if (marketing.tiktokDomainVerification) {
+    otherMeta["tiktok-developers-site-verification"] = marketing.tiktokDomainVerification;
+  }
+
+  return {
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: "Jia Pixel",
+    },
+    metadataBase: new URL("https://www.jiapixel.com"),
+    title: {
+      default: "Jia Pixel | Leading Digital Agency in Bangladesh",
+      template: "%s | Jia Pixel",
+    },
+    description:
+      "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
+    keywords: [
+      "web development",
+      "digital marketing",
+      "SEO",
+      "Bangladesh",
+      "agency",
+    ],
+    authors: [{ name: "Jia Pixel" }],
+    creator: "Jia Pixel",
+    verification: {
+      google: marketing.googleSearchConsoleMeta || "JWpS0CTCZQueL8zbGQi3mvgV7kUrk2HDkB73M1B_aAM",
+    },
+    other: otherMeta,
+    // Alternates removed to allow page-level dynamic overrides
+    robots: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    title: "Jia Pixel | Leading Digital Agency in Bangladesh",
-    description:
-      "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
-    siteName: "Jia Pixel",
-    images: [
-      {
-        url: "https://www.jiapixel.com/Jia-pixel-your-partner-in-digital-transformation.png",
-        width: 1200,
-        height: 630,
-        alt: "Jia Pixel - Reliable Web Development & Digital Marketing Agency",
-        type: "image/png",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Jia Pixel | Leading Digital Agency in Bangladesh",
-    description:
-      "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
-    images: [
-      {
-        url: "https://www.jiapixel.com/Jia-pixel-your-partner-in-digital-transformation.png",
-        width: 1200,
-        height: 630,
-        alt: "Jia Pixel - Reliable Web Development & Digital Marketing Agency",
-      },
-    ],
-    creator: "@jiapixel",
-  },
-  icons: {
-    icon: [{ url: "/favicon.ico" }, { url: "/icon.png", type: "image/png" }],
-    apple: [{ url: "/apple-touch-icon.png", type: "image/png" }],
-  },
-  manifest: "/manifest.webmanifest",
-};
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      title: "Jia Pixel | Leading Digital Agency in Bangladesh",
+      description:
+        "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
+      siteName: "Jia Pixel",
+      images: [
+        {
+          url: "https://www.jiapixel.com/Jia-pixel-your-partner-in-digital-transformation.png",
+          width: 1200,
+          height: 630,
+          alt: "Jia Pixel - Reliable Web Development & Digital Marketing Agency",
+          type: "image/png",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Jia Pixel | Leading Digital Agency in Bangladesh",
+      description:
+        "Jia Pixel is a leading digital agency in Bangladesh specializing in custom web development, SEO, and results-driven digital marketing strategies.",
+      images: [
+        {
+          url: "https://www.jiapixel.com/Jia-pixel-your-partner-in-digital-transformation.png",
+          width: 1200,
+          height: 630,
+          alt: "Jia Pixel - Reliable Web Development & Digital Marketing Agency",
+        },
+      ],
+      creator: "@jiapixel",
+    },
+    icons: {
+      icon: [{ url: "/favicon.ico" }, { url: "/icon.png", type: "image/png" }],
+      apple: [{ url: "/apple-touch-icon.png", type: "image/png" }],
+    },
+    manifest: "/manifest.webmanifest",
+  };
+}
 
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const marketing = await getEffectiveMarketingSettings();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -145,12 +159,16 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Suspense fallback={null}>
-          <GoogleTagManager />
+          <GoogleTagManager
+            gtmId={marketing.googleTagManagerId}
+            gaId={marketing.googleAnalyticsId}
+          />
         </Suspense>
         <Suspense fallback={null}>
-          <FacebookPixel
-            pixelId={process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}
-          />
+          <FacebookPixel pixelId={marketing.metaPixelId} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <TikTokPixel pixelId={marketing.tiktokPixelId} />
         </Suspense>
         <SessionProvider>
           <SmoothScrollProvider>
