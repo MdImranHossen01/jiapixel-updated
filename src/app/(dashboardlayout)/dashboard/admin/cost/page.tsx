@@ -738,7 +738,7 @@ export default function CostPage() {
     const totalCost = costs.reduce((sum, cost) => sum + cost.amount, 0);
 
     return (
-        <div className="p-4 w-full max-w-full overflow-hidden">
+        <div className="w-full max-w-full overflow-hidden">
             <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
                 <h1 className="text-3xl font-bold text-gray-800">Cost Management</h1>
 

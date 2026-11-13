@@ -9,7 +9,7 @@ export default async function EditCustomOrderPage(props: { params: Promise<{ slu
     const params = await props.params;
 
     return (
-        <div className="p-6">
+        <div>
             <EditCustomOrderClient slug={params.slug} />
         </div>
     );

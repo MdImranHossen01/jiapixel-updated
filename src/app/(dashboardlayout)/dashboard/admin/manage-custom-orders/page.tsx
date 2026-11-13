@@ -10,7 +10,7 @@ export const metadata = {
 
 const ManageCustomOrdersPage = () => {
     return (
-        <div className="p-6">
+        <div>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Custom Orders</h1>
                 <Button asChild className="gap-2">

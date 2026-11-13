@@ -34,7 +34,7 @@ const EditLocalCategoryPage = () => {
     if (!category) return <div>Category not found</div>;
 
     return (
-        <div className="p-6">
+        <div>
             <h1 className="text-2xl font-bold mb-6">Edit Local Category</h1>
             <LocalCategoryForm initialData={category} isEdit={true} />
         </div>

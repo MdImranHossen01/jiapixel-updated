@@ -131,7 +131,7 @@ export default function ManageProductsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto">
+      <div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Manage Products</h1>

@@ -5,7 +5,7 @@ import CategoryForm from "../components/CategoryForm";
 
 const CreateCategoryPage = () => {
     return (
-        <div className="p-6">
+        <div>
             <h1 className="text-2xl font-bold mb-6">Create New Category</h1>
             <CategoryForm />
         </div>

@@ -200,7 +200,7 @@ export default function AdminMarketingPage() {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-6 max-w-6xl mx-auto">
+    <div className="flex-1 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Marketing, Pixels & Server-Side Tracking</h1>

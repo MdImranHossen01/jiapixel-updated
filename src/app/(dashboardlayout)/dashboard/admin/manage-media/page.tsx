@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function ManageMediaPage() {
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Media & Cloudflare R2 Storage</h1>
         <p className="text-sm text-muted-foreground">

@@ -8,7 +8,7 @@ export const metadata = {
 
 const CreateLocalCategoryPage = () => {
     return (
-        <div className="p-6">
+        <div>
             <h1 className="text-2xl font-bold mb-6">Create Local Category</h1>
             <LocalCategoryForm />
         </div>

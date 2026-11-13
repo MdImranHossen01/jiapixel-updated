@@ -51,7 +51,7 @@ const EditCategoryPage = ({ params }: PageProps) => {
     if (!data) return <div>Category not found</div>;
 
     return (
-        <div className="p-6">
+        <div>
             <h1 className="text-2xl font-bold mb-6">Edit Category</h1>
             <CategoryForm initialData={data} isEdit />
         </div>

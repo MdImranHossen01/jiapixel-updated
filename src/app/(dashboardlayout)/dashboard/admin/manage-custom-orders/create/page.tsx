@@ -52,11 +52,11 @@ export default function CreateCustomOrderPage() {
         fetch("/api/admin/suggest-clients")
             .then((r) => r.ok ? r.json() : null)
             .then((res) => { if (res?.success) setSuggestions(res.data || []); })
-            .catch(() => {});
+            .catch(() => { });
         fetch("/api/projects?limit=100")
             .then((r) => r.ok ? r.json() : null)
             .then((res) => { if (res?.projects) setProjects(res.projects); })
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     const subtotal = items.reduce((sum, it) => sum + Number(it.price || 0) * Number(it.quantity || 1), 0);
@@ -133,7 +133,7 @@ export default function CreateCustomOrderPage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-bold text-foreground">Create Custom Proposal</h1>
