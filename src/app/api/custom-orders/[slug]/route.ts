@@ -5,6 +5,24 @@ import connectDB from "@/lib/db";
 import CustomOrder from "@/models/CustomOrder";
 import Client from "@/models/Client";
 import User from "@/models/User";
+import Bill from "@/models/Bill";
+import Payment from "@/models/Payment";
+import { recordLedgerEntry, resolvePaymentAccountCode } from "@/lib/ledger-utils";
+
+const formatBDPhoneForBill = (phone: string): string => {
+    const clean = (phone || "").replace(/[^\d]/g, "");
+    if (clean.length === 11 && clean.startsWith("0")) return `88${clean}`;
+    if (clean.length === 10 && clean.startsWith("1")) return `880${clean}`;
+    return clean;
+};
+
+const formatBDPhoneForUser = (phone: string): string => {
+    const clean = (phone || "").replace(/[^\d]/g, "");
+    if (clean.length === 13 && clean.startsWith("880")) return clean.slice(2);
+    if (clean.length === 11 && clean.startsWith("0")) return clean;
+    if (clean.length === 10 && clean.startsWith("1")) return `0${clean}`;
+    return clean;
+};
 
 export async function GET(
     request: NextRequest,
@@ -272,5 +290,270 @@ export async function PUT(
     } catch (error) {
         console.error("Error performing full update on custom order:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    }
+}
+
+export async function POST(
+    request: NextRequest,
+    context: { params: Promise<{ slug: string }> }
+) {
+    try {
+        const { slug } = await context.params;
+        const body = await request.json();
+        const {
+            clientName,
+            clientEmail,
+            clientPhone,
+            clientAddress,
+            businessName,
+            payNow,
+            paidAmount,
+            paymentMethod,
+            transactionId,
+            senderNumber,
+            paymentNote,
+        } = body;
+
+        if (!clientName?.trim() || !clientEmail?.trim() || !clientPhone?.trim() || !clientAddress?.trim()) {
+            return NextResponse.json(
+                { error: "Name, Email, Phone, and Address are required." },
+                { status: 400 }
+            );
+        }
+
+        await connectDB();
+
+        const existingOrder: any = await CustomOrder.findOne({ shareableSlug: slug });
+        if (!existingOrder) {
+            return NextResponse.json({ error: "Proposal not found." }, { status: 404 });
+        }
+
+        if (existingOrder.status !== "proposed") {
+            return NextResponse.json(
+                { error: "This proposal has already been ordered or is no longer active." },
+                { status: 400 }
+            );
+        }
+
+        const normalizedEmail = clientEmail.trim().toLowerCase();
+        const formattedBillPhone = formatBDPhoneForBill(clientPhone);
+        const formattedUserPhone = formatBDPhoneForUser(clientPhone);
+
+        // 1. Auto-create User account in DB if not exists
+        let user: any = await User.findOne({ email: normalizedEmail });
+        if (!user) {
+            user = await User.create({
+                name: clientName.trim(),
+                email: normalizedEmail,
+                phone: formattedUserPhone,
+                role: "user",
+            });
+        } else if (formattedUserPhone && user.phone !== formattedUserPhone) {
+            user.phone = formattedUserPhone;
+            await user.save();
+        }
+
+        // 2. Resolve items & totals (auto-fill service title if offer had no items)
+        const hasExistingItems = Array.isArray(existingOrder.items) && existingOrder.items.length > 0;
+        const resolvedItems = hasExistingItems
+            ? existingOrder.items.map((it: any) => ({
+                  name: it.name,
+                  description: it.description || "",
+                  quantity: Number(it.quantity || 1),
+                  price: Number(it.price || 0),
+                  link: it.link || "",
+              }))
+            : [
+                  {
+                      name: existingOrder.title,
+                      description: "",
+                      quantity: 1,
+                      price: Number(existingOrder.price || 0),
+                      link: "",
+                  },
+              ];
+
+        const subtotal = resolvedItems.reduce(
+            (sum: number, it: any) => sum + Number(it.price || 0) * Number(it.quantity || 1),
+            0
+        );
+        const serviceCharge = Number(existingOrder.serviceCharge || 0);
+        const discount = Number(existingOrder.discount || 0);
+        const computedTotal = Math.max(0, subtotal + serviceCharge - discount);
+        const total = hasExistingItems
+            ? computedTotal
+            : Number(existingOrder.price ?? computedTotal);
+
+        const cashIn = payNow ? Math.max(0, Number(paidAmount || 0)) : 0;
+        const currentBillDue = Math.max(0, total - cashIn);
+        const billStatus = currentBillDue <= 0 ? "Paid" : "Due";
+
+        // 3. Generate sequential invoiceNo starting from 0000101
+        const lastBill: any = await Bill.findOne({
+            $or: [{ documentType: "bill" }, { documentType: { $exists: false } }],
+        }).sort({ createdAt: -1 });
+        let nextNum = 101;
+        if (lastBill?.invoiceNo) {
+            const match = lastBill.invoiceNo.match(/\d+/);
+            if (match) nextNum = parseInt(match[0], 10) + 1;
+        }
+        const invoiceNo = String(nextNum).padStart(7, "0");
+
+        const initialPayments =
+            cashIn > 0
+                ? [
+                      {
+                          amount: cashIn,
+                          date: new Date(),
+                          method: paymentMethod || "bKash",
+                          note: transactionId
+                              ? `TxID: ${transactionId}`
+                              : senderNumber
+                                ? `Sender: ${senderNumber}`
+                                : paymentNote || "Proposal Online Payment",
+                      },
+                  ]
+                : [];
+
+        // 4. Auto-create Client Bill
+        const newBill = await Bill.create({
+            clientName: clientName.trim(),
+            clientEmail: normalizedEmail,
+            clientPhone: formattedBillPhone,
+            clientAddress: clientAddress.trim(),
+            businessName: (businessName || "").trim(),
+            invoiceNo,
+            items: resolvedItems,
+            subtotal,
+            serviceCharge,
+            discountType: existingOrder.discountType || "fixed",
+            discountValue: existingOrder.discountValue || 0,
+            discount,
+            total,
+            prevDue: 0,
+            gTotal: total,
+            cashIn,
+            currentBillDue,
+            status: billStatus,
+            currency: existingOrder.currency || "BDT",
+            renewDate: existingOrder.renewDate || undefined,
+            renewFee: existingOrder.renewPrice !== undefined ? Number(existingOrder.renewPrice) : 0,
+            documentType: "bill",
+            convertedFromCustomOrder: existingOrder._id,
+            expectedDeliveryDate: existingOrder.dueDate
+                ? new Date(existingOrder.dueDate).toISOString().split("T")[0]
+                : undefined,
+            payments: initialPayments,
+        });
+
+        // 5. Record double-entry ledger entries
+        try {
+            const ref = `INV-${invoiceNo}`;
+            if (total > 0) {
+                await recordLedgerEntry({
+                    accountCode: "AR",
+                    type: "debit",
+                    amount: total,
+                    description: `Client Receivable for Bill #${invoiceNo} (${clientName.trim()})`,
+                    reference: ref,
+                });
+            }
+            if (cashIn > 0) {
+                const payAccCode = await resolvePaymentAccountCode(paymentMethod || "bKash");
+                await recordLedgerEntry({
+                    accountCode: payAccCode,
+                    type: "debit",
+                    amount: cashIn,
+                    description: `Payment Received for Bill #${invoiceNo}`,
+                    reference: ref,
+                });
+                await recordLedgerEntry({
+                    accountCode: "AR",
+                    type: "credit",
+                    amount: cashIn,
+                    description: `Payment credit for Bill #${invoiceNo}`,
+                    reference: ref,
+                });
+            }
+        } catch (ledgerErr) {
+            console.error("Failed to log proposal bill in ledger:", ledgerErr);
+        }
+
+        // 6. Save Payment record if paid online
+        if (cashIn > 0) {
+            try {
+                await Payment.create({
+                    user: user._id,
+                    clientName: clientName.trim(),
+                    clientMobile: formattedUserPhone || clientPhone.trim(),
+                    clientEmail: normalizedEmail,
+                    amount: cashIn,
+                    paymentMethod: paymentMethod || "bKash",
+                    transactionId: transactionId || undefined,
+                    senderNumber: senderNumber || undefined,
+                    notes: `Proposal Order (${existingOrder.title}) - Bill #${invoiceNo}${paymentNote ? ` | ${paymentNote}` : ""}`,
+                });
+            } catch (payErr) {
+                console.error("Failed to create Payment record from proposal:", payErr);
+            }
+        }
+
+        // 7. Update CustomOrder (Offer) with client info, auto-filled items, status & convertedBillId
+        existingOrder.status = "accepted";
+        existingOrder.client = user._id;
+        existingOrder.clientName = clientName.trim();
+        existingOrder.clientEmail = normalizedEmail;
+        existingOrder.clientPhone = formattedBillPhone;
+        existingOrder.clientAddress = clientAddress.trim();
+        existingOrder.businessName = (businessName || "").trim();
+        if (!hasExistingItems) {
+            existingOrder.items = resolvedItems;
+        }
+        existingOrder.convertedBillId = newBill._id;
+        await existingOrder.save();
+
+        // 8. Link or create Client profile
+        try {
+            const existingClient: any = await Client.findOne({ email: normalizedEmail });
+            if (existingClient) {
+                if (!existingClient.customOrders.some((id: any) => id.toString() === existingOrder._id.toString())) {
+                    existingClient.customOrders.push(existingOrder._id);
+                    await existingClient.save();
+                }
+            } else {
+                const defaultRenewDate = new Date();
+                defaultRenewDate.setFullYear(defaultRenewDate.getFullYear() + 1);
+                await Client.create({
+                    name: clientName.trim(),
+                    email: [normalizedEmail],
+                    phone: formattedUserPhone,
+                    address: clientAddress.trim(),
+                    clientImage: user.image || "https://res.cloudinary.com/dhdqebns9/image/upload/v1727027581/default-image.jpg",
+                    service: existingOrder.title,
+                    price: total,
+                    renewDate: existingOrder.renewDate || defaultRenewDate,
+                    customOrders: [existingOrder._id],
+                });
+            }
+        } catch (clientErr) {
+            console.error("Error linking Client profile from proposal order:", clientErr);
+        }
+
+        const populatedOrder = await CustomOrder.findById(existingOrder._id)
+            .populate("admin", "name email image")
+            .populate("client", "name email image")
+            .lean();
+
+        return NextResponse.json(
+            {
+                message: "Order confirmed and client bill created successfully!",
+                order: populatedOrder,
+                bill: newBill,
+            },
+            { status: 201 }
+        );
+    } catch (error: any) {
+        console.error("Error ordering from proposal:", error);
+        return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
     }
 }

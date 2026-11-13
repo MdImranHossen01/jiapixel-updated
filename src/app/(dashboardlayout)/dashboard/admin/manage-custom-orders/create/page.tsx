@@ -44,6 +44,7 @@ export default function CreateCustomOrderPage() {
 
     // Multiple Items
     const [items, setItems] = useState<OfferItemInput[]>([{ name: "", quantity: 1, price: 0, link: "" }]);
+    const [manualPrice, setManualPrice] = useState<string>("");
     const [serviceCharge, setServiceCharge] = useState<number>(0);
     const [discountType, setDiscountType] = useState<"fixed" | "percentage">("fixed");
     const [discountValue, setDiscountValue] = useState<number>(0);
@@ -59,12 +60,15 @@ export default function CreateCustomOrderPage() {
             .catch(() => { });
     }, []);
 
-    const subtotal = items.reduce((sum, it) => sum + Number(it.price || 0) * Number(it.quantity || 1), 0);
+    const validItems = items.filter((it) => it.name.trim() !== "");
+    const hasNamedItems = validItems.length > 0;
+    const subtotal = validItems.reduce((sum, it) => sum + Number(it.price || 0) * Number(it.quantity || 1), 0);
+    const baseAmount = hasNamedItems ? subtotal : Number(manualPrice || 0);
     const discountAmount =
         discountType === "percentage"
-            ? Math.round(((subtotal + serviceCharge) * discountValue) / 100)
+            ? Math.round(((baseAmount + serviceCharge) * discountValue) / 100)
             : discountValue;
-    const calculatedTotal = Math.max(0, subtotal + serviceCharge - discountAmount);
+    const calculatedTotal = Math.max(0, baseAmount + serviceCharge - discountAmount);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -72,12 +76,8 @@ export default function CreateCustomOrderPage() {
             toast.error("Project Title is required.");
             return;
         }
-        if (!clientName.trim() || !clientEmail.trim() || !clientPhone.trim() || !clientAddress.trim()) {
-            toast.error("Please fill in all required Client Information fields.");
-            return;
-        }
-        if (items.some((it) => !it.name.trim() || it.quantity < 1 || it.price < 0)) {
-            toast.error("Please complete all service items correctly.");
+        if (validItems.some((it) => it.quantity < 1 || it.price < 0)) {
+            toast.error("Please enter valid quantity and price for added service items.");
             return;
         }
 
@@ -92,12 +92,12 @@ export default function CreateCustomOrderPage() {
             const payload = {
                 title,
                 description,
-                clientName,
-                clientEmail,
-                clientPhone,
-                clientAddress,
-                businessName,
-                items,
+                clientName: clientName.trim() || undefined,
+                clientEmail: clientEmail.trim() || undefined,
+                clientPhone: clientPhone.trim() || undefined,
+                clientAddress: clientAddress.trim() || undefined,
+                businessName: businessName.trim() || undefined,
+                items: validItems,
                 serviceCharge,
                 discountType,
                 discountValue,
@@ -156,7 +156,9 @@ export default function CreateCustomOrderPage() {
                         {/* Client Information */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border space-y-4">
                             <div>
-                                <h3 className="text-lg font-semibold text-card-foreground">Client Information <span className="text-red-500">*</span></h3>
+                                <h3 className="text-lg font-semibold text-card-foreground">
+                                    Client Information <span className="text-xs font-normal text-muted-foreground">(Optional — client can also fill when ordering from proposal link)</span>
+                                </h3>
                                 <p className="text-xs text-muted-foreground">Type name, email or phone to auto-fill from existing clients</p>
                             </div>
                             <ClientAutoSuggestFields
@@ -171,6 +173,8 @@ export default function CreateCustomOrderPage() {
                                 businessName={businessName}
                                 setBusinessName={setBusinessName}
                                 suggestions={suggestions}
+                                emailRequired={false}
+                                required={false}
                             />
                         </div>
 
@@ -186,11 +190,12 @@ export default function CreateCustomOrderPage() {
                             setDiscountValue={setDiscountValue}
                             currency={currency}
                             projects={projects}
+                            required={false}
                         />
 
                         {/* Basic Details */}
                         <div className="bg-card rounded-lg shadow p-6 border border-border space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div className="space-y-2 md:col-span-2">
                                     <Label htmlFor="title" className="block text-sm font-medium text-card-foreground mb-2">Offer / Project Title <span className="text-red-500">*</span></Label>
                                     <Input
@@ -199,6 +204,22 @@ export default function CreateCustomOrderPage() {
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
                                         required
+                                        className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="manualPrice" className="block text-sm font-medium text-card-foreground mb-2">
+                                        {hasNamedItems ? "Calculated Price" : "Offer Price (Optional)"} ({currency === "USD" ? "$" : "৳"})
+                                    </Label>
+                                    <Input
+                                        id="manualPrice"
+                                        type="number"
+                                        min={0}
+                                        disabled={hasNamedItems}
+                                        placeholder={hasNamedItems ? String(calculatedTotal) : "e.g., 15000"}
+                                        value={hasNamedItems ? calculatedTotal : manualPrice}
+                                        onChange={(e) => setManualPrice(e.target.value)}
                                         className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground"
                                     />
                                 </div>

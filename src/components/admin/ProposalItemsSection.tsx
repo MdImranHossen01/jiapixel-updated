@@ -26,6 +26,7 @@ interface ProposalItemsSectionProps {
   setDiscountValue: (v: number) => void;
   currency: string;
   projects: any[];
+  required?: boolean;
 }
 
 export default function ProposalItemsSection({
@@ -39,6 +40,7 @@ export default function ProposalItemsSection({
   setDiscountValue,
   currency,
   projects,
+  required = true,
 }: ProposalItemsSectionProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [projectSearch, setProjectSearch] = useState("");
@@ -93,7 +95,7 @@ export default function ProposalItemsSection({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold text-card-foreground">
-            Services / Items <span className="text-red-500">*</span>
+            Services / Items {required ? <span className="text-red-500">*</span> : <span className="text-xs font-normal text-muted-foreground">(Optional)</span>}
           </h3>
           <p className="text-xs text-muted-foreground">
             Add one or multiple services/items for this offer

@@ -7,10 +7,12 @@ import NovelEditor from "@/app/components/editor/NovelEditor";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { CheckCircle2, Clock, DollarSign, Loader2, ArrowRight, User, ExternalLink, FileText, Printer } from "lucide-react";
+import { CheckCircle2, Clock, DollarSign, Loader2, ArrowRight, User, ExternalLink, FileText, Printer, X, Copy, CreditCard } from "lucide-react";
 import Link from "next/link";
 import AuthModal from "@/components/AuthModal";
 import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface ProposalClientProps {
     slug: string;
@@ -24,6 +26,21 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [pendingAccept, setPendingAccept] = useState(false);
 
+    // Order & Payment Modal State
+    const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+    const [clientName, setClientName] = useState("");
+    const [clientEmail, setClientEmail] = useState("");
+    const [clientPhone, setClientPhone] = useState("");
+    const [clientAddress, setClientAddress] = useState("");
+    const [businessName, setBusinessName] = useState("");
+    const [payNow, setPayNow] = useState(true);
+    const [paymentMethod, setPaymentMethod] = useState<"bKash" | "Nagad" | "Rocket" | "Bank Transfer" | "Scan QR">("bKash");
+    const [paidAmount, setPaidAmount] = useState("");
+    const [transactionId, setTransactionId] = useState("");
+    const [senderNumber, setSenderNumber] = useState("");
+    const [createdBillNo, setCreatedBillNo] = useState<string | null>(null);
+    const [orderSuccessJustNow, setOrderSuccessJustNow] = useState(false);
+
     useEffect(() => {
         const fetchOrder = async () => {
             try {
@@ -31,6 +48,14 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                 if (res.ok) {
                     const data = await res.json();
                     setOrder(data.order);
+                    if (data.order) {
+                        setClientName(data.order.clientName || data.order.client?.name || "");
+                        setClientEmail(data.order.clientEmail || data.order.client?.email || "");
+                        setClientPhone(data.order.clientPhone || "");
+                        setClientAddress(data.order.clientAddress || "");
+                        setBusinessName(data.order.businessName || "");
+                        setPaidAmount(data.order.price ? String(data.order.price) : "");
+                    }
                 } else {
                     toast.error("Proposal not found or you don't have access.");
                 }
@@ -87,7 +112,71 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
         }
     }, [authStatus, slug]);
 
-    // Check for pending accept on mount/auth change
+    const handleOpenOrderModal = () => {
+        if (!clientName && session?.user?.name) setClientName(session.user.name);
+        if (!clientEmail && session?.user?.email) setClientEmail(session.user.email);
+        if (!paidAmount && order?.price) setPaidAmount(String(order.price));
+        setIsOrderModalOpen(true);
+    };
+
+    const handleOrderSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!clientName.trim() || !clientEmail.trim() || !clientPhone.trim() || !clientAddress.trim()) {
+            toast.error("Please fill in Name, Email, Phone, and Address.");
+            return;
+        }
+        if (payNow) {
+            const amt = Number(paidAmount || 0);
+            if (amt <= 0) {
+                toast.error("Please enter a valid payment amount.");
+                return;
+            }
+            if (paymentMethod !== "Scan QR" && !transactionId.trim() && !senderNumber.trim()) {
+                toast.error("Please provide Transaction ID or Sender Number.");
+                return;
+            }
+        }
+
+        setAccepting(true);
+        try {
+            const res = await fetch(`/api/custom-orders/${slug}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    clientName: clientName.trim(),
+                    clientEmail: clientEmail.trim(),
+                    clientPhone: clientPhone.trim(),
+                    clientAddress: clientAddress.trim(),
+                    businessName: businessName.trim(),
+                    payNow,
+                    paidAmount: payNow ? Number(paidAmount || 0) : 0,
+                    paymentMethod,
+                    transactionId: transactionId.trim(),
+                    senderNumber: senderNumber.trim(),
+                }),
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                toast.success("Order confirmed and client bill generated!");
+                setOrder(data.order);
+                setCreatedBillNo(data.bill?.invoiceNo || null);
+                setOrderSuccessJustNow(true);
+                setIsOrderModalOpen(false);
+            } else {
+                toast.error(data.error || "Failed to place order.");
+            }
+        } catch {
+            toast.error("An error occurred while placing order.");
+        } finally {
+            setAccepting(false);
+        }
+    };
+
+    const copyText = (txt: string) => {
+        navigator.clipboard?.writeText(txt);
+        toast.success("Copied!");
+    };
     useEffect(() => {
         const wasPending = localStorage.getItem(`pending_accept_${slug}`);
         if (authStatus === "authenticated" && (pendingAccept || wasPending)) {
@@ -486,22 +575,24 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                                 By accepting this proposal, you agree to officially commence work on this project based on the scope detailed above.
                             </p>
                             <Button
-                                onClick={handleAccept}
+                                onClick={handleOpenOrderModal}
                                 disabled={accepting}
                                 className="w-full bg-green-600 hover:bg-green-700 text-white font-medium shadow-md h-12 text-md"
                             >
                                 <CheckCircle2 className="w-5 h-5 mr-2" />
-                                {accepting ? "Accepting..." : "Accept Proposal & Begin"}
+                                {accepting ? "Processing..." : "Accept Proposal & Order Now"}
                             </Button>
                         </CardFooter>
                     )}
 
-                    {!isProposed && isAssignedClient && (
+                    {!isProposed && (isAssignedClient || orderSuccessJustNow) && (
                         <CardFooter className="pt-4 pb-6 px-6 bg-green-50/50 dark:bg-green-950/20 border-t flex flex-col items-center">
                             <CheckCircle2 className="w-10 h-10 text-green-500 mb-2" />
-                            <h4 className="font-semibold text-green-700 dark:text-green-400">Proposal Accepted</h4>
+                            <h4 className="font-semibold text-green-700 dark:text-green-400">
+                                {createdBillNo ? `Order Confirmed (Bill #${createdBillNo})` : "Proposal Accepted"}
+                            </h4>
                             <p className="text-sm text-center text-green-600/80 dark:text-green-400/80 mt-1 mb-4">
-                                Your order is now active.
+                                Your order is now active and your client bill has been generated.
                             </p>
                             <div className="flex flex-col gap-3 w-full mb-4">
                                 {order.paymentLink && (
@@ -567,6 +658,195 @@ export default function ProposalClient({ slug }: ProposalClientProps) {
                     </Card>
                 )}
             </div>
+
+            {/* Order & Payment Modal */}
+            {isOrderModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+                    <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+                        <div className="flex items-center justify-between p-5 border-b border-border sticky top-0 bg-card z-10">
+                            <div>
+                                <h3 className="text-lg font-bold text-foreground">Confirm Order & Payment</h3>
+                                <p className="text-xs text-muted-foreground">
+                                    {order.title} • Total: {order.currency === "BDT" ? "৳" : "$"}{(order.price || 0).toLocaleString()}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsOrderModalOpen(false)}
+                                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleOrderSubmit} className="p-5 space-y-5">
+                            <div className="space-y-3">
+                                <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Your Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold">Full Name <span className="text-red-500">*</span></Label>
+                                        <Input
+                                            placeholder="Your full name"
+                                            value={clientName}
+                                            onChange={(e) => setClientName(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold">Email Address <span className="text-red-500">*</span></Label>
+                                        <Input
+                                            type="email"
+                                            placeholder="you@example.com"
+                                            value={clientEmail}
+                                            onChange={(e) => setClientEmail(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold">WhatsApp / Phone <span className="text-red-500">*</span></Label>
+                                        <Input
+                                            placeholder="017xxxxxxxx"
+                                            value={clientPhone}
+                                            onChange={(e) => setClientPhone(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold">Business Name (Optional)</Label>
+                                        <Input
+                                            placeholder="Your company / brand"
+                                            value={businessName}
+                                            onChange={(e) => setBusinessName(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="md:col-span-2 space-y-1.5">
+                                        <Label className="text-xs font-semibold">Address <span className="text-red-500">*</span></Label>
+                                        <Input
+                                            placeholder="House, Road, Area, City"
+                                            value={clientAddress}
+                                            onChange={(e) => setClientAddress(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-border pt-4 space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                                        <CreditCard className="w-4 h-4 text-primary" /> Payment Option
+                                    </h4>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant={payNow ? "default" : "outline"}
+                                            onClick={() => setPayNow(true)}
+                                        >
+                                            Pay Now
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant={!payNow ? "default" : "outline"}
+                                            onClick={() => setPayNow(false)}
+                                        >
+                                            Pay Later (Due)
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {payNow && (
+                                    <div className="bg-muted/30 border border-border rounded-xl p-4 space-y-4">
+                                        <div className="flex flex-wrap gap-2">
+                                            {(["bKash", "Nagad", "Rocket", "Bank Transfer", "Scan QR"] as const).map((m) => (
+                                                <button
+                                                    key={m}
+                                                    type="button"
+                                                    onClick={() => setPaymentMethod(m)}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                                                        paymentMethod === m
+                                                            ? "bg-primary text-primary-foreground border-primary"
+                                                            : "bg-background text-foreground border-border hover:bg-muted"
+                                                    }`}
+                                                >
+                                                    {m}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {paymentMethod === "Bank Transfer" ? (
+                                            <div className="bg-background p-3 rounded-lg border text-xs space-y-1">
+                                                <p><strong>Bank:</strong> Islami Bank Bangladesh PLC | <strong>Name:</strong> MD. IMRAN HOSSEN</p>
+                                                <div className="flex items-center justify-between">
+                                                    <span><strong>A/C:</strong> <span className="font-mono font-bold">20501190206121413</span></span>
+                                                    <button type="button" onClick={() => copyText("20501190206121413")} className="text-primary font-bold flex items-center gap-1">
+                                                        <Copy className="w-3 h-3" /> Copy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : paymentMethod === "Scan QR" ? (
+                                            <div className="flex items-center gap-4 bg-background p-3 rounded-lg border">
+                                                <Image src="/PaymentQr.jpg" alt="Payment QR" width={88} height={88} className="rounded border" />
+                                                <p className="text-xs text-muted-foreground">Scan the QR code using your banking/MFS app and enter the paid amount below.</p>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-background p-3 rounded-lg border flex items-center justify-between text-xs">
+                                                <div>
+                                                    <span className="text-muted-foreground">{paymentMethod} Send Money (Personal):</span>
+                                                    <p className="font-mono font-bold text-base text-foreground">01919011101</p>
+                                                </div>
+                                                <button type="button" onClick={() => copyText("01919011101")} className="px-2.5 py-1 bg-primary/10 text-primary rounded font-bold flex items-center gap-1">
+                                                    <Copy className="w-3 h-3" /> Copy
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                            <div className="space-y-1">
+                                                <Label className="text-xs font-semibold">Paid Amount ({order.currency === "BDT" ? "৳" : "$"}) <span className="text-red-500">*</span></Label>
+                                                <Input
+                                                    type="number"
+                                                    min={1}
+                                                    value={paidAmount}
+                                                    onChange={(e) => setPaidAmount(e.target.value)}
+                                                    required={payNow}
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-xs font-semibold">Transaction ID</Label>
+                                                <Input
+                                                    placeholder="e.g. TXN12345"
+                                                    value={transactionId}
+                                                    onChange={(e) => setTransactionId(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-xs font-semibold">Sender Number</Label>
+                                                <Input
+                                                    placeholder="01XXXXXXXXX"
+                                                    value={senderNumber}
+                                                    onChange={(e) => setSenderNumber(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-2 border-t border-border">
+                                <Button type="button" variant="outline" onClick={() => setIsOrderModalOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={accepting} className="bg-green-600 hover:bg-green-700 text-white">
+                                    {accepting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                                    {accepting ? "Confirming..." : payNow ? "Submit Payment & Confirm Order" : "Confirm Order"}
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             <AuthModal
                 isOpen={isAuthModalOpen}
