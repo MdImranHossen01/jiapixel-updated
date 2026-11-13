@@ -56,8 +56,17 @@ export const ttEvent = (
   const { _skipBrowserPageCall, ...cleanCustomData } = customData as Record<string, any>;
 
   const contentIds = Array.isArray(cleanCustomData.content_ids) ? cleanCustomData.content_ids : [];
+  const fallbackContentId =
+    ["ViewContent", "AddToCart", "InitiateCheckout", "CompletePayment"].includes(mappedEvent) &&
+    cleanCustomData.content_name
+      ? String(cleanCustomData.content_name)
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "") || "jiapixel-service"
+      : undefined;
   const primaryContentId =
-    cleanCustomData.content_id || (contentIds.length > 0 ? String(contentIds[0]) : undefined);
+    cleanCustomData.content_id ||
+    (contentIds.length > 0 ? String(contentIds[0]) : fallbackContentId);
 
   const formattedContents =
     Array.isArray(cleanCustomData.contents) && cleanCustomData.contents.length > 0

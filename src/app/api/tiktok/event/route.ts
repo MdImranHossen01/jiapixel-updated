@@ -13,8 +13,8 @@ async function hashData(data: string): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const settings = await getEffectiveMarketingSettings();
-    const pixelId = settings.tiktokPixelId;
-    const accessToken = settings.tiktokAccessToken;
+    const pixelId = settings.tiktokPixelId?.trim();
+    const accessToken = settings.tiktokAccessToken?.trim();
 
     if (!pixelId || !accessToken) {
       return NextResponse.json(
@@ -38,6 +38,8 @@ export async function POST(request: NextRequest) {
       '0.0.0.0';
 
     const eventId = body.eventId || crypto.randomUUID();
+    const ttp = request.cookies.get('_ttp')?.value;
+    const ttclid = request.cookies.get('ttclid')?.value;
 
     // Support both { email, phone } and { em, ph }
     const rawEmail = userData.em || userData.email || '';
@@ -52,16 +54,21 @@ export async function POST(request: NextRequest) {
     const hashedPhone = phone ? await hashData(phone) : undefined;
 
     const ttUserData: Record<string, any> = {
+      ip: ipAddress,
+      user_agent: userAgent,
       ...(hashedEmail && { email: hashedEmail }),
-      ...(hashedPhone && { phone_number: hashedPhone }),
+      ...(hashedPhone && { phone: hashedPhone }),
+      ...(ttp && { ttp }),
+      ...(ttclid && { ttclid }),
     };
 
     const rawContents = Array.isArray(customData.contents) ? customData.contents : [];
     let contents = rawContents.map((i: any) => ({
       content_id: String(i.content_id || i.id || i.product || ''),
-      price: Number(i.item_price || i.price || 0),
+      content_type: i.content_type || customData.content_type || 'product',
+      price: Number(i.item_price ?? i.price ?? 0),
       quantity: Number(i.quantity || 1),
-      content_name: i.content_name || i.name || undefined,
+      ...(i.content_name || i.name ? { content_name: String(i.content_name || i.name) } : {}),
     }));
 
     if (contents.length === 0) {
@@ -72,35 +79,38 @@ export async function POST(request: NextRequest) {
         contents = [
           {
             content_id: String(fallbackId),
+            content_type: String(customData.content_type || 'product'),
             price: Number(customData.value || 0),
             quantity: 1,
-            content_name: customData.content_name || undefined,
+            ...(customData.content_name ? { content_name: String(customData.content_name) } : {}),
           },
         ];
       }
     }
 
+    // TikTok Events API v1.3 payload structure
     const payload: Record<string, any> = {
-      pixel_code: pixelId,
-      event: eventName,
-      event_id: eventId,
-      timestamp: new Date().toISOString(),
-      context: {
-        user: ttUserData,
-        page: {
-          url: eventUrl,
+      event_source: 'web',
+      event_source_id: String(pixelId),
+      data: [
+        {
+          event: eventName,
+          event_time: Math.floor(Date.now() / 1000),
+          event_id: eventId,
+          user: ttUserData,
+          properties: {
+            currency: customData.currency || 'BDT',
+            ...(customData.value !== undefined && { value: Number(customData.value) }),
+            content_type: customData.content_type || 'product',
+            ...(contents.length > 0 && { contents }),
+          },
+          page: {
+            url: eventUrl,
+          },
         },
-        user_agent: userAgent,
-        ip: ipAddress,
-      },
-      properties: {
-        currency: customData.currency || 'BDT',
-        value: customData.value ? Number(customData.value) : undefined,
-        content_type: customData.content_type || 'product',
-        ...(contents.length > 0 && { contents }),
-      },
-      ...(settings.tiktokTestEventCode && {
-        test_event_code: settings.tiktokTestEventCode,
+      ],
+      ...(settings.tiktokTestEventCode?.trim() && {
+        test_event_code: settings.tiktokTestEventCode.trim(),
       }),
     };
 
@@ -132,4 +142,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

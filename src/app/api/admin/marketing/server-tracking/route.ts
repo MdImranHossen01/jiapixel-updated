@@ -97,22 +97,25 @@ export async function POST(request: NextRequest) {
       } else {
         const eventId = crypto.randomUUID();
         const payload: any = {
-          pixel_code: pixelId,
-          event: eventName === 'Purchase' ? 'CompletePayment' : eventName,
-          event_id: eventId,
-          timestamp: new Date().toISOString(),
-          context: {
-            user: {},
-            page: { url: baseUrl },
-            user_agent: 'JiaPixel Admin Test',
-            ip: '127.0.0.1',
-          },
-          properties: {
-            currency: 'BDT',
-            test: true,
-          },
-          ...(settings.tiktokTestEventCode && {
-            test_event_code: settings.tiktokTestEventCode,
+          event_source: 'web',
+          event_source_id: String(pixelId).trim(),
+          data: [
+            {
+              event: eventName === 'Purchase' ? 'CompletePayment' : eventName,
+              event_time: Math.floor(Date.now() / 1000),
+              event_id: eventId,
+              user: {
+                ip: '127.0.0.1',
+                user_agent: 'JiaPixel Admin Test',
+              },
+              properties: {
+                currency: 'BDT',
+              },
+              page: { url: baseUrl },
+            },
+          ],
+          ...(settings.tiktokTestEventCode?.trim() && {
+            test_event_code: settings.tiktokTestEventCode.trim(),
           }),
         };
 

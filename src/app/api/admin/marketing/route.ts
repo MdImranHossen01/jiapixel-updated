@@ -6,6 +6,7 @@ import connectDB from '@/lib/db';
 import GlobalSettings from '@/models/GlobalSettings';
 import { encrypt, decrypt } from '@/lib/encryption';
 import { getEnvMarketingFallbacks } from '@/lib/marketing-settings';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 function isAuthorizedAdmin(session: any): boolean {
   const role = session?.user?.role;
@@ -104,6 +105,7 @@ export async function POST(req: NextRequest) {
     }
 
     revalidatePath('/', 'layout');
+    purgeCloudflareCache().catch(() => {});
 
     return NextResponse.json({
       success: true,

@@ -48,9 +48,9 @@ export default function GoogleTagManager({
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${sanitizedGaId}`}
-            strategy="afterInteractive"
+            strategy="lazyOnload"
           />
-          <Script id="ga4-script" strategy="afterInteractive">
+          <Script id="ga4-script" strategy="lazyOnload">
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
