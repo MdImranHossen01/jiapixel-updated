@@ -11,14 +11,6 @@ const DEFAULT_ACCOUNTS = [
     isSystem: true,
   },
   {
-    name: "Bank",
-    code: "BANK",
-    type: "asset" as const,
-    category: "Bank" as const,
-    description: "Default System Primary Bank Account",
-    isSystem: true,
-  },
-  {
     name: "Accounts Payable",
     code: "AP",
     type: "liability" as const,
@@ -37,6 +29,12 @@ const DEFAULT_ACCOUNTS = [
 ];
 
 export async function ensureDefaultLedgerAccounts() {
+  await LedgerAccount.deleteOne({
+    code: "BANK",
+    isSystem: true,
+    openingBalance: 0,
+    currentBalance: 0,
+  });
   for (const acc of DEFAULT_ACCOUNTS) {
     await LedgerAccount.findOneAndUpdate(
       { code: acc.code },
@@ -102,7 +100,10 @@ export async function recordLedgerEntry(params: {
 
 export async function resolvePaymentAccountCode(method?: string): Promise<string> {
   const m = (method || "").toLowerCase();
-  if (m.includes("bank") || m.includes("card")) return "BANK";
+  if (m.includes("bank") || m.includes("card")) {
+    const bankAcc = await LedgerAccount.findOne({ category: "Bank" }).sort({ createdAt: 1 });
+    if (bankAcc) return bankAcc.code;
+  }
   if (m.includes("bkash") || m.includes("nagad") || m.includes("rocket") || m.includes("mfs")) {
     const mfsAcc = await LedgerAccount.findOne({ category: "MFS" }).sort({ createdAt: 1 });
     if (mfsAcc) return mfsAcc.code;

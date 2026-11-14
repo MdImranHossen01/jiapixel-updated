@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import dbConnect from "@/lib/db";
-import LedgerAccount from "@/models/LedgerAccount";
+import LedgerAccount, { ACCOUNT_CURRENCIES } from "@/models/LedgerAccount";
 
 export async function PUT(
   req: NextRequest,
@@ -24,6 +24,7 @@ export async function PUT(
 
     const editableFields = [
       "name",
+      "currency",
       "accountNumber",
       "bankName",
       "branchName",
@@ -34,7 +35,13 @@ export async function PUT(
     ];
     for (const f of editableFields) {
       if (body[f] !== undefined) {
-        (account as any)[f] = body[f];
+        if (f === "currency") {
+          (account as any)[f] = (ACCOUNT_CURRENCIES as readonly string[]).includes(body[f])
+            ? body[f]
+            : "BDT";
+        } else {
+          (account as any)[f] = body[f];
+        }
       }
     }
 
@@ -63,7 +70,7 @@ export async function DELETE(
     if (!account) {
       return NextResponse.json({ message: "Account not found" }, { status: 404 });
     }
-    if (account.isSystem || ["CASH", "BANK", "AP", "AR"].includes(account.code)) {
+    if (account.isSystem || ["CASH", "AP", "AR"].includes(account.code)) {
       return NextResponse.json({ message: "Default system accounts cannot be deleted" }, { status: 400 });
     }
 

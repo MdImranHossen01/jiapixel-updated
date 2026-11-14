@@ -1,5 +1,8 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
+export const ACCOUNT_CURRENCIES = ["BDT", "USD", "GBP", "CAD", "AUD", "EUR"] as const;
+export type AccountCurrency = (typeof ACCOUNT_CURRENCIES)[number];
+
 export interface ILedgerAccount extends Document {
   name: string;
   code: string;
@@ -13,6 +16,7 @@ export interface ILedgerAccount extends Document {
   currentBalance: number;
   type: "asset" | "liability";
   category: "Cash" | "Bank" | "MFS" | "Other";
+  currency?: AccountCurrency;
   description?: string;
   isSystem?: boolean;
   createdAt: Date;
@@ -33,6 +37,7 @@ const LedgerAccountSchema: Schema<ILedgerAccount> = new Schema(
     currentBalance: { type: Number, default: 0 },
     type: { type: String, default: "asset", enum: ["asset", "liability"] },
     category: { type: String, default: "Bank", enum: ["Cash", "Bank", "MFS", "Other"] },
+    currency: { type: String, default: "BDT", enum: ACCOUNT_CURRENCIES },
     description: { type: String, trim: true },
     isSystem: { type: Boolean, default: false },
   },

@@ -44,6 +44,20 @@ import {
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 
+const ACCOUNT_CURRENCIES = [
+  { code: "BDT", label: "BDT (৳)", symbol: "৳" },
+  { code: "USD", label: "USD ($)", symbol: "$" },
+  { code: "GBP", label: "GBP (£)", symbol: "£" },
+  { code: "EUR", label: "EUR (€)", symbol: "€" },
+  { code: "CAD", label: "CAD (C$)", symbol: "C$" },
+  { code: "AUD", label: "AUD (A$)", symbol: "A$" },
+] as const;
+
+type AccountCurrency = (typeof ACCOUNT_CURRENCIES)[number]["code"];
+
+const getCurrencySymbol = (code?: string) =>
+  ACCOUNT_CURRENCIES.find((c) => c.code === code)?.symbol || "৳";
+
 export default function AccountsPage() {
   const router = useRouter();
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -60,6 +74,7 @@ export default function AccountsPage() {
   const [editingAccount, setEditingAccount] = useState<any>(null);
   const [accName, setAccName] = useState("");
   const [accCategory, setAccCategory] = useState<"Bank" | "MFS" | "Cash" | "Other">("Bank");
+  const [accCurrency, setAccCurrency] = useState<AccountCurrency>("BDT");
   const [accOpeningBalance, setAccOpeningBalance] = useState(0);
   const [accNumber, setAccNumber] = useState("");
   const [bankName, setBankName] = useState("");
@@ -120,6 +135,7 @@ export default function AccountsPage() {
     setEditingAccount(null);
     setAccName("");
     setAccCategory("Bank");
+    setAccCurrency("BDT");
     setAccOpeningBalance(0);
     setAccNumber("");
     setBankName("");
@@ -135,6 +151,11 @@ export default function AccountsPage() {
     setEditingAccount(acc);
     setAccName(acc.name || "");
     setAccCategory(acc.category || "Bank");
+    setAccCurrency(
+      ACCOUNT_CURRENCIES.some((c) => c.code === acc.currency)
+        ? (acc.currency as AccountCurrency)
+        : "BDT"
+    );
     setAccOpeningBalance(Number(acc.openingBalance || 0));
     setAccNumber(acc.accountNumber || "");
     setBankName(acc.bankName || "");
@@ -157,6 +178,7 @@ export default function AccountsPage() {
       const payload = {
         name: accName,
         category: accCategory,
+        currency: accCurrency,
         type: "asset",
         openingBalance: accOpeningBalance,
         accountNumber: accNumber,
@@ -510,10 +532,10 @@ export default function AccountsPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      ৳{Number(acc.openingBalance || 0).toLocaleString()}
+                      {getCurrencySymbol(acc.currency)}{Number(acc.openingBalance || 0).toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right font-bold text-primary">
-                      ৳{Number(acc.currentBalance || 0).toLocaleString()}
+                      {getCurrencySymbol(acc.currency)}{Number(acc.currentBalance || 0).toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -565,7 +587,7 @@ export default function AccountsPage() {
                             <BookOpen className="w-4 h-4 mr-2" />
                             View in Full Ledger
                           </DropdownMenuItem>
-                          {!acc.isSystem && !["CASH", "BANK", "AP", "AR"].includes(acc.code) && (
+                          {!acc.isSystem && !["CASH", "AP", "AR"].includes(acc.code) && (
                             <DropdownMenuItem
                               onClick={() => handleDeleteAccount(acc)}
                               className="cursor-pointer text-rose-600"
@@ -615,7 +637,9 @@ export default function AccountsPage() {
                   <SelectContent>
                     <SelectItem value="Bank">Bank Account</SelectItem>
                     <SelectItem value="MFS">MFS (bKash / Nagad / Rocket)</SelectItem>
-                    <SelectItem value="Cash">Cash</SelectItem>
+                    {editingAccount?.category === "Cash" && (
+                      <SelectItem value="Cash">Cash</SelectItem>
+                    )}
                     <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
@@ -703,17 +727,37 @@ export default function AccountsPage() {
               </div>
             )}
 
-            {!editingAccount && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Opening Balance (৳)</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={accOpeningBalance}
-                  onChange={(e) => setAccOpeningBalance(Math.max(0, Number(e.target.value)))}
-                />
+                <Label>Currency *</Label>
+                <Select
+                  value={accCurrency}
+                  onValueChange={(v: AccountCurrency) => setAccCurrency(v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ACCOUNT_CURRENCIES.map((cur) => (
+                      <SelectItem key={cur.code} value={cur.code}>
+                        {cur.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            )}
+              {!editingAccount && (
+                <div className="space-y-1.5">
+                  <Label>Opening Balance ({getCurrencySymbol(accCurrency)})</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={accOpeningBalance}
+                    onChange={(e) => setAccOpeningBalance(Math.max(0, Number(e.target.value)))}
+                  />
+                </div>
+              )}
+            </div>
 
             <div className="space-y-1.5">
               <Label>Description (Optional)</Label>

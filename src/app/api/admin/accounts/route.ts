@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import dbConnect from "@/lib/db";
-import LedgerAccount from "@/models/LedgerAccount";
+import LedgerAccount, { ACCOUNT_CURRENCIES } from "@/models/LedgerAccount";
 import LedgerTransaction from "@/models/LedgerTransaction";
 import { ensureDefaultLedgerAccounts } from "@/lib/ledger-utils";
 
@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
       name,
       code,
       category = "Bank",
+      currency = "BDT",
       type = "asset",
       openingBalance = 0,
       accountNumber,
@@ -68,6 +69,17 @@ export async function POST(req: NextRequest) {
     if (!name || !String(name).trim()) {
       return NextResponse.json({ message: "Account name is required" }, { status: 400 });
     }
+
+    if (category === "Cash") {
+      return NextResponse.json(
+        { message: "Only one default Cash account is allowed." },
+        { status: 400 }
+      );
+    }
+
+    const cleanCurrency = (ACCOUNT_CURRENCIES as readonly string[]).includes(currency)
+      ? currency
+      : "BDT";
 
     await dbConnect();
     await ensureDefaultLedgerAccounts();
@@ -91,6 +103,7 @@ export async function POST(req: NextRequest) {
       name: String(name).trim(),
       code: cleanCode,
       category,
+      currency: cleanCurrency,
       type,
       openingBalance: opening,
       currentBalance: opening,
